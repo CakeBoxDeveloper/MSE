@@ -59,10 +59,16 @@
         }
 
         .logo {
-            font-size: 17px;
-            font-weight: 600;
-            letter-spacing: -0.4px;
-            color: var(--text-primary);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo svg {
+            width: 100%;
+            height: 100%;
         }
 
         nav {
@@ -439,8 +445,259 @@
             }
 
             .logo {
-                font-size: 16px;
+                width: 28px;
+                height: 28px;
             }
+        }
+
+        /* Auth Styles */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .auth-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .auth-modal {
+            background: var(--glass-bg);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 5px;
+            padding: 24px;
+            backdrop-filter: saturate(180%) blur(20px);
+            max-width: 380px;
+            width: calc(100% - 40px);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .auth-overlay.active .auth-modal {
+            transform: scale(1);
+        }
+
+        .auth-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .auth-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.1px;
+        }
+
+        .form-input {
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            letter-spacing: -0.2px;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .form-input[type="number"]::-webkit-outer-spin-button,
+        .form-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .auth-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        .auth-btn.primary {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .auth-switch {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .auth-switch button {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            text-decoration: underline;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+        }
+
+        .user-id-display {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .user-id-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-id-number {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .profile-info {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 5px;
+            margin-bottom: 12px;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 0.5px solid var(--glass-border);
+        }
+
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+
+        .profile-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .profile-value {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        .login-prompt {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .login-prompt svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .login-prompt h3 {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.2px;
+        }
+
+        .login-prompt p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .login-prompt button {
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -448,7 +705,12 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">FitTracker</div>
+                <div class="logo">
+                    <!-- Здесь будет ваша SVG иконка -->
+                    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="50" cy="50" r="40" stroke="white" fill="none"/>
+                    </svg>
+                </div>
                 <nav>
                     <button class="nav-btn active" data-tab="materials">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -494,10 +756,6 @@
                 <!-- Left Block: Dynamic Content -->
                 <div class="content-block">
                     <div class="block-header">
-                        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                        </svg>
                         <span id="content-title">Материалы</span>
                     </div>
                     <div class="content-body" id="main-content">
@@ -673,34 +931,227 @@
         </div>
     </div>
 
+    <!-- Auth Modal -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-modal">
+            <!-- Login Form -->
+            <div id="loginForm" style="display: none;">
+                <h2 class="auth-header">Вход в систему</h2>
+                <p class="auth-description">Введите ваш ID и пинкод для входа</p>
+                <form class="auth-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label class="form-label">ID пользователя</label>
+                        <input type="number" class="form-input" id="loginId" placeholder="Введите ваш ID">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пинкод (4 символа)</label>
+                        <input type="password" class="form-input" id="loginPin" placeholder="••••" maxlength="4">
+                    </div>
+                    <div class="auth-buttons">
+                        <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+                        <button type="submit" class="auth-btn primary" onclick="login()">Войти</button>
+                    </div>
+                </form>
+                <div class="auth-switch">
+                    Нет аккаунта? <button onclick="showRegister()">Зарегистрироваться</button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" style="display: none;">
+                <h2 class="auth-header">Регистрация</h2>
+                <p class="auth-description">Вам будет присвоен уникальный ID. Придумайте пинкод из 4 символов</p>
+                <div class="user-id-display">
+                    <div class="user-id-label">Ваш ID</div>
+                    <div class="user-id-number" id="newUserId">----</div>
+                </div>
+                <form class="auth-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label class="form-label">Придумайте пинкод (4 символа)</label>
+                        <input type="password" class="form-input" id="registerPin" placeholder="••••" maxlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Повторите пинкод</label>
+                        <input type="password" class="form-input" id="registerPinConfirm" placeholder="••••" maxlength="4">
+                    </div>
+                    <div class="auth-buttons">
+                        <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+                        <button type="submit" class="auth-btn primary" onclick="register()">Создать аккаунт</button>
+                    </div>
+                </form>
+                <div class="auth-switch">
+                    Уже есть аккаунт? <button onclick="showLogin()">Войти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Auth System
+        let currentUser = null;
+
+        // Check if user is logged in
+        function checkAuth() {
+            const saved = localStorage.getItem('fittracker_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+            }
+        }
+
+        // Show login form
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('authOverlay').classList.add('active');
+        }
+
+        // Show register form
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('authOverlay').classList.add('active');
+            
+            // Generate new user ID
+            const users = JSON.parse(localStorage.getItem('fittracker_users') || '[]');
+            const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1001;
+            document.getElementById('newUserId').textContent = newId.toString().padStart(4, '0');
+        }
+
+        // Close auth modal
+        function closeAuth() {
+            document.getElementById('authOverlay').classList.remove('active');
+        }
+
+        // Register new user
+        function register() {
+            const pin = document.getElementById('registerPin').value;
+            const pinConfirm = document.getElementById('registerPinConfirm').value;
+            const userId = parseInt(document.getElementById('newUserId').textContent);
+
+            if (pin.length !== 4) {
+                alert('Пинкод должен состоять из 4 символов');
+                return;
+            }
+
+            if (pin !== pinConfirm) {
+                alert('Пинкоды не совпадают');
+                return;
+            }
+
+            // Save user
+            const users = JSON.parse(localStorage.getItem('fittracker_users') || '[]');
+            const newUser = {
+                id: userId,
+                pin: pin,
+                createdAt: new Date().toISOString()
+            };
+            users.push(newUser);
+            localStorage.setItem('fittracker_users', JSON.stringify(users));
+
+            // Auto login
+            currentUser = newUser;
+            localStorage.setItem('fittracker_user', JSON.stringify(newUser));
+
+            closeAuth();
+            updateProfileTab();
+            alert(`Аккаунт создан! Ваш ID: ${userId.toString().padStart(4, '0')}`);
+
+            // Clear form
+            document.getElementById('registerPin').value = '';
+            document.getElementById('registerPinConfirm').value = '';
+        }
+
+        // Login user
+        function login() {
+            const id = parseInt(document.getElementById('loginId').value);
+            const pin = document.getElementById('loginPin').value;
+
+            if (!id || pin.length !== 4) {
+                alert('Введите корректные данные');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('fittracker_users') || '[]');
+            const user = users.find(u => u.id === id && u.pin === pin);
+
+            if (!user) {
+                alert('Неверный ID или пинкод');
+                return;
+            }
+
+            currentUser = user;
+            localStorage.setItem('fittracker_user', JSON.stringify(user));
+
+            closeAuth();
+            updateProfileTab();
+            alert('Вход выполнен успешно!');
+
+            // Clear form
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPin').value = '';
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                currentUser = null;
+                localStorage.removeItem('fittracker_user');
+                updateProfileTab();
+            }
+        }
+
+        // Update profile tab content
+        function updateProfileTab() {
+            if (currentUser) {
+                tabContents.profile.content = `
+                    <div class="profile-info">
+                        <div class="profile-row">
+                            <span class="profile-label">ID пользователя</span>
+                            <span class="profile-value">${currentUser.id.toString().padStart(4, '0')}</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">Дата регистрации</span>
+                            <span class="profile-value">${new Date(currentUser.createdAt).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Выйти из аккаунта</button>
+                `;
+            } else {
+                tabContents.profile.content = `
+                    <div class="login-prompt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
+                        <h3>Войдите в систему</h3>
+                        <p>Для доступа к профилю и всем функциям необходимо войти в систему или зарегистрироваться</p>
+                        <button onclick="showLogin()">Войти</button>
+                    </div>
+                `;
+            }
+
+            // Refresh if profile tab is active
+            const activeTab = document.querySelector('.nav-btn.active');
+            if (activeTab && activeTab.dataset.tab === 'profile') {
+                mainContent.innerHTML = tabContents.profile.content;
+            }
+        }
+
+        // Initialize auth on page load
+        checkAuth();
+        updateProfileTab();
+
         // Tab switching
         const tabs = document.querySelectorAll('.nav-btn');
         const mainContent = document.getElementById('main-content');
         const contentTitle = document.getElementById('content-title');
 
         const tabIcons = {
-            materials: `<svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>`,
-            workouts: `<svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.4 14.4L9.6 9.6"></path>
-                <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"></path>
-                <path d="M21.5 21.5l-1.4-1.4"></path>
-                <path d="M3.9 3.9l1.4 1.4"></path>
-                <circle cx="7.5" cy="7.5" r=".5"></circle>
-                <circle cx="16.5" cy="16.5" r=".5"></circle>
-            </svg>`,
-            progress: `<svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="20" x2="12" y2="10"></line>
-                <line x1="18" y1="20" x2="18" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="16"></line>
-            </svg>`,
-            profile: `<svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-            </svg>`
+            materials: '',
+            workouts: '',
+            progress: '',
+            profile: ''
         };
 
         const tabContents = {
@@ -836,15 +1287,15 @@
             profile: {
                 title: 'Профиль',
                 content: `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                        </div>
-                        <h3>Настройки профиля</h3>
-                        <p>Здесь вы сможете редактировать свои данные, устанавливать цели и настраивать параметры приложения.</p>
+                    <div class="login-prompt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
+                        <h3>Войдите в систему</h3>
+                        <p>Для доступа к профилю и всем функциям необходимо войти в систему или зарегистрироваться</p>
+                        <button onclick="showLogin()">Войти</button>
                     </div>
                 `
             }
@@ -860,7 +1311,7 @@
                 
                 mainContent.style.opacity = '0';
                 setTimeout(() => {
-                    contentTitle.innerHTML = tabIcons[tabName] + '<span>' + tabData.title + '</span>';
+                    contentTitle.textContent = tabData.title;
                     mainContent.innerHTML = tabData.content;
                     mainContent.style.opacity = '1';
                 }, 150);
