@@ -67,11 +67,9 @@
             flex-shrink: 0;
         }
 
-        .logo img {
+        .logo svg {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            filter: invert(1);
         }
 
         .header-login-btn {
@@ -95,31 +93,46 @@
         /* Inner tabs */
         .inner-tabs {
             display: flex;
-            gap: 4px;
+            gap: 8px;
             margin-bottom: 16px;
             flex-shrink: 0;
         }
 
         .inner-tab {
-            padding: 6px 12px;
+            padding: 8px 14px;
             background: transparent;
-            border: none;
-            border-radius: 5px;
+            border: 1px solid var(--text-secondary);
+            border-radius: 6px;
             color: var(--text-secondary);
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             font-size: 12px;
             font-weight: 500;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .inner-tab-icon {
+            width: 14px;
+            height: 14px;
+            opacity: 0.7;
+            filter: invert(1);
         }
 
         .inner-tab.active {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
+            background: var(--text-secondary);
+            color: var(--bg-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .inner-tab.active .inner-tab-icon {
+            filter: invert(0);
         }
 
         .inner-tab:hover:not(.active) {
-            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         /* Main Content */
@@ -155,10 +168,9 @@
             font-size: 15px;
             font-weight: 600;
             margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--glass-border);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             letter-spacing: -0.2px;
             flex-shrink: 0;
@@ -508,6 +520,7 @@
             font-weight: 600;
             margin-bottom: 8px;
             letter-spacing: -0.3px;
+            text-align: center;
         }
 
         .auth-description {
@@ -515,6 +528,7 @@
             color: var(--text-secondary);
             margin-bottom: 20px;
             line-height: 1.5;
+            text-align: center;
         }
 
         .auth-form {
@@ -548,6 +562,17 @@
             letter-spacing: -0.2px;
         }
 
+        .form-input.error {
+            border-color: rgba(255, 80, 80, 0.5);
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
         .form-input::placeholder {
             color: var(--text-tertiary);
         }
@@ -564,6 +589,44 @@
 
         .form-input[type="number"]::-webkit-outer-spin-button,
         .form-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* PIN Input Style (Telegram-like) */
+        .pin-input-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        .pin-digit {
+            width: 50px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .pin-digit:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .pin-digit[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .pin-digit[type="number"]::-webkit-outer-spin-button,
+        .pin-digit[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
@@ -598,6 +661,11 @@
 
         .auth-btn.primary:hover {
             background: rgba(255, 255, 255, 0.22);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .auth-switch {
@@ -641,95 +709,73 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .profile-info {
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: var(--text-primary);
+            text-decoration: underline;
+        }
+
+        /* Loader */
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--text-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        .success-text {
+            text-align: center;
+            font-size: 14px;
+            color: #4ade80;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        /* Logout Modal */
+        .logout-modal {
+            text-align: center;
+        }
+
+        .logout-modal h2 {
             margin-bottom: 12px;
         }
 
-        .profile-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .profile-row:last-child {
-            border-bottom: none;
-        }
-
-        .profile-label {
-            font-size: 12px;
+        .logout-modal p {
             color: var(--text-secondary);
-        }
-
-        .profile-value {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .login-prompt {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .login-prompt img {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 16px;
-            opacity: 0.4;
-            filter: invert(1);
-        }
-
-        .login-prompt h3 {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            letter-spacing: -0.2px;
-        }
-
-        .login-prompt p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-
-        .login-prompt button {
-            padding: 10px 24px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s ease;
-        }
-
-        .login-prompt button:hover {
-            background: rgba(255, 255, 255, 0.15);
+            margin-bottom: 20px;
         }
 
         /* Responsive */
@@ -758,6 +804,12 @@
                 width: 28px;
                 height: 28px;
             }
+
+            .pin-digit {
+                width: 45px;
+                height: 55px;
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -766,7 +818,10 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/383b7d59afd81f67b5b08763526e895ead75d42f/MSESVG.svg?raw=true" alt="Logo">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="white"/>
+                        <text x="50" y="65" font-size="40" font-weight="bold" text-anchor="middle" fill="black">MSE</text>
+                    </svg>
                 </div>
                 <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
             </div>
@@ -779,9 +834,18 @@
                 <!-- Left Block: Tabs + Dynamic Content -->
                 <div class="content-block">
                     <div class="inner-tabs">
-                        <button class="inner-tab active" data-inner="materials">Материалы</button>
-                        <button class="inner-tab" data-inner="workouts">Тренировки</button>
-                        <button class="inner-tab" data-inner="progress">Прогресс</button>
+                        <button class="inner-tab active" data-inner="materials">
+                            <img class="inner-tab-icon" src="icons/tab_materials.svg" alt="">
+                            <span>Материалы</span>
+                        </button>
+                        <button class="inner-tab" data-inner="workouts">
+                            <img class="inner-tab-icon" src="icons/tab_workouts.svg" alt="">
+                            <span>Тренировки</span>
+                        </button>
+                        <button class="inner-tab" data-inner="progress">
+                            <img class="inner-tab-icon" src="icons/tab_progress.svg" alt="">
+                            <span>Прогресс</span>
+                        </button>
                     </div>
                     <div class="content-body" id="main-content">
                     </div>
@@ -790,18 +854,17 @@
                 <!-- Right Block: AI Chat -->
                 <div class="content-block">
                     <div class="block-header">
-                        <img class="block-icon" src="icons/block_ai.svg" alt="">
-                        <span>AI Тренер</span>
+                        <span>София</span>
                     </div>
                     <div class="content-body">
                         <div class="chat-container">
                             <div class="chat-messages" id="chat-messages">
                                 <div class="chat-message ai">
-                                    Привет! Я твой AI-помощник. Готов помочь с тренировками, питанием и мотивацией. Чем могу быть полезен?
+                                    Привет! Я София, твой AI-помощник. Готова помочь с тренировками, питанием и мотивацией. Чем могу быть полезна?
                                 </div>
                             </div>
                             <div class="chat-input-wrapper">
-                                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос AI тренеру...">
+                                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
                                 <button class="chat-send" id="chat-send">
                                     <img src="icons/send.svg" alt="">
                                 </button>
@@ -826,7 +889,7 @@
                     </div>
                     <div class="news-item">
                         <div class="news-category">Обновление</div>
-                        <h3 class="news-title">Улучшен AI тренер</h3>
+                        <h3 class="news-title">Улучшена София</h3>
                         <p class="news-description">Теперь AI может создавать персонализированные планы питания на основе ваших целей</p>
                         <div class="news-date">
                             <img src="icons/calendar.svg" alt="">
@@ -868,21 +931,24 @@
     <!-- Auth Modal -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-modal">
-            <!-- Login: step-by-step -->
+            <!-- Login Form -->
             <div id="loginForm">
                 <h2 class="auth-header">Вход в сеть</h2>
                 <form class="auth-form" onsubmit="return false;">
-                    <!-- Step 1: номер звена -->
                     <div class="form-group" id="stepId">
-                        <label class="form-label">Номер звена</label>
                         <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
                     </div>
-                    <!-- Step 2: код (скрыт изначально) -->
                     <div class="form-group" id="stepPin" style="display:none;">
-                        <label class="form-label">Код</label>
                         <input type="password" class="form-input" id="loginPin" placeholder="••••" maxlength="4" autocomplete="off">
                     </div>
-                    <div class="auth-buttons">
+                    <div id="loginLoader" style="display:none;">
+                        <div class="loader"></div>
+                        <div class="loader-text">Проверка данных...</div>
+                    </div>
+                    <div id="loginSuccess" style="display:none;">
+                        <div class="success-text">✓ Вход разрешён</div>
+                    </div>
+                    <div class="auth-buttons" id="loginButtons">
                         <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
                     </div>
                 </form>
@@ -891,30 +957,56 @@
                 </div>
             </div>
 
-            <!-- Register -->
+            <!-- Register Form -->
             <div id="registerForm" style="display: none;">
                 <h2 class="auth-header">Регистрация</h2>
-                <p class="auth-description">Вам будет присвоен уникальный номер звена. Придумайте код из 4 символов</p>
+                <p class="auth-description">Запомните эти данные — восстановить доступ будет нельзя</p>
                 <div class="user-id-display">
-                    <div class="user-id-label">Номер звена</div>
+                    <div class="user-id-label">Вы станете звеном под номером:</div>
                     <div class="user-id-number" id="newUserId">----</div>
                 </div>
                 <form class="auth-form" onsubmit="return false;">
                     <div class="form-group">
-                        <label class="form-label">Придумайте код (4 символа)</label>
-                        <input type="password" class="form-input" id="registerPin" placeholder="••••" maxlength="4">
+                        <label class="form-label">Создайте ключ</label>
+                        <div class="pin-input-container">
+                            <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
+                            <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
+                            <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
+                            <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Повторите код</label>
-                        <input type="password" class="form-input" id="registerPinConfirm" placeholder="••••" maxlength="4">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="termsCheckbox">
+                        <label for="termsCheckbox">
+                            Я принимаю <a href="#" target="_blank">условия</a>
+                        </label>
                     </div>
-                    <div class="auth-buttons">
+                    <div id="registerLoader" style="display:none;">
+                        <div class="loader"></div>
+                        <div class="loader-text">Создание аккаунта...</div>
+                    </div>
+                    <div id="registerSuccess" style="display:none;">
+                        <div class="success-text">✓ Аккаунт создан</div>
+                    </div>
+                    <div class="auth-buttons" id="registerButtons">
                         <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-                        <button type="submit" class="auth-btn primary" onclick="register()">Создать аккаунт</button>
+                        <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
                     </div>
                 </form>
                 <div class="auth-switch">
                     Уже есть аккаунт? <button onclick="showLogin()">Войти</button>
+                </div>
+            </div>
+
+            <!-- Logout Confirmation -->
+            <div id="logoutModal" style="display: none;">
+                <div class="logout-modal">
+                    <h2 class="auth-header">Выход из сети</h2>
+                    <p class="auth-description">Вы уверены, что хотите выйти из аккаунта?</p>
+                    <div class="auth-buttons">
+                        <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+                        <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -928,11 +1020,7 @@
         // ─── Header login btn ───
         document.getElementById('headerLoginBtn').addEventListener('click', () => {
             if (currentUser) {
-                // уже авторизован — показать профиль? пока просто logout
-                if (confirm('Выйти из аккаунта?')) {
-                    currentUser = null;
-                    document.getElementById('headerLoginBtn').textContent = 'Вход в сеть';
-                }
+                showLogout();
             } else {
                 showLogin();
             }
@@ -942,11 +1030,18 @@
         function showLogin() {
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('registerForm').style.display = 'none';
-            // сброс в шаг 1
+            document.getElementById('logoutModal').style.display = 'none';
+            
             document.getElementById('stepId').style.display = 'flex';
             document.getElementById('stepPin').style.display = 'none';
+            document.getElementById('loginLoader').style.display = 'none';
+            document.getElementById('loginSuccess').style.display = 'none';
+            document.getElementById('loginButtons').style.display = 'flex';
+            
             document.getElementById('loginId').value = '';
             document.getElementById('loginPin').value = '';
+            document.getElementById('loginId').classList.remove('error');
+            
             document.getElementById('authOverlay').classList.add('active');
             setTimeout(() => document.getElementById('loginId').focus(), 300);
         }
@@ -954,18 +1049,44 @@
         function showRegister() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('logoutModal').style.display = 'none';
             document.getElementById('authOverlay').classList.add('active');
 
             const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1001;
             document.getElementById('newUserId').textContent = newId.toString().padStart(4, '0');
+
+            // Reset form
+            document.getElementById('pin1').value = '';
+            document.getElementById('pin2').value = '';
+            document.getElementById('pin3').value = '';
+            document.getElementById('pin4').value = '';
+            document.getElementById('termsCheckbox').checked = false;
+            document.getElementById('registerBtn').disabled = true;
+            document.getElementById('registerLoader').style.display = 'none';
+            document.getElementById('registerSuccess').style.display = 'none';
+            document.getElementById('registerButtons').style.display = 'flex';
+        }
+
+        function showLogout() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('logoutModal').style.display = 'block';
+            document.getElementById('authOverlay').classList.add('active');
         }
 
         function closeAuth() {
             document.getElementById('authOverlay').classList.remove('active');
         }
 
+        function confirmLogout() {
+            currentUser = null;
+            document.getElementById('headerLoginBtn').textContent = 'Вход в сеть';
+            closeAuth();
+        }
+
         // ─── Login: step 1 — валидация номера звена ───
         document.getElementById('loginId').addEventListener('input', function () {
+            this.classList.remove('error');
             const val = this.value.trim();
             if (val === '') return;
 
@@ -973,30 +1094,47 @@
             const exists = users.find(u => u.id === id);
 
             if (exists) {
-                // валидный ID → переход к шагу 2
-                document.getElementById('stepId').style.display = 'none';
-                document.getElementById('stepPin').style.display = 'flex';
-                setTimeout(() => document.getElementById('loginPin').focus(), 100);
+                // Valid ID → transition to step 2
+                setTimeout(() => {
+                    document.getElementById('stepId').style.display = 'none';
+                    document.getElementById('stepPin').style.display = 'flex';
+                    setTimeout(() => document.getElementById('loginPin').focus(), 100);
+                }, 300);
+            } else if (val.length >= 4) {
+                // Invalid ID
+                this.classList.add('error');
             }
-            // если не найден — просто ничего не делаем, пользователь продолжает печатать
         });
 
         // ─── Login: step 2 — автоматический логин при 4 символах ───
         document.getElementById('loginPin').addEventListener('input', function () {
+            this.classList.remove('error');
             if (this.value.length === 4) {
                 const id = parseInt(document.getElementById('loginId').value);
                 const pin = this.value;
                 const user = users.find(u => u.id === id && u.pin === pin);
 
                 if (user) {
-                    currentUser = user;
-                    closeAuth();
-                    document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
-                } else {
-                    // неверный код — подсветка и сброс через полсекунды
-                    this.style.borderColor = 'rgba(255,80,80,0.5)';
+                    // Show loader
+                    document.getElementById('stepPin').style.display = 'none';
+                    document.getElementById('loginButtons').style.display = 'none';
+                    document.getElementById('loginLoader').style.display = 'block';
+
                     setTimeout(() => {
-                        this.style.borderColor = '';
+                        document.getElementById('loginLoader').style.display = 'none';
+                        document.getElementById('loginSuccess').style.display = 'block';
+
+                        setTimeout(() => {
+                            currentUser = user;
+                            closeAuth();
+                            document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
+                        }, 1000);
+                    }, 2000);
+                } else {
+                    // Invalid PIN
+                    this.classList.add('error');
+                    setTimeout(() => {
+                        this.classList.remove('error');
                         this.value = '';
                         this.focus();
                     }, 500);
@@ -1004,31 +1142,74 @@
             }
         });
 
+        // ─── Register: PIN inputs ───
+        const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'];
+        pinInputs.forEach((id, index) => {
+            const input = document.getElementById(id);
+            
+            input.addEventListener('input', function() {
+                // Only allow single digit
+                if (this.value.length > 1) {
+                    this.value = this.value.slice(0, 1);
+                }
+                
+                // Move to next input
+                if (this.value.length === 1 && index < pinInputs.length - 1) {
+                    document.getElementById(pinInputs[index + 1]).focus();
+                }
+                
+                checkRegisterButton();
+            });
+
+            input.addEventListener('keydown', function(e) {
+                // Move to previous on backspace
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    document.getElementById(pinInputs[index - 1]).focus();
+                }
+            });
+        });
+
+        // ─── Register: Terms checkbox ───
+        document.getElementById('termsCheckbox').addEventListener('change', checkRegisterButton);
+
+        function checkRegisterButton() {
+            const allFilled = pinInputs.every(id => document.getElementById(id).value.length === 1);
+            const termsAccepted = document.getElementById('termsCheckbox').checked;
+            document.getElementById('registerBtn').disabled = !(allFilled && termsAccepted);
+        }
+
         // ─── Register ───
         function register() {
-            const pin = document.getElementById('registerPin').value;
-            const pinConfirm = document.getElementById('registerPinConfirm').value;
+            const pin = pinInputs.map(id => document.getElementById(id).value).join('');
             const userId = parseInt(document.getElementById('newUserId').textContent);
 
             if (pin.length !== 4) {
-                alert('Код должен состоять из 4 символов');
-                return;
-            }
-            if (pin !== pinConfirm) {
-                alert('Коды не совпадают');
+                alert('Введите все 4 цифры кода');
                 return;
             }
 
-            const newUser = { id: userId, pin: pin, createdAt: new Date().toISOString() };
-            users.push(newUser);
-            currentUser = newUser;
+            if (!document.getElementById('termsCheckbox').checked) {
+                alert('Необходимо принять условия');
+                return;
+            }
 
-            closeAuth();
-            document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
-            alert(`Аккаунт создан! Номер звена: ${userId.toString().padStart(4, '0')}`);
+            // Show loader
+            document.getElementById('registerButtons').style.display = 'none';
+            document.getElementById('registerLoader').style.display = 'block';
 
-            document.getElementById('registerPin').value = '';
-            document.getElementById('registerPinConfirm').value = '';
+            setTimeout(() => {
+                const newUser = { id: userId, pin: pin, createdAt: new Date().toISOString() };
+                users.push(newUser);
+                currentUser = newUser;
+
+                document.getElementById('registerLoader').style.display = 'none';
+                document.getElementById('registerSuccess').style.display = 'block';
+
+                setTimeout(() => {
+                    closeAuth();
+                    document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
+                }, 1500);
+            }, 2000);
         }
 
         // ─── Inner tabs (left block) ───
@@ -1111,7 +1292,7 @@
             `
         };
 
-        // начальная рендер
+        // Initial render
         mainContent.innerHTML = innerContents.materials;
 
         innerTabs.forEach(tab => {
@@ -1147,7 +1328,7 @@
             setTimeout(() => {
                 const aiMsg = document.createElement('div');
                 aiMsg.className = 'chat-message ai';
-                aiMsg.textContent = 'Спасибо за вопрос! Это демо-версия чата. Функционал AI тренера будет доработан позже.';
+                aiMsg.textContent = 'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.';
                 chatMessages.appendChild(aiMsg);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }, 800);
