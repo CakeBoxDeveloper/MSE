@@ -59,8 +59,8 @@
         }
 
         .logo {
-            width: 32px;
-            height: 32px;
+            width: 64px;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -71,14 +71,36 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            filter: invert(1);
         }
 
-        nav {
+        .header-login-btn {
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+
+        .header-login-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        /* Inner tabs */
+        .inner-tabs {
             display: flex;
-            gap: 6px;
+            gap: 4px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
         }
 
-        .nav-btn {
+        .inner-tab {
             padding: 6px 12px;
             background: transparent;
             border: none;
@@ -86,28 +108,18 @@
             color: var(--text-secondary);
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
-        .nav-btn img {
-            width: 16px;
-            height: 16px;
-            opacity: 0.55;
-            filter: invert(1);
-        }
-
-        .nav-btn.active {
-            background: var(--glass-bg);
+        .inner-tab.active {
+            background: rgba(255, 255, 255, 0.08);
             color: var(--text-primary);
         }
 
-        .nav-btn.active img {
-            opacity: 1;
+        .inner-tab:hover:not(.active) {
+            color: var(--text-primary);
         }
 
         /* Main Content */
@@ -722,20 +734,6 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            nav {
-                gap: 4px;
-            }
-
-            .nav-btn {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-
-            .nav-btn img {
-                width: 14px;
-                height: 14px;
-            }
-
             .news-item {
                 min-width: 220px;
                 width: 220px;
@@ -770,24 +768,7 @@
                 <div class="logo">
                     <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/383b7d59afd81f67b5b08763526e895ead75d42f/MSESVG.svg?raw=true" alt="Logo">
                 </div>
-                <nav>
-                    <button class="nav-btn active" data-tab="materials">
-                        <img src="icons/nav_materials.svg" alt="">
-                        Материалы
-                    </button>
-                    <button class="nav-btn" data-tab="workouts">
-                        <img src="icons/nav_workouts.svg" alt="">
-                        Тренировки
-                    </button>
-                    <button class="nav-btn" data-tab="progress">
-                        <img src="icons/nav_progress.svg" alt="">
-                        Прогресс
-                    </button>
-                    <button class="nav-btn" data-tab="profile">
-                        <img src="icons/nav_profile.svg" alt="">
-                        Профиль
-                    </button>
-                </nav>
+                <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
             </div>
         </div>
     </header>
@@ -795,50 +776,14 @@
     <div class="container">
         <div class="main-wrapper">
             <div class="content-grid">
-                <!-- Left Block: Dynamic Content -->
+                <!-- Left Block: Tabs + Dynamic Content -->
                 <div class="content-block">
-                    <div class="block-header">
-                        <span id="content-title">Материалы</span>
+                    <div class="inner-tabs">
+                        <button class="inner-tab active" data-inner="materials">Материалы</button>
+                        <button class="inner-tab" data-inner="workouts">Тренировки</button>
+                        <button class="inner-tab" data-inner="progress">Прогресс</button>
                     </div>
                     <div class="content-body" id="main-content">
-                        <div class="materials-list">
-                            <div class="material-item">
-                                <div class="material-icon">
-                                    <img src="icons/material_nutrition.svg" alt="">
-                                </div>
-                                <div class="material-info">
-                                    <h3>Основы правильного питания</h3>
-                                    <p>Гайд по макронутриентам и калориям</p>
-                                </div>
-                            </div>
-                            <div class="material-item">
-                                <div class="material-icon">
-                                    <img src="icons/material_video.svg" alt="">
-                                </div>
-                                <div class="material-info">
-                                    <h3>Техника выполнения упражнений</h3>
-                                    <p>Видео-уроки от профессионалов</p>
-                                </div>
-                            </div>
-                            <div class="material-item">
-                                <div class="material-icon">
-                                    <img src="icons/material_plan.svg" alt="">
-                                </div>
-                                <div class="material-info">
-                                    <h3>Программы тренировок</h3>
-                                    <p>Готовые планы на разные цели</p>
-                                </div>
-                            </div>
-                            <div class="material-item">
-                                <div class="material-icon">
-                                    <img src="icons/material_stretch.svg" alt="">
-                                </div>
-                                <div class="material-info">
-                                    <h3>Восстановление и стретчинг</h3>
-                                    <p>Упражнения для гибкости и релаксации</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -923,21 +868,22 @@
     <!-- Auth Modal -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-modal">
-            <div id="loginForm" style="display: none;">
-                <h2 class="auth-header">Вход в систему</h2>
-                <p class="auth-description">Введите ваш ID и пинкод для входа</p>
+            <!-- Login: step-by-step -->
+            <div id="loginForm">
+                <h2 class="auth-header">Вход в сеть</h2>
                 <form class="auth-form" onsubmit="return false;">
-                    <div class="form-group">
-                        <label class="form-label">ID пользователя</label>
-                        <input type="number" class="form-input" id="loginId" placeholder="Введите ваш ID">
+                    <!-- Step 1: номер звена -->
+                    <div class="form-group" id="stepId">
+                        <label class="form-label">Номер звена</label>
+                        <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Пинкод (4 символа)</label>
-                        <input type="password" class="form-input" id="loginPin" placeholder="••••" maxlength="4">
+                    <!-- Step 2: код (скрыт изначально) -->
+                    <div class="form-group" id="stepPin" style="display:none;">
+                        <label class="form-label">Код</label>
+                        <input type="password" class="form-input" id="loginPin" placeholder="••••" maxlength="4" autocomplete="off">
                     </div>
                     <div class="auth-buttons">
                         <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-                        <button type="submit" class="auth-btn primary" onclick="login()">Войти</button>
                     </div>
                 </form>
                 <div class="auth-switch">
@@ -945,20 +891,21 @@
                 </div>
             </div>
 
+            <!-- Register -->
             <div id="registerForm" style="display: none;">
                 <h2 class="auth-header">Регистрация</h2>
-                <p class="auth-description">Вам будет присвоен уникальный ID. Придумайте пинкод из 4 символов</p>
+                <p class="auth-description">Вам будет присвоен уникальный номер звена. Придумайте код из 4 символов</p>
                 <div class="user-id-display">
-                    <div class="user-id-label">Ваш ID</div>
+                    <div class="user-id-label">Номер звена</div>
                     <div class="user-id-number" id="newUserId">----</div>
                 </div>
                 <form class="auth-form" onsubmit="return false;">
                     <div class="form-group">
-                        <label class="form-label">Придумайте пинкод (4 символа)</label>
+                        <label class="form-label">Придумайте код (4 символа)</label>
                         <input type="password" class="form-input" id="registerPin" placeholder="••••" maxlength="4">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Повторите пинкод</label>
+                        <label class="form-label">Повторите код</label>
                         <input type="password" class="form-input" id="registerPinConfirm" placeholder="••••" maxlength="4">
                     </div>
                     <div class="auth-buttons">
@@ -974,15 +921,34 @@
     </div>
 
     <script>
-        // ─── In-memory хранилище (вместо localStorage) ───
+        // ─── In-memory store ───
         let users = [];
         let currentUser = null;
 
-        // ─── Auth ───
+        // ─── Header login btn ───
+        document.getElementById('headerLoginBtn').addEventListener('click', () => {
+            if (currentUser) {
+                // уже авторизован — показать профиль? пока просто logout
+                if (confirm('Выйти из аккаунта?')) {
+                    currentUser = null;
+                    document.getElementById('headerLoginBtn').textContent = 'Вход в сеть';
+                }
+            } else {
+                showLogin();
+            }
+        });
+
+        // ─── Auth: show / close ───
         function showLogin() {
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('registerForm').style.display = 'none';
+            // сброс в шаг 1
+            document.getElementById('stepId').style.display = 'flex';
+            document.getElementById('stepPin').style.display = 'none';
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPin').value = '';
             document.getElementById('authOverlay').classList.add('active');
+            setTimeout(() => document.getElementById('loginId').focus(), 300);
         }
 
         function showRegister() {
@@ -998,207 +964,164 @@
             document.getElementById('authOverlay').classList.remove('active');
         }
 
+        // ─── Login: step 1 — валидация номера звена ───
+        document.getElementById('loginId').addEventListener('input', function () {
+            const val = this.value.trim();
+            if (val === '') return;
+
+            const id = parseInt(val);
+            const exists = users.find(u => u.id === id);
+
+            if (exists) {
+                // валидный ID → переход к шагу 2
+                document.getElementById('stepId').style.display = 'none';
+                document.getElementById('stepPin').style.display = 'flex';
+                setTimeout(() => document.getElementById('loginPin').focus(), 100);
+            }
+            // если не найден — просто ничего не делаем, пользователь продолжает печатать
+        });
+
+        // ─── Login: step 2 — автоматический логин при 4 символах ───
+        document.getElementById('loginPin').addEventListener('input', function () {
+            if (this.value.length === 4) {
+                const id = parseInt(document.getElementById('loginId').value);
+                const pin = this.value;
+                const user = users.find(u => u.id === id && u.pin === pin);
+
+                if (user) {
+                    currentUser = user;
+                    closeAuth();
+                    document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
+                } else {
+                    // неверный код — подсветка и сброс через полсекунды
+                    this.style.borderColor = 'rgba(255,80,80,0.5)';
+                    setTimeout(() => {
+                        this.style.borderColor = '';
+                        this.value = '';
+                        this.focus();
+                    }, 500);
+                }
+            }
+        });
+
+        // ─── Register ───
         function register() {
             const pin = document.getElementById('registerPin').value;
             const pinConfirm = document.getElementById('registerPinConfirm').value;
             const userId = parseInt(document.getElementById('newUserId').textContent);
 
             if (pin.length !== 4) {
-                alert('Пинкод должен состоять из 4 символов');
+                alert('Код должен состоять из 4 символов');
                 return;
             }
             if (pin !== pinConfirm) {
-                alert('Пинкоды не совпадают');
+                alert('Коды не совпадают');
                 return;
             }
 
-            const newUser = {
-                id: userId,
-                pin: pin,
-                createdAt: new Date().toISOString()
-            };
+            const newUser = { id: userId, pin: pin, createdAt: new Date().toISOString() };
             users.push(newUser);
             currentUser = newUser;
 
             closeAuth();
-            updateProfileTab();
-            alert(`Аккаунт создан! Ваш ID: ${userId.toString().padStart(4, '0')}`);
+            document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
+            alert(`Аккаунт создан! Номер звена: ${userId.toString().padStart(4, '0')}`);
 
             document.getElementById('registerPin').value = '';
             document.getElementById('registerPinConfirm').value = '';
         }
 
-        function login() {
-            const id = parseInt(document.getElementById('loginId').value);
-            const pin = document.getElementById('loginPin').value;
-
-            if (!id || pin.length !== 4) {
-                alert('Введите корректные данные');
-                return;
-            }
-
-            const user = users.find(u => u.id === id && u.pin === pin);
-            if (!user) {
-                alert('Неверный ID или пинкод');
-                return;
-            }
-
-            currentUser = user;
-            closeAuth();
-            updateProfileTab();
-            alert('Вход выполнен успешно!');
-
-            document.getElementById('loginId').value = '';
-            document.getElementById('loginPin').value = '';
-        }
-
-        function logout() {
-            if (confirm('Вы уверены, что хотите выйти?')) {
-                currentUser = null;
-                updateProfileTab();
-            }
-        }
-
-        // ─── Tabs ───
-        const tabs = document.querySelectorAll('.nav-btn');
+        // ─── Inner tabs (left block) ───
+        const innerTabs = document.querySelectorAll('.inner-tab');
         const mainContent = document.getElementById('main-content');
-        const contentTitle = document.getElementById('content-title');
 
-        const tabContents = {
-            materials: {
-                title: 'Материалы',
-                content: `
-                    <div class="materials-list">
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/material_nutrition.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>Основы правильного питания</h3>
-                                <p>Гайд по макронутриентам и калориям</p>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/material_video.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>Техника выполнения упражнений</h3>
-                                <p>Видео-уроки от профессионалов</p>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/material_plan.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>Программы тренировок</h3>
-                                <p>Готовые планы на разные цели</p>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/material_stretch.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>Восстановление и стретчинг</h3>
-                                <p>Упражнения для гибкости и релаксации</p>
-                            </div>
+        const innerContents = {
+            materials: `
+                <div class="materials-list">
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/material_nutrition.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>Основы правильного питания</h3>
+                            <p>Гайд по макронутриентам и калориям</p>
                         </div>
                     </div>
-                `
-            },
-            workouts: {
-                title: 'Тренировки',
-                content: `
-                    <div class="materials-list">
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/workout_strength.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>Силовая тренировка — День 1</h3>
-                                <p>Грудь и трицепс · 45 минут</p>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/workout_cardio.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>Кардио тренировка</h3>
-                                <p>HIIT интервалы · 30 минут</p>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/workout_back.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>Силовая тренировка — День 2</h3>
-                                <p>Спина и бицепс · 50 минут</p>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon"><img src="icons/workout_legs.svg" alt=""></div>
-                            <div class="material-info">
-                                <h3>День ног</h3>
-                                <p>Квадрицепсы, бицепсы бедра · 60 минут</p>
-                            </div>
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/material_video.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>Техника выполнения упражнений</h3>
+                            <p>Видео-уроки от профессионалов</p>
                         </div>
                     </div>
-                `
-            },
-            progress: {
-                title: 'Прогресс',
-                content: `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <img src="icons/progress_empty.svg" alt="">
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/material_plan.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>Программы тренировок</h3>
+                            <p>Готовые планы на разные цели</p>
                         </div>
-                        <h3>Отслеживание прогресса</h3>
-                        <p>Здесь будет отображаться ваш прогресс в тренировках, изменения веса и другие метрики. Начните тренироваться, чтобы увидеть статистику!</p>
                     </div>
-                `
-            },
-            profile: {
-                title: 'Профиль',
-                content: ''
-            }
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/material_stretch.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>Восстановление и стретчинг</h3>
+                            <p>Упражнения для гибкости и релаксации</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            workouts: `
+                <div class="materials-list">
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/workout_strength.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>Силовая тренировка — День 1</h3>
+                            <p>Грудь и трицепс · 45 минут</p>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/workout_cardio.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>Кардио тренировка</h3>
+                            <p>HIIT интервалы · 30 минут</p>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/workout_back.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>Силовая тренировка — День 2</h3>
+                            <p>Спина и бицепс · 50 минут</p>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <div class="material-icon"><img src="icons/workout_legs.svg" alt=""></div>
+                        <div class="material-info">
+                            <h3>День ног</h3>
+                            <p>Квадрицепсы, бицепсы бедра · 60 минут</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            progress: `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <img src="icons/progress_empty.svg" alt="">
+                    </div>
+                    <h3>Отслеживание прогресса</h3>
+                    <p>Здесь будет отображаться ваш прогресс в тренировках, изменения веса и другие метрики. Начните тренироваться, чтобы увидеть статистику!</p>
+                </div>
+            `
         };
 
-        function updateProfileTab() {
-            if (currentUser) {
-                tabContents.profile.content = `
-                    <div class="profile-info">
-                        <div class="profile-row">
-                            <span class="profile-label">ID пользователя</span>
-                            <span class="profile-value">${currentUser.id.toString().padStart(4, '0')}</span>
-                        </div>
-                        <div class="profile-row">
-                            <span class="profile-label">Дата регистрации</span>
-                            <span class="profile-value">${new Date(currentUser.createdAt).toLocaleDateString('ru-RU')}</span>
-                        </div>
-                    </div>
-                    <button class="logout-btn" onclick="logout()">Выйти из аккаунта</button>
-                `;
-            } else {
-                tabContents.profile.content = `
-                    <div class="login-prompt">
-                        <img src="icons/login.svg" alt="">
-                        <h3>Войдите в систему</h3>
-                        <p>Для доступа к профилю и всем функциям необходимо войти в систему или зарегистрироваться</p>
-                        <button onclick="showLogin()">Войти</button>
-                    </div>
-                `;
-            }
+        // начальная рендер
+        mainContent.innerHTML = innerContents.materials;
 
-            const activeTab = document.querySelector('.nav-btn.active');
-            if (activeTab && activeTab.dataset.tab === 'profile') {
-                mainContent.innerHTML = tabContents.profile.content;
-            }
-        }
-
-        updateProfileTab();
-
-        tabs.forEach(tab => {
+        innerTabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
+                innerTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-
-                const tabName = tab.dataset.tab;
-                const tabData = tabContents[tabName];
 
                 mainContent.style.opacity = '0';
                 setTimeout(() => {
-                    contentTitle.textContent = tabData.title;
-                    mainContent.innerHTML = tabData.content;
+                    mainContent.innerHTML = innerContents[tab.dataset.inner];
                     mainContent.style.opacity = '1';
                 }, 150);
             });
