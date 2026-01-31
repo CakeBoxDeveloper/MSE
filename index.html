@@ -550,6 +550,13 @@
             letter-spacing: -0.1px;
         }
 
+        .form-label.centered {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
         .form-input {
             padding: 10px 12px;
             background: rgba(255, 255, 255, 0.05);
@@ -564,13 +571,6 @@
 
         .form-input.error {
             border-color: rgba(255, 80, 80, 0.5);
-            animation: shake 0.3s;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
         }
 
         .form-input::placeholder {
@@ -596,7 +596,7 @@
         /* PIN Input Style (Telegram-like) */
         .pin-input-container {
             display: flex;
-            gap: 8px;
+            gap: 16px;
             justify-content: center;
             margin: 16px 0;
         }
@@ -686,27 +686,30 @@
         }
 
         .user-id-display {
-            padding: 12px;
+            padding: 16px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .user-id-label {
-            font-size: 11px;
+            font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: -0.2px;
         }
 
         .user-id-number {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 600;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             font-variant-numeric: tabular-nums;
+            color: var(--text-secondary);
         }
 
         /* Checkbox */
@@ -736,12 +739,12 @@
 
         /* Loader */
         .loader {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
             border-top-color: var(--text-primary);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.6s linear infinite;
             margin: 20px auto;
         }
 
@@ -759,7 +762,7 @@
         .success-text {
             text-align: center;
             font-size: 14px;
-            color: #4ade80;
+            color: var(--text-primary);
             margin-top: 12px;
             font-weight: 500;
         }
@@ -818,7 +821,10 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/383b7d59afd81f67b5b08763526e895ead75d42f/MSESVG.svg?raw=true" alt="Logo">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="white"/>
+                        <text x="50" y="65" font-size="40" font-weight="bold" text-anchor="middle" fill="black">MSE</text>
+                    </svg>
                 </div>
                 <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
             </div>
@@ -935,36 +941,37 @@
                     <div class="form-group" id="stepId">
                         <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
                     </div>
+                    <div id="loginTransitionLoader" style="display:none;">
+                        <div class="loader"></div>
+                    </div>
                     <div class="form-group" id="stepPin" style="display:none;">
                         <input type="password" class="form-input" id="loginPin" placeholder="••••" maxlength="4" autocomplete="off">
                     </div>
                     <div id="loginLoader" style="display:none;">
                         <div class="loader"></div>
-                        <div class="loader-text">Проверка данных...</div>
                     </div>
                     <div id="loginSuccess" style="display:none;">
-                        <div class="success-text">✓ Вход разрешён</div>
+                        <div class="success-text">Вход разрешён</div>
                     </div>
                     <div class="auth-buttons" id="loginButtons">
                         <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
                     </div>
                 </form>
                 <div class="auth-switch">
-                    Нет аккаунта? <button onclick="showRegister()">Зарегистрироваться</button>
+                    Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button>
                 </div>
             </div>
 
             <!-- Register Form -->
             <div id="registerForm" style="display: none;">
                 <h2 class="auth-header">Регистрация</h2>
-                <p class="auth-description">Запомните эти данные — восстановить доступ будет нельзя</p>
                 <div class="user-id-display">
-                    <div class="user-id-label">Вы станете звеном под номером:</div>
-                    <div class="user-id-number" id="newUserId">----</div>
+                    <span class="user-id-label">Вы станете звеном под номером:</span>
+                    <span class="user-id-number" id="newUserId">----</span>
                 </div>
                 <form class="auth-form" onsubmit="return false;">
                     <div class="form-group">
-                        <label class="form-label">Создайте ключ</label>
+                        <label class="form-label centered">Создайте ключ</label>
                         <div class="pin-input-container">
                             <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
                             <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
@@ -980,19 +987,15 @@
                     </div>
                     <div id="registerLoader" style="display:none;">
                         <div class="loader"></div>
-                        <div class="loader-text">Создание аккаунта...</div>
                     </div>
                     <div id="registerSuccess" style="display:none;">
-                        <div class="success-text">✓ Аккаунт создан</div>
+                        <div class="success-text">Аккаунт создан</div>
                     </div>
                     <div class="auth-buttons" id="registerButtons">
                         <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
                         <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
                     </div>
                 </form>
-                <div class="auth-switch">
-                    Уже есть аккаунт? <button onclick="showLogin()">Войти</button>
-                </div>
             </div>
 
             <!-- Logout Confirmation -->
@@ -1031,6 +1034,7 @@
             
             document.getElementById('stepId').style.display = 'flex';
             document.getElementById('stepPin').style.display = 'none';
+            document.getElementById('loginTransitionLoader').style.display = 'none';
             document.getElementById('loginLoader').style.display = 'none';
             document.getElementById('loginSuccess').style.display = 'none';
             document.getElementById('loginButtons').style.display = 'flex';
@@ -1091,12 +1095,15 @@
             const exists = users.find(u => u.id === id);
 
             if (exists) {
-                // Valid ID → transition to step 2
+                // Valid ID → show loader → transition to step 2
+                document.getElementById('stepId').style.display = 'none';
+                document.getElementById('loginTransitionLoader').style.display = 'block';
+                
                 setTimeout(() => {
-                    document.getElementById('stepId').style.display = 'none';
+                    document.getElementById('loginTransitionLoader').style.display = 'none';
                     document.getElementById('stepPin').style.display = 'flex';
                     setTimeout(() => document.getElementById('loginPin').focus(), 100);
-                }, 300);
+                }, 800);
             } else if (val.length >= 4) {
                 // Invalid ID
                 this.classList.add('error');
