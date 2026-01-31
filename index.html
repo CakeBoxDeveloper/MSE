@@ -66,10 +66,9 @@
             justify-content: center;
         }
 
-        .logo img {
+        .logo svg {
             width: 100%;
             height: 100%;
-            object-fit: contain;
         }
 
         nav {
@@ -409,6 +408,48 @@
             letter-spacing: -0.1px;
         }
 
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                gap: 4px;
+            }
+
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .nav-btn svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .news-item {
+                min-width: 220px;
+                width: 220px;
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .content-block {
+                padding: 16px;
+            }
+
+            header {
+                padding: 12px 0;
+            }
+
+            .logo {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
         /* Auth Styles */
         .auth-overlay {
             position: fixed;
@@ -658,56 +699,15 @@
             cursor: pointer;
             font-size: 13px;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            nav {
-                gap: 4px;
-            }
-
-            .nav-btn {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-
-            .nav-btn svg {
-                width: 14px;
-                height: 14px;
-            }
-
-            .news-item {
-                min-width: 220px;
-                width: 220px;
-                height: 220px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 16px;
-            }
-
-            .content-block {
-                padding: 16px;
-            }
-
-            header {
-                padding: 12px 0;
-            }
-
-            .logo {
-                width: 28px;
-                height: 28px;
-            }
-        }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">
-                    <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/383b7d59afd81f67b5b08763526e895ead75d42f/MSESVG.svg?raw=true" alt="Logo">
+               <div class="logo">
+    <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/383b7d59afd81f67b5b08763526e895ead75d42f/MSESVG?raw=true" alt="Logo">
+</div>
                 </div>
                 <nav>
                     <button class="nav-btn active" data-tab="materials">
@@ -751,11 +751,13 @@
     <div class="container">
         <div class="main-wrapper">
             <div class="content-grid">
+                <!-- Left Block: Dynamic Content -->
                 <div class="content-block">
                     <div class="block-header">
                         <span id="content-title">Материалы</span>
                     </div>
                     <div class="content-body" id="main-content">
+                        <!-- Materials content -->
                         <div class="materials-list">
                             <div class="material-item">
                                 <div class="material-icon">
@@ -788,6 +790,7 @@
                                         <polyline points="14 2 14 8 20 8"></polyline>
                                         <line x1="16" y1="13" x2="8" y2="13"></line>
                                         <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
                                     </svg>
                                 </div>
                                 <div class="material-info">
@@ -795,10 +798,25 @@
                                     <p>Готовые планы на разные цели</p>
                                 </div>
                             </div>
+                            <div class="material-item">
+                                <div class="material-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                                    </svg>
+                                </div>
+                                <div class="material-info">
+                                    <h3>Восстановление и стретчинг</h3>
+                                    <p>Упражнения для гибкости и релаксации</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Right Block: AI Chat -->
                 <div class="content-block">
                     <div class="block-header">
                         <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -807,32 +825,35 @@
                         </svg>
                         <span>AI Тренер</span>
                     </div>
-                    <div class="chat-container">
-                        <div class="chat-messages" id="chat-messages">
-                            <div class="chat-message ai">
-                                Привет! Я твой AI-помощник. Готов помочь с тренировками, питанием и мотивацией. Чем могу быть полезен?
+                    <div class="content-body">
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chat-messages">
+                                <div class="chat-message ai">
+                                    Привет! Я твой AI-помощник. Готов помочь с тренировками, питанием и мотивацией. Чем могу быть полезен?
+                                </div>
                             </div>
-                        </div>
-                        <div class="chat-input-wrapper">
-                            <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос AI тренеру...">
-                            <button class="chat-send" id="chat-send">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; vertical-align: middle;">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
-                            </button>
+                            <div class="chat-input-wrapper">
+                                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос AI тренеру...">
+                                <button class="chat-send" id="chat-send">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; vertical-align: middle;">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- News Feed -->
             <div class="news-section">
                 <h2 class="news-header">Новости и обновления</h2>
                 <div class="news-feed">
                     <div class="news-item">
                         <div class="news-category">Новость</div>
-                        <h3 class="news-title">Новая программа тренировок</h3>
-                        <p class="news-description">Интенсивная 30-дневная программа для набора мышечной массы</p>
+                        <h3 class="news-title">Новая программа тренировок добавлена</h3>
+                        <p class="news-description">Интенсивная 30-дневная программа для набора мышечной массы от профи</p>
                         <div class="news-date">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -843,13 +864,75 @@
                             2 дня назад
                         </div>
                     </div>
+
+                    <div class="news-item">
+                        <div class="news-category">Обновление</div>
+                        <h3 class="news-title">Улучшен AI тренер</h3>
+                        <p class="news-description">Теперь AI может создавать персонализированные планы питания на основе ваших целей</p>
+                        <div class="news-date">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            5 дней назад
+                        </div>
+                    </div>
+
+                    <div class="news-item">
+                        <div class="news-category">Совет</div>
+                        <h3 class="news-title">Как правильно восстанавливаться</h3>
+                        <p class="news-description">Сон, питание и активное восстановление - ключи к прогрессу</p>
+                        <div class="news-date">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            1 неделя назад
+                        </div>
+                    </div>
+
+                    <div class="news-item">
+                        <div class="news-category">Достижение</div>
+                        <h3 class="news-title">1000+ пользователей!</h3>
+                        <p class="news-description">Спасибо за то, что выбираете нас для достижения своих спортивных целей</p>
+                        <div class="news-date">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            2 недели назад
+                        </div>
+                    </div>
+
+                    <div class="news-item">
+                        <div class="news-category">Функция</div>
+                        <h3 class="news-title">Новый счётчик калорий</h3>
+                        <p class="news-description">Отслеживайте свой рацион с помощью встроенной базы продуктов</p>
+                        <div class="news-date">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            3 недели назад
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Auth Modal -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-modal">
+            <!-- Login Form -->
             <div id="loginForm" style="display: none;">
                 <h2 class="auth-header">Вход в систему</h2>
                 <p class="auth-description">Введите ваш ID и пинкод для входа</p>
@@ -872,6 +955,7 @@
                 </div>
             </div>
 
+            <!-- Register Form -->
             <div id="registerForm" style="display: none;">
                 <h2 class="auth-header">Регистрация</h2>
                 <p class="auth-description">Вам будет присвоен уникальный ID. Придумайте пинкод из 4 символов</p>
@@ -901,8 +985,10 @@
     </div>
 
     <script>
+        // Auth System
         let currentUser = null;
 
+        // Check if user is logged in
         function checkAuth() {
             const saved = localStorage.getItem('fittracker_user');
             if (saved) {
@@ -910,26 +996,31 @@
             }
         }
 
+        // Show login form
         function showLogin() {
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('authOverlay').classList.add('active');
         }
 
+        // Show register form
         function showRegister() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
             document.getElementById('authOverlay').classList.add('active');
             
+            // Generate new user ID
             const users = JSON.parse(localStorage.getItem('fittracker_users') || '[]');
             const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1001;
             document.getElementById('newUserId').textContent = newId.toString().padStart(4, '0');
         }
 
+        // Close auth modal
         function closeAuth() {
             document.getElementById('authOverlay').classList.remove('active');
         }
 
+        // Register new user
         function register() {
             const pin = document.getElementById('registerPin').value;
             const pinConfirm = document.getElementById('registerPinConfirm').value;
@@ -945,6 +1036,7 @@
                 return;
             }
 
+            // Save user
             const users = JSON.parse(localStorage.getItem('fittracker_users') || '[]');
             const newUser = {
                 id: userId,
@@ -954,17 +1046,20 @@
             users.push(newUser);
             localStorage.setItem('fittracker_users', JSON.stringify(users));
 
+            // Auto login
             currentUser = newUser;
             localStorage.setItem('fittracker_user', JSON.stringify(newUser));
 
             closeAuth();
             updateProfileTab();
-            alert('Аккаунт создан! Ваш ID: ' + userId.toString().padStart(4, '0'));
+            alert(`Аккаунт создан! Ваш ID: ${userId.toString().padStart(4, '0')}`);
 
+            // Clear form
             document.getElementById('registerPin').value = '';
             document.getElementById('registerPinConfirm').value = '';
         }
 
+        // Login user
         function login() {
             const id = parseInt(document.getElementById('loginId').value);
             const pin = document.getElementById('loginPin').value;
@@ -989,10 +1084,12 @@
             updateProfileTab();
             alert('Вход выполнен успешно!');
 
+            // Clear form
             document.getElementById('loginId').value = '';
             document.getElementById('loginPin').value = '';
         }
 
+        // Logout
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
                 currentUser = null;
@@ -1001,45 +1098,206 @@
             }
         }
 
+        // Update profile tab content
         function updateProfileTab() {
             if (currentUser) {
-                tabContents.profile.content = '<div class="profile-info"><div class="profile-row"><span class="profile-label">ID пользователя</span><span class="profile-value">' + currentUser.id.toString().padStart(4, '0') + '</span></div><div class="profile-row"><span class="profile-label">Дата регистрации</span><span class="profile-value">' + new Date(currentUser.createdAt).toLocaleDateString('ru-RU') + '</span></div></div><button class="logout-btn" onclick="logout()">Выйти из аккаунта</button>';
+                tabContents.profile.content = `
+                    <div class="profile-info">
+                        <div class="profile-row">
+                            <span class="profile-label">ID пользователя</span>
+                            <span class="profile-value">${currentUser.id.toString().padStart(4, '0')}</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">Дата регистрации</span>
+                            <span class="profile-value">${new Date(currentUser.createdAt).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Выйти из аккаунта</button>
+                `;
             } else {
-                tabContents.profile.content = '<div class="login-prompt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg><h3>Войдите в систему</h3><p>Для доступа к профилю и всем функциям необходимо войти в систему или зарегистрироваться</p><button onclick="showLogin()">Войти</button></div>';
+                tabContents.profile.content = `
+                    <div class="login-prompt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
+                        <h3>Войдите в систему</h3>
+                        <p>Для доступа к профилю и всем функциям необходимо войти в систему или зарегистрироваться</p>
+                        <button onclick="showLogin()">Войти</button>
+                    </div>
+                `;
             }
 
+            // Refresh if profile tab is active
             const activeTab = document.querySelector('.nav-btn.active');
             if (activeTab && activeTab.dataset.tab === 'profile') {
                 mainContent.innerHTML = tabContents.profile.content;
             }
         }
 
+        // Initialize auth on page load
         checkAuth();
+        updateProfileTab();
 
+        // Tab switching
         const tabs = document.querySelectorAll('.nav-btn');
         const mainContent = document.getElementById('main-content');
         const contentTitle = document.getElementById('content-title');
 
+        const tabIcons = {
+            materials: '',
+            workouts: '',
+            progress: '',
+            profile: ''
+        };
+
         const tabContents = {
             materials: {
                 title: 'Материалы',
-                content: '<div class="materials-list"><div class="material-item"><div class="material-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div><div class="material-info"><h3>Основы правильного питания</h3><p>Гайд по макронутриентам и калориям</p></div></div></div>'
+                content: `
+                    <div class="materials-list">
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>Основы правильного питания</h3>
+                                <p>Гайд по макронутриентам и калориям</p>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>Техника выполнения упражнений</h3>
+                                <p>Видео-уроки от профессионалов</p>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>Программы тренировок</h3>
+                                <p>Готовые планы на разные цели</p>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>Восстановление и стретчинг</h3>
+                                <p>Упражнения для гибкости и релаксации</p>
+                            </div>
+                        </div>
+                    </div>
+                `
             },
             workouts: {
                 title: 'Тренировки',
-                content: '<div class="empty-state"><h3>Тренировки</h3><p>Раздел в разработке</p></div>'
+                content: `
+                    <div class="materials-list">
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>Силовая тренировка - День 1</h3>
+                                <p>Грудь и трицепс • 45 минут</p>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>Кардио тренировка</h3>
+                                <p>HIIT интервалы • 30 минут</p>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>Силовая тренировка - День 2</h3>
+                                <p>Спина и бицепс • 50 минут</p>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20"></path>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                            </div>
+                            <div class="material-info">
+                                <h3>День ног</h3>
+                                <p>Квадрицепсы, бицепсы бедра • 60 минут</p>
+                            </div>
+                        </div>
+                    </div>
+                `
             },
             progress: {
                 title: 'Прогресс',
-                content: '<div class="empty-state"><h3>Отслеживание прогресса</h3><p>Начните тренироваться, чтобы увидеть статистику!</p></div>'
+                content: `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Отслеживание прогресса</h3>
+                        <p>Здесь будет отображаться ваш прогресс в тренировках, изменения веса и другие метрики. Начните тренироваться, чтобы увидеть статистику!</p>
+                    </div>
+                `
             },
             profile: {
                 title: 'Профиль',
-                content: ''
+                content: `
+                    <div class="login-prompt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
+                        <h3>Войдите в систему</h3>
+                        <p>Для доступа к профилю и всем функциям необходимо войти в систему или зарегистрироваться</p>
+                        <button onclick="showLogin()">Войти</button>
+                    </div>
+                `
             }
         };
-
-        updateProfileTab();
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -1058,6 +1316,7 @@
             });
         });
 
+        // Chat functionality
         const chatInput = document.getElementById('chat-input');
         const chatSend = document.getElementById('chat-send');
         const chatMessages = document.getElementById('chat-messages');
@@ -1076,7 +1335,7 @@
                 setTimeout(() => {
                     const aiMsg = document.createElement('div');
                     aiMsg.className = 'chat-message ai';
-                    aiMsg.textContent = 'Спасибо за вопрос! Это демо-версия чата.';
+                    aiMsg.textContent = 'Спасибо за вопрос! Это демо-версия чата. Функционал AI тренера будет доработан позже.';
                     chatMessages.appendChild(aiMsg);
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }, 800);
