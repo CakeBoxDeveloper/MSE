@@ -16,6 +16,7 @@
             --text-primary:#999;
             --text-secondary:#888;
             --text-tertiary:#666;
+            --block-height:500px;
         }
         body {
             font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
@@ -24,28 +25,21 @@
             -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
         }
         .container { max-width:1400px;margin:0 auto;padding:0 20px; }
+        .icon-gray { filter:invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%); }
 
-        .icon-gray {
-            filter: invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%);
-        }
-        .icon-gray-dark {
-            filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%);
-        }
-
-        /* Header */
+        /* ─── HEADER ─── */
         header {
             position:sticky;top:0;z-index:100;
-            padding: 12px 0 0 0;
-            /* прозрачный фон у внешней обёртки */
-            background: transparent;
+            padding:12px 0 0 0;
+            background:transparent;
         }
         .header-inner {
-            /* видимая плашка — ширина = контент */
-            max-width:1400px;margin:0 auto;padding:12px 20px;
+            max-width:calc(1400px * 0.95);
+            margin:0 auto;
+            padding:12px 20px;
             backdrop-filter:saturate(180%) blur(20px);
             background:rgba(0,0,0,.72);
-            border:1px solid var(--glass-border);
-            border-radius: 0 0 8px 8px;
+            border-radius:0 0 8px 8px;
             display:flex;justify-content:space-between;align-items:center;gap:20px;
         }
         .logo { width:43px;height:43px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
@@ -57,7 +51,7 @@
         }
         .header-login-btn:hover { background:rgba(255,255,255,.14); }
 
-        /* Inner tabs */
+        /* ─── INNER TABS ─── */
         .inner-tabs { display:flex;gap:8px;margin-bottom:16px;flex-shrink:0;align-items:center; }
         .inner-tab {
             padding:8px 14px;background:transparent;border:1px solid var(--text-secondary);
@@ -67,107 +61,84 @@
         }
         .inner-tab-icon { width:14px;height:14px; }
         .inner-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
-        .inner-tab.active .inner-tab-icon { filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
+        .inner-tab.active .inner-tab-icon { filter:invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
         .inner-tab:hover:not(.active) { border-color:rgba(255,255,255,.3); }
 
-        /* Grid */
+        /* ─── GRID ─── */
         .main-wrapper { margin-top:20px; }
-        .content-grid { 
+        .content-grid {
             display:grid;
             grid-template-columns:1fr 1fr;
-            grid-template-rows:auto;
             gap:12px;
             margin-bottom:20px;
             align-items:start;
         }
-        
-        .content-grid.browser-minimized {
-            grid-template-columns:auto 1fr;
-        }
-        
-        .content-grid.chat-minimized {
-            grid-template-columns:1fr auto;
-        }
-        
-        .content-grid.both-minimized {
-            grid-template-columns:auto 1fr auto;
-        }
-        
-        @media(max-width:968px){ 
-            .content-grid{ grid-template-columns:1fr; }
+        .content-grid.browser-minimized { grid-template-columns:auto 1fr; }
+        .content-grid.chat-minimized    { grid-template-columns:1fr auto; }
+        .content-grid.both-minimized    { grid-template-columns:auto 1fr auto; }
+        @media(max-width:968px){
+            .content-grid,
             .content-grid.browser-minimized,
             .content-grid.chat-minimized,
-            .content-grid.both-minimized {
-                grid-template-columns:1fr;
-            }
+            .content-grid.both-minimized { grid-template-columns:1fr; }
         }
 
-        /* Content block */
+        /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
         .content-block {
-            background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;
-            padding:20px;backdrop-filter:saturate(180%) blur(20px);
-            display:flex;flex-direction:column;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background:var(--glass-bg);
+            border:1px solid var(--glass-border);
+            border-radius:5px;
+            backdrop-filter:saturate(180%) blur(20px);
+            height:var(--block-height);
+            overflow:hidden;
+            display:flex;
+            flex-direction:row;  /* row so minimized-bar sits beside block-body */
+            transition:width 0.45s cubic-bezier(0.4,0,0.2,1);
+            /* width will be controlled inline by JS; default = 100% */
         }
-        .content-block:not(.minimized) { min-height:500px; }
-        
+
+        /* The actual body content */
+        .block-body {
+            flex:1;
+            min-width:0;
+            display:flex;
+            flex-direction:column;
+            padding:20px;
+            overflow:hidden;
+            /* opacity animated by JS */
+            opacity:1;
+            transition:opacity 0.25s ease;
+        }
+
+        /* Minimized vertical bar (always in DOM, hidden when expanded) */
         .minimized-bar {
-            display:none;writing-mode:vertical-lr;text-orientation:mixed;
-            align-items:flex-start;justify-content:flex-start;cursor:pointer;
-            height:100%;padding:20px 10px;
+            width:0;
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            transition:width 0.45s cubic-bezier(0.4,0,0.2,1);
+            cursor:pointer;
+            flex-shrink:0;
         }
-        .minimized-bar .label { display:none; }
-        
-        .content-block.minimized { 
-            min-height:500px;
-            width:auto;
-            padding:0;
-            animation: minimizeBlock 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .minimized-bar .bar-icon {
+            /* rotate the minimize icon 180° so it points "expand" */
+            transform:rotate(180deg);
+            margin-top:12px;
         }
-        .content-block.minimized .minimized-bar { display:flex; }
-        .content-block.minimized .block-body { display:none; }
-        
-        @media(max-width:968px) {
-            .minimized-bar {
-                writing-mode:horizontal-tb;
-                flex-direction:row;
-                height:auto;
-                padding:10px 16px;
-            }
-            .minimized-bar .label { transform:none; }
-            .content-block.minimized {
-                min-height:0 !important;
-                width:auto;
-            }
-        }
-        
-        @keyframes minimizeBlock {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        
+
         .btn-minimize {
             width:34px;height:34px;background:transparent;border:1px solid var(--glass-border);
             border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;
             transition:all .15s ease;flex-shrink:0;
         }
         .btn-minimize:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
-        .btn-minimize svg { width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round;transition:transform .2s ease; }
-        .content-block.minimized .btn-minimize svg { transform:rotate(180deg); }
-        
-        .block-body { 
-            flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;
-            animation: expandBlock 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        @keyframes expandBlock {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        
+        .btn-minimize svg { width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round; }
+
         .content-body { flex:1;display:flex;flex-direction:column;min-height:0; }
 
-        /* Materials list */
+        /* ─── MATERIALS ─── */
         .materials-list { display:grid;gap:10px; }
         .material-item {
             background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:5px;
@@ -182,8 +153,8 @@
         .material-info h3 { font-size:14px;font-weight:500;margin-bottom:4px;letter-spacing:-.2px; }
         .material-info p { font-size:12px;color:var(--text-secondary);letter-spacing:-.1px; }
 
-        /* Chat panel */
-        .chat-top-bar { 
+        /* ─── CHAT PANEL ─── */
+        .chat-top-bar {
             display:flex;
             align-items:center;
             gap:8px;
@@ -193,7 +164,6 @@
             width:100%;
             overflow:visible;
         }
-        
         .chat-new-btn {
             width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:5px;
             color:var(--text-tertiary);font-family:'Inter',sans-serif;font-size:18px;font-weight:400;
@@ -201,81 +171,84 @@
             display:flex;align-items:center;justify-content:center;
         }
         .chat-new-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:var(--text-secondary); }
-        
-        .chat-tabs-wrapper { 
-            width:70%;
+
+        /* ─── CHAT TABS SLIDER ─── key fix: flex:1 min-width:0, no flex-grow on wrapper */
+        .chat-tabs-wrapper {
+            flex:1;          /* take remaining space */
+            min-width:0;     /* CRITICAL — prevents flex child from overflowing */
             position:relative;
-            min-width:0;
             overflow:hidden;
-            flex-shrink:0;
-            flex-grow:0;
         }
+        /* fade gradients on the WRAPPER (= slider container) */
         .chat-tabs-wrapper::before,
         .chat-tabs-wrapper::after {
-            content:'';position:absolute;top:0;bottom:0;width:50px;z-index:2;pointer-events:none;opacity:0;transition:opacity .3s ease;
+            content:'';position:absolute;top:0;bottom:0;width:40px;z-index:2;pointer-events:none;
+            opacity:0;transition:opacity .3s ease;
         }
         .chat-tabs-wrapper::before {
             left:0;
-            background:linear-gradient(to right, var(--glass-bg) 0%, var(--glass-bg) 20%, transparent 100%);
+            background:linear-gradient(to right, var(--glass-bg), transparent);
         }
         .chat-tabs-wrapper::after {
             right:0;
-            background:linear-gradient(to left, var(--glass-bg) 0%, var(--glass-bg) 20%, transparent 100%);
+            background:linear-gradient(to left, var(--glass-bg), transparent);
         }
-        .chat-tabs-wrapper.show-left-fade::before { opacity:1; }
-        .chat-tabs-wrapper.show-right-fade::after { opacity:1; }
-        
-        .chat-tabs { display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;width:100%; }
+        .chat-tabs-wrapper.show-left-fade::before  { opacity:1; }
+        .chat-tabs-wrapper.show-right-fade::after  { opacity:1; }
+
+        .chat-tabs {
+            display:flex;gap:6px;
+            overflow-x:auto;
+            scrollbar-width:none;
+            scroll-behavior:smooth;
+            /* no width:100% — let it scroll naturally */
+        }
         .chat-tabs::-webkit-scrollbar { display:none; }
+
         .chat-tab {
             padding:0 10px;height:34px;background:transparent;border:1px solid var(--glass-border);border-radius:5px;
             color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:11px;font-weight:500;
-            cursor:pointer;white-space:nowrap;transition:all .15s ease;flex-shrink:0;flex-grow:0;
+            cursor:pointer;white-space:nowrap;transition:all .15s ease;
+            flex-shrink:0; /* tabs never shrink */
             display:flex;align-items:center;justify-content:center;
             position:relative;
         }
         .chat-tab:hover:not(.active) { border-color:rgba(255,255,255,.22); }
         .chat-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
 
-        /* Chat tab dropdown menu */
+        /* ─── CHAT TAB DROPDOWN MENU ─── */
         .chat-tab-menu {
             position:absolute;
-            top:calc(100% + 4px);
+            top:calc(100% + 6px);
             left:50%;
             transform:translateX(-50%);
-            background:rgba(30,30,30,.95);
+            background:rgba(20,20,20,.95);
             border:1px solid var(--glass-border);
             border-radius:6px;
-            padding:4px;
+            padding:5px;
             display:none;
-            flex-direction:column;
+            flex-direction:row; /* horizontal row of 3 icon buttons */
             gap:2px;
-            z-index:100;
-            backdrop-filter:blur(10px);
+            z-index:200;
+            backdrop-filter:blur(12px);
         }
         .chat-tab-menu.show { display:flex; }
         .chat-tab-menu-item {
-            width:32px;height:32px;
+            width:30px;height:30px;
             background:transparent;
             border:none;
             border-radius:4px;
             cursor:pointer;
             display:flex;align-items:center;justify-content:center;
-            transition:all .15s ease;
-            color:var(--text-secondary);
-            font-size:14px;
+            transition:background .15s ease;
         }
         .chat-tab-menu-item:hover { background:rgba(255,255,255,.1); }
-        .chat-tab-menu-item img { width:16px;height:16px; }
+        .chat-tab-menu-item svg { width:14px;height:14px;stroke:var(--text-secondary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
 
         .chat-right-controls {
-            display:flex;
-            gap:8px;
-            align-items:center;
-            margin-left:auto;
+            display:flex;gap:8px;align-items:center;
             flex-shrink:0;
         }
-
         .chat-search-btn {
             width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:5px;
             cursor:pointer;display:flex;align-items:center;justify-content:center;
@@ -284,13 +257,9 @@
         .chat-search-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
         .chat-search-btn svg { width:14px;height:14px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round; }
 
-        .chat-search-wrap { 
-            position:absolute;
-            top:calc(100% + 8px);
-            right:0;
-            width:200px;
-            display:none;
-            z-index:50;
+        .chat-search-wrap {
+            position:absolute;top:calc(100% + 8px);right:0;width:200px;
+            display:none;z-index:50;
         }
         .chat-search-wrap.open { display:block; }
         .chat-search-input {
@@ -310,7 +279,7 @@
             padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;font-size:13px;max-width:85%;line-height:1.5;letter-spacing:-.1px;
         }
-        .chat-message.ai { align-self:flex-start; }
+        .chat-message.ai  { align-self:flex-start; }
         .chat-message.user { align-self:flex-end;background:rgba(255,255,255,.08); }
 
         .chat-empty-state {
@@ -336,36 +305,33 @@
         .chat-send:hover { background:rgba(255,255,255,.15); }
         .chat-send img { width:16px;height:16px;opacity:.7; }
 
-        /* Empty state */
+        /* ─── EMPTY STATE ─── */
         .empty-state { text-align:center;padding:60px 20px;color:var(--text-secondary); }
         .empty-state-icon { margin-bottom:16px;opacity:.4; }
         .empty-state-icon img { width:90px;height:90px;opacity:.7; }
         .empty-state h3 { font-size:15px;margin-bottom:8px;color:var(--text-primary);font-weight:500;letter-spacing:-.2px; }
         .empty-state p { font-size:13px;line-height:1.5;letter-spacing:-.1px; }
 
-        /* Auth */
+        /* ─── AUTH MODAL ─── */
         .auth-overlay {
             position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);
             backdrop-filter:saturate(180%) blur(20px);z-index:1000;display:flex;align-items:center;
             justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;
         }
         .auth-overlay.active { opacity:1;pointer-events:all; }
+
         .auth-modal {
             background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;padding:24px;
-            backdrop-filter:saturate(180%) blur(20px);max-width:380px;width:calc(100% - 40px);
-            transform:scale(.9);transition:transform .3s ease;
-            /* Фиксированная высота — login и register всегда одинаковый размер окна */
-            height: 420px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            backdrop-filter:saturate(180%) blur(20px);
+            max-width:380px;width:calc(100% - 40px);
+            /* width animates smoothly when JS sets it */
+            transition:transform .3s ease, width .35s cubic-bezier(0.4,0,0.2,1), max-width .35s cubic-bezier(0.4,0,0.2,1);
+            transform:scale(.9);
         }
         .auth-overlay.active .auth-modal { transform:scale(1); }
-        
+
         .auth-form { display:flex;flex-direction:column;gap:12px;width:100%; }
         .form-group { display:flex;flex-direction:column;gap:6px;width:100%; }
-        .form-label { font-size:12px;font-weight:500;color:var(--text-secondary);letter-spacing:-.1px; }
-        
         .form-input {
             padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:14px;
@@ -376,9 +342,10 @@
         .form-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
         .form-input.error:focus { border-color:rgba(255,80,80,.5); }
         .form-input[type="number"] { -moz-appearance:textfield; }
-        .form-input[type="number"]::-webkit-outer-spin-button,.form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
+        .form-input[type="number"]::-webkit-outer-spin-button,
+        .form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
-        .pin-input-container { display:flex;gap:12px;justify-content:space-between;margin:0 0 16px 0;width:100%;max-width:100%;box-sizing:border-box; }
+        .pin-input-container { display:flex;gap:12px;justify-content:space-between;margin:0 0 16px 0;width:100%; }
         .pin-digit {
             flex:1;min-width:0;height:60px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:24px;
@@ -388,7 +355,8 @@
         .pin-digit:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3); }
         .pin-digit.error:focus { border-color:rgba(255,80,80,.5) !important; }
         .pin-digit[type="number"] { -moz-appearance:textfield; }
-        .pin-digit[type="number"]::-webkit-outer-spin-button,.pin-digit[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
+        .pin-digit[type="number"]::-webkit-outer-spin-button,
+        .pin-digit[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
         .auth-buttons { display:flex;gap:8px;margin-top:8px;width:100%; }
         .auth-btn {
@@ -400,39 +368,20 @@
         .auth-btn.primary { background:rgba(255,255,255,.15); }
         .auth-btn.primary:hover { background:rgba(255,255,255,.22); }
         .auth-btn:disabled { opacity:.5;cursor:not-allowed; }
-        .auth-switch { margin-top:12px;text-align:center;font-size:12px;color:var(--text-secondary);width:100%; }
+        .auth-switch { margin-top:12px;text-align:center;font-size:12px;color:var(--text-secondary); }
         .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:12px; }
-        
-        /* Register form - ALL elements same width */
-        .register-form-content {
-            display:flex;
-            flex-direction:column;
-            align-items:stretch;
-            width:100%;
-            gap:16px;
-        }
-        
-        .register-form-content .auth-header {
-            font-size:18px;font-weight:600;letter-spacing:-.3px;text-align:center;
-            margin-bottom:0;width:100%;
-        }
-        
+
+        /* Register form */
+        .register-form-content { display:flex;flex-direction:column;align-items:stretch;width:100%;gap:16px; }
+        .register-form-content .auth-header { font-size:18px;font-weight:600;letter-spacing:-.3px;text-align:center;width:100%; }
         .user-id-display {
             padding:16px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
-            border-radius:5px;text-align:center;display:flex;align-items:center;justify-content:center;
-            flex-wrap:wrap;gap:8px;
-            width:100%;margin:0;
+            border-radius:5px;display:flex;align-items:center;justify-content:center;
+            flex-wrap:wrap;gap:8px;width:100%;
         }
-        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;flex-shrink:0; }
-        .user-id-number { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;flex-shrink:0; }
-
-        .register-form-content .auth-form {
-            width:100%;
-            display:flex;
-            flex-direction:column;
-            gap:0;
-        }
-
+        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
+        .user-id-number { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
+        .register-form-content .auth-form { width:100%;display:flex;flex-direction:column;gap:0; }
         .register-form-content .form-label-key {
             text-align:center;font-size:14px;font-weight:600;
             display:flex;align-items:center;justify-content:center;gap:8px;
@@ -463,29 +412,25 @@
         .fullscreen-success { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;text-align:center;padding:20px; }
         .fullscreen-success .success-text { font-size:15px;line-height:1.6; }
         .logout-modal { text-align:center; }
-        .logout-modal h2 { margin-bottom:12px; }
-        .logout-modal p { color:var(--text-secondary);margin-bottom:20px; }
-
-        /* Login / Register forms — centered vertically inside fixed-height modal */
-        #loginForm { display: flex; flex-direction: column; }
-        #loginContent { display: flex; flex-direction: column; align-items: stretch; width: 100%; }
 
         @media(max-width:480px){
             .container{ padding:0 16px; }
-            .content-block{ padding:16px; }
+            .block-body{ padding:16px; }
             header{ padding:8px 0 0 0; }
             .header-inner{ padding:10px 16px; }
             .logo{ width:29px;height:29px; }
-            .logo img { width:86px;height:86px; }
+            .logo img{ width:86px;height:86px; }
             .pin-digit{ height:55px;font-size:20px; }
         }
     </style>
 </head>
 <body>
+
+<!-- HEADER -->
 <header>
   <div class="header-inner">
     <div class="logo">
-      <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
+      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
     </div>
     <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
   </div>
@@ -495,14 +440,18 @@
   <div class="main-wrapper">
     <div class="content-grid" id="contentGrid">
 
-      <!-- LEFT -->
+      <!-- LEFT BLOCK -->
       <div class="content-block" id="browserBlock">
-        <div class="minimized-bar" onclick="toggleMinimize('browserBlock')">
-          <button class="btn-minimize">
-            <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
-          </button>
+        <!-- minimized bar (vertical strip shown when collapsed) -->
+        <div class="minimized-bar" id="browserMinBar" onclick="toggleMinimize('browserBlock')">
+          <div class="bar-icon">
+            <div class="btn-minimize" style="pointer-events:none;">
+              <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+            </div>
+          </div>
         </div>
-        <div class="block-body">
+        <!-- full body -->
+        <div class="block-body" id="browserBody">
           <div class="inner-tabs">
             <button class="inner-tab active" data-inner="materials">
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_materials.svg" alt="">
@@ -524,19 +473,21 @@
         </div>
       </div>
 
-      <!-- RIGHT -->
+      <!-- RIGHT BLOCK -->
       <div class="content-block" id="chatBlock">
-        <div class="minimized-bar" onclick="toggleMinimize('chatBlock')">
-          <button class="btn-minimize">
-            <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
-          </button>
+        <div class="minimized-bar" id="chatMinBar" onclick="toggleMinimize('chatBlock')">
+          <div class="bar-icon">
+            <div class="btn-minimize" style="pointer-events:none;">
+              <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+            </div>
+          </div>
         </div>
-        <div class="block-body">
+        <div class="block-body" id="chatBody">
           <div class="chat-top-bar">
             <button class="chat-new-btn" onclick="addChatTab()">+</button>
             <div class="chat-tabs-wrapper" id="chatTabsWrapper">
               <div class="chat-tabs" id="chatTabs">
-                <button class="chat-tab active" data-chat="sofia" data-base="true" onclick="closeAllMenus(); switchChatTab('sofia');">
+                <button class="chat-tab active" data-chat="sofia" data-base="true">
                   <span>София</span>
                 </button>
               </div>
@@ -570,7 +521,8 @@
 
 <!-- AUTH MODAL -->
 <div class="auth-overlay" id="authOverlay">
-  <div class="auth-modal">
+  <div class="auth-modal" id="authModal">
+    <!-- LOGIN -->
     <div id="loginForm">
       <div id="loginContent">
         <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px;text-align:center;">Вход в сеть</h2>
@@ -597,6 +549,7 @@
       <div id="loginLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
       <div id="loginSuccess" class="fullscreen-success" style="display:none;"><div class="success-text">Вход разрешён</div></div>
     </div>
+    <!-- REGISTER -->
     <div id="registerForm" style="display:none;">
       <div id="registerContent">
         <div class="register-form-content">
@@ -630,10 +583,11 @@
       <div id="registerLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
       <div id="registerSuccess" class="fullscreen-success" style="display:none;"><div class="success-text"></div></div>
     </div>
+    <!-- LOGOUT -->
     <div id="logoutModal" style="display:none;">
       <div class="logout-modal">
         <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:12px;letter-spacing:-.3px;text-align:center;">Выход из сети</h2>
-        <p class="auth-description" style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.5;text-align:center;">Вы уверены, что хотите выйти из аккаунта?</p>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.5;text-align:center;">Вы уверены, что хотите выйти из аккаунта?</p>
         <div class="auth-buttons">
           <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
           <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
@@ -644,37 +598,106 @@
 </div>
 
 <script>
-function toggleMinimize(id) { 
-    const block = document.getElementById(id);
-    block.classList.toggle('minimized');
-    updateGridLayout();
+// ============================================================
+// MINIMIZE / EXPAND with animation
+// Sequence collapse: fadeout body → shrink width → show bar
+// Sequence expand:   hide bar → grow width → fadein body
+// Height stays constant (set by CSS --block-height)
+// ============================================================
+const COLLAPSED_WIDTH = '54px'; // width when minimized
+const FADE_DURATION = 220;      // ms for opacity transitions
+const RESIZE_DURATION = 450;    // ms — matches CSS transition
+
+const blockState = { browserBlock: false, chatBlock: false }; // false = expanded
+
+function toggleMinimize(id) {
+    if (blockState[id]) {
+        expandBlock(id);
+    } else {
+        collapseBlock(id);
+    }
+}
+
+function collapseBlock(id) {
+    blockState[id] = true;
+    const block  = document.getElementById(id);
+    const body   = block.querySelector('.block-body');
+    const bar    = block.querySelector('.minimized-bar');
+
+    // 1) fade out body content
+    body.style.opacity = '0';
+
+    setTimeout(() => {
+        // 2) shrink the block width
+        block.style.width = COLLAPSED_WIDTH;
+        block.style.maxWidth = COLLAPSED_WIDTH;
+
+        // after width transition finishes, show the bar
+        setTimeout(() => {
+            body.style.display = 'none';
+            bar.style.width = COLLAPSED_WIDTH;
+            updateGridLayout();
+        }, RESIZE_DURATION);
+    }, FADE_DURATION);
+}
+
+function expandBlock(id) {
+    blockState[id] = false;
+    const block  = document.getElementById(id);
+    const body   = block.querySelector('.block-body');
+    const bar    = block.querySelector('.minimized-bar');
+
+    // 1) hide bar, restore body (invisible first)
+    bar.style.width = '0px';
+    body.style.display = 'flex';
+    body.style.opacity = '0';
+
+    // small tick so display:flex takes effect before we animate
+    requestAnimationFrame(() => {
+        // 2) grow width back to full
+        block.style.width = '';
+        block.style.maxWidth = '';
+
+        setTimeout(() => {
+            // 3) fade in body
+            body.style.opacity = '1';
+            updateGridLayout();
+        }, RESIZE_DURATION);
+    });
 }
 
 function updateGridLayout() {
     const grid = document.getElementById('contentGrid');
-    const browser = document.getElementById('browserBlock');
-    const chat = document.getElementById('chatBlock');
-    
-    const browserMin = browser.classList.contains('minimized');
-    const chatMin = chat.classList.contains('minimized');
-    
-    grid.classList.remove('browser-minimized', 'chat-minimized', 'both-minimized');
-    
-    if (browserMin && chatMin) {
-        grid.classList.add('both-minimized');
-    } else if (browserMin) {
-        grid.classList.add('browser-minimized');
-    } else if (chatMin) {
-        grid.classList.add('chat-minimized');
-    }
+    const bMin = blockState.browserBlock;
+    const cMin = blockState.chatBlock;
+    grid.classList.remove('browser-minimized','chat-minimized','both-minimized');
+    if (bMin && cMin)      grid.classList.add('both-minimized');
+    else if (bMin)         grid.classList.add('browser-minimized');
+    else if (cMin)         grid.classList.add('chat-minimized');
 }
 
+// ============================================================
+// AUTH
+// ============================================================
 let users = [{ id:1001, pin:'1234', createdAt: new Date().toISOString() }];
 let currentUser = null;
 
-document.getElementById('headerLoginBtn').addEventListener('click', () => { currentUser ? showLogout() : showLogin(); });
+document.getElementById('headerLoginBtn').addEventListener('click', () => {
+    currentUser ? showLogout() : showLogin();
+});
+
+// Target widths for modal animation
+const LOGIN_WIDTH  = '320px';
+const REG_WIDTH    = '380px';
+
+function setModalWidth(w) {
+    const m = document.getElementById('authModal');
+    m.style.width = w;
+    m.style.maxWidth = w;
+}
 
 function showLogin() {
+    setModalWidth(LOGIN_WIDTH);
     document.getElementById('loginForm').style.display='block';
     document.getElementById('registerForm').style.display='none';
     document.getElementById('logoutModal').style.display='none';
@@ -693,6 +716,7 @@ function showLogin() {
     document.getElementById('authOverlay').classList.add('active');
     setTimeout(()=>document.getElementById('loginId').focus(),300);
 }
+
 function showRegister() {
     document.getElementById('loginContent').style.display='none';
     document.getElementById('loginToRegisterLoader').style.display='flex';
@@ -700,8 +724,9 @@ function showRegister() {
         document.getElementById('loginForm').style.display='none';
         document.getElementById('registerForm').style.display='block';
         document.getElementById('logoutModal').style.display='none';
-        const newId=users.length>0?Math.max(...users.map(u=>u.id))+1:1001;
-        document.getElementById('newUserId').textContent=newId.toString().padStart(4,'0');
+        setModalWidth(REG_WIDTH);
+        const newId = users.length>0 ? Math.max(...users.map(u=>u.id))+1 : 1001;
+        document.getElementById('newUserId').textContent = newId.toString().padStart(4,'0');
         document.getElementById('registerContent').style.display='block';
         ['pin1','pin2','pin3','pin4'].forEach(id=>document.getElementById(id).value='');
         document.getElementById('termsCheckbox').checked=false;
@@ -709,19 +734,25 @@ function showRegister() {
         document.getElementById('registerLoader').style.display='none';
         document.getElementById('registerSuccess').style.display='none';
         document.getElementById('registerButtons').style.display='flex';
-        document.getElementById('loginContent').style.display='block';
         document.getElementById('loginToRegisterLoader').style.display='none';
-    },800);
+    }, 800);
 }
+
 function showLogout() {
+    setModalWidth('320px');
     document.getElementById('loginForm').style.display='none';
     document.getElementById('registerForm').style.display='none';
     document.getElementById('logoutModal').style.display='block';
     document.getElementById('authOverlay').classList.add('active');
 }
 function closeAuth() { document.getElementById('authOverlay').classList.remove('active'); }
-function confirmLogout() { currentUser=null; document.getElementById('headerLoginBtn').textContent='Вход в сеть'; closeAuth(); }
+function confirmLogout() {
+    currentUser=null;
+    document.getElementById('headerLoginBtn').textContent='Вход в сеть';
+    closeAuth();
+}
 
+// ── Login ID check ──
 let loginIdChecked=false;
 function checkLoginId() {
     const input=document.getElementById('loginId');
@@ -751,13 +782,15 @@ function checkLoginId() {
     el.addEventListener('input',function(){if(this.value.trim().length<4)loginIdChecked=false;});
 })();
 
+// ── Login PIN ──
 const loginPinInputs=['loginPin1','loginPin2','loginPin3','loginPin4'];
 loginPinInputs.forEach((id,index)=>{
     const input=document.getElementById(id);
     input.addEventListener('input',function(){
         loginPinInputs.forEach(p=>document.getElementById(p).classList.remove('error'));
         if(this.value.length>1)this.value=this.value.slice(0,1);
-        if(this.value.length===1&&index<loginPinInputs.length-1)document.getElementById(loginPinInputs[index+1]).focus();
+        if(this.value.length===1&&index<loginPinInputs.length-1)
+            document.getElementById(loginPinInputs[index+1]).focus();
         const allFilled=loginPinInputs.every(p=>document.getElementById(p).value.length===1);
         if(allFilled){
             const pin=loginPinInputs.map(p=>document.getElementById(p).value).join('');
@@ -769,27 +802,43 @@ loginPinInputs.forEach((id,index)=>{
                 setTimeout(()=>{
                     document.getElementById('loginLoader').style.display='none';
                     document.getElementById('loginSuccess').style.display='flex';
-                    setTimeout(()=>{currentUser=user;closeAuth();document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');},1000);
+                    setTimeout(()=>{
+                        currentUser=user;closeAuth();
+                        document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');
+                    },1000);
                 },2000);
             } else {
                 document.getElementById('loginPin1').focus();
                 requestAnimationFrame(()=>{loginPinInputs.forEach(p=>document.getElementById(p).classList.add('error'));});
-                setTimeout(()=>{loginPinInputs.forEach(p=>{const inp=document.getElementById(p);inp.classList.remove('error');inp.value='';}); document.getElementById('loginPin1').focus();},500);
+                setTimeout(()=>{
+                    loginPinInputs.forEach(p=>{
+                        const inp=document.getElementById(p);inp.classList.remove('error');inp.value='';
+                    });
+                    document.getElementById('loginPin1').focus();
+                },500);
             }
         }
     });
-    input.addEventListener('keydown',function(e){if(e.key==='Backspace'&&this.value===''&&index>0)document.getElementById(loginPinInputs[index-1]).focus();});
+    input.addEventListener('keydown',function(e){
+        if(e.key==='Backspace'&&this.value===''&&index>0)
+            document.getElementById(loginPinInputs[index-1]).focus();
+    });
 });
 
+// ── Register PIN ──
 const pinInputs=['pin1','pin2','pin3','pin4'];
 pinInputs.forEach((id,index)=>{
     const input=document.getElementById(id);
     input.addEventListener('input',function(){
         if(this.value.length>1)this.value=this.value.slice(0,1);
-        if(this.value.length===1&&index<pinInputs.length-1)document.getElementById(pinInputs[index+1]).focus();
+        if(this.value.length===1&&index<pinInputs.length-1)
+            document.getElementById(pinInputs[index+1]).focus();
         checkRegisterButton();
     });
-    input.addEventListener('keydown',function(e){if(e.key==='Backspace'&&this.value===''&&index>0)document.getElementById(pinInputs[index-1]).focus();});
+    input.addEventListener('keydown',function(e){
+        if(e.key==='Backspace'&&this.value===''&&index>0)
+            document.getElementById(pinInputs[index-1]).focus();
+    });
 });
 document.getElementById('termsCheckbox').addEventListener('change',checkRegisterButton);
 function checkRegisterButton(){
@@ -807,11 +856,18 @@ function register(){
         users.push(newUser);currentUser=newUser;
         document.getElementById('registerLoader').style.display='none';
         document.getElementById('registerSuccess').style.display='flex';
-        document.getElementById('registerSuccess').querySelector('.success-text').innerHTML=`Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4,'0')}`;
-        setTimeout(()=>{closeAuth();document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');},2500);
+        document.getElementById('registerSuccess').querySelector('.success-text').innerHTML=
+            `Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4,'0')}`;
+        setTimeout(()=>{
+            closeAuth();
+            document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');
+        },2500);
     },2000);
 }
 
+// ============================================================
+// BROWSER TABS (Materials / Workouts / Progress)
+// ============================================================
 const TAB_DEFAULTS={
     materials:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg',
     workouts:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_workout.svg',
@@ -832,10 +888,19 @@ const tabData={
     ]
 };
 function renderItemList(items){
-    return '<div class="materials-list">'+items.map(item=>`<div class="material-item"><div class="material-icon"><img class="icon-gray" src="${item.icon}" alt=""></div><div class="material-info"><h3>${item.title}</h3><p>${item.desc}</p></div></div>`).join('')+'</div>';
+    return '<div class="materials-list">'+items.map(item=>
+        `<div class="material-item">
+            <div class="material-icon"><img class="icon-gray" src="${item.icon}" alt=""></div>
+            <div class="material-info"><h3>${item.title}</h3><p>${item.desc}</p></div>
+         </div>`
+    ).join('')+'</div>';
 }
 function renderProgress(){
-    return `<div class="empty-state"><div class="empty-state-icon"><img class="icon-gray" src="${TAB_DEFAULTS.progress}" alt=""></div><h3>Прогресс и достижения</h3><p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. Начните тренироваться, чтобы увидеть свой путь к прогрессу!</p></div>`;
+    return `<div class="empty-state">
+        <div class="empty-state-icon"><img class="icon-gray" src="${TAB_DEFAULTS.progress}" alt=""></div>
+        <h3>Прогресс и достижения</h3>
+        <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. Начните тренироваться, чтобы увидеть свой путь к прогрессу!</p>
+    </div>`;
 }
 function getTabHTML(key){ return key==='progress'?renderProgress():renderItemList(tabData[key]); }
 
@@ -851,67 +916,70 @@ innerTabs.forEach(tab=>{
     });
 });
 
-let chatTabCounter=1;
-let activeChatTab='sofia';
-const chatStore={sofia:[]};
-let openMenu = null;
+// ============================================================
+// CHAT TABS
+// ============================================================
+let chatTabCounter = 1;
+let activeChatTab  = 'sofia';
+const chatStore    = { sofia: [] };
+let openMenu       = null;
 
-function createChatTabElement(id, name, isBase = false) {
+// SVG icons for the context menu (pin, rename, delete)
+const ICON_PIN = `<svg viewBox="0 0 24 24"><path d="M12 2L8 8H4l2 6-2 8h16l-2-8 2-6h-4z"/><line x1="12" y1="22" x2="12" y2="14"/></svg>`;
+const ICON_RENAME = `<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const ICON_DELETE = `<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+
+function createChatTabElement(id, name, isBase) {
     const tab = document.createElement('button');
     tab.className = 'chat-tab';
     tab.dataset.chat = id;
     if (isBase) tab.dataset.base = 'true';
-    
+
     const nameSpan = document.createElement('span');
     nameSpan.textContent = name;
     tab.appendChild(nameSpan);
-    
+
+    // context menu (only for non-base tabs)
     if (!isBase) {
         const menu = document.createElement('div');
         menu.className = 'chat-tab-menu';
-        menu.innerHTML = `
-            <button class="chat-tab-menu-item" data-action="pin" title="Закрепить">📌</button>
-            <button class="chat-tab-menu-item" data-action="delete" title="Удалить">🗑</button>
-            <button class="chat-tab-menu-item" data-action="rename" title="Переименовать">✏</button>
-        `;
+        // three icon-only buttons: pin, rename, delete
+        menu.innerHTML =
+            `<button class="chat-tab-menu-item" data-action="pin">${ICON_PIN}</button>` +
+            `<button class="chat-tab-menu-item" data-action="rename">${ICON_RENAME}</button>` +
+            `<button class="chat-tab-menu-item" data-action="delete">${ICON_DELETE}</button>`;
         tab.appendChild(menu);
-        
+
         menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const action = btn.dataset.action;
-                if (action === 'delete') {
-                    deleteChatTab(id);
-                } else if (action === 'rename') {
-                    renameChatTab(id, nameSpan);
-                }
+                if (action === 'delete')  deleteChatTab(id);
+                if (action === 'rename')  renameChatTab(id, nameSpan);
                 closeAllMenus();
             });
         });
     }
-    
+
     tab.addEventListener('click', (e) => {
-        if (e.target.closest('.chat-tab-menu')) return;
-        
-        // Switch to this tab
+        if (e.target.closest('.chat-tab-menu')) return; // menu item handled above
+
+        const wasActive = tab.classList.contains('active');
         switchChatTab(id);
-        
-        // If clicking on non-base active tab, show menu
-        if (!isBase && tab.classList.contains('active')) {
+
+        // if already active & non-base → toggle menu
+        if (wasActive && !isBase) {
             const menu = tab.querySelector('.chat-tab-menu');
             if (menu) {
                 const wasOpen = menu.classList.contains('show');
                 closeAllMenus();
-                if (!wasOpen) {
-                    menu.classList.add('show');
-                    openMenu = menu;
-                }
+                if (!wasOpen) { menu.classList.add('show'); openMenu = menu; }
             }
         } else {
             closeAllMenus();
         }
     });
-    
+
     return tab;
 }
 
@@ -919,115 +987,111 @@ function closeAllMenus() {
     document.querySelectorAll('.chat-tab-menu.show').forEach(m => m.classList.remove('show'));
     openMenu = null;
 }
-
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('.chat-tab-menu') && !e.target.closest('.chat-tab')) {
-        closeAllMenus();
-    }
+    if (!e.target.closest('.chat-tab-menu') && !e.target.closest('.chat-tab')) closeAllMenus();
 });
 
 function addChatTab(){
-    const id='chat'+chatTabCounter++;
-    chatStore[id]=[];
-    const tab = createChatTabElement(id, 'Чат '+(chatTabCounter-1));
+    const id = 'chat' + chatTabCounter++;
+    chatStore[id] = [];
+    const tab = createChatTabElement(id, 'Чат ' + (chatTabCounter - 1), false);
     document.getElementById('chatTabs').appendChild(tab);
     switchChatTab(id);
     updateChatScrollFade();
 }
-
 function deleteChatTab(id) {
     const tab = document.querySelector(`.chat-tab[data-chat="${id}"]`);
     if (tab) {
         tab.remove();
         delete chatStore[id];
-        if (activeChatTab === id) {
-            switchChatTab('sofia');
-        }
+        if (activeChatTab === id) switchChatTab('sofia');
         updateChatScrollFade();
     }
 }
-
 function renameChatTab(id, nameSpan) {
-    const currentName = nameSpan.textContent;
-    const newName = prompt('Введите новое имя чата:', currentName);
-    if (newName && newName.trim()) {
-        nameSpan.textContent = newName.trim();
-    }
+    const n = prompt('Введите новое имя чата:', nameSpan.textContent);
+    if (n && n.trim()) nameSpan.textContent = n.trim();
 }
-
 function switchChatTab(id){
-    activeChatTab=id;
-    document.querySelectorAll('.chat-tab').forEach(t=>t.classList.toggle('active',t.dataset.chat===id));
+    activeChatTab = id;
+    document.querySelectorAll('.chat-tab').forEach(t => t.classList.toggle('active', t.dataset.chat===id));
     renderChatMessages();
 }
 
+// ── scroll fade indicators ──
 function updateChatScrollFade(){
-    const wrapper=document.getElementById('chatTabsWrapper');
-    const tabs=document.getElementById('chatTabs');
-    const isScrollable=tabs.scrollWidth>tabs.clientWidth;
-    const isAtStart=tabs.scrollLeft<=1;
-    const isAtEnd=tabs.scrollLeft+tabs.clientWidth>=tabs.scrollWidth-1;
-    
-    wrapper.classList.toggle('show-left-fade',isScrollable&&!isAtStart);
-    wrapper.classList.toggle('show-right-fade',isScrollable&&!isAtEnd);
+    const wrapper = document.getElementById('chatTabsWrapper');
+    const tabs    = document.getElementById('chatTabs');
+    const scrollable = tabs.scrollWidth > tabs.clientWidth;
+    const atStart    = tabs.scrollLeft <= 1;
+    const atEnd      = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 1;
+    wrapper.classList.toggle('show-left-fade',  scrollable && !atStart);
+    wrapper.classList.toggle('show-right-fade', scrollable && !atEnd);
 }
-document.getElementById('chatTabs').addEventListener('scroll',updateChatScrollFade);
-window.addEventListener('resize',updateChatScrollFade);
-setTimeout(updateChatScrollFade,100);
+document.getElementById('chatTabs').addEventListener('scroll', updateChatScrollFade);
+window.addEventListener('resize', updateChatScrollFade);
+setTimeout(updateChatScrollFade, 100);
 
+// ── search ──
 function toggleChatSearch(){
-    const wrap=document.getElementById('chatSearchWrap');
+    const wrap = document.getElementById('chatSearchWrap');
     wrap.classList.toggle('open');
-    if(wrap.classList.contains('open')){
-        document.getElementById('chatSearchInput').focus();
-    }
+    if (wrap.classList.contains('open')) document.getElementById('chatSearchInput').focus();
 }
-document.getElementById('chatSearchInput').addEventListener('input',function(){
-    const q=this.value.toLowerCase();
-    document.querySelectorAll('.chat-tab').forEach(tab=>{
-        const nameSpan = tab.querySelector('span');
-        const name = nameSpan ? nameSpan.textContent.toLowerCase() : '';
-        tab.style.display=name.includes(q)?'':'none';
+document.getElementById('chatSearchInput').addEventListener('input', function(){
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.chat-tab').forEach(tab => {
+        const span = tab.querySelector('span');
+        const name = span ? span.textContent.toLowerCase() : '';
+        tab.style.display = name.includes(q) ? '' : 'none';
     });
 });
-
-// Close search when clicking outside
 document.addEventListener('click', (e) => {
     const wrap = document.getElementById('chatSearchWrap');
-    const btn = document.querySelector('.chat-search-btn');
-    if (!wrap.contains(e.target) && !btn.contains(e.target)) {
-        wrap.classList.remove('open');
-    }
+    const btn  = document.querySelector('.chat-search-btn');
+    if (!wrap.contains(e.target) && !btn.contains(e.target)) wrap.classList.remove('open');
 });
 
+// ── render messages ──
 function renderChatMessages(){
-    const container=document.getElementById('chat-messages');
-    const messages=chatStore[activeChatTab]||[];
-    if(messages.length===0){
-        container.innerHTML=`<div class="chat-empty-state"><div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/progress_empty.svg" alt=""></div><p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p></div>`;
+    const container = document.getElementById('chat-messages');
+    const messages  = chatStore[activeChatTab] || [];
+    if (messages.length === 0) {
+        container.innerHTML = `<div class="chat-empty-state">
+            <div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/progress_empty.svg" alt=""></div>
+            <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
+        </div>`;
     } else {
-        container.innerHTML=messages.map(m=>`<div class="chat-message ${m.role}">${m.text}</div>`).join('');
-        container.scrollTop=container.scrollHeight;
+        container.innerHTML = messages.map(m => `<div class="chat-message ${m.role}">${m.text}</div>`).join('');
+        container.scrollTop = container.scrollHeight;
     }
 }
 renderChatMessages();
 
-const chatInput=document.getElementById('chat-input');
-const chatSend=document.getElementById('chat-send');
+// ── send ──
+const chatInput = document.getElementById('chat-input');
+const chatSend  = document.getElementById('chat-send');
 function sendMessage(){
-    const text=chatInput.value.trim();
-    if(!text)return;
-    if(!chatStore[activeChatTab])chatStore[activeChatTab]=[];
-    chatStore[activeChatTab].push({role:'user',text});
-    chatInput.value='';
+    const text = chatInput.value.trim();
+    if (!text) return;
+    if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+    chatStore[activeChatTab].push({role:'user', text});
+    chatInput.value = '';
     renderChatMessages();
-    setTimeout(()=>{
-        chatStore[activeChatTab].push({role:'ai',text:'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.'});
+    setTimeout(() => {
+        chatStore[activeChatTab].push({role:'ai', text:'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.'});
         renderChatMessages();
-    },800);
+    }, 800);
 }
-chatSend.addEventListener('click',sendMessage);
-chatInput.addEventListener('keypress',e=>{if(e.key==='Enter')sendMessage();});
+chatSend.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage(); });
+
+// ── initial base tab click handler ──
+document.querySelector('.chat-tab[data-chat="sofia"]').addEventListener('click', function(e){
+    if (e.target.closest('.chat-tab-menu')) return;
+    switchChatTab('sofia');
+    closeAllMenus();
+});
 </script>
 </body>
 </html>
