@@ -73,6 +73,8 @@
             gap:12px;
             margin-bottom:20px;
             align-items:start;
+            /* Добавляем плавный переход для изменения колонок grid */
+            transition:grid-template-columns 0.6s cubic-bezier(0.4,0,0.2,1);
         }
         .content-grid.browser-minimized { grid-template-columns:auto 1fr; }
         .content-grid.chat-minimized    { grid-template-columns:1fr auto; }
@@ -653,13 +655,17 @@ function collapseBlock(id) {
     setTimeout(() => {
         body.style.display = 'none';
         
-        // 3) Теперь начинаем стягивать блок
+        // 3) СРАЗУ меняем grid (это запустит плавное изменение размеров)
+        updateGridLayout();
+        
+        // 4) Устанавливаем фиксированную ширину для свернутого блока
         block.style.width = COLLAPSED_WIDTH;
+        block.style.minWidth = COLLAPSED_WIDTH;
+        block.style.maxWidth = COLLAPSED_WIDTH;
 
-        // 4) После завершения стягивания показываем bar
+        // 5) После завершения анимации показываем bar
         setTimeout(() => {
             bar.style.width = COLLAPSED_WIDTH;
-            updateGridLayout();
         }, RESIZE_DURATION);
     }, FADE_DURATION);
 }
@@ -673,22 +679,26 @@ function expandBlock(id) {
     // Убираем класс minimized для переключения иконки
     block.classList.remove('minimized');
 
-    // 1) Сначала скрываем bar
+    // 1) Сначала меняем grid (второй блок начнет возвращаться к исходному размеру)
+    updateGridLayout();
+    
+    // 2) Скрываем bar
     bar.style.width = '0px';
     
-    // 2) Показываем body но делаем его невидимым
+    // 3) Показываем body но делаем его невидимым
     body.style.display = 'flex';
     body.style.opacity = '0';
 
     // Маленькая задержка для применения стилей
     requestAnimationFrame(() => {
-        // 3) Начинаем растягивать блок
+        // 4) Убираем фиксированную ширину - блок начнет растягиваться
         block.style.width = '';
+        block.style.minWidth = '';
+        block.style.maxWidth = '';
 
-        // 4) После завершения растягивания показываем контент
+        // 5) После завершения растягивания показываем контент
         setTimeout(() => {
             body.style.opacity = '1';
-            updateGridLayout();
         }, RESIZE_DURATION);
     });
 }
