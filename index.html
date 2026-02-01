@@ -92,9 +92,9 @@
             height:var(--block-height);
             overflow:hidden;
             display:flex;
-            flex-direction:row;  /* row so minimized-bar sits beside block-body */
+            flex-direction:row;
+            /* ПЛАВНОЕ стягивание width */
             transition:width 0.45s cubic-bezier(0.4,0,0.2,1);
-            /* width will be controlled inline by JS; default = 100% */
         }
 
         /* The actual body content */
@@ -105,12 +105,11 @@
             flex-direction:column;
             padding:20px;
             overflow:hidden;
-            /* opacity animated by JS */
             opacity:1;
             transition:opacity 0.25s ease;
         }
 
-        /* Minimized vertical bar (always in DOM, hidden when expanded) */
+        /* Minimized vertical bar */
         .minimized-bar {
             width:0;
             overflow:hidden;
@@ -123,8 +122,6 @@
             flex-shrink:0;
         }
         .minimized-bar .bar-icon {
-            /* rotate the minimize icon 180° so it points "expand" */
-            transform:rotate(180deg);
             margin-top:12px;
         }
 
@@ -134,7 +131,19 @@
             transition:all .15s ease;flex-shrink:0;
         }
         .btn-minimize:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
-        .btn-minimize svg { width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round; }
+        
+        /* Иконка минус (по умолчанию) */
+        .btn-minimize svg.icon-minus { width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round; }
+        
+        /* Иконка плюс (когда свернуто) */
+        .btn-minimize svg.icon-plus {
+            display:none;
+            width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round;
+        }
+        
+        /* При сворачивании меняем иконку */
+        .content-block.minimized .btn-minimize svg.icon-minus { display:none; }
+        .content-block.minimized .btn-minimize svg.icon-plus { display:block; }
 
         .content-body { flex:1;display:flex;flex-direction:column;min-height:0; }
 
@@ -172,26 +181,36 @@
         }
         .chat-new-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:var(--text-secondary); }
 
-        /* ─── CHAT TABS SLIDER ─── key fix: flex:1 min-width:0, no flex-grow on wrapper */
+        /* ─── CHAT TABS SLIDER ─── */
         .chat-tabs-wrapper {
-            flex:1;          /* take remaining space */
-            min-width:0;     /* CRITICAL — prevents flex child from overflowing */
+            flex:1;
+            min-width:0;
             position:relative;
             overflow:hidden;
         }
-        /* fade gradients on the WRAPPER (= slider container) */
+        
+        /* ИСПРАВЛЕННЫЕ fade градиенты - направлены НАРУЖУ от краев */
         .chat-tabs-wrapper::before,
         .chat-tabs-wrapper::after {
-            content:'';position:absolute;top:0;bottom:0;width:40px;z-index:2;pointer-events:none;
-            opacity:0;transition:opacity .3s ease;
+            content:'';
+            position:absolute;
+            top:0;
+            bottom:0;
+            width:60px;
+            z-index:2;
+            pointer-events:none;
+            opacity:0;
+            transition:opacity .3s ease;
         }
         .chat-tabs-wrapper::before {
             left:0;
-            background:linear-gradient(to right, var(--glass-bg), transparent);
+            /* Градиент слева направо: от фона контейнера к прозрачному */
+            background:linear-gradient(to right, var(--glass-bg) 0%, rgba(255,255,255,.05) 30%, transparent 100%);
         }
         .chat-tabs-wrapper::after {
             right:0;
-            background:linear-gradient(to left, var(--glass-bg), transparent);
+            /* Градиент справа налево: от фона контейнера к прозрачному */
+            background:linear-gradient(to left, var(--glass-bg) 0%, rgba(255,255,255,.05) 30%, transparent 100%);
         }
         .chat-tabs-wrapper.show-left-fade::before  { opacity:1; }
         .chat-tabs-wrapper.show-right-fade::after  { opacity:1; }
@@ -201,7 +220,6 @@
             overflow-x:auto;
             scrollbar-width:none;
             scroll-behavior:smooth;
-            /* no width:100% — let it scroll naturally */
         }
         .chat-tabs::-webkit-scrollbar { display:none; }
 
@@ -209,7 +227,7 @@
             padding:0 10px;height:34px;background:transparent;border:1px solid var(--glass-border);border-radius:5px;
             color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:11px;font-weight:500;
             cursor:pointer;white-space:nowrap;transition:all .15s ease;
-            flex-shrink:0; /* tabs never shrink */
+            flex-shrink:0;
             display:flex;align-items:center;justify-content:center;
             position:relative;
         }
@@ -227,9 +245,9 @@
             border-radius:6px;
             padding:5px;
             display:none;
-            flex-direction:row; /* horizontal row of 3 icon buttons */
+            flex-direction:row;
             gap:2px;
-            z-index:200;
+            z-index:300; /* УВЕЛИЧЕН z-index для отображения поверх всего */
             backdrop-filter:blur(12px);
         }
         .chat-tab-menu.show { display:flex; }
@@ -323,9 +341,10 @@
         .auth-modal {
             background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;padding:24px;
             backdrop-filter:saturate(180%) blur(20px);
-            max-width:380px;width:calc(100% - 40px);
-            /* width animates smoothly when JS sets it */
-            transition:transform .3s ease, width .35s cubic-bezier(0.4,0,0.2,1), max-width .35s cubic-bezier(0.4,0,0.2,1);
+            width:320px; /* Фиксированная начальная ширина */
+            max-width:calc(100% - 40px);
+            /* ПЛАВНОЕ изменение размера */
+            transition:transform .3s ease, width .8s cubic-bezier(0.4,0,0.2,1);
             transform:scale(.9);
         }
         .auth-overlay.active .auth-modal { transform:scale(1); }
@@ -442,15 +461,14 @@
 
       <!-- LEFT BLOCK -->
       <div class="content-block" id="browserBlock">
-        <!-- minimized bar (vertical strip shown when collapsed) -->
         <div class="minimized-bar" id="browserMinBar" onclick="toggleMinimize('browserBlock')">
           <div class="bar-icon">
             <div class="btn-minimize" style="pointer-events:none;">
-              <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+              <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+              <svg class="icon-plus" viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/><line x1="6" y1="1" x2="6" y2="11"/></svg>
             </div>
           </div>
         </div>
-        <!-- full body -->
         <div class="block-body" id="browserBody">
           <div class="inner-tabs">
             <button class="inner-tab active" data-inner="materials">
@@ -466,7 +484,8 @@
               <span>Прогресс</span>
             </button>
             <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')" style="margin-left:auto;">
-              <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+              <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+              <svg class="icon-plus" viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/><line x1="6" y1="1" x2="6" y2="11"/></svg>
             </button>
           </div>
           <div class="content-body" id="main-content"></div>
@@ -478,7 +497,8 @@
         <div class="minimized-bar" id="chatMinBar" onclick="toggleMinimize('chatBlock')">
           <div class="bar-icon">
             <div class="btn-minimize" style="pointer-events:none;">
-              <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+              <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+              <svg class="icon-plus" viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/><line x1="6" y1="1" x2="6" y2="11"/></svg>
             </div>
           </div>
         </div>
@@ -497,7 +517,8 @@
                 <svg viewBox="0 0 16 16"><circle cx="6" cy="6" r="4"/><line x1="9" y1="9" x2="14" y2="14"/></svg>
               </button>
               <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('chatBlock')">
-                <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+                <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+                <svg class="icon-plus" viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/><line x1="6" y1="1" x2="6" y2="11"/></svg>
               </button>
             </div>
             <div class="chat-search-wrap" id="chatSearchWrap">
@@ -599,16 +620,13 @@
 
 <script>
 // ============================================================
-// MINIMIZE / EXPAND with animation
-// Sequence collapse: fadeout body → shrink width → show bar
-// Sequence expand:   hide bar → grow width → fadein body
-// Height stays constant (set by CSS --block-height)
+// MINIMIZE / EXPAND with smooth animation
 // ============================================================
-const COLLAPSED_WIDTH = '54px'; // width when minimized
-const FADE_DURATION = 220;      // ms for opacity transitions
-const RESIZE_DURATION = 450;    // ms — matches CSS transition
+const COLLAPSED_WIDTH = '54px';
+const FADE_DURATION = 220;
+const RESIZE_DURATION = 450;
 
-const blockState = { browserBlock: false, chatBlock: false }; // false = expanded
+const blockState = { browserBlock: false, chatBlock: false };
 
 function toggleMinimize(id) {
     if (blockState[id]) {
@@ -620,19 +638,21 @@ function toggleMinimize(id) {
 
 function collapseBlock(id) {
     blockState[id] = true;
-    const block  = document.getElementById(id);
-    const body   = block.querySelector('.block-body');
-    const bar    = block.querySelector('.minimized-bar');
+    const block = document.getElementById(id);
+    const body = block.querySelector('.block-body');
+    const bar = block.querySelector('.minimized-bar');
 
-    // 1) fade out body content
+    // Добавляем класс minimized для переключения иконки
+    block.classList.add('minimized');
+
+    // 1) Fade out body content
     body.style.opacity = '0';
 
     setTimeout(() => {
-        // 2) shrink the block width
+        // 2) Плавно уменьшаем ширину блока
         block.style.width = COLLAPSED_WIDTH;
-        block.style.maxWidth = COLLAPSED_WIDTH;
 
-        // after width transition finishes, show the bar
+        // 3) После завершения анимации ширины показываем bar
         setTimeout(() => {
             body.style.display = 'none';
             bar.style.width = COLLAPSED_WIDTH;
@@ -643,23 +663,24 @@ function collapseBlock(id) {
 
 function expandBlock(id) {
     blockState[id] = false;
-    const block  = document.getElementById(id);
-    const body   = block.querySelector('.block-body');
-    const bar    = block.querySelector('.minimized-bar');
+    const block = document.getElementById(id);
+    const body = block.querySelector('.block-body');
+    const bar = block.querySelector('.minimized-bar');
 
-    // 1) hide bar, restore body (invisible first)
+    // Убираем класс minimized для переключения иконки
+    block.classList.remove('minimized');
+
+    // 1) Скрываем bar, показываем body (невидимым)
     bar.style.width = '0px';
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // small tick so display:flex takes effect before we animate
     requestAnimationFrame(() => {
-        // 2) grow width back to full
+        // 2) Плавно увеличиваем ширину до 100%
         block.style.width = '';
-        block.style.maxWidth = '';
 
         setTimeout(() => {
-            // 3) fade in body
+            // 3) Fade in body content
             body.style.opacity = '1';
             updateGridLayout();
         }, RESIZE_DURATION);
@@ -677,7 +698,7 @@ function updateGridLayout() {
 }
 
 // ============================================================
-// AUTH
+// AUTH - с улучшенными анимациями размера
 // ============================================================
 let users = [{ id:1001, pin:'1234', createdAt: new Date().toISOString() }];
 let currentUser = null;
@@ -686,18 +707,19 @@ document.getElementById('headerLoginBtn').addEventListener('click', () => {
     currentUser ? showLogout() : showLogin();
 });
 
-// Target widths for modal animation
-const LOGIN_WIDTH  = '320px';
-const REG_WIDTH    = '380px';
+const LOGIN_WIDTH = '320px';
+const REG_WIDTH = '380px';
+const SUCCESS_WIDTH = '340px'; // Оптимальная ширина для сообщения об успехе
 
 function setModalWidth(w) {
     const m = document.getElementById('authModal');
     m.style.width = w;
-    m.style.maxWidth = w;
 }
 
 function showLogin() {
-    setModalWidth(LOGIN_WIDTH);
+    const modal = document.getElementById('authModal');
+    modal.style.width = LOGIN_WIDTH; // Устанавливаем сразу без анимации
+    
     document.getElementById('loginForm').style.display='block';
     document.getElementById('registerForm').style.display='none';
     document.getElementById('logoutModal').style.display='none';
@@ -720,11 +742,16 @@ function showLogin() {
 function showRegister() {
     document.getElementById('loginContent').style.display='none';
     document.getElementById('loginToRegisterLoader').style.display='flex';
+    
+    // Начинаем изменять размер во время показа лоадера
+    setTimeout(() => {
+        setModalWidth(REG_WIDTH);
+    }, 100);
+    
     setTimeout(()=>{
         document.getElementById('loginForm').style.display='none';
         document.getElementById('registerForm').style.display='block';
         document.getElementById('logoutModal').style.display='none';
-        setModalWidth(REG_WIDTH);
         const newId = users.length>0 ? Math.max(...users.map(u=>u.id))+1 : 1001;
         document.getElementById('newUserId').textContent = newId.toString().padStart(4,'0');
         document.getElementById('registerContent').style.display='block';
@@ -745,7 +772,11 @@ function showLogout() {
     document.getElementById('logoutModal').style.display='block';
     document.getElementById('authOverlay').classList.add('active');
 }
-function closeAuth() { document.getElementById('authOverlay').classList.remove('active'); }
+
+function closeAuth() { 
+    document.getElementById('authOverlay').classList.remove('active'); 
+}
+
 function confirmLogout() {
     currentUser=null;
     document.getElementById('headerLoginBtn').textContent='Вход в сеть';
@@ -841,16 +872,25 @@ pinInputs.forEach((id,index)=>{
     });
 });
 document.getElementById('termsCheckbox').addEventListener('change',checkRegisterButton);
+
 function checkRegisterButton(){
     const allFilled=pinInputs.every(id=>document.getElementById(id).value.length===1);
     document.getElementById('registerBtn').disabled=!(allFilled&&document.getElementById('termsCheckbox').checked);
 }
+
 function register(){
     const pin=pinInputs.map(id=>document.getElementById(id).value).join('');
     const userId=parseInt(document.getElementById('newUserId').textContent);
     if(pin.length!==4||!document.getElementById('termsCheckbox').checked)return;
+    
     document.getElementById('registerContent').style.display='none';
     document.getElementById('registerLoader').style.display='flex';
+    
+    // Начинаем изменять размер во время показа лоадера
+    setTimeout(() => {
+        setModalWidth(SUCCESS_WIDTH);
+    }, 100);
+    
     setTimeout(()=>{
         const newUser={id:userId,pin,createdAt:new Date().toISOString()};
         users.push(newUser);currentUser=newUser;
@@ -924,7 +964,6 @@ let activeChatTab  = 'sofia';
 const chatStore    = { sofia: [] };
 let openMenu       = null;
 
-// SVG icons for the context menu (pin, rename, delete)
 const ICON_PIN = `<svg viewBox="0 0 24 24"><path d="M12 2L8 8H4l2 6-2 8h16l-2-8 2-6h-4z"/><line x1="12" y1="22" x2="12" y2="14"/></svg>`;
 const ICON_RENAME = `<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
 const ICON_DELETE = `<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
@@ -939,11 +978,9 @@ function createChatTabElement(id, name, isBase) {
     nameSpan.textContent = name;
     tab.appendChild(nameSpan);
 
-    // context menu (only for non-base tabs)
     if (!isBase) {
         const menu = document.createElement('div');
         menu.className = 'chat-tab-menu';
-        // three icon-only buttons: pin, rename, delete
         menu.innerHTML =
             `<button class="chat-tab-menu-item" data-action="pin">${ICON_PIN}</button>` +
             `<button class="chat-tab-menu-item" data-action="rename">${ICON_RENAME}</button>` +
@@ -962,18 +999,20 @@ function createChatTabElement(id, name, isBase) {
     }
 
     tab.addEventListener('click', (e) => {
-        if (e.target.closest('.chat-tab-menu')) return; // menu item handled above
+        if (e.target.closest('.chat-tab-menu-item')) return;
 
         const wasActive = tab.classList.contains('active');
         switchChatTab(id);
 
-        // if already active & non-base → toggle menu
         if (wasActive && !isBase) {
             const menu = tab.querySelector('.chat-tab-menu');
             if (menu) {
                 const wasOpen = menu.classList.contains('show');
                 closeAllMenus();
-                if (!wasOpen) { menu.classList.add('show'); openMenu = menu; }
+                if (!wasOpen) { 
+                    menu.classList.add('show'); 
+                    openMenu = menu; 
+                }
             }
         } else {
             closeAllMenus();
@@ -987,6 +1026,7 @@ function closeAllMenus() {
     document.querySelectorAll('.chat-tab-menu.show').forEach(m => m.classList.remove('show'));
     openMenu = null;
 }
+
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.chat-tab-menu') && !e.target.closest('.chat-tab')) closeAllMenus();
 });
@@ -999,6 +1039,7 @@ function addChatTab(){
     switchChatTab(id);
     updateChatScrollFade();
 }
+
 function deleteChatTab(id) {
     const tab = document.querySelector(`.chat-tab[data-chat="${id}"]`);
     if (tab) {
@@ -1008,17 +1049,18 @@ function deleteChatTab(id) {
         updateChatScrollFade();
     }
 }
+
 function renameChatTab(id, nameSpan) {
     const n = prompt('Введите новое имя чата:', nameSpan.textContent);
     if (n && n.trim()) nameSpan.textContent = n.trim();
 }
+
 function switchChatTab(id){
     activeChatTab = id;
     document.querySelectorAll('.chat-tab').forEach(t => t.classList.toggle('active', t.dataset.chat===id));
     renderChatMessages();
 }
 
-// ── scroll fade indicators ──
 function updateChatScrollFade(){
     const wrapper = document.getElementById('chatTabsWrapper');
     const tabs    = document.getElementById('chatTabs');
@@ -1028,16 +1070,17 @@ function updateChatScrollFade(){
     wrapper.classList.toggle('show-left-fade',  scrollable && !atStart);
     wrapper.classList.toggle('show-right-fade', scrollable && !atEnd);
 }
+
 document.getElementById('chatTabs').addEventListener('scroll', updateChatScrollFade);
 window.addEventListener('resize', updateChatScrollFade);
 setTimeout(updateChatScrollFade, 100);
 
-// ── search ──
 function toggleChatSearch(){
     const wrap = document.getElementById('chatSearchWrap');
     wrap.classList.toggle('open');
     if (wrap.classList.contains('open')) document.getElementById('chatSearchInput').focus();
 }
+
 document.getElementById('chatSearchInput').addEventListener('input', function(){
     const q = this.value.toLowerCase();
     document.querySelectorAll('.chat-tab').forEach(tab => {
@@ -1046,13 +1089,13 @@ document.getElementById('chatSearchInput').addEventListener('input', function(){
         tab.style.display = name.includes(q) ? '' : 'none';
     });
 });
+
 document.addEventListener('click', (e) => {
     const wrap = document.getElementById('chatSearchWrap');
     const btn  = document.querySelector('.chat-search-btn');
     if (!wrap.contains(e.target) && !btn.contains(e.target)) wrap.classList.remove('open');
 });
 
-// ── render messages ──
 function renderChatMessages(){
     const container = document.getElementById('chat-messages');
     const messages  = chatStore[activeChatTab] || [];
@@ -1068,9 +1111,9 @@ function renderChatMessages(){
 }
 renderChatMessages();
 
-// ── send ──
 const chatInput = document.getElementById('chat-input');
 const chatSend  = document.getElementById('chat-send');
+
 function sendMessage(){
     const text = chatInput.value.trim();
     if (!text) return;
@@ -1083,10 +1126,11 @@ function sendMessage(){
         renderChatMessages();
     }, 800);
 }
+
 chatSend.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage(); });
 
-// ── initial base tab click handler ──
+// Base tab click handler
 document.querySelector('.chat-tab[data-chat="sofia"]').addEventListener('click', function(e){
     if (e.target.closest('.chat-tab-menu')) return;
     switchChatTab('sofia');
