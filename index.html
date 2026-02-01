@@ -33,33 +33,40 @@
             padding:12px 0 0 0;
             background:transparent;
         }
-   .header-inner {
-    max-width:calc(1400px * 0.95);
+.header-inner {
+    max-width:1400px; /* УБРАТЬ calc(1400px * 0.95) */
     margin:0 auto;
-    padding:12px 20px; /* одинаковые отступы */
+    padding:12px 20px; /* Такой же как у .block-body */
     backdrop-filter:saturate(180%) blur(20px);
     background:rgba(0,0,0,.72);
     border-radius:0 0 8px 8px;
     display:flex;
-    justify-content:space-between; /* оставить */
+    justify-content:space-between;
     align-items:center;
     gap:20px;
 }
-       .logo { 
+      .logo { 
     width:43px;
     height:43px;
     display:flex;
     align-items:center;
     justify-content:center;
     flex-shrink:0;
-    margin-right:auto; /* ДОБАВИТЬ эту строку */
+    /* БЕЗ margin-right:auto; */
 }
         .logo img { width:128px;height:128px; }
        .header-login-btn {
-    padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
-    border-radius:5px;color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;
-    font-size:13px;font-weight:500;transition:all .2s ease;
- 
+    padding:6px 14px;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--glass-border);
+    border-radius:5px;
+    color:var(--text-primary);
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:500;
+    transition:all .2s ease;
+    /* БЕЗ margin-left и margin-right */
 }
         .header-login-btn:hover { background:rgba(255,255,255,.14); }
 
