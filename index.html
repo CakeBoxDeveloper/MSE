@@ -39,7 +39,7 @@
             background:rgba(0,0,0,.72);border-bottom:1px solid var(--glass-border);
         }
         .header-content { display:flex;justify-content:space-between;align-items:center;gap:20px; }
-        .logo { width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .logo { width:192px;height:192px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
         .logo svg { width:100%;height:100%; }
         .header-login-btn {
             padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
@@ -73,27 +73,25 @@
         }
         
         .content-grid.browser-minimized {
-            grid-template-columns:1fr;
-            grid-template-rows:auto 1fr;
-        }
-        .content-grid.browser-minimized #browserBlock {
-            order: -1;
+            grid-template-columns:auto 1fr;
         }
         
         .content-grid.chat-minimized {
-            grid-template-columns:1fr;
-            grid-template-rows:auto 1fr;
-        }
-        .content-grid.chat-minimized #chatBlock {
-            order: -1;
+            grid-template-columns:1fr auto;
         }
         
         .content-grid.both-minimized {
-            grid-template-columns:1fr;
-            grid-template-rows:auto auto;
+            grid-template-columns:auto 1fr auto;
         }
         
-        @media(max-width:968px){ .content-grid{ grid-template-columns:1fr; } }
+        @media(max-width:968px){ 
+            .content-grid{ grid-template-columns:1fr; }
+            .content-grid.browser-minimized,
+            .content-grid.chat-minimized,
+            .content-grid.both-minimized {
+                grid-template-columns:1fr;
+            }
+        }
 
         /* Content block */
         .content-block {
@@ -101,26 +99,45 @@
             padding:20px;backdrop-filter:saturate(180%) blur(20px);
             display:flex;flex-direction:column;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: top center;
         }
         .content-block:not(.minimized) { min-height:500px; }
         
         .minimized-bar {
-            display:none;align-items:center;justify-content:space-between;cursor:pointer;
+            display:none;writing-mode:vertical-lr;text-orientation:mixed;
+            align-items:center;justify-content:space-between;cursor:pointer;
+            height:100%;padding:16px 10px;
         }
-        .minimized-bar .label { font-size:13px;font-weight:500;color:var(--text-secondary);letter-spacing:-.2px; }
+        .minimized-bar .label { 
+            font-size:13px;font-weight:500;color:var(--text-secondary);
+            letter-spacing:-.2px;transform:rotate(180deg);
+        }
         
         .content-block.minimized { 
-            min-height:0 !important;
-            padding:10px 16px;
+            min-height:500px;
+            width:auto;
+            padding:0;
             animation: minimizeBlock 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .content-block.minimized .minimized-bar { display:flex; }
         .content-block.minimized .block-body { display:none; }
         
+        @media(max-width:968px) {
+            .minimized-bar {
+                writing-mode:horizontal-tb;
+                flex-direction:row;
+                height:auto;
+                padding:10px 16px;
+            }
+            .minimized-bar .label { transform:none; }
+            .content-block.minimized {
+                min-height:0 !important;
+                width:auto;
+            }
+        }
+        
         @keyframes minimizeBlock {
-            0% { opacity: 0; transform: translateY(-10px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
         
         .btn-minimize {
@@ -418,6 +435,10 @@
         .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
         .user-id-number { font-size:14px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--text-secondary); }
 
+        .register-form-content .auth-form {
+            width:100%;
+        }
+
         .register-form-content .form-label-key {
             text-align:center;font-size:14px;font-weight:600;
             display:flex;align-items:center;justify-content:center;gap:8px;
@@ -456,7 +477,7 @@
             .container{ padding:0 16px; }
             .content-block{ padding:16px; }
             header{ padding:12px 0; }
-            .logo{ width:28px;height:28px; }
+            .logo{ width:84px;height:84px; }
             .pin-digit{ height:55px;font-size:20px; }
         }
     </style>
