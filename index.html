@@ -36,7 +36,7 @@
 .header-inner {
     max-width:100%;
     margin:0 auto;
-    padding:12px 0; /* ИЗМЕНИТЬ с 20px на 0 */
+    padding:12px 20px; /* ВЕРНУТЬ padding 20px с обеих сторон */
     backdrop-filter:saturate(180%) blur(20px);
     background:red;
     border-radius:0 0 8px 8px;
@@ -52,10 +52,10 @@
     align-items:center;
     justify-content:center;
     flex-shrink:0;
-    margin-left:20px; /* ДОБАВИТЬ обратно */
+    /* УБРАТЬ margin-left:20px; */
 }
         .logo img { width:128px;height:128px; }
-    .header-login-btn {
+.header-login-btn {
     padding:6px 14px;
     background:rgba(255,255,255,.08);
     border:1px solid var(--glass-border);
@@ -66,7 +66,7 @@
     font-size:13px;
     font-weight:500;
     transition:all .2s ease;
-    margin-right:20px; /* ДОБАВИТЬ */
+    /* УБРАТЬ margin-right:20px; */
 }
         .header-login-btn:hover { background:rgba(255,255,255,.14); }
 
