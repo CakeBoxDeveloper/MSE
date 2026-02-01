@@ -34,25 +34,25 @@
             background:transparent;
         }
 .header-inner {
-    max-width:100%; /* ИЗМЕНИТЬ с 1400px на 100% */
+    max-width:100%;
     margin:0 auto;
-    padding:12px 40px;
+    padding:12px 20px; /* ИЗМЕНИТЬ с 40px на 20px */
     backdrop-filter:saturate(180%) blur(20px);
-    background:red; /* для отладки */
+    background:red;
     border-radius:0 0 8px 8px;
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:20px;
 }
- .logo { 
+.logo { 
     width:43px;
     height:43px;
     display:flex;
     align-items:center;
     justify-content:center;
     flex-shrink:0;
-    margin-left:20px; /* ДОБАВИТЬ - сдвигает вправо к центру */
+    /* УБРАТЬ margin-left:20px; */
 }
         .logo img { width:128px;height:128px; }
        .header-login-btn {
@@ -470,7 +470,7 @@
   <div class="container"> <!-- ДОБАВИТЬ -->
     <div class="header-inner">
       <div class="logo">
-        <img class="icon-gray" src="..." alt="">
+        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
       </div>
       <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
     </div>
