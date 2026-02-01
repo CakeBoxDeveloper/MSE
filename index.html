@@ -36,7 +36,7 @@
         .header-inner {
             max-width:calc(1400px * 0.95);
             margin:0 auto;
-            padding:12px 20px;
+            padding:12px 20px 12px 32px; /* Увеличен левый padding чтобы подвинуть логотип вправо */
             backdrop-filter:saturate(180%) blur(20px);
             background:rgba(0,0,0,.72);
             border-radius:0 0 8px 8px;
@@ -48,6 +48,7 @@
             padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;
             font-size:13px;font-weight:500;transition:all .2s ease;margin-left:auto;
+            margin-right:6px; /* Добавлен правый отступ чтобы выровнять с кнопкой "Свернуть" */
         }
         .header-login-btn:hover { background:rgba(255,255,255,.14); }
 
@@ -93,8 +94,8 @@
             overflow:hidden;
             display:flex;
             flex-direction:row;
-            /* ПЛАВНОЕ стягивание width */
-            transition:width 0.45s cubic-bezier(0.4,0,0.2,1);
+            /* БОЛЕЕ ПЛАВНОЕ стягивание width */
+            transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
         }
 
         /* The actual body content */
@@ -106,7 +107,7 @@
             padding:20px;
             overflow:hidden;
             opacity:1;
-            transition:opacity 0.25s ease;
+            transition:opacity 0.3s ease;
         }
 
         /* Minimized vertical bar */
@@ -117,7 +118,7 @@
             flex-direction:column;
             align-items:center;
             justify-content:center;
-            transition:width 0.45s cubic-bezier(0.4,0,0.2,1);
+            transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
             cursor:pointer;
             flex-shrink:0;
         }
@@ -623,8 +624,8 @@
 // MINIMIZE / EXPAND with smooth animation
 // ============================================================
 const COLLAPSED_WIDTH = '54px';
-const FADE_DURATION = 220;
-const RESIZE_DURATION = 450;
+const FADE_DURATION = 300;      // Увеличено для более плавного fade
+const RESIZE_DURATION = 600;    // Увеличено для более плавного стягивания
 
 const blockState = { browserBlock: false, chatBlock: false };
 
@@ -645,16 +646,18 @@ function collapseBlock(id) {
     // Добавляем класс minimized для переключения иконки
     block.classList.add('minimized');
 
-    // 1) Fade out body content
+    // 1) Сначала fade out контента
     body.style.opacity = '0';
 
+    // 2) Ждем пока контент полностью исчезнет
     setTimeout(() => {
-        // 2) Плавно уменьшаем ширину блока
+        body.style.display = 'none';
+        
+        // 3) Теперь начинаем стягивать блок
         block.style.width = COLLAPSED_WIDTH;
 
-        // 3) После завершения анимации ширины показываем bar
+        // 4) После завершения стягивания показываем bar
         setTimeout(() => {
-            body.style.display = 'none';
             bar.style.width = COLLAPSED_WIDTH;
             updateGridLayout();
         }, RESIZE_DURATION);
@@ -670,17 +673,20 @@ function expandBlock(id) {
     // Убираем класс minimized для переключения иконки
     block.classList.remove('minimized');
 
-    // 1) Скрываем bar, показываем body (невидимым)
+    // 1) Сначала скрываем bar
     bar.style.width = '0px';
+    
+    // 2) Показываем body но делаем его невидимым
     body.style.display = 'flex';
     body.style.opacity = '0';
 
+    // Маленькая задержка для применения стилей
     requestAnimationFrame(() => {
-        // 2) Плавно увеличиваем ширину до 100%
+        // 3) Начинаем растягивать блок
         block.style.width = '';
 
+        // 4) После завершения растягивания показываем контент
         setTimeout(() => {
-            // 3) Fade in body content
             body.style.opacity = '1';
             updateGridLayout();
         }, RESIZE_DURATION);
