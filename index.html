@@ -33,22 +33,33 @@
             padding:12px 0 0 0;
             background:transparent;
         }
-     .header-inner {
+   .header-inner {
     max-width:calc(1400px * 0.95);
     margin:0 auto;
-    padding:12px 32px 12px 20px; /* Поменяли местами: увеличен правый padding */
+    padding:12px 20px; /* одинаковые отступы */
     backdrop-filter:saturate(180%) blur(20px);
     background:rgba(0,0,0,.72);
     border-radius:0 0 8px 8px;
-    display:flex;justify-content:space-between;align-items:center;gap:20px;
+    display:flex;
+    justify-content:space-between; /* оставить */
+    align-items:center;
+    gap:20px;
 }
-        .logo { width:43px;height:43px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+       .logo { 
+    width:43px;
+    height:43px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    margin-right:auto; /* ДОБАВИТЬ эту строку */
+}
         .logo img { width:128px;height:128px; }
        .header-login-btn {
     padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
     border-radius:5px;color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;
-    font-size:13px;font-weight:500;transition:all .2s ease;margin-left:auto;
-    margin-right:6px; /* УДАЛИТЕ ЭТУ СТРОКУ */
+    font-size:13px;font-weight:500;transition:all .2s ease;
+ 
 }
         .header-login-btn:hover { background:rgba(255,255,255,.14); }
 
