@@ -557,6 +557,19 @@
             margin-bottom: 8px;
         }
 
+        .key-icon-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .key-icon {
+            width: 48px;
+            height: 48px;
+            opacity: 0.7;
+            filter: invert(1);
+        }
+
         .form-input {
             padding: 10px 12px;
             background: rgba(255, 255, 255, 0.05);
@@ -728,10 +741,32 @@
         }
 
         .checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 3px;
             cursor: pointer;
-            accent-color: var(--text-secondary);
+            position: relative;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background: var(--text-secondary);
+            border-color: var(--text-secondary);
+        }
+
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid var(--bg-primary);
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
 
         .checkbox-group label {
@@ -1010,7 +1045,10 @@
                     </div>
                     <form class="auth-form" onsubmit="return false;">
                         <div class="form-group">
-                            <label class="form-label centered">Создайте ключ</label>
+                            <div class="key-icon-wrapper">
+                                <img src="" alt="" class="key-icon" id="keyIcon">
+                            </div>
+                            <label class="form-label centered">Создайте уникальный ключ доступа</label>
                             <div class="pin-input-container">
                                 <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
                                 <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
@@ -1286,7 +1324,7 @@
                 document.getElementById('registerLoader').style.display = 'none';
                 document.getElementById('registerSuccess').style.display = 'flex';
                 document.getElementById('registerSuccess').querySelector('.success-text').innerHTML = 
-                    `Подключение выполнено.<br>Присоединилось новое звено #${userId.toString().padStart(4, '0')}`;
+                    `Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4, '0')}`;
 
                 setTimeout(() => {
                     closeAuth();
