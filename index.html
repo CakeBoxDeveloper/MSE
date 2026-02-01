@@ -594,6 +594,11 @@
             border-color: rgba(255, 255, 255, 0.2);
         }
 
+        /* FIX: error на focused input тоже должна быть красной */
+        .form-input.error:focus {
+            border-color: rgba(255, 80, 80, 0.5);
+        }
+
         .form-input[type="number"] {
             -moz-appearance: textfield;
         }
@@ -629,13 +634,18 @@
         }
 
         .pin-digit.error {
-            border-color: rgba(255, 80, 80, 0.5);
+            border-color: rgba(255, 80, 80, 0.5) !important;
         }
 
         .pin-digit:focus {
             outline: none;
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* FIX: error перебивает :focus — без этого 4-й (focused) cell остаётся серым */
+        .pin-digit.error:focus {
+            border-color: rgba(255, 80, 80, 0.5) !important;
         }
 
         .pin-digit[type="number"] {
@@ -1047,7 +1057,7 @@
                     <form class="auth-form" onsubmit="return false;">
                         <div class="form-group">
                             <label class="form-label centered">
-                                <img src="" alt="" class="key-icon" id="keyIcon">
+                                <img src="icons/key.svg" alt="" class="key-icon" id="keyIcon">
                                 <span>Создайте уникальный ключ доступа</span>
                             </label>
                             <div class="pin-input-container">
@@ -1183,46 +1193,66 @@
         }
 
         // ─── Login: step 1 — валидация номера звена ───
-        document.getElementById('loginId').addEventListener('input', function () {
-            this.classList.remove('error');
-            
-            // Ограничиваем ввод 4 символами
-            if (this.value.length > 4) {
-                this.value = this.value.slice(0, 4);
-            }
-            
-            const val = this.value.trim();
-            if (val === '') return;
+        // FIX: используем единую функцию проверки и вешаем её на input + keyup,
+        // чтобы срабатывало именно при вводе 4-го символа в любом браузере.
+        let loginIdChecked = false; // флаг: уже запущили переход после валидации
 
-            // Проверка сразу после 4-го символа
-            if (val.length === 4) {
+        function checkLoginId() {
+            const input = document.getElementById('loginId');
+            // Ограничиваем ввод 4 символами
+            if (input.value.length > 4) {
+                input.value = input.value.slice(0, 4);
+            }
+
+            const val = input.value.trim();
+            if (val === '') {
+                input.classList.remove('error');
+                return;
+            }
+
+            // Снимаем ошибку при любом изменении
+            input.classList.remove('error');
+
+            // Проверяем только когда ровно 4 символа и ещё не запустили переход
+            if (val.length === 4 && !loginIdChecked) {
                 const id = parseInt(val);
                 const exists = users.find(u => u.id === id);
 
                 if (exists) {
-                    // Valid ID → show loader → transition to step 2
+                    loginIdChecked = true; // блокируем повторный вызов
                     document.getElementById('stepId').style.display = 'none';
                     document.getElementById('loginTransitionLoader').style.display = 'block';
-                    
+
                     setTimeout(() => {
                         document.getElementById('loginTransitionLoader').style.display = 'none';
                         document.getElementById('stepPin').style.display = 'flex';
                         setTimeout(() => document.getElementById('loginPin1').focus(), 100);
                     }, 800);
                 } else {
-                    // Invalid ID - показываем ошибку сразу
-                    this.classList.add('error');
+                    input.classList.add('error');
                 }
             }
-        });
+        }
+
+        (function () {
+            const loginIdInput = document.getElementById('loginId');
+            loginIdInput.addEventListener('input', checkLoginId);
+            loginIdInput.addEventListener('keyup', checkLoginId);
+            // сбрасываем флаг при очистке поля
+            loginIdInput.addEventListener('input', function () {
+                if (this.value.trim().length < 4) {
+                    loginIdChecked = false;
+                }
+            });
+        })();
 
         // ─── Login: step 2 — PIN inputs (4 cells) ───
         const loginPinInputs = ['loginPin1', 'loginPin2', 'loginPin3', 'loginPin4'];
         loginPinInputs.forEach((id, index) => {
             const input = document.getElementById(id);
-            
-            input.addEventListener('input', function() {
-                // Remove error styling from all inputs
+
+            input.addEventListener('input', function () {
+                // Снимаем ошибку со всех при новом вводе
                 loginPinInputs.forEach(pinId => {
                     document.getElementById(pinId).classList.remove('error');
                 });
@@ -1231,22 +1261,22 @@
                 if (this.value.length > 1) {
                     this.value = this.value.slice(0, 1);
                 }
-                
+
                 // Move to next input
                 if (this.value.length === 1 && index < loginPinInputs.length - 1) {
                     document.getElementById(loginPinInputs[index + 1]).focus();
                 }
-                
-                // Check if all 4 digits are filled (проверяем при каждом вводе)
+
+                // Проверяем когда все 4 цифры введены
                 const allFilled = loginPinInputs.every(pinId => document.getElementById(pinId).value.length === 1);
-                
+
                 if (allFilled) {
                     const pin = loginPinInputs.map(pinId => document.getElementById(pinId).value).join('');
                     const id = parseInt(document.getElementById('loginId').value);
                     const user = users.find(u => u.id === id && u.pin === pin);
 
                     if (user) {
-                        // Valid PIN - show fullscreen loader
+                        // Valid PIN
                         document.getElementById('loginContent').style.display = 'none';
                         document.getElementById('loginLoader').style.display = 'flex';
 
@@ -1261,11 +1291,17 @@
                             }, 1000);
                         }, 2000);
                     } else {
-                        // Invalid PIN - show error on ALL 4 cells
-                        loginPinInputs.forEach(pinId => {
-                            document.getElementById(pinId).classList.add('error');
+                        // FIX: сначала снимаем focus с 4-го, ПОТОМ добавляем .error на все
+                        // Иначе :focus на 4-м перебивал border-color даже при .error
+                        document.getElementById('loginPin1').focus();
+
+                        // Ставим .error на все 4 через microtask, чтобы focus уже сменился
+                        requestAnimationFrame(() => {
+                            loginPinInputs.forEach(pinId => {
+                                document.getElementById(pinId).classList.add('error');
+                            });
                         });
-                        
+
                         setTimeout(() => {
                             loginPinInputs.forEach(pinId => {
                                 const inp = document.getElementById(pinId);
@@ -1278,8 +1314,7 @@
                 }
             });
 
-            input.addEventListener('keydown', function(e) {
-                // Move to previous on backspace
+            input.addEventListener('keydown', function (e) {
                 if (e.key === 'Backspace' && this.value === '' && index > 0) {
                     document.getElementById(loginPinInputs[index - 1]).focus();
                 }
@@ -1290,23 +1325,18 @@
         const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'];
         pinInputs.forEach((id, index) => {
             const input = document.getElementById(id);
-            
-            input.addEventListener('input', function() {
-                // Only allow single digit
+
+            input.addEventListener('input', function () {
                 if (this.value.length > 1) {
                     this.value = this.value.slice(0, 1);
                 }
-                
-                // Move to next input
                 if (this.value.length === 1 && index < pinInputs.length - 1) {
                     document.getElementById(pinInputs[index + 1]).focus();
                 }
-                
                 checkRegisterButton();
             });
 
-            input.addEventListener('keydown', function(e) {
-                // Move to previous on backspace
+            input.addEventListener('keydown', function (e) {
                 if (e.key === 'Backspace' && this.value === '' && index > 0) {
                     document.getElementById(pinInputs[index - 1]).focus();
                 }
@@ -1337,7 +1367,6 @@
                 return;
             }
 
-            // Show fullscreen loader
             document.getElementById('registerContent').style.display = 'none';
             document.getElementById('registerLoader').style.display = 'flex';
 
@@ -1348,7 +1377,7 @@
 
                 document.getElementById('registerLoader').style.display = 'none';
                 document.getElementById('registerSuccess').style.display = 'flex';
-                document.getElementById('registerSuccess').querySelector('.success-text').innerHTML = 
+                document.getElementById('registerSuccess').querySelector('.success-text').innerHTML =
                     `Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4, '0')}`;
 
                 setTimeout(() => {
@@ -1358,88 +1387,72 @@
             }, 2000);
         }
 
-        // ─── Inner tabs (left block) ───
-        const innerTabs = document.querySelectorAll('.inner-tab');
-        const mainContent = document.getElementById('main-content');
+        // ─── Data: содержимое вкладок ───
+        // icon: путь к кастомной иконке (null → берётся iconDefault для категории)
+        // iconDefault: иконка по умолчанию для вкладки (подставляется когда icon === null)
 
-        const innerContents = {
-            materials: `
-                <div class="materials-list">
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/material_nutrition.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>Основы правильного питания</h3>
-                            <p>Гайд по макронутриентам и калориям</p>
-                        </div>
-                    </div>
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/material_video.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>Техника выполнения упражнений</h3>
-                            <p>Видео-уроки от профессионалов</p>
-                        </div>
-                    </div>
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/material_plan.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>Программы тренировок</h3>
-                            <p>Готовые планы на разные цели</p>
-                        </div>
-                    </div>
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/material_stretch.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>Восстановление и стретчинг</h3>
-                            <p>Упражнения для гибкости и релаксации</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-            workouts: `
-                <div class="materials-list">
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/workout_strength.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>Силовая тренировка — День 1</h3>
-                            <p>Грудь и трицепс · 45 минут</p>
-                        </div>
-                    </div>
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/workout_cardio.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>Кардио тренировка</h3>
-                            <p>HIIT интервалы · 30 минут</p>
-                        </div>
-                    </div>
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/workout_back.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>Силовая тренировка — День 2</h3>
-                            <p>Спина и бицепс · 50 минут</p>
-                        </div>
-                    </div>
-                    <div class="material-item">
-                        <div class="material-icon"><img src="icons/workout_legs.svg" alt=""></div>
-                        <div class="material-info">
-                            <h3>День ног</h3>
-                            <p>Квадрицепсы, бицепсы бедра · 60 минут</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-            progress: `
+        const TAB_DEFAULTS = {
+            materials: 'icons/default_material.svg',
+            workouts: 'icons/default_workout.svg',
+            progress: 'icons/progress_empty.svg'
+        };
+
+        const tabData = {
+            materials: [
+                { title: 'Основы правильного питания',   desc: 'Гайд по макронутриентам и калориям',          icon: 'icons/material_nutrition.svg' },
+                { title: 'Техника выполнения упражнений', desc: 'Видео-уроки от профессионалов',               icon: 'icons/material_video.svg' },
+                { title: 'Программы тренировок',          desc: 'Готовые планы на разные цели',                 icon: 'icons/material_plan.svg' },
+                { title: 'Восстановление и стретчинг',    desc: 'Упражнения для гибкости и релаксации',        icon: 'icons/material_stretch.svg' }
+            ],
+            workouts: [
+                { title: 'Силовая тренировка — День 1',   desc: 'Грудь и трицепс · 45 минут',                  icon: 'icons/workout_strength.svg' },
+                { title: 'Кардио тренировка',             desc: 'HIIT интервалы · 30 минут',                   icon: 'icons/workout_cardio.svg' },
+                { title: 'Силовая тренировка — День 2',   desc: 'Спина и бицепс · 50 минут',                   icon: 'icons/workout_back.svg' },
+                { title: 'День ног',                      desc: 'Квадрицепсы, бицепсы бедра · 60 минут',      icon: 'icons/workout_legs.svg' }
+            ]
+        };
+
+        // ─── Рендер: список элементов со вкладки ───
+        function renderItemList(items, defaultIcon) {
+            return `<div class="materials-list">` +
+                items.map(item => {
+                    const iconSrc = item.icon || defaultIcon;
+                    return `
+                        <div class="material-item">
+                            <div class="material-icon"><img src="${iconSrc}" alt=""></div>
+                            <div class="material-info">
+                                <h3>${item.title}</h3>
+                                <p>${item.desc}</p>
+                            </div>
+                        </div>`;
+                }).join('') +
+                `</div>`;
+        }
+
+        // ─── Рендер: пустое состояние (progress) ───
+        function renderProgress() {
+            return `
                 <div class="empty-state">
                     <div class="empty-state-icon">
-                        <img src="icons/progress_empty.svg" alt="">
+                        <img src="${TAB_DEFAULTS.progress}" alt="">
                     </div>
                     <h3>Отслеживание прогресса</h3>
                     <p>Здесь будет отображаться ваш прогресс в тренировках, изменения веса и другие метрики. Начните тренироваться, чтобы увидеть статистику!</p>
-                </div>
-            `
-        };
+                </div>`;
+        }
+
+        // ─── Генерация HTML для каждой вкладки ───
+        function getTabHTML(key) {
+            if (key === 'progress') return renderProgress();
+            return renderItemList(tabData[key], TAB_DEFAULTS[key]);
+        }
+
+        // ─── Inner tabs ───
+        const innerTabs = document.querySelectorAll('.inner-tab');
+        const mainContent = document.getElementById('main-content');
 
         // Initial render
-        mainContent.innerHTML = innerContents.materials;
+        mainContent.innerHTML = getTabHTML('materials');
 
         innerTabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -1448,7 +1461,7 @@
 
                 mainContent.style.opacity = '0';
                 setTimeout(() => {
-                    mainContent.innerHTML = innerContents[tab.dataset.inner];
+                    mainContent.innerHTML = getTabHTML(tab.dataset.inner);
                     mainContent.style.opacity = '1';
                 }, 150);
             });
