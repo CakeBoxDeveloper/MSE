@@ -39,8 +39,8 @@
             background:rgba(0,0,0,.72);border-bottom:1px solid var(--glass-border);
         }
         .header-content { display:flex;justify-content:space-between;align-items:center;gap:20px; }
-        .logo { width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-        .logo img { width:192px;height:192px; }
+        .logo { width:192px;height:192px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .logo svg { width:100%;height:100%; }
         .header-login-btn {
             padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;
@@ -104,10 +104,13 @@
         
         .minimized-bar {
             display:none;writing-mode:vertical-lr;text-orientation:mixed;
-            align-items:flex-start;justify-content:flex-start;cursor:pointer;
-            height:100%;padding:20px 10px;
+            align-items:center;justify-content:space-between;cursor:pointer;
+            height:100%;padding:16px 10px;
         }
-        .minimized-bar .label { display:none; }
+        .minimized-bar .label { 
+            font-size:13px;font-weight:500;color:var(--text-secondary);
+            letter-spacing:-.2px;transform:rotate(180deg);
+        }
         
         .content-block.minimized { 
             min-height:500px;
@@ -327,6 +330,28 @@
         .chat-send:hover { background:rgba(255,255,255,.15); }
         .chat-send img { width:16px;height:16px;opacity:.7; }
 
+        /* News */
+        .news-section { margin:20px 0 40px; }
+        .news-header { font-size:15px;font-weight:600;margin-bottom:12px;letter-spacing:-.2px; }
+        .news-feed {
+            display:flex;gap:12px;overflow-x:auto;padding:10px 0;scroll-behavior:smooth;
+            scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent;
+        }
+        .news-feed::-webkit-scrollbar { height:4px; }
+        .news-feed::-webkit-scrollbar-track { background:transparent; }
+        .news-feed::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2);border-radius:2px; }
+        .news-item {
+            min-width:260px;width:260px;height:260px;background:var(--glass-bg);border:1px solid var(--glass-border);
+            border-radius:5px;backdrop-filter:saturate(180%) blur(20px);padding:16px;cursor:pointer;
+            transition:all .2s ease;display:flex;flex-direction:column;justify-content:space-between;
+        }
+        .news-item:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18); }
+        .news-category { font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);font-weight:500; }
+        .news-title { font-size:15px;font-weight:500;margin:12px 0;line-height:1.4;letter-spacing:-.2px; }
+        .news-description { font-size:12px;color:var(--text-secondary);line-height:1.5;letter-spacing:-.1px; }
+        .news-date { font-size:11px;color:var(--text-tertiary);margin-top:auto;display:flex;align-items:center;gap:5px; }
+        .news-date img { width:12px;height:12px;opacity:.4; }
+
         /* Empty state */
         .empty-state { text-align:center;padding:60px 20px;color:var(--text-secondary); }
         .empty-state-icon { margin-bottom:16px;opacity:.4; }
@@ -364,7 +389,7 @@
         .form-input[type="number"] { -moz-appearance:textfield; }
         .form-input[type="number"]::-webkit-outer-spin-button,.form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
-        .pin-input-container { display:flex;gap:12px;justify-content:space-between;margin:0 0 16px 0;width:100%;max-width:100%;box-sizing:border-box; }
+        .pin-input-container { display:flex;gap:12px;justify-content:space-between;margin:16px 0;width:100%;max-width:100%;box-sizing:border-box; }
         .pin-digit {
             flex:1;min-width:0;height:60px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:24px;
@@ -395,34 +420,29 @@
             flex-direction:column;
             align-items:stretch;
             width:100%;
-            gap:16px;
         }
         
         .register-form-content .auth-header {
             font-size:18px;font-weight:600;letter-spacing:-.3px;text-align:center;
-            margin-bottom:0;width:100%;
+            margin-bottom:12px;width:100%;
         }
         
         .user-id-display {
             padding:16px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
-            border-radius:5px;text-align:center;display:flex;align-items:center;justify-content:center;
-            flex-wrap:wrap;gap:8px;
-            width:100%;margin:0;
+            border-radius:5px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;
+            width:100%;margin-bottom:12px;
         }
-        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;flex-shrink:0; }
-        .user-id-number { font-size:14px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--text-secondary);flex-shrink:0; }
+        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
+        .user-id-number { font-size:14px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--text-secondary); }
 
         .register-form-content .auth-form {
             width:100%;
-            display:flex;
-            flex-direction:column;
-            gap:0;
         }
 
         .register-form-content .form-label-key {
             text-align:center;font-size:14px;font-weight:600;
             display:flex;align-items:center;justify-content:center;gap:8px;
-            width:100%;margin:0 0 16px 0;
+            width:100%;margin-bottom:4px;
         }
         .key-icon { width:20px;height:20px; }
 
@@ -452,6 +472,7 @@
         .logout-modal h2 { margin-bottom:12px; }
         .logout-modal p { color:var(--text-secondary);margin-bottom:20px; }
 
+        @media(max-width:768px){ .news-item{ min-width:220px;width:220px;height:220px; } }
         @media(max-width:480px){
             .container{ padding:0 16px; }
             .content-block{ padding:16px; }
@@ -480,6 +501,7 @@
       <!-- LEFT -->
       <div class="content-block" id="browserBlock">
         <div class="minimized-bar" onclick="toggleMinimize('browserBlock')">
+          <span class="label">Браузер</span>
           <button class="btn-minimize">
             <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
           </button>
@@ -509,6 +531,7 @@
       <!-- RIGHT -->
       <div class="content-block" id="chatBlock">
         <div class="minimized-bar" onclick="toggleMinimize('chatBlock')">
+          <span class="label">София</span>
           <button class="btn-minimize">
             <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
           </button>
@@ -542,6 +565,25 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- News -->
+    <div class="news-section">
+      <h2 class="news-header">Новости и обновления</h2>
+      <div class="news-feed">
+        <div class="news-item">
+          <div class="news-category">Новость</div>
+          <h3 class="news-title">Новая программа тренировок добавлена</h3>
+          <p class="news-description">Интенсивная 30-дневная программа для набора мышечной массы от профи</p>
+          <div class="news-date"><img class="icon-gray" src="icons/calendar.svg" alt="">2 дня назад</div>
+        </div>
+        <div class="news-item">
+          <div class="news-category">Обновление</div>
+          <h3 class="news-title">Улучшена София</h3>
+          <p class="news-description">Теперь AI может создавать персонализированные планы питания на основе ваших целей</p>
+          <div class="news-date"><img class="icon-gray" src="icons/calendar.svg" alt="">5 дней назад</div>
         </div>
       </div>
     </div>
