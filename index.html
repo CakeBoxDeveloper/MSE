@@ -34,17 +34,16 @@
             background:transparent;
         }
 .header-inner {
-    max-width:1400px;
+    max-width:100%; /* ИЗМЕНИТЬ с 1400px на 100% */
     margin:0 auto;
     padding:12px 40px;
     backdrop-filter:saturate(180%) blur(20px);
-    background:rgba(0,0,0,.72);
+    background:red; /* для отладки */
     border-radius:0 0 8px 8px;
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:20px;
-    background:red; /* ДОБАВИТЬ ЭТУ СТРОКУ для отладки */
 }
  .logo { 
     width:43px;
@@ -467,14 +466,15 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
-  <div class="header-inner">
-    <div class="logo">
-      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
+  <div class="container"> <!-- ДОБАВИТЬ -->
+    <div class="header-inner">
+      <div class="logo">
+        <img class="icon-gray" src="..." alt="">
+      </div>
+      <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
     </div>
-    <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
-  </div>
+  </div> <!-- ДОБАВИТЬ -->
 </header>
 
 <div class="container">
