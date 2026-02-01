@@ -34,13 +34,22 @@
 
         /* Header */
         header {
-            padding:16px 0;position:sticky;top:0;z-index:100;
-            backdrop-filter:saturate(180%) blur(20px);
-            background:rgba(0,0,0,.72);border-bottom:1px solid var(--glass-border);
+            position:sticky;top:0;z-index:100;
+            padding: 12px 0 0 0;
+            /* прозрачный фон у внешней обёртки */
+            background: transparent;
         }
-        .header-content { display:flex;justify-content:space-between;align-items:center;gap:20px; }
-        .logo { width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-        .logo img { width:192px;height:192px; }
+        .header-inner {
+            /* видимая плашка — ширина = контент */
+            max-width:1400px;margin:0 auto;padding:12px 20px;
+            backdrop-filter:saturate(180%) blur(20px);
+            background:rgba(0,0,0,.72);
+            border:1px solid var(--glass-border);
+            border-radius: 0 0 8px 8px;
+            display:flex;justify-content:space-between;align-items:center;gap:20px;
+        }
+        .logo { width:43px;height:43px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .logo img { width:128px;height:128px; }
         .header-login-btn {
             padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;
@@ -345,6 +354,11 @@
             background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;padding:24px;
             backdrop-filter:saturate(180%) blur(20px);max-width:380px;width:calc(100% - 40px);
             transform:scale(.9);transition:transform .3s ease;
+            /* Фиксированная высота — login и register всегда одинаковый размер окна */
+            height: 420px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .auth-overlay.active .auth-modal { transform:scale(1); }
         
@@ -410,7 +424,7 @@
             width:100%;margin:0;
         }
         .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;flex-shrink:0; }
-        .user-id-number { font-size:14px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--text-secondary);flex-shrink:0; }
+        .user-id-number { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;flex-shrink:0; }
 
         .register-form-content .auth-form {
             width:100%;
@@ -452,24 +466,28 @@
         .logout-modal h2 { margin-bottom:12px; }
         .logout-modal p { color:var(--text-secondary);margin-bottom:20px; }
 
+        /* Login / Register forms — centered vertically inside fixed-height modal */
+        #loginForm { display: flex; flex-direction: column; }
+        #loginContent { display: flex; flex-direction: column; align-items: stretch; width: 100%; }
+
         @media(max-width:480px){
             .container{ padding:0 16px; }
             .content-block{ padding:16px; }
-            header{ padding:12px 0; }
-            .logo{ width:84px;height:84px; }
+            header{ padding:8px 0 0 0; }
+            .header-inner{ padding:10px 16px; }
+            .logo{ width:29px;height:29px; }
+            .logo img { width:86px;height:86px; }
             .pin-digit{ height:55px;font-size:20px; }
         }
     </style>
 </head>
 <body>
 <header>
-  <div class="container">
-    <div class="header-content">
-      <div class="logo">
-        <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
-      </div>
-      <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
+  <div class="header-inner">
+    <div class="logo">
+      <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
     </div>
+    <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
   </div>
 </header>
 
@@ -518,7 +536,9 @@
             <button class="chat-new-btn" onclick="addChatTab()">+</button>
             <div class="chat-tabs-wrapper" id="chatTabsWrapper">
               <div class="chat-tabs" id="chatTabs">
-                <button class="chat-tab active" data-chat="sofia" data-base="true" onclick="closeAllMenus(); switchChatTab('sofia');">София</button>
+                <button class="chat-tab active" data-chat="sofia" data-base="true" onclick="closeAllMenus(); switchChatTab('sofia');">
+                  <span>София</span>
+                </button>
               </div>
             </div>
             <div class="chat-right-controls">
