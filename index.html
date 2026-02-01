@@ -19,7 +19,7 @@
             --bg-secondary: #0a0a0a;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --text-primary: #ffffff;
+            --text-primary: #888888;
             --text-secondary: #888888;
             --text-tertiary: #666666;
         }
@@ -597,12 +597,14 @@
         .pin-input-container {
             display: flex;
             gap: 16px;
-            justify-content: center;
+            justify-content: space-between;
             margin: 16px 0;
+            max-width: 100%;
         }
 
         .pin-digit {
-            width: 50px;
+            flex: 1;
+            max-width: 60px;
             height: 60px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
@@ -613,6 +615,10 @@
             font-weight: 600;
             text-align: center;
             transition: all 0.2s ease;
+        }
+
+        .pin-digit.error {
+            border-color: rgba(255, 80, 80, 0.5);
         }
 
         .pin-digit:focus {
@@ -702,10 +708,11 @@
             font-size: 14px;
             color: var(--text-secondary);
             letter-spacing: -0.2px;
+            font-weight: 600;
         }
 
         .user-id-number {
-            font-size: 20px;
+            font-size: 14px;
             font-weight: 600;
             letter-spacing: 1px;
             font-variant-numeric: tabular-nums;
@@ -724,6 +731,7 @@
             width: 16px;
             height: 16px;
             cursor: pointer;
+            accent-color: var(--text-secondary);
         }
 
         .checkbox-group label {
@@ -733,7 +741,7 @@
         }
 
         .checkbox-group a {
-            color: var(--text-primary);
+            color: var(--text-secondary);
             text-decoration: underline;
         }
 
@@ -765,6 +773,29 @@
             color: var(--text-primary);
             margin-top: 12px;
             font-weight: 500;
+        }
+
+        .fullscreen-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .fullscreen-success {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .fullscreen-success .success-text {
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         /* Logout Modal */
@@ -936,66 +967,75 @@
         <div class="auth-modal">
             <!-- Login Form -->
             <div id="loginForm">
-                <h2 class="auth-header">Вход в сеть</h2>
-                <form class="auth-form" onsubmit="return false;">
-                    <div class="form-group" id="stepId">
-                        <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
+                <div id="loginContent">
+                    <h2 class="auth-header">Вход в сеть</h2>
+                    <form class="auth-form" onsubmit="return false;">
+                        <div class="form-group" id="stepId">
+                            <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
+                        </div>
+                        <div id="loginTransitionLoader" style="display:none;">
+                            <div class="loader"></div>
+                        </div>
+                        <div class="form-group" id="stepPin" style="display:none;">
+                            <div class="pin-input-container">
+                                <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="auth-buttons" id="loginButtons">
+                            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+                        </div>
+                    </form>
+                    <div class="auth-switch">
+                        Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button>
                     </div>
-                    <div id="loginTransitionLoader" style="display:none;">
-                        <div class="loader"></div>
-                    </div>
-                    <div class="form-group" id="stepPin" style="display:none;">
-                        <input type="password" class="form-input" id="loginPin" placeholder="••••" maxlength="4" autocomplete="off">
-                    </div>
-                    <div id="loginLoader" style="display:none;">
-                        <div class="loader"></div>
-                    </div>
-                    <div id="loginSuccess" style="display:none;">
-                        <div class="success-text">Вход разрешён</div>
-                    </div>
-                    <div class="auth-buttons" id="loginButtons">
-                        <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-                    </div>
-                </form>
-                <div class="auth-switch">
-                    Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button>
+                </div>
+                <div id="loginLoader" class="fullscreen-loader" style="display:none;">
+                    <div class="loader"></div>
+                </div>
+                <div id="loginSuccess" class="fullscreen-success" style="display:none;">
+                    <div class="success-text">Вход разрешён</div>
                 </div>
             </div>
 
             <!-- Register Form -->
             <div id="registerForm" style="display: none;">
-                <h2 class="auth-header">Регистрация</h2>
-                <div class="user-id-display">
-                    <span class="user-id-label">Вы станете звеном под номером:</span>
-                    <span class="user-id-number" id="newUserId">----</span>
-                </div>
-                <form class="auth-form" onsubmit="return false;">
-                    <div class="form-group">
-                        <label class="form-label centered">Создайте ключ</label>
-                        <div class="pin-input-container">
-                            <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
-                            <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
-                            <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
-                            <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
+                <div id="registerContent">
+                    <h2 class="auth-header">Подключение к сети MSE</h2>
+                    <div class="user-id-display">
+                        <span class="user-id-label">Вы станете звеном под номером:</span>
+                        <span class="user-id-number" id="newUserId">----</span>
+                    </div>
+                    <form class="auth-form" onsubmit="return false;">
+                        <div class="form-group">
+                            <label class="form-label centered">Создайте ключ</label>
+                            <div class="pin-input-container">
+                                <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
+                            </div>
                         </div>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="termsCheckbox">
-                        <label for="termsCheckbox">
-                            Я принимаю <a href="#" target="_blank">условия</a>
-                        </label>
-                    </div>
-                    <div id="registerLoader" style="display:none;">
-                        <div class="loader"></div>
-                    </div>
-                    <div id="registerSuccess" style="display:none;">
-                        <div class="success-text">Аккаунт создан</div>
-                    </div>
-                    <div class="auth-buttons" id="registerButtons">
-                        <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-                        <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
-                    </div>
-                </form>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="termsCheckbox">
+                            <label for="termsCheckbox">
+                                Я принимаю <a href="#" target="_blank">условия</a>
+                            </label>
+                        </div>
+                        <div class="auth-buttons" id="registerButtons">
+                            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+                            <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="registerLoader" class="fullscreen-loader" style="display:none;">
+                    <div class="loader"></div>
+                </div>
+                <div id="registerSuccess" class="fullscreen-success" style="display:none;">
+                    <div class="success-text"></div>
+                </div>
             </div>
 
             <!-- Logout Confirmation -->
@@ -1032,6 +1072,7 @@
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('logoutModal').style.display = 'none';
             
+            document.getElementById('loginContent').style.display = 'block';
             document.getElementById('stepId').style.display = 'flex';
             document.getElementById('stepPin').style.display = 'none';
             document.getElementById('loginTransitionLoader').style.display = 'none';
@@ -1040,7 +1081,10 @@
             document.getElementById('loginButtons').style.display = 'flex';
             
             document.getElementById('loginId').value = '';
-            document.getElementById('loginPin').value = '';
+            document.getElementById('loginPin1').value = '';
+            document.getElementById('loginPin2').value = '';
+            document.getElementById('loginPin3').value = '';
+            document.getElementById('loginPin4').value = '';
             document.getElementById('loginId').classList.remove('error');
             
             document.getElementById('authOverlay').classList.add('active');
@@ -1057,6 +1101,7 @@
             document.getElementById('newUserId').textContent = newId.toString().padStart(4, '0');
 
             // Reset form
+            document.getElementById('registerContent').style.display = 'block';
             document.getElementById('pin1').value = '';
             document.getElementById('pin2').value = '';
             document.getElementById('pin3').value = '';
@@ -1110,40 +1155,72 @@
             }
         });
 
-        // ─── Login: step 2 — автоматический логин при 4 символах ───
-        document.getElementById('loginPin').addEventListener('input', function () {
-            this.classList.remove('error');
-            if (this.value.length === 4) {
-                const id = parseInt(document.getElementById('loginId').value);
-                const pin = this.value;
-                const user = users.find(u => u.id === id && u.pin === pin);
+        // ─── Login: step 2 — PIN inputs (4 cells) ───
+        const loginPinInputs = ['loginPin1', 'loginPin2', 'loginPin3', 'loginPin4'];
+        loginPinInputs.forEach((id, index) => {
+            const input = document.getElementById(id);
+            
+            input.addEventListener('input', function() {
+                // Remove error styling
+                loginPinInputs.forEach(pinId => {
+                    document.getElementById(pinId).classList.remove('error');
+                });
 
-                if (user) {
-                    // Show loader
-                    document.getElementById('stepPin').style.display = 'none';
-                    document.getElementById('loginButtons').style.display = 'none';
-                    document.getElementById('loginLoader').style.display = 'block';
+                // Only allow single digit
+                if (this.value.length > 1) {
+                    this.value = this.value.slice(0, 1);
+                }
+                
+                // Move to next input
+                if (this.value.length === 1 && index < loginPinInputs.length - 1) {
+                    document.getElementById(loginPinInputs[index + 1]).focus();
+                }
+                
+                // Check if all 4 digits are filled
+                if (index === 3 && this.value.length === 1) {
+                    const pin = loginPinInputs.map(pinId => document.getElementById(pinId).value).join('');
+                    const id = parseInt(document.getElementById('loginId').value);
+                    const user = users.find(u => u.id === id && u.pin === pin);
 
-                    setTimeout(() => {
-                        document.getElementById('loginLoader').style.display = 'none';
-                        document.getElementById('loginSuccess').style.display = 'block';
+                    if (user) {
+                        // Valid PIN - show fullscreen loader
+                        document.getElementById('loginContent').style.display = 'none';
+                        document.getElementById('loginLoader').style.display = 'flex';
 
                         setTimeout(() => {
-                            currentUser = user;
-                            closeAuth();
-                            document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
-                        }, 1000);
-                    }, 2000);
-                } else {
-                    // Invalid PIN
-                    this.classList.add('error');
-                    setTimeout(() => {
-                        this.classList.remove('error');
-                        this.value = '';
-                        this.focus();
-                    }, 500);
+                            document.getElementById('loginLoader').style.display = 'none';
+                            document.getElementById('loginSuccess').style.display = 'flex';
+
+                            setTimeout(() => {
+                                currentUser = user;
+                                closeAuth();
+                                document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
+                            }, 1000);
+                        }, 2000);
+                    } else {
+                        // Invalid PIN - show error
+                        loginPinInputs.forEach(pinId => {
+                            document.getElementById(pinId).classList.add('error');
+                        });
+                        
+                        setTimeout(() => {
+                            loginPinInputs.forEach(pinId => {
+                                const inp = document.getElementById(pinId);
+                                inp.classList.remove('error');
+                                inp.value = '';
+                            });
+                            document.getElementById('loginPin1').focus();
+                        }, 500);
+                    }
                 }
-            }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                // Move to previous on backspace
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    document.getElementById(loginPinInputs[index - 1]).focus();
+                }
+            });
         });
 
         // ─── Register: PIN inputs ───
@@ -1197,9 +1274,9 @@
                 return;
             }
 
-            // Show loader
-            document.getElementById('registerButtons').style.display = 'none';
-            document.getElementById('registerLoader').style.display = 'block';
+            // Show fullscreen loader
+            document.getElementById('registerContent').style.display = 'none';
+            document.getElementById('registerLoader').style.display = 'flex';
 
             setTimeout(() => {
                 const newUser = { id: userId, pin: pin, createdAt: new Date().toISOString() };
@@ -1207,12 +1284,14 @@
                 currentUser = newUser;
 
                 document.getElementById('registerLoader').style.display = 'none';
-                document.getElementById('registerSuccess').style.display = 'block';
+                document.getElementById('registerSuccess').style.display = 'flex';
+                document.getElementById('registerSuccess').querySelector('.success-text').innerHTML = 
+                    `Подключение выполнено.<br>Присоединилось новое звено #${userId.toString().padStart(4, '0')}`;
 
                 setTimeout(() => {
                     closeAuth();
                     document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
-                }, 1500);
+                }, 2500);
             }, 2000);
         }
 
