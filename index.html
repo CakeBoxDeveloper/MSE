@@ -11,10 +11,9 @@
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --bg-primary:#000;
-            --bg-secondary:#0a0a0a;
             --glass-bg:rgba(255,255,255,.05);
             --glass-border:rgba(255,255,255,.1);
-            --text-primary:#fff;
+            --text-primary:#999;
             --text-secondary:#888;
             --text-tertiary:#666;
         }
@@ -42,16 +41,16 @@
         }
         .header-login-btn:hover { background:rgba(255,255,255,.14); }
 
-        /* Inner tabs (левый блок) */
+        /* Inner tabs */
         .inner-tabs { display:flex;gap:8px;margin-bottom:16px;flex-shrink:0;align-items:center; }
         .inner-tab {
             padding:8px 14px;background:transparent;border:1px solid var(--text-secondary);
             border-radius:6px;color:var(--text-secondary);cursor:pointer;font-family:'Inter',sans-serif;
             font-size:12px;font-weight:500;transition:all .2s ease;display:flex;align-items:center;gap:6px;
         }
-        .inner-tab-icon { width:14px;height:14px;opacity:.7;filter:invert(1); }
+        .inner-tab-icon { width:14px;height:14px;opacity:.7; }
         .inner-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
-        .inner-tab.active .inner-tab-icon { filter:invert(0); }
+        .inner-tab.active .inner-tab-icon { opacity:1; }
         .inner-tab:hover:not(.active) { border-color:rgba(255,255,255,.3); }
 
         /* Grid */
@@ -62,9 +61,20 @@
         /* Content block */
         .content-block {
             background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;
-            padding:20px;backdrop-filter:saturate(180%) blur(20px);min-height:500px;
-            display:flex;flex-direction:column;transition:min-height .25s ease,padding .25s ease;
+            padding:20px;backdrop-filter:saturate(180%) blur(20px);
+            display:flex;flex-direction:column;transition:all .25s ease;
         }
+        .content-block:not(.minimized) { min-height:500px; }
+        
+        .minimized-bar {
+            display:none;align-items:center;justify-content:space-between;cursor:pointer;
+        }
+        .minimized-bar .label { font-size:13px;font-weight:500;color:var(--text-secondary);letter-spacing:-.2px; }
+        
+        .content-block.minimized { min-height:0 !important;padding:10px 16px; }
+        .content-block.minimized .minimized-bar { display:flex; }
+        .content-block.minimized .block-body { display:none; }
+        
         .btn-minimize {
             width:24px;height:24px;background:transparent;border:1px solid var(--glass-border);
             border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;
@@ -72,12 +82,9 @@
         }
         .btn-minimize:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
         .btn-minimize svg { width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round;transition:transform .2s ease; }
-
-        .content-block.minimized { min-height:0 !important;padding:10px 16px; }
         .content-block.minimized .btn-minimize svg { transform:rotate(180deg); }
-        .content-block .block-body { flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;transition:opacity .15s ease; }
-        .content-block.minimized .block-body { display:none; }
-
+        
+        .block-body { flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden; }
         .content-body { flex:1;display:flex;flex-direction:column;min-height:0; }
 
         /* Materials list */
@@ -91,13 +98,35 @@
             width:36px;height:36px;background:rgba(255,255,255,.08);border-radius:5px;
             display:flex;align-items:center;justify-content:center;flex-shrink:0;
         }
-        .material-icon img { width:20px;height:20px;filter:invert(1);opacity:.85; }
+        .material-icon img { width:20px;height:20px;opacity:.7; }
         .material-info h3 { font-size:14px;font-weight:500;margin-bottom:4px;letter-spacing:-.2px; }
         .material-info p { font-size:12px;color:var(--text-secondary);letter-spacing:-.1px; }
 
         /* Chat panel */
-        .chat-top-bar { display:flex;align-items:center;gap:8px;flex-shrink:0;margin-bottom:12px;flex-wrap:wrap; }
-        .chat-tabs { display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none; }
+        .chat-top-bar { display:flex;align-items:center;gap:8px;flex-shrink:0;margin-bottom:12px;position:relative; }
+        
+        .chat-new-btn {
+            padding:5px 10px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:5px;
+            color:var(--text-tertiary);font-family:'Inter',sans-serif;font-size:16px;font-weight:400;
+            cursor:pointer;white-space:nowrap;transition:all .15s ease;flex-shrink:0;
+        }
+        .chat-new-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:var(--text-secondary); }
+        
+        .chat-tabs-wrapper { flex:1;position:relative;min-width:0;overflow:hidden; }
+        .chat-tabs-wrapper::before,
+        .chat-tabs-wrapper::after {
+            content:'';position:absolute;top:0;bottom:0;width:30px;z-index:2;pointer-events:none;opacity:0;transition:opacity .3s ease;
+        }
+        .chat-tabs-wrapper::before {
+            left:0;background:linear-gradient(to right, var(--glass-bg), transparent);
+        }
+        .chat-tabs-wrapper::after {
+            right:0;background:linear-gradient(to left, var(--glass-bg), transparent);
+        }
+        .chat-tabs-wrapper.show-left-fade::before { opacity:1; }
+        .chat-tabs-wrapper.show-right-fade::after { opacity:1; }
+        
+        .chat-tabs { display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth; }
         .chat-tabs::-webkit-scrollbar { display:none; }
         .chat-tab {
             padding:5px 10px;background:transparent;border:1px solid var(--glass-border);border-radius:5px;
@@ -106,8 +135,6 @@
         }
         .chat-tab:hover:not(.active) { border-color:rgba(255,255,255,.22); }
         .chat-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
-        .chat-tab.new-chat { background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:var(--text-tertiary); }
-        .chat-tab.new-chat:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:var(--text-secondary); }
 
         .chat-search-wrap { flex-shrink:0;position:relative;width:28px;transition:width .25s ease; }
         .chat-search-wrap.open { width:140px; }
@@ -142,8 +169,8 @@
             flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
             text-align:center;padding:20px 10px;gap:16px;pointer-events:none;
         }
-        .chat-empty-state .sofia-icon { width:72px;height:72px;opacity:.55; }
-        .chat-empty-state .sofia-icon img { width:100%;height:100%;filter:invert(1); }
+        .chat-empty-state .sofia-icon { width:90px;height:90px;opacity:.5; }
+        .chat-empty-state .sofia-icon img { width:100%;height:100%;opacity:.7; }
         .chat-empty-state p { font-size:13px;line-height:1.6;color:var(--text-secondary);letter-spacing:-.15px;max-width:260px; }
 
         .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0; }
@@ -159,7 +186,7 @@
             cursor:pointer;transition:all .2s ease;font-size:13px;display:flex;align-items:center;justify-content:center;
         }
         .chat-send:hover { background:rgba(255,255,255,.15); }
-        .chat-send img { width:16px;height:16px;filter:invert(1); }
+        .chat-send img { width:16px;height:16px;opacity:.7; }
 
         /* News */
         .news-section { margin:20px 0 40px; }
@@ -181,12 +208,12 @@
         .news-title { font-size:15px;font-weight:500;margin:12px 0;line-height:1.4;letter-spacing:-.2px; }
         .news-description { font-size:12px;color:var(--text-secondary);line-height:1.5;letter-spacing:-.1px; }
         .news-date { font-size:11px;color:var(--text-tertiary);margin-top:auto;display:flex;align-items:center;gap:5px; }
-        .news-date img { width:12px;height:12px;filter:invert(1);opacity:.4; }
+        .news-date img { width:12px;height:12px;opacity:.4; }
 
         /* Empty state */
         .empty-state { text-align:center;padding:60px 20px;color:var(--text-secondary); }
         .empty-state-icon { margin-bottom:16px;opacity:.4; }
-        .empty-state-icon img { width:48px;height:48px;filter:invert(1); }
+        .empty-state-icon img { width:90px;height:90px;opacity:.7; }
         .empty-state h3 { font-size:15px;margin-bottom:8px;color:var(--text-primary);font-weight:500;letter-spacing:-.2px; }
         .empty-state p { font-size:13px;line-height:1.5;letter-spacing:-.1px; }
 
@@ -212,7 +239,7 @@
             text-align:center;font-size:14px;font-weight:600;margin-bottom:8px;
             display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
         }
-        .key-icon { width:20px;height:20px;opacity:.7;filter:invert(1); }
+        .key-icon { width:20px;height:20px;opacity:.7; }
         .form-input {
             padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:14px;
@@ -298,7 +325,7 @@
     <div class="header-content">
       <div class="logo">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="45" fill="white"/>
+          <circle cx="50" cy="50" r="45" fill="#999"/>
           <text x="50" y="65" font-size="40" font-weight="bold" text-anchor="middle" fill="black">MSE</text>
         </svg>
       </div>
@@ -313,6 +340,12 @@
 
       <!-- LEFT -->
       <div class="content-block" id="browserBlock">
+        <div class="minimized-bar" onclick="toggleMinimize('browserBlock')">
+          <span class="label">Браузер</span>
+          <button class="btn-minimize">
+            <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+          </button>
+        </div>
         <div class="block-body">
           <div class="inner-tabs">
             <button class="inner-tab active" data-inner="materials">
@@ -337,11 +370,19 @@
 
       <!-- RIGHT -->
       <div class="content-block" id="chatBlock">
+        <div class="minimized-bar" onclick="toggleMinimize('chatBlock')">
+          <span class="label">София</span>
+          <button class="btn-minimize">
+            <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+          </button>
+        </div>
         <div class="block-body">
           <div class="chat-top-bar">
-            <div class="chat-tabs" id="chatTabs">
-              <button class="chat-tab new-chat" onclick="addChatTab()">+ Новый</button>
-              <button class="chat-tab active" data-chat="sofia">София</button>
+            <button class="chat-new-btn" onclick="addChatTab()">+</button>
+            <div class="chat-tabs-wrapper" id="chatTabsWrapper">
+              <div class="chat-tabs" id="chatTabs">
+                <button class="chat-tab active" data-chat="sofia">София</button>
+              </div>
             </div>
             <div class="chat-search-wrap" id="chatSearchWrap">
               <div class="chat-search-icon" onclick="toggleChatSearch()">
@@ -463,7 +504,28 @@
 </div>
 
 <script>
-function toggleMinimize(id) { document.getElementById(id).classList.toggle('minimized'); }
+function toggleMinimize(id) { 
+    const block = document.getElementById(id);
+    block.classList.toggle('minimized');
+    updateGridLayout();
+}
+
+function updateGridLayout() {
+    const grid = document.querySelector('.content-grid');
+    const browser = document.getElementById('browserBlock');
+    const chat = document.getElementById('chatBlock');
+    
+    const browserMin = browser.classList.contains('minimized');
+    const chatMin = chat.classList.contains('minimized');
+    
+    if (browserMin && !chatMin) {
+        grid.style.gridTemplateRows = 'auto 1fr';
+    } else if (!browserMin && chatMin) {
+        grid.style.gridTemplateRows = '1fr auto';
+    } else {
+        grid.style.gridTemplateRows = '';
+    }
+}
 
 let users = [{ id:1001, pin:'1234', createdAt: new Date().toISOString() }];
 let currentUser = null;
@@ -659,18 +721,32 @@ function addChatTab(){
     tab.dataset.chat=id;
     tab.textContent='Чат '+(chatTabCounter-1);
     tab.addEventListener('click',()=>switchChatTab(id));
-    const newBtn=document.querySelector('.chat-tab.new-chat');
-    document.getElementById('chatTabs').insertBefore(tab,newBtn);
+    document.getElementById('chatTabs').appendChild(tab);
     switchChatTab(id);
+    updateChatScrollFade();
 }
 function switchChatTab(id){
     activeChatTab=id;
-    document.querySelectorAll('.chat-tab:not(.new-chat)').forEach(t=>t.classList.toggle('active',t.dataset.chat===id));
+    document.querySelectorAll('.chat-tab').forEach(t=>t.classList.toggle('active',t.dataset.chat===id));
     renderChatMessages();
 }
 document.querySelectorAll('.chat-tab[data-chat]').forEach(tab=>{
     tab.addEventListener('click',()=>switchChatTab(tab.dataset.chat));
 });
+
+function updateChatScrollFade(){
+    const wrapper=document.getElementById('chatTabsWrapper');
+    const tabs=document.getElementById('chatTabs');
+    const isScrollable=tabs.scrollWidth>tabs.clientWidth;
+    const isAtStart=tabs.scrollLeft<=1;
+    const isAtEnd=tabs.scrollLeft+tabs.clientWidth>=tabs.scrollWidth-1;
+    
+    wrapper.classList.toggle('show-left-fade',isScrollable&&!isAtStart);
+    wrapper.classList.toggle('show-right-fade',isScrollable&&!isAtEnd);
+}
+document.getElementById('chatTabs').addEventListener('scroll',updateChatScrollFade);
+window.addEventListener('resize',updateChatScrollFade);
+setTimeout(updateChatScrollFade,100);
 
 function toggleChatSearch(){
     const wrap=document.getElementById('chatSearchWrap');
@@ -679,7 +755,7 @@ function toggleChatSearch(){
 }
 document.getElementById('chatSearchInput').addEventListener('input',function(){
     const q=this.value.toLowerCase();
-    document.querySelectorAll('.chat-tab:not(.new-chat)').forEach(tab=>{
+    document.querySelectorAll('.chat-tab').forEach(tab=>{
         tab.style.display=tab.textContent.toLowerCase().includes(q)?'':'none';
     });
 });
