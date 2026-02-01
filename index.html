@@ -25,6 +25,11 @@
         }
         .container { max-width:1400px;margin:0 auto;padding:0 20px; }
 
+        /* Icon gray filter */
+        .icon-gray {
+            filter: invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%);
+        }
+
         /* Header */
         header {
             padding:16px 0;position:sticky;top:0;z-index:100;
@@ -50,7 +55,7 @@
         }
         .inner-tab-icon { width:14px;height:14px;opacity:.7; }
         .inner-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
-        .inner-tab.active .inner-tab-icon { opacity:1; }
+        .inner-tab.active .inner-tab-icon { opacity:1;filter:invert(0%) brightness(0%); }
         .inner-tab:hover:not(.active) { border-color:rgba(255,255,255,.3); }
 
         /* Grid */
@@ -112,16 +117,31 @@
         }
         .chat-new-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:var(--text-secondary); }
         
-        .chat-tabs-wrapper { flex:1;position:relative;min-width:0;overflow:hidden; }
+        .chat-tabs-wrapper { 
+            width:40%;
+            position:relative;
+            min-width:0;
+            overflow:hidden;
+        }
         .chat-tabs-wrapper::before,
         .chat-tabs-wrapper::after {
-            content:'';position:absolute;top:0;bottom:0;width:30px;z-index:2;pointer-events:none;opacity:0;transition:opacity .3s ease;
+            content:'';
+            position:absolute;
+            top:0;
+            bottom:0;
+            width:30px;
+            z-index:2;
+            pointer-events:none;
+            opacity:0;
+            transition:opacity .3s ease;
         }
         .chat-tabs-wrapper::before {
-            left:0;background:linear-gradient(to right, var(--glass-bg), transparent);
+            left:0;
+            background:linear-gradient(to left, transparent, rgba(0,0,0,0.95));
         }
         .chat-tabs-wrapper::after {
-            right:0;background:linear-gradient(to left, var(--glass-bg), transparent);
+            right:0;
+            background:linear-gradient(to right, transparent, rgba(0,0,0,0.95));
         }
         .chat-tabs-wrapper.show-left-fade::before { opacity:1; }
         .chat-tabs-wrapper.show-right-fade::after { opacity:1; }
@@ -252,6 +272,13 @@
         .form-input[type="number"] { -moz-appearance:textfield; }
         .form-input[type="number"]::-webkit-outer-spin-button,.form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
+        .user-id-display {
+            padding:16px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
+            border-radius:5px;text-align:center;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;
+        }
+        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
+        .user-id-number { font-size:14px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--text-secondary); }
+
         .pin-input-container { display:flex;gap:16px;justify-content:space-between;margin:16px 0;max-width:100%; }
         .pin-digit {
             flex:1;max-width:60px;height:60px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
@@ -276,17 +303,11 @@
         .auth-btn:disabled { opacity:.5;cursor:not-allowed; }
         .auth-switch { margin-top:12px;text-align:center;font-size:12px;color:var(--text-secondary); }
         .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:12px; }
-        .user-id-display {
-            padding:16px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
-            border-radius:5px;text-align:center;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;
-        }
-        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
-        .user-id-number { font-size:14px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--text-secondary); }
 
         .checkbox-group { display:flex;align-items:center;gap:8px;margin-top:12px; }
         .checkbox-group input[type="checkbox"] {
             appearance:none;width:18px;height:18px;border:2px solid var(--text-secondary);border-radius:3px;
-            cursor:pointer;position:relative;transition:all .2s ease;background:transparent;
+            cursor:pointer;position:relative;transition:all .2s ease;background:transparent;flex-shrink:0;
         }
         .checkbox-group input[type="checkbox"]:checked { background:var(--text-secondary);border-color:var(--text-secondary); }
         .checkbox-group input[type="checkbox"]:checked::after {
@@ -308,6 +329,34 @@
         .logout-modal { text-align:center; }
         .logout-modal h2 { margin-bottom:12px; }
         .logout-modal p { color:var(--text-secondary);margin-bottom:20px; }
+
+        /* Register form width constraint */
+        .register-content-wrapper {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+        }
+        .register-width-container {
+            width:100%;
+        }
+        .register-header-aligned {
+            font-size:18px;
+            font-weight:600;
+            letter-spacing:-.3px;
+            text-align:center;
+            margin-bottom:16px;
+            color:var(--text-primary);
+        }
+        .key-label-aligned {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            font-size:14px;
+            font-weight:600;
+            color:var(--text-secondary);
+            margin-bottom:8px;
+        }
 
         @media(max-width:768px){ .news-item{ min-width:220px;width:220px;height:220px; } }
         @media(max-width:480px){
@@ -349,15 +398,15 @@
         <div class="block-body">
           <div class="inner-tabs">
             <button class="inner-tab active" data-inner="materials">
-              <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_materials.svg" alt="">
+              <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_materials.svg" alt="">
               <span>Материалы</span>
             </button>
             <button class="inner-tab" data-inner="workouts">
-              <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
+              <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
               <span>Тренировки</span>
             </button>
             <button class="inner-tab" data-inner="progress">
-              <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
+              <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
               <span>Прогресс</span>
             </button>
             <button class="btn-minimize" onclick="toggleMinimize('browserBlock')">
@@ -399,7 +448,7 @@
             <div class="chat-input-wrapper">
               <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
               <button class="chat-send" id="chat-send">
-                <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
+                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
               </button>
             </div>
           </div>
@@ -415,13 +464,13 @@
           <div class="news-category">Новость</div>
           <h3 class="news-title">Новая программа тренировок добавлена</h3>
           <p class="news-description">Интенсивная 30-дневная программа для набора мышечной массы от профи</p>
-          <div class="news-date"><img src="icons/calendar.svg" alt="">2 дня назад</div>
+          <div class="news-date"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/icons/calendar.svg" alt="">2 дня назад</div>
         </div>
         <div class="news-item">
           <div class="news-category">Обновление</div>
           <h3 class="news-title">Улучшена София</h3>
           <p class="news-description">Теперь AI может создавать персонализированные планы питания на основе ваших целей</p>
-          <div class="news-date"><img src="icons/calendar.svg" alt="">5 дней назад</div>
+          <div class="news-date"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/icons/calendar.svg" alt="">5 дней назад</div>
         </div>
       </div>
     </div>
@@ -459,33 +508,33 @@
     </div>
     <div id="registerForm" style="display:none;">
       <div id="registerContent">
-        <h2 class="auth-header">Новое подключение к сети MSE</h2>
-        <div class="user-id-display">
-          <span class="user-id-label">Вы станете звеном под номером:</span>
-          <span class="user-id-number" id="newUserId">----</span>
-        </div>
-        <form class="auth-form" onsubmit="return false;">
-          <div class="form-group">
-            <label class="form-label centered">
-              <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="" class="key-icon">
+        <div class="register-content-wrapper">
+          <div class="register-width-container">
+            <h2 class="register-header-aligned">Новое подключение к сети MSE</h2>
+            <div class="user-id-display">
+              <span class="user-id-label">Вы станете звеном под номером:</span>
+              <span class="user-id-number" id="newUserId">----</span>
+            </div>
+            <div class="key-label-aligned">
+              <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="" class="key-icon icon-gray">
               <span>Создайте уникальный ключ доступа</span>
-            </label>
+            </div>
             <div class="pin-input-container">
               <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
             </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="termsCheckbox">
+              <label for="termsCheckbox">Я принимаю <a href="#" target="_blank">условия подключения к сети MSE</a></label>
+            </div>
+            <div class="auth-buttons" id="registerButtons">
+              <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+              <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
+            </div>
           </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="termsCheckbox">
-            <label for="termsCheckbox">Я принимаю <a href="#" target="_blank">условия подключения к сети MSE</a></label>
-          </div>
-          <div class="auth-buttons" id="registerButtons">
-            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-            <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
-          </div>
-        </form>
+        </div>
       </div>
       <div id="registerLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
       <div id="registerSuccess" class="fullscreen-success" style="display:none;"><div class="success-text"></div></div>
@@ -690,10 +739,10 @@ const tabData={
     ]
 };
 function renderItemList(items){
-    return '<div class="materials-list">'+items.map(item=>`<div class="material-item"><div class="material-icon"><img src="${item.icon}" alt=""></div><div class="material-info"><h3>${item.title}</h3><p>${item.desc}</p></div></div>`).join('')+'</div>';
+    return '<div class="materials-list">'+items.map(item=>`<div class="material-item"><div class="material-icon"><img class="icon-gray" src="${item.icon}" alt=""></div><div class="material-info"><h3>${item.title}</h3><p>${item.desc}</p></div></div>`).join('')+'</div>';
 }
 function renderProgress(){
-    return `<div class="empty-state"><div class="empty-state-icon"><img src="${TAB_DEFAULTS.progress}" alt=""></div><h3>Прогресс и достижения</h3><p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. Начните тренироваться, чтобы увидеть свой путь к прогрессу!</p></div>`;
+    return `<div class="empty-state"><div class="empty-state-icon"><img class="icon-gray" src="${TAB_DEFAULTS.progress}" alt=""></div><h3>Прогресс и достижения</h3><p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. Начните тренироваться, чтобы увидеть свой путь к прогрессу!</p></div>`;
 }
 function getTabHTML(key){ return key==='progress'?renderProgress():renderItemList(tabData[key]); }
 
@@ -764,7 +813,7 @@ function renderChatMessages(){
     const container=document.getElementById('chat-messages');
     const messages=chatStore[activeChatTab]||[];
     if(messages.length===0){
-        container.innerHTML=`<div class="chat-empty-state"><div class="sofia-icon"><img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/progress_empty.svg" alt=""></div><p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p></div>`;
+        container.innerHTML=`<div class="chat-empty-state"><div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/progress_empty.svg" alt=""></div><p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p></div>`;
     } else {
         container.innerHTML=messages.map(m=>`<div class="chat-message ${m.role}">${m.text}</div>`).join('');
         container.scrollTop=container.scrollHeight;
