@@ -8,1495 +8,759 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         :root {
-            --bg-primary: #000000;
-            --bg-secondary: #0a0a0a;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-primary: #888888;
-            --text-secondary: #888888;
-            --text-tertiary: #666666;
+            --bg-primary:#000;
+            --bg-secondary:#0a0a0a;
+            --glass-bg:rgba(255,255,255,.05);
+            --glass-border:rgba(255,255,255,.1);
+            --text-primary:#888;
+            --text-secondary:#888;
+            --text-tertiary:#666;
         }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+            background:var(--bg-primary);color:var(--text-primary);
+            overflow-x:hidden;min-height:100vh;
+            -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
         }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        .container { max-width:1400px;margin:0 auto;padding:0 20px; }
 
         /* Header */
         header {
-            padding: 16px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: saturate(180%) blur(20px);
-            background: rgba(0, 0, 0, 0.72);
-            border-bottom: 1px solid var(--glass-border);
+            padding:16px 0;position:sticky;top:0;z-index:100;
+            backdrop-filter:saturate(180%) blur(20px);
+            background:rgba(0,0,0,.72);border-bottom:1px solid var(--glass-border);
         }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo {
-            width: 64px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .logo svg {
-            width: 100%;
-            height: 100%;
-        }
-
+        .header-content { display:flex;justify-content:space-between;align-items:center;gap:20px; }
+        .logo { width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .logo svg { width:100%;height:100%; }
         .header-login-btn {
-            padding: 6px 14px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            margin-left: auto;
+            padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
+            border-radius:5px;color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;
+            font-size:13px;font-weight:500;transition:all .2s ease;margin-left:auto;
         }
+        .header-login-btn:hover { background:rgba(255,255,255,.14); }
 
-        .header-login-btn:hover {
-            background: rgba(255, 255, 255, 0.14);
-        }
-
-        /* Inner tabs */
-        .inner-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-shrink: 0;
-        }
-
+        /* Inner tabs (левый блок) */
+        .inner-tabs { display:flex;gap:8px;margin-bottom:16px;flex-shrink:0; }
         .inner-tab {
-            padding: 8px 14px;
-            background: transparent;
-            border: 1px solid var(--text-secondary);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding:8px 14px;background:transparent;border:1px solid var(--text-secondary);
+            border-radius:6px;color:var(--text-secondary);cursor:pointer;font-family:'Inter',sans-serif;
+            font-size:12px;font-weight:500;transition:all .2s ease;display:flex;align-items:center;gap:6px;
         }
+        .inner-tab-icon { width:14px;height:14px;opacity:.7;filter:invert(1); }
+        .inner-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
+        .inner-tab.active .inner-tab-icon { filter:invert(0); }
+        .inner-tab:hover:not(.active) { border-color:rgba(255,255,255,.3); }
 
-        .inner-tab-icon {
-            width: 14px;
-            height: 14px;
-            opacity: 0.7;
-            filter: invert(1);
-        }
+        /* Grid */
+        .main-wrapper { margin-top:20px; }
+        .content-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;align-items:start; }
+        @media(max-width:968px){ .content-grid{ grid-template-columns:1fr; } }
 
-        .inner-tab.active {
-            background: var(--text-secondary);
-            color: var(--bg-primary);
-            border-color: var(--text-secondary);
-        }
-
-        .inner-tab.active .inner-tab-icon {
-            filter: invert(0);
-        }
-
-        .inner-tab:hover:not(.active) {
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Main Content */
-        .main-wrapper {
-            margin-top: 20px;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 968px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        /* ─── Content block + minimize ─── */
         .content-block {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            padding: 20px;
-            backdrop-filter: saturate(180%) blur(20px);
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
+            background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;
+            padding:20px;backdrop-filter:saturate(180%) blur(20px);min-height:500px;
+            display:flex;flex-direction:column;transition:min-height .25s ease,padding .25s ease;
         }
-
-        .block-header {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            letter-spacing: -0.2px;
-            flex-shrink: 0;
+        .block-title-bar {
+            display:flex;align-items:center;justify-content:space-between;
+            flex-shrink:0;margin-bottom:16px;min-height:20px;
         }
-
-        .block-icon {
-            width: 18px;
-            height: 18px;
-            opacity: 0.7;
-            filter: invert(1);
+        .block-title-bar .block-label {
+            font-size:13px;font-weight:500;color:var(--text-secondary);
+            letter-spacing:-.2px;user-select:none;
         }
-
-        .content-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
+        .btn-minimize {
+            width:24px;height:24px;background:transparent;border:1px solid var(--glass-border);
+            border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+            transition:all .15s ease;flex-shrink:0;
         }
+        .btn-minimize:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+        .btn-minimize svg { width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round;transition:transform .2s ease; }
 
-        /* Materials Section */
-        .materials-list {
-            display: grid;
-            gap: 10px;
-        }
+        .content-block.minimized { min-height:0 !important;padding:10px 16px; }
+        .content-block.minimized .block-title-bar { margin-bottom:0; }
+        .content-block.minimized .btn-minimize svg { transform:rotate(180deg); }
+        .content-block .block-body { flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;transition:opacity .15s ease; }
+        .content-block.minimized .block-body { display:none; }
 
+        .content-body { flex:1;display:flex;flex-direction:column;min-height:0; }
+
+        /* Materials list */
+        .materials-list { display:grid;gap:10px; }
         .material-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:5px;
+            padding:14px;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;gap:12px;
         }
-
-        .material-item:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.18);
-        }
-
+        .material-item:hover { background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18); }
         .material-icon {
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            width:36px;height:36px;background:rgba(255,255,255,.08);border-radius:5px;
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;
         }
+        .material-icon img { width:20px;height:20px;filter:invert(1);opacity:.85; }
+        .material-info h3 { font-size:14px;font-weight:500;margin-bottom:4px;letter-spacing:-.2px; }
+        .material-info p { font-size:12px;color:var(--text-secondary);letter-spacing:-.1px; }
 
-        .material-icon img {
-            width: 20px;
-            height: 20px;
-            filter: invert(1);
-            opacity: 0.85;
+        /* ─── Chat panel ─── */
+        .chat-top-bar { display:flex;align-items:center;gap:8px;flex-shrink:0;margin-bottom:12px;flex-wrap:wrap; }
+        .chat-tabs { display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none; }
+        .chat-tabs::-webkit-scrollbar { display:none; }
+        .chat-tab {
+            padding:5px 10px;background:transparent;border:1px solid var(--glass-border);border-radius:5px;
+            color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:11px;font-weight:500;
+            cursor:pointer;white-space:nowrap;transition:all .15s ease;flex-shrink:0;
         }
+        .chat-tab:hover:not(.active) { border-color:rgba(255,255,255,.22); }
+        .chat-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
+        .chat-tab.new-chat { background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:var(--text-tertiary); }
+        .chat-tab.new-chat:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:var(--text-secondary); }
 
-        .material-info h3 {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 4px;
-            letter-spacing: -0.2px;
+        /* поиск чатов */
+        .chat-search-wrap { flex-shrink:0;position:relative;width:28px;transition:width .25s ease; }
+        .chat-search-wrap.open { width:140px; }
+        .chat-search-input {
+            width:100%;height:28px;padding:0 8px 0 28px;background:rgba(255,255,255,.05);
+            border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);
+            font-family:'Inter',sans-serif;font-size:11px;opacity:0;transition:opacity .2s ease .05s;pointer-events:none;
         }
-
-        .material-info p {
-            font-size: 12px;
-            color: var(--text-secondary);
-            letter-spacing: -0.1px;
+        .chat-search-wrap.open .chat-search-input { opacity:1;pointer-events:all; }
+        .chat-search-input:focus { outline:none;border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.08); }
+        .chat-search-input::placeholder { color:var(--text-tertiary); }
+        .chat-search-icon {
+            position:absolute;left:7px;top:50%;transform:translateY(-50%);width:13px;height:13px;
+            cursor:pointer;opacity:.5;transition:opacity .15s ease;z-index:1;
         }
+        .chat-search-icon:hover { opacity:.8; }
+        .chat-search-icon svg { width:100%;height:100%;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round; }
 
-        /* Chat Section */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-height: 0;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 0;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .chat-messages::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .chat-messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-        }
-
+        /* Chat messages area */
+        .chat-container { display:flex;flex-direction:column;flex:1;min-height:0; }
+        .chat-messages { flex:1;overflow-y:auto;padding:10px 0;margin-bottom:12px;display:flex;flex-direction:column;gap:10px; }
+        .chat-messages::-webkit-scrollbar { width:4px; }
+        .chat-messages::-webkit-scrollbar-track { background:transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2);border-radius:2px; }
         .chat-message {
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            font-size: 13px;
-            max-width: 85%;
-            line-height: 1.5;
-            letter-spacing: -0.1px;
+            padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
+            border-radius:5px;font-size:13px;max-width:85%;line-height:1.5;letter-spacing:-.1px;
         }
+        .chat-message.ai { align-self:flex-start; }
+        .chat-message.user { align-self:flex-end;background:rgba(255,255,255,.08); }
 
-        .chat-message.ai {
-            align-self: flex-start;
+        /* Chat empty state */
+        .chat-empty-state {
+            flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+            text-align:center;padding:20px 10px;gap:16px;pointer-events:none;
         }
+        .chat-empty-state .sofia-icon { width:72px;height:72px;opacity:.55; }
+        .chat-empty-state .sofia-icon img { width:100%;height:100%;filter:invert(1); }
+        .chat-empty-state p { font-size:13px;line-height:1.6;color:var(--text-secondary);letter-spacing:-.15px;max-width:260px; }
 
-        .chat-message.user {
-            align-self: flex-end;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .chat-input-wrapper {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
+        /* Chat input */
+        .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0; }
         .chat-input {
-            flex: 1;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            transition: all 0.2s ease;
+            flex:1;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
+            border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:13px;transition:all .2s ease;
         }
-
-        .chat-input::placeholder {
-            color: var(--text-tertiary);
-        }
-
-        .chat-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
+        .chat-input::placeholder { color:var(--text-tertiary); }
+        .chat-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
         .chat-send {
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding:10px 16px;background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
+            border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
+            cursor:pointer;transition:all .2s ease;font-size:13px;display:flex;align-items:center;justify-content:center;
         }
+        .chat-send:hover { background:rgba(255,255,255,.15); }
+        .chat-send img { width:16px;height:16px;filter:invert(1); }
 
-        .chat-send:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .chat-send img {
-            width: 16px;
-            height: 16px;
-            filter: invert(1);
-        }
-
-        /* News Feed */
-        .news-section {
-            margin: 20px 0 40px;
-        }
-
-        .news-header {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            letter-spacing: -0.2px;
-        }
-
+        /* News */
+        .news-section { margin:20px 0 40px; }
+        .news-header { font-size:15px;font-weight:600;margin-bottom:12px;letter-spacing:-.2px; }
         .news-feed {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 10px 0;
-            scroll-behavior: smooth;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+            display:flex;gap:12px;overflow-x:auto;padding:10px 0;scroll-behavior:smooth;
+            scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent;
         }
-
-        .news-feed::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .news-feed::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .news-feed::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-        }
-
+        .news-feed::-webkit-scrollbar { height:4px; }
+        .news-feed::-webkit-scrollbar-track { background:transparent; }
+        .news-feed::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2);border-radius:2px; }
         .news-item {
-            min-width: 260px;
-            width: 260px;
-            height: 260px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            backdrop-filter: saturate(180%) blur(20px);
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            min-width:260px;width:260px;height:260px;background:var(--glass-bg);border:1px solid var(--glass-border);
+            border-radius:5px;backdrop-filter:saturate(180%) blur(20px);padding:16px;cursor:pointer;
+            transition:all .2s ease;display:flex;flex-direction:column;justify-content:space-between;
         }
+        .news-item:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18); }
+        .news-category { font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);font-weight:500; }
+        .news-title { font-size:15px;font-weight:500;margin:12px 0;line-height:1.4;letter-spacing:-.2px; }
+        .news-description { font-size:12px;color:var(--text-secondary);line-height:1.5;letter-spacing:-.1px; }
+        .news-date { font-size:11px;color:var(--text-tertiary);margin-top:auto;display:flex;align-items:center;gap:5px; }
+        .news-date img { width:12px;height:12px;filter:invert(1);opacity:.4; }
 
-        .news-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.18);
-        }
+        /* Empty state (progress) */
+        .empty-state { text-align:center;padding:60px 20px;color:var(--text-secondary); }
+        .empty-state-icon { margin-bottom:16px;opacity:.4; }
+        .empty-state-icon img { width:48px;height:48px;filter:invert(1); }
+        .empty-state h3 { font-size:15px;margin-bottom:8px;color:var(--text-primary);font-weight:500;letter-spacing:-.2px; }
+        .empty-state p { font-size:13px;line-height:1.5;letter-spacing:-.1px; }
 
-        .news-category {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .news-title {
-            font-size: 15px;
-            font-weight: 500;
-            margin: 12px 0;
-            line-height: 1.4;
-            letter-spacing: -0.2px;
-        }
-
-        .news-description {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            letter-spacing: -0.1px;
-        }
-
-        .news-date {
-            font-size: 11px;
-            color: var(--text-tertiary);
-            margin-top: auto;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .news-date img {
-            width: 12px;
-            height: 12px;
-            filter: invert(1);
-            opacity: 0.4;
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state-icon {
-            margin-bottom: 16px;
-            opacity: 0.4;
-        }
-
-        .empty-state-icon img {
-            width: 48px;
-            height: 48px;
-            filter: invert(1);
-        }
-
-        .empty-state h3 {
-            font-size: 15px;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            font-weight: 500;
-            letter-spacing: -0.2px;
-        }
-
-        .empty-state p {
-            font-size: 13px;
-            line-height: 1.5;
-            letter-spacing: -0.1px;
-        }
-
-        /* Auth Styles */
+        /* Auth */
         .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: saturate(180%) blur(20px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);
+            backdrop-filter:saturate(180%) blur(20px);z-index:1000;display:flex;align-items:center;
+            justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;
         }
-
-        .auth-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
+        .auth-overlay.active { opacity:1;pointer-events:all; }
         .auth-modal {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            padding: 24px;
-            backdrop-filter: saturate(180%) blur(20px);
-            max-width: 380px;
-            width: calc(100% - 40px);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
+            background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;padding:24px;
+            backdrop-filter:saturate(180%) blur(20px);max-width:380px;width:calc(100% - 40px);
+            transform:scale(.9);transition:transform .3s ease;
         }
-
-        .auth-overlay.active .auth-modal {
-            transform: scale(1);
-        }
-
-        .auth-header {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: -0.3px;
-            text-align: center;
-        }
-
-        .auth-description {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            line-height: 1.5;
-            text-align: center;
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            letter-spacing: -0.1px;
-        }
-
+        .auth-overlay.active .auth-modal { transform:scale(1); }
+        .auth-header { font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px;text-align:center; }
+        .auth-description { font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.5;text-align:center; }
+        .auth-form { display:flex;flex-direction:column;gap:12px; }
+        .form-group { display:flex;flex-direction:column;gap:6px; }
+        .form-label { font-size:12px;font-weight:500;color:var(--text-secondary);letter-spacing:-.1px; }
         .form-label.centered {
-            text-align: center;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            text-align:center;font-size:14px;font-weight:500;margin-bottom:8px;
+            display:flex;align-items:center;justify-content:center;gap:8px;
         }
-
-        .key-icon {
-            width: 20px;
-            height: 20px;
-            opacity: 0.7;
-            filter: invert(1);
-        }
-
+        .key-icon { width:20px;height:20px;opacity:.7;filter:invert(1); }
         .form-input {
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            letter-spacing: -0.2px;
+            padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
+            border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:14px;
+            transition:all .2s ease;letter-spacing:-.2px;
         }
+        .form-input.error { border-color:rgba(255,80,80,.5); }
+        .form-input::placeholder { color:var(--text-tertiary); }
+        .form-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+        .form-input.error:focus { border-color:rgba(255,80,80,.5); }
+        .form-input[type="number"] { -moz-appearance:textfield; }
+        .form-input[type="number"]::-webkit-outer-spin-button,.form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
-        .form-input.error {
-            border-color: rgba(255, 80, 80, 0.5);
-        }
-
-        .form-input::placeholder {
-            color: var(--text-tertiary);
-        }
-
-        .form-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* FIX: error на focused input тоже должна быть красной */
-        .form-input.error:focus {
-            border-color: rgba(255, 80, 80, 0.5);
-        }
-
-        .form-input[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        .form-input[type="number"]::-webkit-outer-spin-button,
-        .form-input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        /* PIN Input Style (Telegram-like) */
-        .pin-input-container {
-            display: flex;
-            gap: 16px;
-            justify-content: space-between;
-            margin: 16px 0;
-            max-width: 100%;
-        }
-
+        /* PIN */
+        .pin-input-container { display:flex;gap:16px;justify-content:space-between;margin:16px 0;max-width:100%; }
         .pin-digit {
-            flex: 1;
-            max-width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 24px;
-            font-weight: 600;
-            text-align: center;
-            transition: all 0.2s ease;
+            flex:1;max-width:60px;height:60px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
+            border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:24px;
+            font-weight:600;text-align:center;transition:all .2s ease;
         }
+        .pin-digit.error { border-color:rgba(255,80,80,.5) !important; }
+        .pin-digit:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3); }
+        .pin-digit.error:focus { border-color:rgba(255,80,80,.5) !important; }
+        .pin-digit[type="number"] { -moz-appearance:textfield; }
+        .pin-digit[type="number"]::-webkit-outer-spin-button,.pin-digit[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
-        .pin-digit.error {
-            border-color: rgba(255, 80, 80, 0.5) !important;
-        }
-
-        .pin-digit:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* FIX: error перебивает :focus — без этого 4-й (focused) cell остаётся серым */
-        .pin-digit.error:focus {
-            border-color: rgba(255, 80, 80, 0.5) !important;
-        }
-
-        .pin-digit[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        .pin-digit[type="number"]::-webkit-outer-spin-button,
-        .pin-digit[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
+        .auth-buttons { display:flex;gap:8px;margin-top:8px; }
         .auth-btn {
-            flex: 1;
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
+            flex:1;padding:10px 16px;background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
+            border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
+            cursor:pointer;transition:all .2s ease;font-size:13px;
         }
-
-        .auth-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .auth-btn.primary {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .auth-btn.primary:hover {
-            background: rgba(255, 255, 255, 0.22);
-        }
-
-        .auth-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .auth-switch {
-            margin-top: 12px;
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .auth-switch button {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            cursor: pointer;
-            text-decoration: underline;
-            font-family: 'Inter', sans-serif;
-            font-size: 12px;
-        }
-
+        .auth-btn:hover { background:rgba(255,255,255,.15); }
+        .auth-btn.primary { background:rgba(255,255,255,.15); }
+        .auth-btn.primary:hover { background:rgba(255,255,255,.22); }
+        .auth-btn:disabled { opacity:.5;cursor:not-allowed; }
+        .auth-switch { margin-top:12px;text-align:center;font-size:12px;color:var(--text-secondary); }
+        .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:12px; }
         .user-id-display {
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            padding:16px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
+            border-radius:5px;text-align:center;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;
         }
+        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
+        .user-id-number { font-size:14px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--text-secondary); }
 
-        .user-id-label {
-            font-size: 14px;
-            color: var(--text-secondary);
-            letter-spacing: -0.2px;
-            font-weight: 600;
-        }
-
-        .user-id-number {
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            font-variant-numeric: tabular-nums;
-            color: var(--text-secondary);
-        }
-
-        /* Checkbox */
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
+        .checkbox-group { display:flex;align-items:center;gap:8px;margin-top:12px; }
         .checkbox-group input[type="checkbox"] {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid var(--text-secondary);
-            border-radius: 3px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s ease;
-            background: transparent;
+            appearance:none;width:18px;height:18px;border:2px solid var(--text-secondary);border-radius:3px;
+            cursor:pointer;position:relative;transition:all .2s ease;background:transparent;
         }
-
-        .checkbox-group input[type="checkbox"]:checked {
-            background: var(--text-secondary);
-            border-color: var(--text-secondary);
-        }
-
+        .checkbox-group input[type="checkbox"]:checked { background:var(--text-secondary);border-color:var(--text-secondary); }
         .checkbox-group input[type="checkbox"]:checked::after {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 2px;
-            width: 4px;
-            height: 8px;
-            border: solid var(--bg-primary);
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
+            content:'';position:absolute;left:5px;top:2px;width:4px;height:8px;
+            border:solid var(--bg-primary);border-width:0 2px 2px 0;transform:rotate(45deg);
         }
+        .checkbox-group label { font-size:12px;color:var(--text-secondary);cursor:pointer; }
+        .checkbox-group a { color:var(--text-secondary);text-decoration:underline; }
 
-        .checkbox-group label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        .checkbox-group a {
-            color: var(--text-secondary);
-            text-decoration: underline;
-        }
-
-        /* Loader */
         .loader {
-            width: 30px;
-            height: 30px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--text-primary);
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            margin: 20px auto;
+            width:30px;height:30px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--text-primary);
+            border-radius:50%;animation:spin .6s linear infinite;margin:20px auto;
         }
+        @keyframes spin { to{transform:rotate(360deg);} }
+        .success-text { text-align:center;font-size:14px;color:var(--text-primary);margin-top:12px;font-weight:500; }
+        .fullscreen-loader { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px; }
+        .fullscreen-success { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;text-align:center;padding:20px; }
+        .fullscreen-success .success-text { font-size:15px;line-height:1.6; }
+        .logout-modal { text-align:center; }
+        .logout-modal h2 { margin-bottom:12px; }
+        .logout-modal p { color:var(--text-secondary);margin-bottom:20px; }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loader-text {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 12px;
-        }
-
-        .success-text {
-            text-align: center;
-            font-size: 14px;
-            color: var(--text-primary);
-            margin-top: 12px;
-            font-weight: 500;
-        }
-
-        .fullscreen-loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px;
-        }
-
-        .fullscreen-success {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .fullscreen-success .success-text {
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        /* Logout Modal */
-        .logout-modal {
-            text-align: center;
-        }
-
-        .logout-modal h2 {
-            margin-bottom: 12px;
-        }
-
-        .logout-modal p {
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .news-item {
-                min-width: 220px;
-                width: 220px;
-                height: 220px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 16px;
-            }
-
-            .content-block {
-                padding: 16px;
-            }
-
-            header {
-                padding: 12px 0;
-            }
-
-            .logo {
-                width: 28px;
-                height: 28px;
-            }
-
-            .pin-digit {
-                width: 45px;
-                height: 55px;
-                font-size: 20px;
-            }
+        @media(max-width:768px){ .news-item{ min-width:220px;width:220px;height:220px; } }
+        @media(max-width:480px){
+            .container{ padding:0 16px; }
+            .content-block{ padding:16px; }
+            header{ padding:12px 0; }
+            .logo{ width:28px;height:28px; }
+            .pin-digit{ width:45px;height:55px;font-size:20px; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="50" cy="50" r="45" fill="white"/>
-                        <text x="50" y="65" font-size="40" font-weight="bold" text-anchor="middle" fill="black">MSE</text>
-                    </svg>
-                </div>
-                <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
-            </div>
+<header>
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="45" fill="white"/>
+          <text x="50" y="65" font-size="40" font-weight="bold" text-anchor="middle" fill="black">MSE</text>
+        </svg>
+      </div>
+      <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="main-wrapper">
+    <div class="content-grid">
+
+      <!-- LEFT: Browser -->
+      <div class="content-block" id="browserBlock">
+        <div class="block-title-bar">
+          <span class="block-label">Обзор</span>
+          <button class="btn-minimize" onclick="toggleMinimize('browserBlock')">
+            <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+          </button>
         </div>
-    </header>
-
-    <div class="container">
-        <div class="main-wrapper">
-            <div class="content-grid">
-                <!-- Left Block: Tabs + Dynamic Content -->
-                <div class="content-block">
-                    <div class="inner-tabs">
-                        <button class="inner-tab active" data-inner="materials">
-                            <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_materials.svg" alt="">
-                            <span>Материалы</span>
-                        </button>
-                        <button class="inner-tab" data-inner="workouts">
-                            <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
-                            <span>Тренировки</span>
-                        </button>
-                        <button class="inner-tab" data-inner="progress">
-                            <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
-                            <span>Прогресс</span>
-                        </button>
-                    </div>
-                    <div class="content-body" id="main-content">
-                    </div>
-                </div>
-
-                <!-- Right Block: AI Chat -->
-                <div class="content-block">
-                    <div class="block-header">
-                        <span>София</span>
-                    </div>
-                    <div class="content-body">
-                        <div class="chat-container">
-                            <div class="chat-messages" id="chat-messages">
-                                <div class="chat-message ai">
-                                    Привет! Я София, твой AI-помощник. Готова помочь с тренировками, питанием и мотивацией. Чем могу быть полезна?
-                                </div>
-                            </div>
-                            <div class="chat-input-wrapper">
-                                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
-                                <button class="chat-send" id="chat-send">
-                                    <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/send.svg" alt="">
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- News Feed -->
-            <div class="news-section">
-                <h2 class="news-header">Новости и обновления</h2>
-                <div class="news-feed">
-                    <div class="news-item">
-                        <div class="news-category">Новость</div>
-                        <h3 class="news-title">Новая программа тренировок добавлена</h3>
-                        <p class="news-description">Интенсивная 30-дневная программа для набора мышечной массы от профи</p>
-                        <div class="news-date">
-                            <img src="icons/calendar.svg" alt="">
-                            2 дня назад
-                        </div>
-                    </div>
-                    <div class="news-item">
-                        <div class="news-category">Обновление</div>
-                        <h3 class="news-title">Улучшена София</h3>
-                        <p class="news-description">Теперь AI может создавать персонализированные планы питания на основе ваших целей</p>
-                        <div class="news-date">
-                            <img src="icons/calendar.svg" alt="">
-                            5 дней назад
-                        </div>
-                    </div>
-                    <div class="news-item">
-                        <div class="news-category">Совет</div>
-                        <h3 class="news-title">Как правильно восстанавливаться</h3>
-                        <p class="news-description">Сон, питание и активное восстановление — ключи к прогрессу</p>
-                        <div class="news-date">
-                            <img src="icons/calendar.svg" alt="">
-                            1 неделя назад
-                        </div>
-                    </div>
-                    <div class="news-item">
-                        <div class="news-category">Достижение</div>
-                        <h3 class="news-title">1000+ пользователей!</h3>
-                        <p class="news-description">Спасибо за то, что выбираете нас для достижения своих спортивных целей</p>
-                        <div class="news-date">
-                            <img src="icons/calendar.svg" alt="">
-                            2 недели назад
-                        </div>
-                    </div>
-                    <div class="news-item">
-                        <div class="news-category">Функция</div>
-                        <h3 class="news-title">Новый счётчик калорий</h3>
-                        <p class="news-description">Отслеживайте свой рацион с помощью встроенной базы продуктов</p>
-                        <div class="news-date">
-                            <img src="icons/calendar.svg" alt="">
-                            3 недели назад
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="block-body">
+          <div class="inner-tabs">
+            <button class="inner-tab active" data-inner="materials">
+              <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_materials.svg" alt="">
+              <span>Материалы</span>
+            </button>
+            <button class="inner-tab" data-inner="workouts">
+              <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
+              <span>Тренировки</span>
+            </button>
+            <button class="inner-tab" data-inner="progress">
+              <img class="inner-tab-icon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
+              <span>Прогресс</span>
+            </button>
+          </div>
+          <div class="content-body" id="main-content"></div>
         </div>
+      </div>
+
+      <!-- RIGHT: Chat -->
+      <div class="content-block" id="chatBlock">
+        <div class="block-title-bar">
+          <span class="block-label">Чат</span>
+          <button class="btn-minimize" onclick="toggleMinimize('chatBlock')">
+            <svg viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
+          </button>
+        </div>
+        <div class="block-body">
+          <div class="chat-top-bar">
+            <div class="chat-tabs" id="chatTabs">
+              <button class="chat-tab new-chat" onclick="addChatTab()">+ Новый</button>
+              <button class="chat-tab active" data-chat="sofia">София</button>
+            </div>
+            <div class="chat-search-wrap" id="chatSearchWrap">
+              <div class="chat-search-icon" onclick="toggleChatSearch()">
+                <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
+              </div>
+              <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск чатов…">
+            </div>
+          </div>
+          <div class="chat-container">
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-wrapper">
+              <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
+              <button class="chat-send" id="chat-send">
+                <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/send.svg" alt="">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Auth Modal -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-modal">
-            <!-- Login Form -->
-            <div id="loginForm">
-                <div id="loginContent">
-                    <h2 class="auth-header">Вход в сеть</h2>
-                    <form class="auth-form" onsubmit="return false;">
-                        <div class="form-group" id="stepId">
-                            <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
-                        </div>
-                        <div id="loginTransitionLoader" style="display:none;">
-                            <div class="loader"></div>
-                        </div>
-                        <div class="form-group" id="stepPin" style="display:none;">
-                            <div class="pin-input-container">
-                                <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
-                                <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
-                                <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
-                                <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="auth-buttons" id="loginButtons">
-                            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-                        </div>
-                    </form>
-                    <div class="auth-switch">
-                        Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button>
-                    </div>
-                </div>
-                <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;">
-                    <div class="loader"></div>
-                </div>
-                <div id="loginLoader" class="fullscreen-loader" style="display:none;">
-                    <div class="loader"></div>
-                </div>
-                <div id="loginSuccess" class="fullscreen-success" style="display:none;">
-                    <div class="success-text">Вход разрешён</div>
-                </div>
-            </div>
-
-            <!-- Register Form -->
-            <div id="registerForm" style="display: none;">
-                <div id="registerContent">
-                    <h2 class="auth-header">Подключение к сети MSE</h2>
-                    <div class="user-id-display">
-                        <span class="user-id-label">Вы станете звеном под номером:</span>
-                        <span class="user-id-number" id="newUserId">----</span>
-                    </div>
-                    <form class="auth-form" onsubmit="return false;">
-                        <div class="form-group">
-                            <label class="form-label centered">
-                                <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="" class="key-icon" id="keyIcon">
-                                <span>Создайте уникальный ключ доступа</span>
-                            </label>
-                            <div class="pin-input-container">
-                                <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
-                                <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
-                                <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
-                                <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="termsCheckbox">
-                            <label for="termsCheckbox">
-                                Я принимаю <a href="#" target="_blank">условия подключения к сети</a>
-                            </label>
-                        </div>
-                        <div class="auth-buttons" id="registerButtons">
-                            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-                            <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="registerLoader" class="fullscreen-loader" style="display:none;">
-                    <div class="loader"></div>
-                </div>
-                <div id="registerSuccess" class="fullscreen-success" style="display:none;">
-                    <div class="success-text"></div>
-                </div>
-            </div>
-
-            <!-- Logout Confirmation -->
-            <div id="logoutModal" style="display: none;">
-                <div class="logout-modal">
-                    <h2 class="auth-header">Выход из сети</h2>
-                    <p class="auth-description">Вы уверены, что хотите выйти из аккаунта?</p>
-                    <div class="auth-buttons">
-                        <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-                        <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
-                    </div>
-                </div>
-            </div>
+    <!-- News -->
+    <div class="news-section">
+      <h2 class="news-header">Новости и обновления</h2>
+      <div class="news-feed">
+        <div class="news-item">
+          <div class="news-category">Новость</div>
+          <h3 class="news-title">Новая программа тренировок добавлена</h3>
+          <p class="news-description">Интенсивная 30-дневная программа для набора мышечной массы от профи</p>
+          <div class="news-date"><img src="icons/calendar.svg" alt="">2 дня назад</div>
         </div>
+        <div class="news-item">
+          <div class="news-category">Обновление</div>
+          <h3 class="news-title">Улучшена София</h3>
+          <p class="news-description">Теперь AI может создавать персонализированные планы питания на основе ваших целей</p>
+          <div class="news-date"><img src="icons/calendar.svg" alt="">5 дней назад</div>
+        </div>
+        <div class="news-item">
+          <div class="news-category">Совет</div>
+          <h3 class="news-title">Как правильно восстанавливаться</h3>
+          <p class="news-description">Сон, питание и активное восстановление — ключи к прогрессу</p>
+          <div class="news-date"><img src="icons/calendar.svg" alt="">1 неделя назад</div>
+        </div>
+        <div class="news-item">
+          <div class="news-category">Достижение</div>
+          <h3 class="news-title">1000+ пользователей!</h3>
+          <p class="news-description">Спасибо за то, что выбираете нас для достижения своих спортивных целей</p>
+          <div class="news-date"><img src="icons/calendar.svg" alt="">2 недели назад</div>
+        </div>
+        <div class="news-item">
+          <div class="news-category">Функция</div>
+          <h3 class="news-title">Новый счётчик калорий</h3>
+          <p class="news-description">Отслеживайте свой рацион с помощью встроенной базы продуктов</p>
+          <div class="news-date"><img src="icons/calendar.svg" alt="">3 недели назад</div>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script>
-        // ─── In-memory store ───
-        let users = [
-            { id: 1001, pin: '1234', createdAt: new Date().toISOString() } // Тестовый пользователь
-        ];
-        let currentUser = null;
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <div id="loginForm">
+      <div id="loginContent">
+        <h2 class="auth-header">Вход в сеть</h2>
+        <form class="auth-form" onsubmit="return false;">
+          <div class="form-group" id="stepId">
+            <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
+          </div>
+          <div id="loginTransitionLoader" style="display:none;"><div class="loader"></div></div>
+          <div class="form-group" id="stepPin" style="display:none;">
+            <div class="pin-input-container">
+              <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
+              <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
+              <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
+              <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
+            </div>
+          </div>
+          <div class="auth-buttons" id="loginButtons">
+            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+          </div>
+        </form>
+        <div class="auth-switch">Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button></div>
+      </div>
+      <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
+      <div id="loginLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
+      <div id="loginSuccess" class="fullscreen-success" style="display:none;"><div class="success-text">Вход разрешён</div></div>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <div id="registerContent">
+        <h2 class="auth-header">Подключение к сети MSE</h2>
+        <div class="user-id-display">
+          <span class="user-id-label">Вы станете звеном под номером:</span>
+          <span class="user-id-number" id="newUserId">----</span>
+        </div>
+        <form class="auth-form" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label centered">
+              <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="" class="key-icon">
+              <span>Создайте уникальный ключ доступа</span>
+            </label>
+            <div class="pin-input-container">
+              <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
+              <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
+              <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
+              <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
+            </div>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="termsCheckbox">
+            <label for="termsCheckbox">Я принимаю <a href="#" target="_blank">условия подключения к сети</a></label>
+          </div>
+          <div class="auth-buttons" id="registerButtons">
+            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+            <button type="submit" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
+          </div>
+        </form>
+      </div>
+      <div id="registerLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
+      <div id="registerSuccess" class="fullscreen-success" style="display:none;"><div class="success-text"></div></div>
+    </div>
+    <div id="logoutModal" style="display:none;">
+      <div class="logout-modal">
+        <h2 class="auth-header">Выход из сети</h2>
+        <p class="auth-description">Вы уверены, что хотите выйти из аккаунта?</p>
+        <div class="auth-buttons">
+          <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+          <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // ─── Header login btn ───
-        document.getElementById('headerLoginBtn').addEventListener('click', () => {
-            if (currentUser) {
-                showLogout();
+<script>
+// ═══ MINIMIZE ═══
+function toggleMinimize(id) {
+    document.getElementById(id).classList.toggle('minimized');
+}
+
+// ═══ AUTH ═══
+let users = [{ id:1001, pin:'1234', createdAt: new Date().toISOString() }];
+let currentUser = null;
+
+document.getElementById('headerLoginBtn').addEventListener('click', () => { currentUser ? showLogout() : showLogin(); });
+
+function showLogin() {
+    document.getElementById('loginForm').style.display='block';
+    document.getElementById('registerForm').style.display='none';
+    document.getElementById('logoutModal').style.display='none';
+    document.getElementById('loginContent').style.display='block';
+    document.getElementById('stepId').style.display='flex';
+    document.getElementById('stepPin').style.display='none';
+    document.getElementById('loginTransitionLoader').style.display='none';
+    document.getElementById('loginToRegisterLoader').style.display='none';
+    document.getElementById('loginLoader').style.display='none';
+    document.getElementById('loginSuccess').style.display='none';
+    document.getElementById('loginButtons').style.display='flex';
+    document.getElementById('loginId').value='';
+    ['loginPin1','loginPin2','loginPin3','loginPin4'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('loginId').classList.remove('error');
+    loginIdChecked=false;
+    document.getElementById('authOverlay').classList.add('active');
+    setTimeout(()=>document.getElementById('loginId').focus(),300);
+}
+function showRegister() {
+    document.getElementById('loginContent').style.display='none';
+    document.getElementById('loginToRegisterLoader').style.display='flex';
+    setTimeout(()=>{
+        document.getElementById('loginForm').style.display='none';
+        document.getElementById('registerForm').style.display='block';
+        document.getElementById('logoutModal').style.display='none';
+        const newId=users.length>0?Math.max(...users.map(u=>u.id))+1:1001;
+        document.getElementById('newUserId').textContent=newId.toString().padStart(4,'0');
+        document.getElementById('registerContent').style.display='block';
+        ['pin1','pin2','pin3','pin4'].forEach(id=>document.getElementById(id).value='');
+        document.getElementById('termsCheckbox').checked=false;
+        document.getElementById('registerBtn').disabled=true;
+        document.getElementById('registerLoader').style.display='none';
+        document.getElementById('registerSuccess').style.display='none';
+        document.getElementById('registerButtons').style.display='flex';
+        document.getElementById('loginContent').style.display='block';
+        document.getElementById('loginToRegisterLoader').style.display='none';
+    },800);
+}
+function showLogout() {
+    document.getElementById('loginForm').style.display='none';
+    document.getElementById('registerForm').style.display='none';
+    document.getElementById('logoutModal').style.display='block';
+    document.getElementById('authOverlay').classList.add('active');
+}
+function closeAuth() { document.getElementById('authOverlay').classList.remove('active'); }
+function confirmLogout() { currentUser=null; document.getElementById('headerLoginBtn').textContent='Вход в сеть'; closeAuth(); }
+
+// ─── Login step 1 ───
+let loginIdChecked=false;
+function checkLoginId() {
+    const input=document.getElementById('loginId');
+    if(input.value.length>4) input.value=input.value.slice(0,4);
+    const val=input.value.trim();
+    if(val===''){input.classList.remove('error');return;}
+    input.classList.remove('error');
+    if(val.length===4&&!loginIdChecked){
+        const id=parseInt(val);
+        const exists=users.find(u=>u.id===id);
+        if(exists){
+            loginIdChecked=true;
+            document.getElementById('stepId').style.display='none';
+            document.getElementById('loginTransitionLoader').style.display='block';
+            setTimeout(()=>{
+                document.getElementById('loginTransitionLoader').style.display='none';
+                document.getElementById('stepPin').style.display='flex';
+                setTimeout(()=>document.getElementById('loginPin1').focus(),100);
+            },800);
+        } else { input.classList.add('error'); }
+    }
+}
+(function(){
+    const el=document.getElementById('loginId');
+    el.addEventListener('input',checkLoginId);
+    el.addEventListener('keyup',checkLoginId);
+    el.addEventListener('input',function(){if(this.value.trim().length<4)loginIdChecked=false;});
+})();
+
+// ─── Login step 2 ───
+const loginPinInputs=['loginPin1','loginPin2','loginPin3','loginPin4'];
+loginPinInputs.forEach((id,index)=>{
+    const input=document.getElementById(id);
+    input.addEventListener('input',function(){
+        loginPinInputs.forEach(p=>document.getElementById(p).classList.remove('error'));
+        if(this.value.length>1)this.value=this.value.slice(0,1);
+        if(this.value.length===1&&index<loginPinInputs.length-1)document.getElementById(loginPinInputs[index+1]).focus();
+        const allFilled=loginPinInputs.every(p=>document.getElementById(p).value.length===1);
+        if(allFilled){
+            const pin=loginPinInputs.map(p=>document.getElementById(p).value).join('');
+            const uid=parseInt(document.getElementById('loginId').value);
+            const user=users.find(u=>u.id===uid&&u.pin===pin);
+            if(user){
+                document.getElementById('loginContent').style.display='none';
+                document.getElementById('loginLoader').style.display='flex';
+                setTimeout(()=>{
+                    document.getElementById('loginLoader').style.display='none';
+                    document.getElementById('loginSuccess').style.display='flex';
+                    setTimeout(()=>{currentUser=user;closeAuth();document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');},1000);
+                },2000);
             } else {
-                showLogin();
-            }
-        });
-
-        // ─── Auth: show / close ───
-        function showLogin() {
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('logoutModal').style.display = 'none';
-            
-            document.getElementById('loginContent').style.display = 'block';
-            document.getElementById('stepId').style.display = 'flex';
-            document.getElementById('stepPin').style.display = 'none';
-            document.getElementById('loginTransitionLoader').style.display = 'none';
-            document.getElementById('loginToRegisterLoader').style.display = 'none';
-            document.getElementById('loginLoader').style.display = 'none';
-            document.getElementById('loginSuccess').style.display = 'none';
-            document.getElementById('loginButtons').style.display = 'flex';
-            
-            document.getElementById('loginId').value = '';
-            document.getElementById('loginPin1').value = '';
-            document.getElementById('loginPin2').value = '';
-            document.getElementById('loginPin3').value = '';
-            document.getElementById('loginPin4').value = '';
-            document.getElementById('loginId').classList.remove('error');
-            
-            document.getElementById('authOverlay').classList.add('active');
-            setTimeout(() => document.getElementById('loginId').focus(), 300);
-        }
-
-        function showRegister() {
-            // Show loader
-            document.getElementById('loginContent').style.display = 'none';
-            document.getElementById('loginToRegisterLoader').style.display = 'flex';
-
-            setTimeout(() => {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('registerForm').style.display = 'block';
-                document.getElementById('logoutModal').style.display = 'none';
-                document.getElementById('authOverlay').classList.add('active');
-
-                const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1001;
-                document.getElementById('newUserId').textContent = newId.toString().padStart(4, '0');
-
-                // Reset form
-                document.getElementById('registerContent').style.display = 'block';
-                document.getElementById('pin1').value = '';
-                document.getElementById('pin2').value = '';
-                document.getElementById('pin3').value = '';
-                document.getElementById('pin4').value = '';
-                document.getElementById('termsCheckbox').checked = false;
-                document.getElementById('registerBtn').disabled = true;
-                document.getElementById('registerLoader').style.display = 'none';
-                document.getElementById('registerSuccess').style.display = 'none';
-                document.getElementById('registerButtons').style.display = 'flex';
-
-                // Reset login form
-                document.getElementById('loginContent').style.display = 'block';
-                document.getElementById('loginToRegisterLoader').style.display = 'none';
-            }, 800);
-        }
-
-        function showLogout() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('logoutModal').style.display = 'block';
-            document.getElementById('authOverlay').classList.add('active');
-        }
-
-        function closeAuth() {
-            document.getElementById('authOverlay').classList.remove('active');
-        }
-
-        function confirmLogout() {
-            currentUser = null;
-            document.getElementById('headerLoginBtn').textContent = 'Вход в сеть';
-            closeAuth();
-        }
-
-        // ─── Login: step 1 — валидация номера звена ───
-        // FIX: используем единую функцию проверки и вешаем её на input + keyup,
-        // чтобы срабатывало именно при вводе 4-го символа в любом браузере.
-        let loginIdChecked = false; // флаг: уже запущили переход после валидации
-
-        function checkLoginId() {
-            const input = document.getElementById('loginId');
-            // Ограничиваем ввод 4 символами
-            if (input.value.length > 4) {
-                input.value = input.value.slice(0, 4);
-            }
-
-            const val = input.value.trim();
-            if (val === '') {
-                input.classList.remove('error');
-                return;
-            }
-
-            // Снимаем ошибку при любом изменении
-            input.classList.remove('error');
-
-            // Проверяем только когда ровно 4 символа и ещё не запустили переход
-            if (val.length === 4 && !loginIdChecked) {
-                const id = parseInt(val);
-                const exists = users.find(u => u.id === id);
-
-                if (exists) {
-                    loginIdChecked = true; // блокируем повторный вызов
-                    document.getElementById('stepId').style.display = 'none';
-                    document.getElementById('loginTransitionLoader').style.display = 'block';
-
-                    setTimeout(() => {
-                        document.getElementById('loginTransitionLoader').style.display = 'none';
-                        document.getElementById('stepPin').style.display = 'flex';
-                        setTimeout(() => document.getElementById('loginPin1').focus(), 100);
-                    }, 800);
-                } else {
-                    input.classList.add('error');
-                }
+                document.getElementById('loginPin1').focus();
+                requestAnimationFrame(()=>{loginPinInputs.forEach(p=>document.getElementById(p).classList.add('error'));});
+                setTimeout(()=>{loginPinInputs.forEach(p=>{const inp=document.getElementById(p);inp.classList.remove('error');inp.value='';}); document.getElementById('loginPin1').focus();},500);
             }
         }
+    });
+    input.addEventListener('keydown',function(e){if(e.key==='Backspace'&&this.value===''&&index>0)document.getElementById(loginPinInputs[index-1]).focus();});
+});
 
-        (function () {
-            const loginIdInput = document.getElementById('loginId');
-            loginIdInput.addEventListener('input', checkLoginId);
-            loginIdInput.addEventListener('keyup', checkLoginId);
-            // сбрасываем флаг при очистке поля
-            loginIdInput.addEventListener('input', function () {
-                if (this.value.trim().length < 4) {
-                    loginIdChecked = false;
-                }
-            });
-        })();
+// ─── Register PIN ───
+const pinInputs=['pin1','pin2','pin3','pin4'];
+pinInputs.forEach((id,index)=>{
+    const input=document.getElementById(id);
+    input.addEventListener('input',function(){
+        if(this.value.length>1)this.value=this.value.slice(0,1);
+        if(this.value.length===1&&index<pinInputs.length-1)document.getElementById(pinInputs[index+1]).focus();
+        checkRegisterButton();
+    });
+    input.addEventListener('keydown',function(e){if(e.key==='Backspace'&&this.value===''&&index>0)document.getElementById(pinInputs[index-1]).focus();});
+});
+document.getElementById('termsCheckbox').addEventListener('change',checkRegisterButton);
+function checkRegisterButton(){
+    const allFilled=pinInputs.every(id=>document.getElementById(id).value.length===1);
+    document.getElementById('registerBtn').disabled=!(allFilled&&document.getElementById('termsCheckbox').checked);
+}
+function register(){
+    const pin=pinInputs.map(id=>document.getElementById(id).value).join('');
+    const userId=parseInt(document.getElementById('newUserId').textContent);
+    if(pin.length!==4||!document.getElementById('termsCheckbox').checked)return;
+    document.getElementById('registerContent').style.display='none';
+    document.getElementById('registerLoader').style.display='flex';
+    setTimeout(()=>{
+        const newUser={id:userId,pin,createdAt:new Date().toISOString()};
+        users.push(newUser);currentUser=newUser;
+        document.getElementById('registerLoader').style.display='none';
+        document.getElementById('registerSuccess').style.display='flex';
+        document.getElementById('registerSuccess').querySelector('.success-text').innerHTML=`Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4,'0')}`;
+        setTimeout(()=>{closeAuth();document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');},2500);
+    },2000);
+}
 
-        // ─── Login: step 2 — PIN inputs (4 cells) ───
-        const loginPinInputs = ['loginPin1', 'loginPin2', 'loginPin3', 'loginPin4'];
-        loginPinInputs.forEach((id, index) => {
-            const input = document.getElementById(id);
+// ═══ BROWSER TABS ═══
+const TAB_DEFAULTS={materials:'icons/default_material.svg',workouts:'icons/default_workout.svg',progress:'icons/progress_empty.svg'};
+const tabData={
+    materials:[
+        {title:'Основы правильного питания',desc:'Гайд по макронутриентам и калориям',icon:'icons/material_nutrition.svg'},
+        {title:'Техника выполнения упражнений',desc:'Видео-уроки от профессионалов',icon:'icons/material_video.svg'},
+        {title:'Программы тренировок',desc:'Готовые планы на разные цели',icon:'icons/material_plan.svg'},
+        {title:'Восстановление и стретчинг',desc:'Упражнения для гибкости и релаксации',icon:'icons/material_stretch.svg'}
+    ],
+    workouts:[
+        {title:'Силовая тренировка — День 1',desc:'Грудь и трицепс · 45 минут',icon:'icons/workout_strength.svg'},
+        {title:'Кардио тренировка',desc:'HIIT интервалы · 30 минут',icon:'icons/workout_cardio.svg'},
+        {title:'Силовая тренировка — День 2',desc:'Спина и бицепс · 50 минут',icon:'icons/workout_back.svg'},
+        {title:'День ног',desc:'Квадрицепсы, бицепсы бедра · 60 минут',icon:'icons/workout_legs.svg'}
+    ]
+};
+function renderItemList(items,defaultIcon){
+    return '<div class="materials-list">'+items.map(item=>{
+        const src=item.icon||defaultIcon;
+        return `<div class="material-item"><div class="material-icon"><img src="${src}" alt=""></div><div class="material-info"><h3>${item.title}</h3><p>${item.desc}</p></div></div>`;
+    }).join('')+'</div>';
+}
+function renderProgress(){
+    return `<div class="empty-state"><div class="empty-state-icon"><img src="${TAB_DEFAULTS.progress}" alt=""></div><h3>Отслеживание прогресса</h3><p>Здесь будет отображаться ваш прогресс в тренировках, изменения веса и другие метрики. Начните тренироваться, чтобы увидеть статистику!</p></div>`;
+}
+function getTabHTML(key){ return key==='progress'?renderProgress():renderItemList(tabData[key],TAB_DEFAULTS[key]); }
 
-            input.addEventListener('input', function () {
-                // Снимаем ошибку со всех при новом вводе
-                loginPinInputs.forEach(pinId => {
-                    document.getElementById(pinId).classList.remove('error');
-                });
+const innerTabs=document.querySelectorAll('.inner-tab');
+const mainContent=document.getElementById('main-content');
+mainContent.innerHTML=getTabHTML('materials');
+innerTabs.forEach(tab=>{
+    tab.addEventListener('click',()=>{
+        innerTabs.forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        mainContent.style.opacity='0';
+        setTimeout(()=>{mainContent.innerHTML=getTabHTML(tab.dataset.inner);mainContent.style.opacity='1';},150);
+    });
+});
 
-                // Only allow single digit
-                if (this.value.length > 1) {
-                    this.value = this.value.slice(0, 1);
-                }
+// ═══ CHAT ═══
+let chatTabCounter=1;
+let activeChatTab='sofia';
+const chatStore={sofia:[]};
 
-                // Move to next input
-                if (this.value.length === 1 && index < loginPinInputs.length - 1) {
-                    document.getElementById(loginPinInputs[index + 1]).focus();
-                }
+function addChatTab(){
+    const id='chat'+chatTabCounter++;
+    chatStore[id]=[];
+    const tab=document.createElement('button');
+    tab.className='chat-tab';
+    tab.dataset.chat=id;
+    tab.textContent='Чат '+(chatTabCounter-1);
+    tab.addEventListener('click',()=>switchChatTab(id));
+    const newBtn=document.querySelector('.chat-tab.new-chat');
+    document.getElementById('chatTabs').insertBefore(tab,newBtn);
+    switchChatTab(id);
+}
+function switchChatTab(id){
+    activeChatTab=id;
+    document.querySelectorAll('.chat-tab:not(.new-chat)').forEach(t=>t.classList.toggle('active',t.dataset.chat===id));
+    renderChatMessages();
+}
+document.querySelectorAll('.chat-tab[data-chat]').forEach(tab=>{
+    tab.addEventListener('click',()=>switchChatTab(tab.dataset.chat));
+});
 
-                // Проверяем когда все 4 цифры введены
-                const allFilled = loginPinInputs.every(pinId => document.getElementById(pinId).value.length === 1);
+// search
+function toggleChatSearch(){
+    const wrap=document.getElementById('chatSearchWrap');
+    wrap.classList.toggle('open');
+    if(wrap.classList.contains('open'))document.getElementById('chatSearchInput').focus();
+}
+document.getElementById('chatSearchInput').addEventListener('input',function(){
+    const q=this.value.toLowerCase();
+    document.querySelectorAll('.chat-tab:not(.new-chat)').forEach(tab=>{
+        tab.style.display=tab.textContent.toLowerCase().includes(q)?'':'none';
+    });
+});
 
-                if (allFilled) {
-                    const pin = loginPinInputs.map(pinId => document.getElementById(pinId).value).join('');
-                    const id = parseInt(document.getElementById('loginId').value);
-                    const user = users.find(u => u.id === id && u.pin === pin);
+// render
+function renderChatMessages(){
+    const container=document.getElementById('chat-messages');
+    const messages=chatStore[activeChatTab]||[];
+    if(messages.length===0){
+        container.innerHTML=`<div class="chat-empty-state"><div class="sofia-icon"><img src="icons/sofia.svg" alt=""></div><p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p></div>`;
+    } else {
+        container.innerHTML=messages.map(m=>`<div class="chat-message ${m.role}">${m.text}</div>`).join('');
+        container.scrollTop=container.scrollHeight;
+    }
+}
+renderChatMessages();
 
-                    if (user) {
-                        // Valid PIN
-                        document.getElementById('loginContent').style.display = 'none';
-                        document.getElementById('loginLoader').style.display = 'flex';
-
-                        setTimeout(() => {
-                            document.getElementById('loginLoader').style.display = 'none';
-                            document.getElementById('loginSuccess').style.display = 'flex';
-
-                            setTimeout(() => {
-                                currentUser = user;
-                                closeAuth();
-                                document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
-                            }, 1000);
-                        }, 2000);
-                    } else {
-                        // FIX: сначала снимаем focus с 4-го, ПОТОМ добавляем .error на все
-                        // Иначе :focus на 4-м перебивал border-color даже при .error
-                        document.getElementById('loginPin1').focus();
-
-                        // Ставим .error на все 4 через microtask, чтобы focus уже сменился
-                        requestAnimationFrame(() => {
-                            loginPinInputs.forEach(pinId => {
-                                document.getElementById(pinId).classList.add('error');
-                            });
-                        });
-
-                        setTimeout(() => {
-                            loginPinInputs.forEach(pinId => {
-                                const inp = document.getElementById(pinId);
-                                inp.classList.remove('error');
-                                inp.value = '';
-                            });
-                            document.getElementById('loginPin1').focus();
-                        }, 500);
-                    }
-                }
-            });
-
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Backspace' && this.value === '' && index > 0) {
-                    document.getElementById(loginPinInputs[index - 1]).focus();
-                }
-            });
-        });
-
-        // ─── Register: PIN inputs ───
-        const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'];
-        pinInputs.forEach((id, index) => {
-            const input = document.getElementById(id);
-
-            input.addEventListener('input', function () {
-                if (this.value.length > 1) {
-                    this.value = this.value.slice(0, 1);
-                }
-                if (this.value.length === 1 && index < pinInputs.length - 1) {
-                    document.getElementById(pinInputs[index + 1]).focus();
-                }
-                checkRegisterButton();
-            });
-
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Backspace' && this.value === '' && index > 0) {
-                    document.getElementById(pinInputs[index - 1]).focus();
-                }
-            });
-        });
-
-        // ─── Register: Terms checkbox ───
-        document.getElementById('termsCheckbox').addEventListener('change', checkRegisterButton);
-
-        function checkRegisterButton() {
-            const allFilled = pinInputs.every(id => document.getElementById(id).value.length === 1);
-            const termsAccepted = document.getElementById('termsCheckbox').checked;
-            document.getElementById('registerBtn').disabled = !(allFilled && termsAccepted);
-        }
-
-        // ─── Register ───
-        function register() {
-            const pin = pinInputs.map(id => document.getElementById(id).value).join('');
-            const userId = parseInt(document.getElementById('newUserId').textContent);
-
-            if (pin.length !== 4) {
-                alert('Введите все 4 цифры кода');
-                return;
-            }
-
-            if (!document.getElementById('termsCheckbox').checked) {
-                alert('Необходимо принять условия');
-                return;
-            }
-
-            document.getElementById('registerContent').style.display = 'none';
-            document.getElementById('registerLoader').style.display = 'flex';
-
-            setTimeout(() => {
-                const newUser = { id: userId, pin: pin, createdAt: new Date().toISOString() };
-                users.push(newUser);
-                currentUser = newUser;
-
-                document.getElementById('registerLoader').style.display = 'none';
-                document.getElementById('registerSuccess').style.display = 'flex';
-                document.getElementById('registerSuccess').querySelector('.success-text').innerHTML =
-                    `Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4, '0')}`;
-
-                setTimeout(() => {
-                    closeAuth();
-                    document.getElementById('headerLoginBtn').textContent = 'Звено ' + currentUser.id.toString().padStart(4, '0');
-                }, 2500);
-            }, 2000);
-        }
-
-        // ─── Data: содержимое вкладок ───
-        // icon: путь к кастомной иконке (null → берётся iconDefault для категории)
-        // iconDefault: иконка по умолчанию для вкладки (подставляется когда icon === null)
-
-        const TAB_DEFAULTS = {
-            materials: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/88fc3795396c915965b36116e8de8f4d6fb27683/default_material.svg',
-            workouts: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/88fc3795396c915965b36116e8de8f4d6fb27683/default_workout.svg',
-            progress: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/88fc3795396c915965b36116e8de8f4d6fb27683/progress_empty.svg'
-        };
-
-        const tabData = {
-            materials: [
-                { title: 'Основы правильного питания',   desc: 'Гайд по макронутриентам и калориям',          icon: 'icons/material_nutrition.svg' },
-                { title: 'Техника выполнения упражнений', desc: 'Видео-уроки от профессионалов',               icon: 'icons/material_video.svg' },
-                { title: 'Программы тренировок',          desc: 'Готовые планы на разные цели',                 icon: 'icons/material_plan.svg' },
-                { title: 'Восстановление и стретчинг',    desc: 'Упражнения для гибкости и релаксации',        icon: 'icons/material_stretch.svg' }
-            ],
-            workouts: [
-                { title: 'Силовая тренировка — День 1',   desc: 'Грудь и трицепс · 45 минут',                  icon: 'icons/workout_strength.svg' },
-                { title: 'Кардио тренировка',             desc: 'HIIT интервалы · 30 минут',                   icon: 'icons/workout_cardio.svg' },
-                { title: 'Силовая тренировка — День 2',   desc: 'Спина и бицепс · 50 минут',                   icon: 'icons/workout_back.svg' },
-                { title: 'День ног',                      desc: 'Квадрицепсы, бицепсы бедра · 60 минут',      icon: 'icons/workout_legs.svg' }
-            ]
-        };
-
-        // ─── Рендер: список элементов со вкладки ───
-        function renderItemList(items, defaultIcon) {
-            return `<div class="materials-list">` +
-                items.map(item => {
-                    const iconSrc = item.icon || defaultIcon;
-                    return `
-                        <div class="material-item">
-                            <div class="material-icon"><img src="${iconSrc}" alt=""></div>
-                            <div class="material-info">
-                                <h3>${item.title}</h3>
-                                <p>${item.desc}</p>
-                            </div>
-                        </div>`;
-                }).join('') +
-                `</div>`;
-        }
-
-        // ─── Рендер: пустое состояние (progress) ───
-        function renderProgress() {
-            return `
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <img src="${TAB_DEFAULTS.progress}" alt="">
-                    </div>
-                    <h3>Отслеживание прогресса</h3>
-                    <p>Здесь будет отображаться ваш прогресс в тренировках, изменения веса и другие метрики. Начните тренироваться, чтобы увидеть статистику!</p>
-                </div>`;
-        }
-
-        // ─── Генерация HTML для каждой вкладки ───
-        function getTabHTML(key) {
-            if (key === 'progress') return renderProgress();
-            return renderItemList(tabData[key], TAB_DEFAULTS[key]);
-        }
-
-        // ─── Inner tabs ───
-        const innerTabs = document.querySelectorAll('.inner-tab');
-        const mainContent = document.getElementById('main-content');
-
-        // Initial render
-        mainContent.innerHTML = getTabHTML('materials');
-
-        innerTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                innerTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                mainContent.style.opacity = '0';
-                setTimeout(() => {
-                    mainContent.innerHTML = getTabHTML(tab.dataset.inner);
-                    mainContent.style.opacity = '1';
-                }, 150);
-            });
-        });
-
-        // ─── Chat ───
-        const chatInput = document.getElementById('chat-input');
-        const chatSend = document.getElementById('chat-send');
-        const chatMessages = document.getElementById('chat-messages');
-
-        function sendMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
-
-            const userMsg = document.createElement('div');
-            userMsg.className = 'chat-message user';
-            userMsg.textContent = message;
-            chatMessages.appendChild(userMsg);
-
-            chatInput.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            setTimeout(() => {
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'chat-message ai';
-                aiMsg.textContent = 'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.';
-                chatMessages.appendChild(aiMsg);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 800);
-        }
-
-        chatSend.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-    </script>
+// send
+const chatInput=document.getElementById('chat-input');
+const chatSend=document.getElementById('chat-send');
+function sendMessage(){
+    const text=chatInput.value.trim();
+    if(!text)return;
+    if(!chatStore[activeChatTab])chatStore[activeChatTab]=[];
+    chatStore[activeChatTab].push({role:'user',text});
+    chatInput.value='';
+    renderChatMessages();
+    setTimeout(()=>{
+        chatStore[activeChatTab].push({role:'ai',text:'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.'});
+        renderChatMessages();
+    },800);
+}
+chatSend.addEventListener('click',sendMessage);
+chatInput.addEventListener('keypress',e=>{if(e.key==='Enter')sendMessage();});
+</script>
 </body>
 </html>
