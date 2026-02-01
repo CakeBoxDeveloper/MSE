@@ -73,12 +73,11 @@
             gap:12px;
             margin-bottom:20px;
             align-items:start;
-            /* Добавляем плавный переход для изменения колонок grid */
-            transition:grid-template-columns 0.6s cubic-bezier(0.4,0,0.2,1);
+            /* Убираем transition для grid - он вызывает рывки */
         }
-        .content-grid.browser-minimized { grid-template-columns:auto 1fr; }
-        .content-grid.chat-minimized    { grid-template-columns:1fr auto; }
-        .content-grid.both-minimized    { grid-template-columns:auto 1fr auto; }
+        .content-grid.browser-minimized { grid-template-columns:54px 1fr; }
+        .content-grid.chat-minimized    { grid-template-columns:1fr 54px; }
+        .content-grid.both-minimized    { grid-template-columns:54px 1fr 54px; }
         @media(max-width:968px){
             .content-grid,
             .content-grid.browser-minimized,
@@ -96,8 +95,9 @@
             overflow:hidden;
             display:flex;
             flex-direction:row;
-            /* БОЛЕЕ ПЛАВНОЕ стягивание width */
-            transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+            /* Плавный переход только для width с более медленной кривой */
+            transition:width 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+            width:100%;
         }
 
         /* The actual body content */
@@ -109,7 +109,7 @@
             padding:20px;
             overflow:hidden;
             opacity:1;
-            transition:opacity 0.3s ease;
+            transition:opacity 0.35s ease;
         }
 
         /* Minimized vertical bar */
@@ -120,7 +120,7 @@
             flex-direction:column;
             align-items:center;
             justify-content:center;
-            transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+            transition:width 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
             cursor:pointer;
             flex-shrink:0;
         }
@@ -626,8 +626,8 @@
 // MINIMIZE / EXPAND with smooth animation
 // ============================================================
 const COLLAPSED_WIDTH = '54px';
-const FADE_DURATION = 300;      // Увеличено для более плавного fade
-const RESIZE_DURATION = 600;    // Увеличено для более плавного стягивания
+const FADE_DURATION = 350;      // Время для fade-out/in
+const RESIZE_DURATION = 700;    // Время для стягивания/растягивания (синхронно с CSS)
 
 const blockState = { browserBlock: false, chatBlock: false };
 
@@ -648,25 +648,26 @@ function collapseBlock(id) {
     // Добавляем класс minimized для переключения иконки
     block.classList.add('minimized');
 
-    // 1) Сначала fade out контента
+    // 1) Fade out контента
     body.style.opacity = '0';
 
-    // 2) Ждем пока контент полностью исчезнет
+    // 2) После fade out скрываем контент и обновляем grid
     setTimeout(() => {
         body.style.display = 'none';
         
-        // 3) СРАЗУ меняем grid (это запустит плавное изменение размеров)
+        // Обновляем grid чтобы второй блок мог расшириться
         updateGridLayout();
         
-        // 4) Устанавливаем фиксированную ширину для свернутого блока
-        block.style.width = COLLAPSED_WIDTH;
-        block.style.minWidth = COLLAPSED_WIDTH;
-        block.style.maxWidth = COLLAPSED_WIDTH;
-
-        // 5) После завершения анимации показываем bar
-        setTimeout(() => {
-            bar.style.width = COLLAPSED_WIDTH;
-        }, RESIZE_DURATION);
+        // 3) Начинаем плавное стягивание блока
+        // Используем requestAnimationFrame для синхронизации
+        requestAnimationFrame(() => {
+            block.style.width = COLLAPSED_WIDTH;
+            
+            // 4) После завершения стягивания показываем bar
+            setTimeout(() => {
+                bar.style.width = COLLAPSED_WIDTH;
+            }, RESIZE_DURATION);
+        });
     }, FADE_DURATION);
 }
 
@@ -679,24 +680,19 @@ function expandBlock(id) {
     // Убираем класс minimized для переключения иконки
     block.classList.remove('minimized');
 
-    // 1) Сначала меняем grid (второй блок начнет возвращаться к исходному размеру)
+    // 1) Скрываем bar и обновляем grid
+    bar.style.width = '0px';
     updateGridLayout();
     
-    // 2) Скрываем bar
-    bar.style.width = '0px';
-    
-    // 3) Показываем body но делаем его невидимым
+    // 2) Показываем body но делаем его невидимым
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // Маленькая задержка для применения стилей
+    // 3) Запускаем растягивание блока
     requestAnimationFrame(() => {
-        // 4) Убираем фиксированную ширину - блок начнет растягиваться
         block.style.width = '';
-        block.style.minWidth = '';
-        block.style.maxWidth = '';
 
-        // 5) После завершения растягивания показываем контент
+        // 4) После завершения растягивания показываем контент
         setTimeout(() => {
             body.style.opacity = '1';
         }, RESIZE_DURATION);
@@ -965,6 +961,11 @@ const mainContent=document.getElementById('main-content');
 mainContent.innerHTML=getTabHTML('materials');
 innerTabs.forEach(tab=>{
     tab.addEventListener('click',()=>{
+        // Если вкладка уже активна, ничего не делаем
+        if (tab.classList.contains('active')) {
+            return;
+        }
+        
         innerTabs.forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         mainContent.style.opacity='0';
