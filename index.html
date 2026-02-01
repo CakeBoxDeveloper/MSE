@@ -555,17 +555,15 @@
             font-size: 14px;
             font-weight: 500;
             margin-bottom: 8px;
-        }
-
-        .key-icon-wrapper {
             display: flex;
+            align-items: center;
             justify-content: center;
-            margin-bottom: 12px;
+            gap: 8px;
         }
 
         .key-icon {
-            width: 48px;
-            height: 48px;
+            width: 20px;
+            height: 20px;
             opacity: 0.7;
             filter: invert(1);
         }
@@ -1027,6 +1025,9 @@
                         Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button>
                     </div>
                 </div>
+                <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;">
+                    <div class="loader"></div>
+                </div>
                 <div id="loginLoader" class="fullscreen-loader" style="display:none;">
                     <div class="loader"></div>
                 </div>
@@ -1045,10 +1046,10 @@
                     </div>
                     <form class="auth-form" onsubmit="return false;">
                         <div class="form-group">
-                            <div class="key-icon-wrapper">
+                            <label class="form-label centered">
                                 <img src="" alt="" class="key-icon" id="keyIcon">
-                            </div>
-                            <label class="form-label centered">Создайте уникальный ключ доступа</label>
+                                <span>Создайте уникальный ключ доступа</span>
+                            </label>
                             <div class="pin-input-container">
                                 <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
                                 <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
@@ -1059,7 +1060,7 @@
                         <div class="checkbox-group">
                             <input type="checkbox" id="termsCheckbox">
                             <label for="termsCheckbox">
-                                Я принимаю <a href="#" target="_blank">условия</a>
+                                Я принимаю <a href="#" target="_blank">условия подключения к сети</a>
                             </label>
                         </div>
                         <div class="auth-buttons" id="registerButtons">
@@ -1092,7 +1093,9 @@
 
     <script>
         // ─── In-memory store ───
-        let users = [];
+        let users = [
+            { id: 1001, pin: '1234', createdAt: new Date().toISOString() } // Тестовый пользователь
+        ];
         let currentUser = null;
 
         // ─── Header login btn ───
@@ -1114,6 +1117,7 @@
             document.getElementById('stepId').style.display = 'flex';
             document.getElementById('stepPin').style.display = 'none';
             document.getElementById('loginTransitionLoader').style.display = 'none';
+            document.getElementById('loginToRegisterLoader').style.display = 'none';
             document.getElementById('loginLoader').style.display = 'none';
             document.getElementById('loginSuccess').style.display = 'none';
             document.getElementById('loginButtons').style.display = 'flex';
@@ -1130,25 +1134,35 @@
         }
 
         function showRegister() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
-            document.getElementById('logoutModal').style.display = 'none';
-            document.getElementById('authOverlay').classList.add('active');
+            // Show loader
+            document.getElementById('loginContent').style.display = 'none';
+            document.getElementById('loginToRegisterLoader').style.display = 'flex';
 
-            const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1001;
-            document.getElementById('newUserId').textContent = newId.toString().padStart(4, '0');
+            setTimeout(() => {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+                document.getElementById('logoutModal').style.display = 'none';
+                document.getElementById('authOverlay').classList.add('active');
 
-            // Reset form
-            document.getElementById('registerContent').style.display = 'block';
-            document.getElementById('pin1').value = '';
-            document.getElementById('pin2').value = '';
-            document.getElementById('pin3').value = '';
-            document.getElementById('pin4').value = '';
-            document.getElementById('termsCheckbox').checked = false;
-            document.getElementById('registerBtn').disabled = true;
-            document.getElementById('registerLoader').style.display = 'none';
-            document.getElementById('registerSuccess').style.display = 'none';
-            document.getElementById('registerButtons').style.display = 'flex';
+                const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1001;
+                document.getElementById('newUserId').textContent = newId.toString().padStart(4, '0');
+
+                // Reset form
+                document.getElementById('registerContent').style.display = 'block';
+                document.getElementById('pin1').value = '';
+                document.getElementById('pin2').value = '';
+                document.getElementById('pin3').value = '';
+                document.getElementById('pin4').value = '';
+                document.getElementById('termsCheckbox').checked = false;
+                document.getElementById('registerBtn').disabled = true;
+                document.getElementById('registerLoader').style.display = 'none';
+                document.getElementById('registerSuccess').style.display = 'none';
+                document.getElementById('registerButtons').style.display = 'flex';
+
+                // Reset login form
+                document.getElementById('loginContent').style.display = 'block';
+                document.getElementById('loginToRegisterLoader').style.display = 'none';
+            }, 800);
         }
 
         function showLogout() {
@@ -1171,25 +1185,34 @@
         // ─── Login: step 1 — валидация номера звена ───
         document.getElementById('loginId').addEventListener('input', function () {
             this.classList.remove('error');
+            
+            // Ограничиваем ввод 4 символами
+            if (this.value.length > 4) {
+                this.value = this.value.slice(0, 4);
+            }
+            
             const val = this.value.trim();
             if (val === '') return;
 
-            const id = parseInt(val);
-            const exists = users.find(u => u.id === id);
+            // Проверка сразу после 4-го символа
+            if (val.length === 4) {
+                const id = parseInt(val);
+                const exists = users.find(u => u.id === id);
 
-            if (exists) {
-                // Valid ID → show loader → transition to step 2
-                document.getElementById('stepId').style.display = 'none';
-                document.getElementById('loginTransitionLoader').style.display = 'block';
-                
-                setTimeout(() => {
-                    document.getElementById('loginTransitionLoader').style.display = 'none';
-                    document.getElementById('stepPin').style.display = 'flex';
-                    setTimeout(() => document.getElementById('loginPin').focus(), 100);
-                }, 800);
-            } else if (val.length >= 4) {
-                // Invalid ID
-                this.classList.add('error');
+                if (exists) {
+                    // Valid ID → show loader → transition to step 2
+                    document.getElementById('stepId').style.display = 'none';
+                    document.getElementById('loginTransitionLoader').style.display = 'block';
+                    
+                    setTimeout(() => {
+                        document.getElementById('loginTransitionLoader').style.display = 'none';
+                        document.getElementById('stepPin').style.display = 'flex';
+                        setTimeout(() => document.getElementById('loginPin1').focus(), 100);
+                    }, 800);
+                } else {
+                    // Invalid ID - показываем ошибку сразу
+                    this.classList.add('error');
+                }
             }
         });
 
@@ -1199,7 +1222,7 @@
             const input = document.getElementById(id);
             
             input.addEventListener('input', function() {
-                // Remove error styling
+                // Remove error styling from all inputs
                 loginPinInputs.forEach(pinId => {
                     document.getElementById(pinId).classList.remove('error');
                 });
@@ -1214,8 +1237,10 @@
                     document.getElementById(loginPinInputs[index + 1]).focus();
                 }
                 
-                // Check if all 4 digits are filled
-                if (index === 3 && this.value.length === 1) {
+                // Check if all 4 digits are filled (проверяем при каждом вводе)
+                const allFilled = loginPinInputs.every(pinId => document.getElementById(pinId).value.length === 1);
+                
+                if (allFilled) {
                     const pin = loginPinInputs.map(pinId => document.getElementById(pinId).value).join('');
                     const id = parseInt(document.getElementById('loginId').value);
                     const user = users.find(u => u.id === id && u.pin === pin);
@@ -1236,7 +1261,7 @@
                             }, 1000);
                         }, 2000);
                     } else {
-                        // Invalid PIN - show error
+                        // Invalid PIN - show error on ALL 4 cells
                         loginPinInputs.forEach(pinId => {
                             document.getElementById(pinId).classList.add('error');
                         });
