@@ -217,7 +217,7 @@
         
 
         /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
-     .content-block {
+.content-block {
     background:var(--glass-bg);
     border:1px solid var(--glass-border);
     border-radius:5px;
@@ -226,17 +226,18 @@
     overflow:hidden;
     display:flex;
     flex-direction:row;
-    flex: 1 1 0%;
+    flex: 1 1 0% !important; /* ДОБАВИТЬ !important */
     min-width: 0;
-    transition: flex 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ИЗМЕНИТЬ - более плавная кривая */
+    transition: flex 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
         /* ДОБАВИТЬ после .content-block */
 .content-block.collapsing {
     transition: flex 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .content-block.collapsed {
-    flex: 0 0 54px;
+    flex: 0 0 54px !important; /* ДОБАВИТЬ !important */
 }
 
 .content-block:not(.collapsed) {
@@ -750,17 +751,15 @@ function collapseBlock(id) {
     block.classList.add('minimized');
 
     // 1) Fade out контента
-    body.style.transition = `opacity ${FADE_DURATION}ms ease`;
     body.style.opacity = '0';
 
-    // 2) После fade out сворачиваем блок
+    // 2) После fade out добавляем класс collapsed
     setTimeout(() => {
         body.style.display = 'none';
         block.classList.add('collapsed');
         
         // 3) Показываем bar после завершения анимации
         setTimeout(() => {
-            bar.style.transition = `width ${FADE_DURATION}ms ease`;
             bar.style.width = COLLAPSED_WIDTH;
         }, RESIZE_DURATION);
     }, FADE_DURATION);
@@ -772,23 +771,21 @@ function expandBlock(id) {
     const body = block.querySelector('.block-body');
     const bar = block.querySelector('.minimized-bar');
 
+    // 1) Сначала убираем класс minimized
     block.classList.remove('minimized');
 
-    // 1) Скрываем bar
-    bar.style.transition = `width ${FADE_DURATION}ms ease`;
+    // 2) Скрываем bar
     bar.style.width = '0px';
     
-    // 2) Показываем body невидимым
+    // 3) Убираем класс collapsed СРАЗУ для запуска расширения
+    block.classList.remove('collapsed');
+    
+    // 4) Показываем body невидимым
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // 3) Принудительный reflow и удаление класса
-    block.offsetHeight; // Trigger reflow
-    block.classList.remove('collapsed');
-
-    // 4) После завершения расширения показываем контент
+    // 5) После расширения блока показываем контент
     setTimeout(() => {
-        body.style.transition = `opacity ${FADE_DURATION}ms ease`;
         body.style.opacity = '1';
     }, RESIZE_DURATION - FADE_DURATION);
 }
