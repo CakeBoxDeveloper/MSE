@@ -112,6 +112,33 @@
             .content-grid.both-minimized { grid-template-columns:1fr; }
         }
 
+
+
+/* ДОБАВИТЬ новый код */
+.chat-tabs-wrapper {
+    flex:1;
+    min-width:0;
+    position:relative;
+    overflow:hidden;
+    transition: mask-image 0.3s ease; /* ДОБАВИТЬ */
+}
+
+.chat-tabs-wrapper.blur-left {
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 100%);
+}
+
+.chat-tabs-wrapper.blur-right {
+  mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+}
+
+.chat-tabs-wrapper.blur-both {
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+        
+
         /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
         .content-block {
             background:var(--glass-bg);
@@ -219,31 +246,8 @@
             overflow:hidden;
         }
         
-        /* ИСПРАВЛЕННЫЕ fade градиенты - направлены НАРУЖУ от краев */
-        .chat-tabs-wrapper::before,
-        .chat-tabs-wrapper::after {
-            content:'';
-            position:absolute;
-            top:0;
-            bottom:0;
-            width:60px;
-            z-index:2;
-            pointer-events:none;
-            opacity:0;
-            transition:opacity .3s ease;
-        }
-        .chat-tabs-wrapper::before {
-            left:0;
-            /* Градиент слева направо: от фона контейнера к прозрачному */
-            background:linear-gradient(to right, var(--glass-bg) 0%, rgba(255,255,255,.05) 30%, transparent 100%);
-        }
-        .chat-tabs-wrapper::after {
-            right:0;
-            /* Градиент справа налево: от фона контейнера к прозрачному */
-            background:linear-gradient(to left, var(--glass-bg) 0%, rgba(255,255,255,.05) 30%, transparent 100%);
-        }
-        .chat-tabs-wrapper.show-left-fade::before  { opacity:1; }
-        .chat-tabs-wrapper.show-right-fade::after  { opacity:1; }
+       
+      
 
         .chat-tabs {
             display:flex;gap:6px;
@@ -1180,6 +1184,30 @@ document.querySelector('.chat-tab[data-chat="sofia"]').addEventListener('click',
     if (e.target.closest('.chat-tab-menu')) return;
     switchChatTab('sofia');
     closeAllMenus();
+
+
+function updateChatScrollFade(){
+    const wrapper = document.getElementById('chatTabsWrapper');
+    const tabs    = document.getElementById('chatTabs');
+    const scrollable = tabs.scrollWidth > tabs.clientWidth;
+    const atStart    = tabs.scrollLeft <= 1;
+    const atEnd      = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 1;
+    
+    wrapper.classList.remove('blur-left', 'blur-right', 'blur-both');
+    
+    if (scrollable && !atStart && atEnd) {
+        wrapper.classList.add('blur-left');
+    } else if (scrollable && atStart && !atEnd) {
+        wrapper.classList.add('blur-right');
+    } else if (scrollable && !atStart && !atEnd) {
+        wrapper.classList.add('blur-both');
+    }
+}
+
+document.getElementById('chatTabs').addEventListener('scroll', updateChatScrollFade);
+window.addEventListener('resize', updateChatScrollFade);
+setTimeout(updateChatScrollFade, 100);
+    
 });
 </script>
 </body>
