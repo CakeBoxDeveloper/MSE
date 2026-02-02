@@ -38,14 +38,13 @@
 }
 .chat-tab-menu.show { display:flex; }
 .chat-tab-menu-item {
-    width:120px;height:32px; /* ИЗМЕНИТЬ размеры */
+    width:34px;height:34px;
     background:transparent;
     border:none;
     border-radius:4px;
     cursor:pointer;
-    display:flex;align-items:center;justify-content:flex-start; /* ИЗМЕНИТЬ на flex-start */
-    padding:0 10px; /* ДОБАВИТЬ padding */
-    gap:8px; /* ДОБАВИТЬ gap между иконкой и текстом */
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
     transition:background .15s ease;
 }
 .chat-tab-menu-item:hover { background:rgba(255,255,255,.1); }
@@ -352,7 +351,13 @@
         }
         .chat-tab:hover:not(.active) { border-color:rgba(255,255,255,.22); }
         .chat-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
-
+.chat-tab.pinned {
+    border-color:rgba(255,255,255,.25);
+    background:rgba(255,255,255,.04);
+}
+.chat-tab.pinned:hover {
+    border-color:rgba(255,255,255,.3);
+}
          
 
         .chat-right-controls {
@@ -1087,25 +1092,27 @@ function createChatTabElement(id, name, isBase) {
 
     // Создаем меню только для НЕ базовых вкладок
     if (!isBase) {
-        // Обработчик клика для показа меню
-        tab.addEventListener('click', (e) => {
-            const wasActive = tab.classList.contains('active');
-            switchChatTab(id);
-
-            if (wasActive) {
-                e.stopPropagation();
-                toggleTabMenu(tab, id, nameSpan);
-            } else {
-                closeAllMenus();
-            }
-        });
-    } else {
-        // Для базовой вкладки просто переключаем чат
-        tab.addEventListener('click', (e) => {
+    // Обработчик клика для показа меню
+    tab.addEventListener('click', (e) => {
+        const wasActive = tab.classList.contains('active');
+        
+        if (!wasActive) {
+            // Если вкладка НЕ активна - просто переключаемся
             switchChatTab(id);
             closeAllMenus();
-        });
-    }
+        } else {
+            // Если вкладка УЖЕ активна - показываем меню
+            e.stopPropagation();
+            toggleTabMenu(tab, id, nameSpan);
+        }
+    });
+} else {
+    // Для базовой вкладки просто переключаем чат
+    tab.addEventListener('click', () => {
+        switchChatTab(id);
+        closeAllMenus();
+    });
+}
 
     return tab;
 }
@@ -1120,18 +1127,15 @@ function toggleTabMenu(tab, id, nameSpan) {
     
     // ИЗМЕНИТЬ структуру меню - добавить текст к кнопкам
     menu.innerHTML =
-        `<button class="chat-tab-menu-item" data-action="pin">
-            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-            <span>Закрепить</span>
-        </button>` +
-        `<button class="chat-tab-menu-item" data-action="rename">
-            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
-            <span>Переименовать</span>
-        </button>` +
-        `<button class="chat-tab-menu-item" data-action="delete">
-            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
-            <span>Удалить</span>
-        </button>`;
+    `<button class="chat-tab-menu-item" data-action="pin">
+        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
+    </button>` +
+    `<button class="chat-tab-menu-item" data-action="rename">
+        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
+    </button>` +
+    `<button class="chat-tab-menu-item" data-action="delete">
+        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
+    </button>`;
     
     document.body.appendChild(menu);
     
@@ -1220,9 +1224,11 @@ function togglePinChat(id, tabElement) {
     
     if (pinnedChats.has(id)) {
         pinnedChats.delete(id);
+        tabElement.classList.remove('pinned');
         console.log(`Чат ${id} откреплен`);
     } else {
         pinnedChats.add(id);
+        tabElement.classList.add('pinned');
         console.log(`Чат ${id} закреплен`);
         
         // Перемещаем вкладку после Sofia
