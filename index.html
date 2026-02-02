@@ -353,34 +353,7 @@
         .chat-tab:hover:not(.active) { border-color:rgba(255,255,255,.22); }
         .chat-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
 
-        /* ─── CHAT TAB DROPDOWN MENU ─── */
-        .chat-tab-menu {
-            position:absolute;
-            top:calc(100% + 6px);
-            left:50%;
-            transform:translateX(-50%);
-            background:rgba(20,20,20,.95);
-            border:1px solid var(--glass-border);
-            border-radius:6px;
-            padding:5px;
-            display:none;
-            flex-direction:row;
-            gap:2px;
-            z-index:300; /* УВЕЛИЧЕН z-index для отображения поверх всего */
-            backdrop-filter:blur(12px);
-        }
-        .chat-tab-menu.show { display:flex; }
-        .chat-tab-menu-item {
-            width:30px;height:30px;
-            background:transparent;
-            border:none;
-            border-radius:4px;
-            cursor:pointer;
-            display:flex;align-items:center;justify-content:center;
-            transition:background .15s ease;
-        }
-        .chat-tab-menu-item:hover { background:rgba(255,255,255,.1); }
-        .chat-tab-menu-item svg { width:14px;height:14px;stroke:var(--text-secondary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+         
 
         .chat-right-controls {
             display:flex;gap:8px;align-items:center;
