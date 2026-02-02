@@ -224,19 +224,31 @@
         
 
         /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
-        .content-block {
-            background:var(--glass-bg);
-            border:1px solid var(--glass-border);
-            border-radius:5px;
-            backdrop-filter:saturate(180%) blur(20px);
-            height:var(--block-height);
-            overflow:hidden;
-            display:flex;
-            flex-direction:row;
-            /* Плавный переход только для width с более медленной кривой */
-            transition:width 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
-            width:100%;
-        }
+     .content-block {
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    border-radius:5px;
+    backdrop-filter:saturate(180%) blur(20px);
+    height:var(--block-height);
+    overflow:hidden;
+    display:flex;
+    flex-direction:row;
+    /* УБРАТЬ width transition отсюда */
+    width:100%;
+}
+        /* ДОБАВИТЬ после .content-block */
+.content-block.collapsing {
+    transition: flex 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.content-block.collapsed {
+    flex: 0 0 54px;
+}
+
+.content-block:not(.collapsed) {
+    flex: 1 1 0%;
+}
+        
 
         /* The actual body content */
         .block-body {
@@ -741,30 +753,53 @@ function collapseBlock(id) {
     const body = block.querySelector('.block-body');
     const bar = block.querySelector('.minimized-bar');
 
-    // Добавляем класс minimized для переключения иконки
     block.classList.add('minimized');
+    block.classList.add('collapsing'); // Добавляем класс для transition
 
     // 1) Fade out контента
     body.style.opacity = '0';
 
-    // 2) После fade out скрываем контент и обновляем grid
+    // 2) После fade out начинаем сворачивание
     setTimeout(() => {
         body.style.display = 'none';
-        
-        // Обновляем grid чтобы второй блок мог расшириться
+        block.classList.add('collapsed');
         updateGridLayout();
         
-        // 3) Начинаем плавное стягивание блока
-        // Используем requestAnimationFrame для синхронизации
-        requestAnimationFrame(() => {
-            block.style.width = COLLAPSED_WIDTH;
-            
-            // 4) После завершения стягивания показываем bar
-            setTimeout(() => {
-                bar.style.width = COLLAPSED_WIDTH;
-            }, RESIZE_DURATION);
-        });
+        // 3) После завершения анимации показываем bar
+        setTimeout(() => {
+            bar.style.width = COLLAPSED_WIDTH;
+            block.classList.remove('collapsing');
+        }, RESIZE_DURATION);
     }, FADE_DURATION);
+}
+
+function expandBlock(id) {
+    blockState[id] = false;
+    const block = document.getElementById(id);
+    const body = block.querySelector('.block-body');
+    const bar = block.querySelector('.minimized-bar');
+
+    block.classList.remove('minimized');
+    block.classList.add('collapsing'); // Добавляем класс для transition
+
+    // 1) Скрываем bar
+    bar.style.width = '0px';
+    
+    // 2) Показываем body но делаем его невидимым
+    body.style.display = 'flex';
+    body.style.opacity = '0';
+
+    // 3) Запускаем растягивание
+    requestAnimationFrame(() => {
+        block.classList.remove('collapsed');
+        updateGridLayout();
+
+        // 4) После завершения растягивания показываем контент
+        setTimeout(() => {
+            body.style.opacity = '1';
+            block.classList.remove('collapsing');
+        }, RESIZE_DURATION);
+    });
 }
 
 function expandBlock(id) {
@@ -799,10 +834,22 @@ function updateGridLayout() {
     const grid = document.getElementById('contentGrid');
     const bMin = blockState.browserBlock;
     const cMin = blockState.chatBlock;
+    
     grid.classList.remove('browser-minimized','chat-minimized','both-minimized');
+    
     if (bMin && cMin)      grid.classList.add('both-minimized');
     else if (bMin)         grid.classList.add('browser-minimized');
     else if (cMin)         grid.classList.add('chat-minimized');
+    
+    // Синхронизация flex для всех блоков
+    const browserBlock = document.getElementById('browserBlock');
+    const chatBlock = document.getElementById('chatBlock');
+    
+    if (!bMin && !cMin) {
+        // Оба развёрнуты - равномерно
+        browserBlock.style.flex = '1 1 0%';
+        chatBlock.style.flex = '1 1 0%';
+    }
 }
 
 // ============================================================
