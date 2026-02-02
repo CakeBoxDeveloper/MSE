@@ -782,16 +782,16 @@ function expandBlock(id) {
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // 3) Запускаем расширение блока
-    requestAnimationFrame(() => {
+    // 3) Удаляем класс collapsed для запуска расширения
+    setTimeout(() => {
         block.classList.remove('collapsed');
-
+        
         // 4) После завершения расширения показываем контент
         setTimeout(() => {
             body.style.transition = `opacity ${FADE_DURATION}ms ease`;
             body.style.opacity = '1';
         }, RESIZE_DURATION - FADE_DURATION);
-    });
+    }, 50); // Небольшая задержка для корректной отработки transition
 }
 
 // УДАЛИТЬ функцию updateGridLayout полностью - она больше не нужна
