@@ -38,7 +38,8 @@
     margin:0 auto;
     padding:12px 20px;
     backdrop-filter:saturate(180%) blur(20px);
-    background:rgba(0,0,0,.72); /* УБРАТЬ red, вернуть нормальный фон */
+    background:var(--glass-bg);           /* ИЗМЕНИТЬ с red */
+    border:1px solid var(--glass-border); /* ДОБАВИТЬ границу как у блоков */
     border-radius:0 0 8px 8px;
     display:flex;
     justify-content:space-between;
@@ -46,8 +47,8 @@
     gap:20px;
 }
 .logo { 
-    width:43px;
-    height:43px;
+    width:128px;
+    height:128px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -55,8 +56,8 @@
 }
        
 .logo img { 
-    width:43px;
-    height:43px;
+    width:128px;
+    height:128px;
 }
 
         
