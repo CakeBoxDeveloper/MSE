@@ -758,18 +758,17 @@ function collapseBlock(id) {
     // 1) Fade out контента
     body.style.opacity = '0';
 
-    // 2) После fade out добавляем класс collapsed
+    // 2) После fade out запускаем сворачивание блока
     setTimeout(() => {
-        body.style.display = 'none';
         block.classList.add('collapsed');
         
-        // 3) Показываем bar после завершения анимации
+        // 3) Скрываем body ПОСЛЕ завершения анимации сворачивания
         setTimeout(() => {
+            body.style.display = 'none';
             bar.style.width = COLLAPSED_WIDTH;
         }, RESIZE_DURATION);
     }, FADE_DURATION);
 }
-
 function expandBlock(id) {
     blockState[id] = false;
     const block = document.getElementById(id);
