@@ -22,11 +22,9 @@
 
 
 /* ─── CHAT TAB DROPDOWN MENU ─── */
+/* ─── CHAT TAB DROPDOWN MENU ─── */
 .chat-tab-menu {
-    position:absolute;
-    top:calc(100% + 6px);
-    left:50%;
-    transform:translateX(-50%);
+    position:fixed; /* ИЗМЕНИТЬ с absolute */
     background:rgba(20,20,20,.95);
     border:1px solid var(--glass-border);
     border-radius:6px;
@@ -34,7 +32,7 @@
     display:none;
     flex-direction:row;
     gap:2px;
-    z-index:500; /* УВЕЛИЧЕН z-index */
+    z-index:500;
     backdrop-filter:blur(12px);
 }
 .chat-tab-menu.show { display:flex; }
@@ -1060,49 +1058,14 @@ function createChatTabElement(id, name, isBase) {
 
     // Создаем меню только для НЕ базовых вкладок
     if (!isBase) {
-        const menu = document.createElement('div');
-        menu.className = 'chat-tab-menu';
-        
-        menu.innerHTML =
-            `<button class="chat-tab-menu-item" data-action="pin">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-            </button>` +
-            `<button class="chat-tab-menu-item" data-action="rename">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
-            </button>` +
-            `<button class="chat-tab-menu-item" data-action="delete">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
-            </button>`;
-        
-        tab.appendChild(menu);
-
-        menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const action = btn.dataset.action;
-                if (action === 'pin')    togglePinChat(id);
-                if (action === 'rename') renameChatTab(id, nameSpan);
-                if (action === 'delete') deleteChatTab(id);
-                closeAllMenus();
-            });
-        });
-
+        // Обработчик клика для показа меню
         tab.addEventListener('click', (e) => {
-            if (e.target.closest('.chat-tab-menu-item')) return;
-
             const wasActive = tab.classList.contains('active');
             switchChatTab(id);
 
             if (wasActive) {
-                const menu = tab.querySelector('.chat-tab-menu');
-                if (menu) {
-                    const wasOpen = menu.classList.contains('show');
-                    closeAllMenus();
-                    if (!wasOpen) { 
-                        menu.classList.add('show'); 
-                        openMenu = menu; 
-                    }
-                }
+                e.stopPropagation();
+                toggleTabMenu(tab, id, nameSpan);
             } else {
                 closeAllMenus();
             }
@@ -1118,8 +1081,55 @@ function createChatTabElement(id, name, isBase) {
     return tab;
 }
 
+// Новая функция для создания и позиционирования меню
+function toggleTabMenu(tab, id, nameSpan) {
+    // Закрываем все существующие меню
+    closeAllMenus();
+    
+    // Создаем новое меню
+    const menu = document.createElement('div');
+    menu.className = 'chat-tab-menu show';
+    menu.dataset.chatId = id;
+    
+    menu.innerHTML =
+        `<button class="chat-tab-menu-item" data-action="pin">
+            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
+        </button>` +
+        `<button class="chat-tab-menu-item" data-action="rename">
+            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
+        </button>` +
+        `<button class="chat-tab-menu-item" data-action="delete">
+            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
+        </button>`;
+    
+    // Добавляем меню в body (не в tab!)
+    document.body.appendChild(menu);
+    
+    // Позиционируем меню относительно вкладки
+    const rect = tab.getBoundingClientRect();
+    menu.style.position = 'fixed';
+    menu.style.left = rect.left + rect.width / 2 + 'px';
+    menu.style.top = rect.bottom + 6 + 'px';
+    menu.style.transform = 'translateX(-50%)';
+    
+    // Обработчики действий
+    menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const action = btn.dataset.action;
+            if (action === 'pin')    togglePinChat(id);
+            if (action === 'rename') renameChatTab(id, nameSpan);
+            if (action === 'delete') deleteChatTab(id);
+            closeAllMenus();
+        });
+    });
+    
+    openMenu = menu;
+}
+
 function closeAllMenus() {
-    document.querySelectorAll('.chat-tab-menu.show').forEach(m => m.classList.remove('show'));
+    // Удаляем все меню из body
+    document.querySelectorAll('.chat-tab-menu').forEach(m => m.remove());
     openMenu = null;
 }
 
