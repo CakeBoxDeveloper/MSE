@@ -34,7 +34,7 @@
     display:none;
     flex-direction:row;
     gap:2px;
-    z-index:300;
+    z-index:500; /* УВЕЛИЧЕН z-index */
     backdrop-filter:blur(12px);
 }
 .chat-tab-menu.show { display:flex; }
@@ -1040,10 +1040,6 @@ innerTabs.forEach(tab=>{
 // ============================================================
 // CHAT TABS
 // ============================================================
-// ============================================================
-// CHAT TABS
-// ============================================================
-// ============================================================
 // CHAT TABS
 // ============================================================
 let chatTabCounter = 1;
@@ -1062,21 +1058,11 @@ function createChatTabElement(id, name, isBase) {
     nameSpan.textContent = name;
     tab.appendChild(nameSpan);
 
-    // Создаем меню для всех вкладок
-    const menu = document.createElement('div');
-    menu.className = 'chat-tab-menu';
-    
-    if (isBase) {
-        // Для базовой вкладки только закрепить и переименовать
-        menu.innerHTML =
-            `<button class="chat-tab-menu-item" data-action="pin">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-            </button>` +
-            `<button class="chat-tab-menu-item" data-action="rename">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
-            </button>`;
-    } else {
-        // Для обычных вкладок все три кнопки
+    // Создаем меню только для НЕ базовых вкладок
+    if (!isBase) {
+        const menu = document.createElement('div');
+        menu.className = 'chat-tab-menu';
+        
         menu.innerHTML =
             `<button class="chat-tab-menu-item" data-action="pin">
                 <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
@@ -1087,41 +1073,47 @@ function createChatTabElement(id, name, isBase) {
             `<button class="chat-tab-menu-item" data-action="delete">
                 <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
             </button>`;
-    }
-    
-    tab.appendChild(menu);
+        
+        tab.appendChild(menu);
 
-    menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const action = btn.dataset.action;
-            if (action === 'pin')    togglePinChat(id);
-            if (action === 'rename') renameChatTab(id, nameSpan);
-            if (action === 'delete') deleteChatTab(id);
+        menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const action = btn.dataset.action;
+                if (action === 'pin')    togglePinChat(id);
+                if (action === 'rename') renameChatTab(id, nameSpan);
+                if (action === 'delete') deleteChatTab(id);
+                closeAllMenus();
+            });
+        });
+
+        tab.addEventListener('click', (e) => {
+            if (e.target.closest('.chat-tab-menu-item')) return;
+
+            const wasActive = tab.classList.contains('active');
+            switchChatTab(id);
+
+            if (wasActive) {
+                const menu = tab.querySelector('.chat-tab-menu');
+                if (menu) {
+                    const wasOpen = menu.classList.contains('show');
+                    closeAllMenus();
+                    if (!wasOpen) { 
+                        menu.classList.add('show'); 
+                        openMenu = menu; 
+                    }
+                }
+            } else {
+                closeAllMenus();
+            }
+        });
+    } else {
+        // Для базовой вкладки просто переключаем чат
+        tab.addEventListener('click', (e) => {
+            switchChatTab(id);
             closeAllMenus();
         });
-    });
-
-    tab.addEventListener('click', (e) => {
-        if (e.target.closest('.chat-tab-menu-item')) return;
-
-        const wasActive = tab.classList.contains('active');
-        switchChatTab(id);
-
-        if (wasActive) {
-            const menu = tab.querySelector('.chat-tab-menu');
-            if (menu) {
-                const wasOpen = menu.classList.contains('show');
-                closeAllMenus();
-                if (!wasOpen) { 
-                    menu.classList.add('show'); 
-                    openMenu = menu; 
-                }
-            }
-        } else {
-            closeAllMenus();
-        }
-    });
+    }
 
     return tab;
 }
@@ -1225,11 +1217,16 @@ document.addEventListener('click', (e) => {
 function renderChatMessages(){
     const container = document.getElementById('chat-messages');
     const messages  = chatStore[activeChatTab] || [];
-    if (messages.length === 0) {
+    
+    // Приветствие только для Sofia
+    if (messages.length === 0 && activeChatTab === 'sofia') {
         container.innerHTML = `<div class="chat-empty-state">
             <div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/progress_empty.svg" alt=""></div>
             <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
         </div>`;
+    } else if (messages.length === 0) {
+        // Для других чатов - пусто
+        container.innerHTML = '';
     } else {
         container.innerHTML = messages.map(m => `<div class="chat-message ${m.role}">${m.text}</div>`).join('');
         container.scrollTop = container.scrollHeight;
@@ -1255,56 +1252,6 @@ function sendMessage(){
 
 chatSend.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage(); });
-
-// Инициализируем меню для базовой вкладки Sofia
-document.addEventListener('DOMContentLoaded', function() {
-    const sofiaTab = document.querySelector('.chat-tab[data-chat="sofia"]');
-    if (sofiaTab && !sofiaTab.querySelector('.chat-tab-menu')) {
-        const menu = document.createElement('div');
-        menu.className = 'chat-tab-menu';
-        menu.innerHTML =
-            `<button class="chat-tab-menu-item" data-action="pin">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-            </button>` +
-            `<button class="chat-tab-menu-item" data-action="rename">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
-            </button>`;
-        
-        sofiaTab.appendChild(menu);
-        
-        menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const action = btn.dataset.action;
-                const nameSpan = sofiaTab.querySelector('span');
-                if (action === 'pin')    togglePinChat('sofia');
-                if (action === 'rename') renameChatTab('sofia', nameSpan);
-                closeAllMenus();
-            });
-        });
-        
-        sofiaTab.addEventListener('click', (e) => {
-            if (e.target.closest('.chat-tab-menu-item')) return;
-            
-            const wasActive = sofiaTab.classList.contains('active');
-            switchChatTab('sofia');
-            
-            if (wasActive) {
-                const menu = sofiaTab.querySelector('.chat-tab-menu');
-                if (menu) {
-                    const wasOpen = menu.classList.contains('show');
-                    closeAllMenus();
-                    if (!wasOpen) { 
-                        menu.classList.add('show'); 
-                        openMenu = menu; 
-                    }
-                }
-            } else {
-                closeAllMenus();
-            }
-        });
-    }
-});
     
 
 </script>
