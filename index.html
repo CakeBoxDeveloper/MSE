@@ -36,9 +36,9 @@
 .header-inner {
     max-width:100%;
     margin:0 auto;
-    padding:12px 20px; /* ОБЯЗАТЕЛЬНО 20px слева и справа! */
+    padding:12px 20px;
     backdrop-filter:saturate(180%) blur(20px);
-    background:red;
+    background:rgba(0,0,0,.72); /* УБРАТЬ red, вернуть нормальный фон */
     border-radius:0 0 8px 8px;
     display:flex;
     justify-content:space-between;
@@ -52,9 +52,14 @@
     align-items:center;
     justify-content:center;
     flex-shrink:0;
-    /* БЕЗ margin-left! */
 }
-        .logo img { width:128px;height:128px; }
+       
+.logo img { 
+    width:43px;
+    height:43px;
+}
+
+        
 .header-login-btn {
     padding:6px 14px;
     background:rgba(255,255,255,.08);
