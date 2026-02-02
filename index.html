@@ -179,22 +179,15 @@
         /* ─── GRID ─── */
         .main-wrapper { margin-top:20px; }
         .content-grid {
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:12px;
-            margin-bottom:20px;
-            align-items:start;
-            /* Убираем transition для grid - он вызывает рывки */
-        }
-        .content-grid.browser-minimized { grid-template-columns:54px 1fr; }
-        .content-grid.chat-minimized    { grid-template-columns:1fr 54px; }
-        .content-grid.both-minimized    { grid-template-columns:54px 1fr 54px; }
-        @media(max-width:968px){
-            .content-grid,
-            .content-grid.browser-minimized,
-            .content-grid.chat-minimized,
-            .content-grid.both-minimized { grid-template-columns:1fr; }
-        }
+    display:flex; /* ИЗМЕНИТЬ с grid на flex */
+    gap:12px;
+    margin-bottom:20px;
+    align-items:start;
+}
+ 
+       @media(max-width:968px){
+    .content-grid { flex-direction: column; } /* ИЗМЕНИТЬ */
+}
 
 
 
@@ -233,8 +226,9 @@
     overflow:hidden;
     display:flex;
     flex-direction:row;
-    /* УБРАТЬ width transition отсюда */
-    width:100%;
+    flex: 1 1 0%;
+    min-width: 0;
+    transition: flex 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ИЗМЕНИТЬ - более плавная кривая */
 }
         /* ДОБАВИТЬ после .content-block */
 .content-block.collapsing {
@@ -733,13 +727,13 @@
 // MINIMIZE / EXPAND with smooth animation
 // ============================================================
 const COLLAPSED_WIDTH = '54px';
-const FADE_DURATION = 350;      // Время для fade-out/in
-const RESIZE_DURATION = 700;    // Время для стягивания/растягивания (синхронно с CSS)
+const FADE_DURATION = 300;      // Уменьшить для более быстрого fade
+const RESIZE_DURATION = 900;    // Синхронизировать с CSS
 
 const blockState = { browserBlock: false, chatBlock: false };
 
 function toggleMinimize(id) {
-    closeAllMenus(); // ДОБАВИТЬ в самое начало
+    closeAllMenus();
     if (blockState[id]) {
         expandBlock(id);
     } else {
@@ -754,21 +748,20 @@ function collapseBlock(id) {
     const bar = block.querySelector('.minimized-bar');
 
     block.classList.add('minimized');
-    block.classList.add('collapsing'); // Добавляем класс для transition
 
     // 1) Fade out контента
+    body.style.transition = `opacity ${FADE_DURATION}ms ease`;
     body.style.opacity = '0';
 
-    // 2) После fade out начинаем сворачивание
+    // 2) После fade out сворачиваем блок
     setTimeout(() => {
         body.style.display = 'none';
         block.classList.add('collapsed');
-        updateGridLayout();
         
-        // 3) После завершения анимации показываем bar
+        // 3) Показываем bar после завершения анимации
         setTimeout(() => {
+            bar.style.transition = `width ${FADE_DURATION}ms ease`;
             bar.style.width = COLLAPSED_WIDTH;
-            block.classList.remove('collapsing');
         }, RESIZE_DURATION);
     }, FADE_DURATION);
 }
@@ -780,27 +773,28 @@ function expandBlock(id) {
     const bar = block.querySelector('.minimized-bar');
 
     block.classList.remove('minimized');
-    block.classList.add('collapsing'); // Добавляем класс для transition
 
     // 1) Скрываем bar
+    bar.style.transition = `width ${FADE_DURATION}ms ease`;
     bar.style.width = '0px';
     
-    // 2) Показываем body но делаем его невидимым
+    // 2) Показываем body невидимым
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // 3) Запускаем растягивание
+    // 3) Запускаем расширение блока
     requestAnimationFrame(() => {
         block.classList.remove('collapsed');
-        updateGridLayout();
 
-        // 4) После завершения растягивания показываем контент
+        // 4) После завершения расширения показываем контент
         setTimeout(() => {
+            body.style.transition = `opacity ${FADE_DURATION}ms ease`;
             body.style.opacity = '1';
-            block.classList.remove('collapsing');
-        }, RESIZE_DURATION);
+        }, RESIZE_DURATION - FADE_DURATION);
     });
 }
+
+// УДАЛИТЬ функцию updateGridLayout полностью - она больше не нужна
 
 function expandBlock(id) {
     blockState[id] = false;
@@ -813,7 +807,7 @@ function expandBlock(id) {
 
     // 1) Скрываем bar и обновляем grid
     bar.style.width = '0px';
-    updateGridLayout();
+  
     
     // 2) Показываем body но делаем его невидимым
     body.style.display = 'flex';
@@ -830,27 +824,7 @@ function expandBlock(id) {
     });
 }
 
-function updateGridLayout() {
-    const grid = document.getElementById('contentGrid');
-    const bMin = blockState.browserBlock;
-    const cMin = blockState.chatBlock;
-    
-    grid.classList.remove('browser-minimized','chat-minimized','both-minimized');
-    
-    if (bMin && cMin)      grid.classList.add('both-minimized');
-    else if (bMin)         grid.classList.add('browser-minimized');
-    else if (cMin)         grid.classList.add('chat-minimized');
-    
-    // Синхронизация flex для всех блоков
-    const browserBlock = document.getElementById('browserBlock');
-    const chatBlock = document.getElementById('chatBlock');
-    
-    if (!bMin && !cMin) {
-        // Оба развёрнуты - равномерно
-        browserBlock.style.flex = '1 1 0%';
-        chatBlock.style.flex = '1 1 0%';
-    }
-}
+ 
 
 // ============================================================
 // AUTH - с улучшенными анимациями размера
