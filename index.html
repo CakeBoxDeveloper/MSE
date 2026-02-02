@@ -226,10 +226,13 @@
     overflow:hidden;
     display:flex;
     flex-direction:row;
-    flex: 1 1 0% !important; /* ДОБАВИТЬ !important */
+    flex: 1 1 0%;
     min-width: 0;
-    transition: flex 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    max-width: 100%; /* ДОБАВИТЬ */
+    width: 100%; /* ДОБАВИТЬ */
+    transition: max-width 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ИЗМЕНИТЬ */
 }
+
 
         /* ДОБАВИТЬ после .content-block */
 .content-block.collapsing {
@@ -237,7 +240,9 @@
 }
 
 .content-block.collapsed {
-    flex: 0 0 54px !important; /* ДОБАВИТЬ !important */
+    flex: 0 0 auto; /* ИЗМЕНИТЬ */
+    max-width: 54px; /* ИЗМЕНИТЬ */
+    width: 54px; /* ДОБАВИТЬ */
 }
 
 .content-block:not(.collapsed) {
@@ -792,33 +797,7 @@ function expandBlock(id) {
 
 // УДАЛИТЬ функцию updateGridLayout полностью - она больше не нужна
 
-function expandBlock(id) {
-    blockState[id] = false;
-    const block = document.getElementById(id);
-    const body = block.querySelector('.block-body');
-    const bar = block.querySelector('.minimized-bar');
-
-    // Убираем класс minimized для переключения иконки
-    block.classList.remove('minimized');
-
-    // 1) Скрываем bar и обновляем grid
-    bar.style.width = '0px';
-  
-    
-    // 2) Показываем body но делаем его невидимым
-    body.style.display = 'flex';
-    body.style.opacity = '0';
-
-    // 3) Запускаем растягивание блока
-    requestAnimationFrame(() => {
-        block.style.width = '';
-
-        // 4) После завершения растягивания показываем контент
-        setTimeout(() => {
-            body.style.opacity = '1';
-        }, RESIZE_DURATION);
-    });
-}
+ 
 
  
 
