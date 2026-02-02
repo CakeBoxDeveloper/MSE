@@ -1043,11 +1043,14 @@ innerTabs.forEach(tab=>{
 // ============================================================
 // CHAT TABS
 // ============================================================
+// ============================================================
+// CHAT TABS
+// ============================================================
 let chatTabCounter = 1;
 let activeChatTab  = 'sofia';
 const chatStore    = { sofia: [] };
 let openMenu       = null;
-let pinnedChats    = new Set(); // Для отслеживания закрепленных чатов
+let pinnedChats    = new Set();
 
 function createChatTabElement(id, name, isBase) {
     const tab = document.createElement('button');
@@ -1059,7 +1062,7 @@ function createChatTabElement(id, name, isBase) {
     nameSpan.textContent = name;
     tab.appendChild(nameSpan);
 
-    // Создаем меню даже для базовой вкладки, но без кнопки удаления
+    // Создаем меню для всех вкладок
     const menu = document.createElement('div');
     menu.className = 'chat-tab-menu';
     
@@ -1106,7 +1109,6 @@ function createChatTabElement(id, name, isBase) {
         switchChatTab(id);
 
         if (wasActive) {
-            // Если вкладка уже активна, переключаем меню
             const menu = tab.querySelector('.chat-tab-menu');
             if (menu) {
                 const wasOpen = menu.classList.contains('show');
@@ -1141,7 +1143,6 @@ function togglePinChat(id) {
         pinnedChats.add(id);
         console.log(`Чат ${id} закреплен`);
     }
-    // Здесь можно добавить визуальную индикацию закрепленного чата
 }
 
 function addChatTab(){
@@ -1155,7 +1156,7 @@ function addChatTab(){
 
 function deleteChatTab(id) {
     const tab = document.querySelector(`.chat-tab[data-chat="${id}"]`);
-    if (tab && !tab.dataset.base) { // Не даём удалить базовую вкладку
+    if (tab && !tab.dataset.base) {
         tab.remove();
         delete chatStore[id];
         pinnedChats.delete(id);
@@ -1199,6 +1200,111 @@ function updateChatScrollFade(){
 document.getElementById('chatTabs').addEventListener('scroll', updateChatScrollFade);
 window.addEventListener('resize', updateChatScrollFade);
 setTimeout(updateChatScrollFade, 100);
+
+function toggleChatSearch(){
+    const wrap = document.getElementById('chatSearchWrap');
+    wrap.classList.toggle('open');
+    if (wrap.classList.contains('open')) document.getElementById('chatSearchInput').focus();
+}
+
+document.getElementById('chatSearchInput').addEventListener('input', function(){
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.chat-tab').forEach(tab => {
+        const span = tab.querySelector('span');
+        const name = span ? span.textContent.toLowerCase() : '';
+        tab.style.display = name.includes(q) ? '' : 'none';
+    });
+});
+
+document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('chatSearchWrap');
+    const btn  = document.querySelector('.chat-search-btn');
+    if (!wrap.contains(e.target) && !btn.contains(e.target)) wrap.classList.remove('open');
+});
+
+function renderChatMessages(){
+    const container = document.getElementById('chat-messages');
+    const messages  = chatStore[activeChatTab] || [];
+    if (messages.length === 0) {
+        container.innerHTML = `<div class="chat-empty-state">
+            <div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/progress_empty.svg" alt=""></div>
+            <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
+        </div>`;
+    } else {
+        container.innerHTML = messages.map(m => `<div class="chat-message ${m.role}">${m.text}</div>`).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+}
+renderChatMessages();
+
+const chatInput = document.getElementById('chat-input');
+const chatSend  = document.getElementById('chat-send');
+
+function sendMessage(){
+    const text = chatInput.value.trim();
+    if (!text) return;
+    if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+    chatStore[activeChatTab].push({role:'user', text});
+    chatInput.value = '';
+    renderChatMessages();
+    setTimeout(() => {
+        chatStore[activeChatTab].push({role:'ai', text:'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.'});
+        renderChatMessages();
+    }, 800);
+}
+
+chatSend.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage(); });
+
+// Инициализируем меню для базовой вкладки Sofia
+document.addEventListener('DOMContentLoaded', function() {
+    const sofiaTab = document.querySelector('.chat-tab[data-chat="sofia"]');
+    if (sofiaTab && !sofiaTab.querySelector('.chat-tab-menu')) {
+        const menu = document.createElement('div');
+        menu.className = 'chat-tab-menu';
+        menu.innerHTML =
+            `<button class="chat-tab-menu-item" data-action="pin">
+                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
+            </button>` +
+            `<button class="chat-tab-menu-item" data-action="rename">
+                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
+            </button>`;
+        
+        sofiaTab.appendChild(menu);
+        
+        menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const action = btn.dataset.action;
+                const nameSpan = sofiaTab.querySelector('span');
+                if (action === 'pin')    togglePinChat('sofia');
+                if (action === 'rename') renameChatTab('sofia', nameSpan);
+                closeAllMenus();
+            });
+        });
+        
+        sofiaTab.addEventListener('click', (e) => {
+            if (e.target.closest('.chat-tab-menu-item')) return;
+            
+            const wasActive = sofiaTab.classList.contains('active');
+            switchChatTab('sofia');
+            
+            if (wasActive) {
+                const menu = sofiaTab.querySelector('.chat-tab-menu');
+                if (menu) {
+                    const wasOpen = menu.classList.contains('show');
+                    closeAllMenus();
+                    if (!wasOpen) { 
+                        menu.classList.add('show'); 
+                        openMenu = menu; 
+                    }
+                }
+            } else {
+                closeAllMenus();
+            }
+        });
+    }
+});
     
 
 </script>
