@@ -1184,8 +1184,9 @@ document.querySelector('.chat-tab[data-chat="sofia"]').addEventListener('click',
     if (e.target.closest('.chat-tab-menu')) return;
     switchChatTab('sofia');
     closeAllMenus();
+});
 
-
+// ПРАВИЛЬНАЯ функция updateChatScrollFade - вынесена наружу
 function updateChatScrollFade(){
     const wrapper = document.getElementById('chatTabsWrapper');
     const tabs    = document.getElementById('chatTabs');
