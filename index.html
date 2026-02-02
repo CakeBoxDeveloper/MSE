@@ -782,16 +782,15 @@ function expandBlock(id) {
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // 3) Удаляем класс collapsed для запуска расширения
+    // 3) Принудительный reflow и удаление класса
+    block.offsetHeight; // Trigger reflow
+    block.classList.remove('collapsed');
+
+    // 4) После завершения расширения показываем контент
     setTimeout(() => {
-        block.classList.remove('collapsed');
-        
-        // 4) После завершения расширения показываем контент
-        setTimeout(() => {
-            body.style.transition = `opacity ${FADE_DURATION}ms ease`;
-            body.style.opacity = '1';
-        }, RESIZE_DURATION - FADE_DURATION);
-    }, 50); // Небольшая задержка для корректной отработки transition
+        body.style.transition = `opacity ${FADE_DURATION}ms ease`;
+        body.style.opacity = '1';
+    }, RESIZE_DURATION - FADE_DURATION);
 }
 
 // УДАЛИТЬ функцию updateGridLayout полностью - она больше не нужна
