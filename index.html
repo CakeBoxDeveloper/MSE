@@ -224,19 +224,27 @@
         
 
         /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
-        .content-block {
-            background:var(--glass-bg);
-            border:1px solid var(--glass-border);
-            border-radius:5px;
-            backdrop-filter:saturate(180%) blur(20px);
-            height:var(--block-height);
-            overflow:hidden;
-            display:flex;
-            flex-direction:row;
-            /* Плавный переход только для width с более медленной кривой */
-            transition:width 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
-            width:100%;
-        }
+      .content-block {
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    border-radius:5px;
+    backdrop-filter:saturate(180%) blur(20px);
+    height:var(--block-height);
+    overflow:hidden;
+    display:flex;
+    flex-direction:row;
+    transition:width 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+    width:100%;
+}
+
+        #browserBlock {
+    justify-content:flex-start; /* Контент прижат к левому краю */
+}
+
+/* ДОБАВИТЬ - для чата (правый блок) */
+#chatBlock {
+    justify-content:flex-end; /* Контент прижат к правому краю */
+}
 
         /* The actual body content */
         .block-body {
@@ -591,8 +599,8 @@
       </div>
 
       <!-- RIGHT BLOCK -->
-      <div class="content-block" id="chatBlock">
-        <div class="minimized-bar" id="chatMinBar" onclick="toggleMinimize('chatBlock')">
+    <div class="content-block" id="chatBlock">
+    <div class="block-body" id="chatBody">
           <div class="bar-icon">
             <div class="btn-minimize" style="pointer-events:none;">
               <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
@@ -600,7 +608,7 @@
             </div>
           </div>
         </div>
-        <div class="block-body" id="chatBody">
+         <div class="minimized-bar" id="chatMinBar" onclick="toggleMinimize('chatBlock')">
           <div class="chat-top-bar">
             <button class="chat-new-btn" onclick="addChatTab()">+</button>
             <div class="chat-tabs-wrapper" id="chatTabsWrapper">
