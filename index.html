@@ -352,11 +352,11 @@
         .chat-tab:hover:not(.active) { border-color:rgba(255,255,255,.22); }
         .chat-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
 .chat-tab.pinned {
-    border-color:rgba(255,255,255,.25);
-    background:rgba(255,255,255,.04);
+    border-style:dashed;
+    border-color:rgba(255,255,255,.2);
 }
 .chat-tab.pinned:hover {
-    border-color:rgba(255,255,255,.3);
+    border-color:rgba(255,255,255,.28);
 }
          
 
@@ -1357,7 +1357,16 @@ function sendMessage(){
 
 chatSend.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage(); });
-    
+    document.addEventListener('DOMContentLoaded', () => {
+    const sofiaTab = document.querySelector('.chat-tab[data-base="true"]');
+    if (sofiaTab && !sofiaTab.hasAttribute('data-listener')) {
+        sofiaTab.addEventListener('click', () => {
+            switchChatTab('sofia');
+            closeAllMenus();
+        });
+        sofiaTab.setAttribute('data-listener', 'true');
+    }
+});
 
 </script>
 </body>
