@@ -226,6 +226,7 @@
     overflow:hidden;
     display:flex;
     flex-direction:row;
+      will-change: max-width; /* ДОБАВИТЬ для оптимизации */
     flex: 1 1 0%;
     min-width: 0;
     max-width: 100%; /* ДОБАВИТЬ */
@@ -756,6 +757,7 @@ function collapseBlock(id) {
     block.classList.add('minimized');
 
     // 1) Fade out контента
+    body.style.transition = 'opacity 0.3s ease';
     body.style.opacity = '0';
 
     // 2) После fade out запускаем сворачивание блока
@@ -765,35 +767,41 @@ function collapseBlock(id) {
         // 3) Скрываем body ПОСЛЕ завершения анимации сворачивания
         setTimeout(() => {
             body.style.display = 'none';
+            bar.style.transition = 'width 0.3s ease';
             bar.style.width = COLLAPSED_WIDTH;
         }, RESIZE_DURATION);
     }, FADE_DURATION);
 }
+
 function expandBlock(id) {
     blockState[id] = false;
     const block = document.getElementById(id);
     const body = block.querySelector('.block-body');
     const bar = block.querySelector('.minimized-bar');
 
-    // 1) Сначала убираем класс minimized
+    // 1) Убираем класс minimized
     block.classList.remove('minimized');
 
     // 2) Скрываем bar
+    bar.style.transition = 'width 0.3s ease';
     bar.style.width = '0px';
     
-    // 3) Убираем класс collapsed СРАЗУ для запуска расширения
-    block.classList.remove('collapsed');
-    
-    // 4) Показываем body невидимым
+    // 3) Показываем body невидимым ДО удаления класса
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // 5) После расширения блока показываем контент
+    // 4) Принудительный reflow
+    void block.offsetHeight;
+    
+    // 5) Убираем класс collapsed для запуска расширения
+    block.classList.remove('collapsed');
+
+    // 6) После расширения блока показываем контент
     setTimeout(() => {
+        body.style.transition = 'opacity 0.3s ease';
         body.style.opacity = '1';
     }, RESIZE_DURATION - FADE_DURATION);
 }
-
 // УДАЛИТЬ функцию updateGridLayout полностью - она больше не нужна
 
  
