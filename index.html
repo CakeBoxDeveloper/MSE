@@ -23,30 +23,85 @@
 
 /* ─── CHAT TAB DROPDOWN MENU ─── */
 /* ─── CHAT TAB DROPDOWN MENU ─── */
+/* ─── CHAT TAB DROPDOWN MENU ─── */
 .chat-tab-menu {
-    position:fixed; /* ИЗМЕНИТЬ с absolute */
+    position:fixed;
     background:rgba(20,20,20,.95);
     border:1px solid var(--glass-border);
     border-radius:6px;
     padding:5px;
     display:none;
-    flex-direction:row;
+    flex-direction:column; /* ИЗМЕНИТЬ с row на column */
     gap:2px;
     z-index:500;
     backdrop-filter:blur(12px);
 }
 .chat-tab-menu.show { display:flex; }
 .chat-tab-menu-item {
-    width:30px;height:30px;
+    width:120px;height:32px; /* ИЗМЕНИТЬ размеры */
     background:transparent;
     border:none;
     border-radius:4px;
     cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
+    display:flex;align-items:center;justify-content:flex-start; /* ИЗМЕНИТЬ на flex-start */
+    padding:0 10px; /* ДОБАВИТЬ padding */
+    gap:8px; /* ДОБАВИТЬ gap между иконкой и текстом */
     transition:background .15s ease;
 }
 .chat-tab-menu-item:hover { background:rgba(255,255,255,.1); }
 .chat-tab-menu-item img { width:14px;height:14px;opacity:.7; }
+.chat-tab-menu-item span { /* ДОБАВИТЬ для текста */
+    font-size:12px;
+    color:var(--text-secondary);
+    font-family:'Inter',sans-serif;
+}
+
+/* ДОБАВИТЬ стили для поля переименования */
+.rename-input-wrap {
+    position:fixed;
+    background:rgba(20,20,20,.95);
+    border:1px solid var(--glass-border);
+    border-radius:6px;
+    padding:8px;
+    z-index:501;
+    backdrop-filter:blur(12px);
+    display:none;
+}
+.rename-input-wrap.show { display:block; }
+.rename-input {
+    width:180px;
+    height:32px;
+    padding:0 10px;
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--glass-border);
+    border-radius:4px;
+    color:var(--text-primary);
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+}
+.rename-input:focus {
+    outline:none;
+    background:rgba(255,255,255,.08);
+    border-color:rgba(255,255,255,.2);
+}
+.rename-buttons {
+    display:flex;
+    gap:4px;
+    margin-top:6px;
+}
+.rename-btn {
+    flex:1;
+    height:28px;
+    background:rgba(255,255,255,.1);
+    border:1px solid var(--glass-border);
+    border-radius:4px;
+    color:var(--text-primary);
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    cursor:pointer;
+    transition:all .15s ease;
+}
+.rename-btn:hover { background:rgba(255,255,255,.15); }
         
         body {
             font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
@@ -694,6 +749,7 @@ const RESIZE_DURATION = 700;    // Время для стягивания/рас
 const blockState = { browserBlock: false, chatBlock: false };
 
 function toggleMinimize(id) {
+    closeAllMenus(); // ДОБАВИТЬ в самое начало
     if (blockState[id]) {
         expandBlock(id);
     } else {
@@ -1083,53 +1139,101 @@ function createChatTabElement(id, name, isBase) {
 
 // Новая функция для создания и позиционирования меню
 function toggleTabMenu(tab, id, nameSpan) {
-    // Закрываем все существующие меню
     closeAllMenus();
     
-    // Создаем новое меню
     const menu = document.createElement('div');
     menu.className = 'chat-tab-menu show';
     menu.dataset.chatId = id;
     
+    // ИЗМЕНИТЬ структуру меню - добавить текст к кнопкам
     menu.innerHTML =
         `<button class="chat-tab-menu-item" data-action="pin">
             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
+            <span>Закрепить</span>
         </button>` +
         `<button class="chat-tab-menu-item" data-action="rename">
             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
+            <span>Переименовать</span>
         </button>` +
         `<button class="chat-tab-menu-item" data-action="delete">
             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
+            <span>Удалить</span>
         </button>`;
     
-    // Добавляем меню в body (не в tab!)
     document.body.appendChild(menu);
     
-    // Позиционируем меню относительно вкладки
+    // ИЗМЕНИТЬ позиционирование - справа от вкладки
     const rect = tab.getBoundingClientRect();
     menu.style.position = 'fixed';
-    menu.style.left = rect.left + rect.width / 2 + 'px';
-    menu.style.top = rect.bottom + 6 + 'px';
-    menu.style.transform = 'translateX(-50%)';
+    menu.style.left = rect.right + 6 + 'px'; // ИЗМЕНИТЬ
+    menu.style.top = rect.top + 'px'; // ИЗМЕНИТЬ
+    menu.style.transform = 'none'; // ИЗМЕНИТЬ
     
-    // Обработчики действий
     menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const action = btn.dataset.action;
-            if (action === 'pin')    togglePinChat(id);
-            if (action === 'rename') renameChatTab(id, nameSpan);
+            if (action === 'pin')    togglePinChat(id, tab);
+            if (action === 'rename') showRenameInput(tab, id, nameSpan);
             if (action === 'delete') deleteChatTab(id);
-            closeAllMenus();
+            if (action !== 'rename') closeAllMenus(); // ИЗМЕНИТЬ - не закрывать при переименовании
         });
     });
     
     openMenu = menu;
 }
 
+    function showRenameInput(tab, id, nameSpan) {
+    closeAllMenus(); // Закрываем меню
+    
+    const wrap = document.createElement('div');
+    wrap.className = 'rename-input-wrap show';
+    wrap.dataset.chatId = id;
+    
+    wrap.innerHTML = `
+        <input type="text" class="rename-input" value="${nameSpan.textContent}" id="renameInput-${id}">
+        <div class="rename-buttons">
+            <button class="rename-btn" data-action="cancel">Отмена</button>
+            <button class="rename-btn" data-action="save">Сохранить</button>
+        </div>
+    `;
+    
+    document.body.appendChild(wrap);
+    
+    const rect = tab.getBoundingClientRect();
+    wrap.style.left = rect.right + 6 + 'px';
+    wrap.style.top = rect.top + 'px';
+    
+    const input = wrap.querySelector('.rename-input');
+    input.focus();
+    input.select();
+    
+    wrap.querySelector('[data-action="cancel"]').addEventListener('click', () => {
+        wrap.remove();
+    });
+    
+    wrap.querySelector('[data-action="save"]').addEventListener('click', () => {
+        const newName = input.value.trim();
+        if (newName && newName !== nameSpan.textContent) {
+            nameSpan.textContent = newName;
+        }
+        wrap.remove();
+    });
+    
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const newName = input.value.trim();
+            if (newName && newName !== nameSpan.textContent) {
+                nameSpan.textContent = newName;
+            }
+            wrap.remove();
+        }
+    });
+}
+    
 function closeAllMenus() {
-    // Удаляем все меню из body
     document.querySelectorAll('.chat-tab-menu').forEach(m => m.remove());
+    document.querySelectorAll('.rename-input-wrap').forEach(w => w.remove()); // ДОБАВИТЬ
     openMenu = null;
 }
 
@@ -1137,13 +1241,21 @@ document.addEventListener('click', (e) => {
     if (!e.target.closest('.chat-tab-menu') && !e.target.closest('.chat-tab')) closeAllMenus();
 });
 
-function togglePinChat(id) {
+function togglePinChat(id, tabElement) {
+    const chatTabs = document.getElementById('chatTabs');
+    const sofiaTab = document.querySelector('.chat-tab[data-base="true"]');
+    
     if (pinnedChats.has(id)) {
         pinnedChats.delete(id);
         console.log(`Чат ${id} откреплен`);
     } else {
         pinnedChats.add(id);
         console.log(`Чат ${id} закреплен`);
+        
+        // Перемещаем вкладку после Sofia
+        if (sofiaTab && tabElement) {
+            sofiaTab.after(tabElement);
+        }
     }
 }
 
@@ -1167,14 +1279,7 @@ function deleteChatTab(id) {
     }
 }
 
-function renameChatTab(id, nameSpan) {
-    const currentName = nameSpan.textContent;
-    const newName = prompt('Введите новое имя чата:', currentName);
-    if (newName && newName.trim() && newName.trim() !== currentName) {
-        nameSpan.textContent = newName.trim();
-    }
-}
-
+ 
 function switchChatTab(id){
     activeChatTab = id;
     document.querySelectorAll('.chat-tab').forEach(t => t.classList.toggle('active', t.dataset.chat===id));
@@ -1199,9 +1304,10 @@ function updateChatScrollFade(){
     }
 }
 
-document.getElementById('chatTabs').addEventListener('scroll', updateChatScrollFade);
-window.addEventListener('resize', updateChatScrollFade);
-setTimeout(updateChatScrollFade, 100);
+document.getElementById('chatTabs').addEventListener('scroll', () => {
+    updateChatScrollFade();
+    closeAllMenus(); // ДОБАВИТЬ
+});
 
 function toggleChatSearch(){
     const wrap = document.getElementById('chatSearchWrap');
@@ -1219,9 +1325,19 @@ document.getElementById('chatSearchInput').addEventListener('input', function(){
 });
 
 document.addEventListener('click', (e) => {
+    // Закрытие меню
+    if (!e.target.closest('.chat-tab-menu') && 
+        !e.target.closest('.chat-tab') && 
+        !e.target.closest('.rename-input-wrap')) { // ДОБАВИТЬ
+        closeAllMenus();
+    }
+    
+    // Закрытие поиска (оставь как есть)
     const wrap = document.getElementById('chatSearchWrap');
     const btn  = document.querySelector('.chat-search-btn');
-    if (!wrap.contains(e.target) && !btn.contains(e.target)) wrap.classList.remove('open');
+    if (!wrap.contains(e.target) && !btn.contains(e.target)) {
+        wrap.classList.remove('open');
+    }
 });
 
 function renderChatMessages(){
