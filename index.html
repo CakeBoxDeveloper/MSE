@@ -1223,10 +1223,26 @@ function togglePinChat(id, tabElement) {
     const sofiaTab = document.querySelector('.chat-tab[data-base="true"]');
     
     if (pinnedChats.has(id)) {
+        // ОТКРЕПЛЕНИЕ
         pinnedChats.delete(id);
         tabElement.classList.remove('pinned');
         console.log(`Чат ${id} откреплен`);
+        
+        // Находим последний закреплённый чат
+        const allTabs = Array.from(chatTabs.querySelectorAll('.chat-tab'));
+        const pinnedTabs = allTabs.filter(t => t.classList.contains('pinned'));
+        
+        if (pinnedTabs.length > 0) {
+            // Если есть закреплённые - ставим после последнего закреплённого
+            const lastPinned = pinnedTabs[pinnedTabs.length - 1];
+            lastPinned.after(tabElement);
+        } else {
+            // Если закреплённых нет - ставим после Sofia
+            sofiaTab.after(tabElement);
+        }
+        
     } else {
+        // ЗАКРЕПЛЕНИЕ
         pinnedChats.add(id);
         tabElement.classList.add('pinned');
         console.log(`Чат ${id} закреплен`);
