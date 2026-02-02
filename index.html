@@ -1164,10 +1164,10 @@ function toggleTabMenu(tab, id, nameSpan) {
     
     // ИЗМЕНИТЬ позиционирование - справа от вкладки
     const rect = tab.getBoundingClientRect();
-    menu.style.position = 'fixed';
-    menu.style.left = rect.right + 6 + 'px'; // ИЗМЕНИТЬ
-    menu.style.top = rect.top + 'px'; // ИЗМЕНИТЬ
-    menu.style.transform = 'none'; // ИЗМЕНИТЬ
+menu.style.position = 'fixed';
+menu.style.left = rect.left + 'px';
+menu.style.top = rect.bottom + 6 + 'px';
+menu.style.transform = 'none';
     
     menu.querySelectorAll('.chat-tab-menu-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -1200,9 +1200,9 @@ function toggleTabMenu(tab, id, nameSpan) {
     
     document.body.appendChild(wrap);
     
-    const rect = tab.getBoundingClientRect();
-    wrap.style.left = rect.right + 6 + 'px';
-    wrap.style.top = rect.top + 'px';
+   const rect = tab.getBoundingClientRect();
+wrap.style.left = rect.left + 'px';
+wrap.style.top = rect.bottom + 6 + 'px';
     
     const input = wrap.querySelector('.rename-input');
     input.focus();
