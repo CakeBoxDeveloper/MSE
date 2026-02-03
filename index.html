@@ -362,6 +362,7 @@
 .chat-tab.pinned {
     border-style:dashed;
     border-color:rgba(255,255,255,.2);
+    border-width:2px;
 }
 .chat-tab.pinned:hover {
     border-color:rgba(255,255,255,.28);
@@ -420,6 +421,39 @@
         }
         .chat-input::placeholder { color:var(--text-tertiary); }
         .chat-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+
+
+.chat-attach {
+    width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);
+    border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s ease;flex-shrink:0;position:relative;
+}
+.chat-attach:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
+.chat-attach img { width:16px;height:16px;opacity:.7; }
+.chat-attach input[type="file"] { display:none; }
+
+.chat-file-preview {
+    display:flex;gap:6px;padding:8px 0;flex-wrap:wrap;
+}
+.chat-file-item {
+    display:flex;align-items:center;gap:6px;padding:4px 8px;
+    background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
+    border-radius:4px;font-size:11px;color:var(--text-secondary);
+}
+.chat-file-item img.file-icon { width:14px;height:14px;opacity:.6; }
+.chat-file-item .file-remove {
+    width:14px;height:14px;cursor:pointer;opacity:.5;
+    transition:opacity .15s ease;
+}
+.chat-file-item .file-remove:hover { opacity:1; }
+
+
+
+
+        
+
+
+        
         .chat-send {
             padding:10px 16px;background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
@@ -635,12 +669,19 @@
           </div>
           <div class="chat-container">
             <div class="chat-messages" id="chat-messages"></div>
-            <div class="chat-input-wrapper">
-              <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
-              <button class="chat-send" id="chat-send">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
-              </button>
-            </div>
+       <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+  <div class="chat-file-preview" id="chat-file-preview"></div>
+  <div class="chat-input-wrapper">
+    <button class="chat-attach" id="chat-attach">
+      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9732c784325850db295c23102be226588b219c01/new-chat.svg" alt="">
+      <input type="file" id="chat-file-input" multiple accept="*/*">
+    </button>
+    <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
+    <button class="chat-send" id="chat-send">
+      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
+    </button>
+  </div>
+</div>
           </div>
         </div>
       </div>
@@ -1368,8 +1409,12 @@ function renderChatMessages(){
             <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
         </div>`;
     } else if (messages.length === 0) {
-        // Для других чатов - пусто
-        container.innerHTML = '';
+    // Для других чатов - приветствие
+    container.innerHTML = `<div class="chat-empty-state">
+        <div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt=""></div>
+        <p>Это новый чат. Напишите сообщение или прикрепите файл, чтобы начать диалог.</p>
+    </div>`;
+}
     } else {
         container.innerHTML = messages.map(m => `<div class="chat-message ${m.role}">${m.text}</div>`).join('');
         container.scrollTop = container.scrollHeight;
@@ -1382,11 +1427,25 @@ const chatSend  = document.getElementById('chat-send');
 
 function sendMessage(){
     const text = chatInput.value.trim();
-    if (!text) return;
+    const hasFiles = attachedFiles.length > 0;
+    
+    if (!text && !hasFiles) return;
+    
     if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
-    chatStore[activeChatTab].push({role:'user', text});
+    
+    // Формируем сообщение
+    let messageText = text;
+    if (hasFiles) {
+        const fileNames = attachedFiles.map(f => f.name || 'Изображение').join(', ');
+        messageText = text ? `${text} [📎 ${fileNames}]` : `[📎 ${fileNames}]`;
+    }
+    
+    chatStore[activeChatTab].push({role:'user', text: messageText});
     chatInput.value = '';
+    attachedFiles = [];
+    renderFilePreview();
     renderChatMessages();
+    
     setTimeout(() => {
         chatStore[activeChatTab].push({role:'ai', text:'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.'});
         renderChatMessages();
@@ -1405,7 +1464,63 @@ chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage()
         sofiaTab.setAttribute('data-listener', 'true');
     }
 });
+// ============================================================
+// FILE ATTACHMENTS
+// ============================================================
+let attachedFiles = [];
 
+// Кнопка прикрепления
+document.getElementById('chat-attach').addEventListener('click', () => {
+    document.getElementById('chat-file-input').click();
+});
+
+// Выбор файлов через input
+document.getElementById('chat-file-input').addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    files.forEach(file => {
+        attachedFiles.push(file);
+    });
+    renderFilePreview();
+    e.target.value = ''; // Очищаем input для повторного выбора
+});
+
+// Вставка из буфера обмена
+document.getElementById('chat-input').addEventListener('paste', function(e) {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+            const blob = items[i].getAsFile();
+            attachedFiles.push(blob);
+            renderFilePreview();
+            e.preventDefault();
+        }
+    }
+});
+
+// Отображение превью файлов
+function renderFilePreview() {
+    const container = document.getElementById('chat-file-preview');
+    if (attachedFiles.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    container.innerHTML = attachedFiles.map((file, index) => `
+        <div class="chat-file-item">
+            <img class="file-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
+            <span>${file.name || 'Изображение из буфера'}</span>
+            <img class="file-remove icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/45e14291c38b1dac85196a754e13e9d0da4a01cf/delete.svg" alt="" onclick="removeFile(${index})">
+        </div>
+    `).join('');
+}
+
+// Удаление файла
+function removeFile(index) {
+    attachedFiles.splice(index, 1);
+    renderFilePreview();
+}
+
+// Модифицировать функцию sendMessage
 </script>
 </body>
 </html>
