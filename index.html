@@ -279,24 +279,20 @@
 }
 
         .btn-minimize {
-            width:34px;height:34px;background:transparent;border:1px solid var(--glass-border);
-            border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-            transition:all .15s ease;flex-shrink:0;
-        }
-        .btn-minimize:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
-        
-        /* Иконка минус (по умолчанию) */
-        .btn-minimize svg.icon-minus { width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round; }
-        
-        /* Иконка плюс (когда свернуто) */
-        .btn-minimize svg.icon-plus {
-            display:none;
-            width:12px;height:12px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round;
-        }
-        
-        /* При сворачивании меняем иконку */
-        .content-block.minimized .btn-minimize svg.icon-minus { display:none; }
-        .content-block.minimized .btn-minimize svg.icon-plus { display:block; }
+    width:34px;height:34px;background:transparent;border:1px solid var(--glass-border);
+    border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s ease;flex-shrink:0;
+}
+.btn-minimize:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+.btn-minimize img { width:14px;height:14px; }
+
+/* Показываем minimize по умолчанию, maximize скрыт */
+.btn-minimize .icon-minimize { display:block; }
+.btn-minimize .icon-maximize { display:none; }
+
+/* При сворачивании меняем иконки */
+.content-block.minimized .btn-minimize .icon-minimize { display:none; }
+.content-block.minimized .btn-minimize .icon-maximize { display:block; }
 
         .content-body { flex:1;display:flex;flex-direction:column;min-height:0; }
 
@@ -574,9 +570,9 @@
         <div class="minimized-bar" id="browserMinBar" onclick="toggleMinimize('browserBlock')">
           <div class="bar-icon">
             <div class="btn-minimize" style="pointer-events:none;">
-              <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
-              <svg class="icon-plus" viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/><line x1="6" y1="1" x2="6" y2="11"/></svg>
-            </div>
+    <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg" alt="">
+    <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/maximize.svg" alt="">
+</div>
           </div>
         </div>
         <div class="block-body" id="browserBody">
@@ -594,9 +590,9 @@
               <span>Прогресс</span>
             </button>
             <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')" style="margin-left:auto;">
-              <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
-              <svg class="icon-plus" viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/><line x1="6" y1="1" x2="6" y2="11"/></svg>
-            </button>
+    <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg" alt="">
+    <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/maximize.svg" alt="">
+</button>
           </div>
           <div class="content-body" id="main-content"></div>
         </div>
@@ -628,10 +624,10 @@
               <button class="chat-search-btn" onclick="toggleChatSearch()">
                 <svg viewBox="0 0 16 16"><circle cx="6" cy="6" r="4"/><line x1="9" y1="9" x2="14" y2="14"/></svg>
               </button>
-              <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('chatBlock')">
-                <svg class="icon-minus" viewBox="0 0 12 12"><line x1="1" y1="9" x2="11" y2="9"/></svg>
-                <svg class="icon-plus" viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/><line x1="6" y1="1" x2="6" y2="11"/></svg>
-              </button>
+            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')" style="margin-left:auto;">
+    <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg" alt="">
+    <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/maximize.svg" alt="">
+</button>
             </div>
             <div class="chat-search-wrap" id="chatSearchWrap">
               <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск чатов…">
