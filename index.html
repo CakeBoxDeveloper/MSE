@@ -1414,7 +1414,7 @@ function renderChatMessages(){
         <div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt=""></div>
         <p>Это новый чат. Напишите сообщение или прикрепите файл, чтобы начать диалог.</p>
     </div>`;
-}
+ 
     } else {
         container.innerHTML = messages.map(m => `<div class="chat-message ${m.role}">${m.text}</div>`).join('');
         container.scrollTop = container.scrollHeight;
