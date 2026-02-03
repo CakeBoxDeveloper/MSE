@@ -1221,11 +1221,19 @@ function getTabHTML(key){ return key==='progress'?renderProgress():renderItemLis
 function attachMaterialClickHandlers(tabType) {
     const items = document.querySelectorAll('.material-item');
     items.forEach(item => {
+        // avoid adding duplicate listeners
+        if (item.dataset.pdfBound) return;
+        item.dataset.pdfBound = '1';
         item.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             const pdfType = tabType === 'materials' ? 'materials' : 'workouts';
-            openPDFModal(pdfType);
+            const pdfUrl = PDF_URLS[pdfType];
+            const win = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+            if (!win) {
+                // popup blocked — navigate current tab as fallback
+                window.location.href = pdfUrl;
+            }
         });
     });
 }
