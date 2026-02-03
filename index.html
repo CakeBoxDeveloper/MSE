@@ -178,11 +178,13 @@
 
         /* ─── GRID ─── */
         .main-wrapper { margin-top:20px; }
-        .content-grid {
-    display:flex; /* ИЗМЕНИТЬ с grid на flex */
-    gap:12px;
-    margin-bottom:20px;
-    align-items:start;
+       .content-grid {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: start;
+    position: relative;
+    min-height: var(--block-height);
 }
  
        @media(max-width:968px){
@@ -218,23 +220,43 @@
 
         /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
 .content-block {
-    background:var(--glass-bg);
-    border:1px solid var(--glass-border);
-    border-radius:5px;
-    backdrop-filter:saturate(180%) blur(20px);
-    height:var(--block-height);
-    overflow:hidden;
-    display:flex;
-    flex-direction:row;
-      will-change: max-width; /* ДОБАВИТЬ для оптимизации */
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 5px;
+    backdrop-filter: saturate(180%) blur(20px);
+    height: var(--block-height);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
     flex: 1 1 0%;
     min-width: 0;
-    max-width: 100%; /* ДОБАВИТЬ */
-    width: 100%; /* ДОБАВИТЬ */
-    transition: max-width 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ИЗМЕНИТЬ */
+    transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
 }
 
+/* Состояния для левого блока */
+#browserBlock.collapsed {
+    flex: 0 0 54px;
+    max-width: 54px;
+}
 
+/* Состояния для правого блока */
+#chatBlock.collapsed {
+    flex: 0 0 54px;
+    max-width: 54px;
+}
+        /* Когда оба свернуты - используем абсолютное позиционирование */
+.content-grid.both-collapsed #browserBlock {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.content-grid.both-collapsed #chatBlock {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
         /* ДОБАВИТЬ после .content-block */
 .content-block.collapsing {
     transition: flex 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -734,8 +756,8 @@
 // MINIMIZE / EXPAND with smooth animation
 // ============================================================
 const COLLAPSED_WIDTH = '54px';
-const FADE_DURATION = 300;      // Уменьшить для более быстрого fade
-const RESIZE_DURATION = 900;    // Синхронизировать с CSS
+const FADE_DURATION = 300;
+const RESIZE_DURATION = 700;
 
 const blockState = { browserBlock: false, chatBlock: false };
 
@@ -748,6 +770,17 @@ function toggleMinimize(id) {
     }
 }
 
+function updateGridState() {
+    const grid = document.getElementById('contentGrid');
+    const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
+    
+    if (bothCollapsed) {
+        grid.classList.add('both-collapsed');
+    } else {
+        grid.classList.remove('both-collapsed');
+    }
+}
+
 function collapseBlock(id) {
     blockState[id] = true;
     const block = document.getElementById(id);
@@ -755,19 +788,14 @@ function collapseBlock(id) {
     const bar = block.querySelector('.minimized-bar');
 
     block.classList.add('minimized');
-
-    // 1) Fade out контента
-    body.style.transition = 'opacity 0.3s ease';
     body.style.opacity = '0';
 
-    // 2) После fade out запускаем сворачивание блока
     setTimeout(() => {
         block.classList.add('collapsed');
+        updateGridState();
         
-        // 3) Скрываем body ПОСЛЕ завершения анимации сворачивания
         setTimeout(() => {
             body.style.display = 'none';
-            bar.style.transition = 'width 0.3s ease';
             bar.style.width = COLLAPSED_WIDTH;
         }, RESIZE_DURATION);
     }, FADE_DURATION);
@@ -779,31 +807,21 @@ function expandBlock(id) {
     const body = block.querySelector('.block-body');
     const bar = block.querySelector('.minimized-bar');
 
-    // 1) Убираем класс minimized
     block.classList.remove('minimized');
-
-    // 2) Скрываем bar
-    bar.style.transition = 'width 0.3s ease';
     bar.style.width = '0px';
     
-    // 3) Показываем body невидимым ДО удаления класса
     body.style.display = 'flex';
     body.style.opacity = '0';
 
-    // 4) Принудительный reflow
-    void block.offsetHeight;
-    
-    // 5) Убираем класс collapsed для запуска расширения
-    block.classList.remove('collapsed');
-
-    // 6) После расширения блока показываем контент
     setTimeout(() => {
-        body.style.transition = 'opacity 0.3s ease';
-        body.style.opacity = '1';
-    }, RESIZE_DURATION - FADE_DURATION);
+        block.classList.remove('collapsed');
+        updateGridState();
+        
+        setTimeout(() => {
+            body.style.opacity = '1';
+        }, RESIZE_DURATION - FADE_DURATION);
+    }, 10);
 }
-// УДАЛИТЬ функцию updateGridLayout полностью - она больше не нужна
-
  
 
  
