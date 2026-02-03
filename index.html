@@ -414,26 +414,30 @@
         .chat-empty-state .sofia-icon img { width:100%;height:100%;opacity:.7; }
         .chat-empty-state p { font-size:13px;line-height:1.6;color:var(--text-secondary);letter-spacing:-.15px;max-width:260px; }
 
-        .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0; }
+        .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch; }
         .chat-input {
             flex:1;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:13px;transition:all .2s ease;
+            height:40px;
         }
         .chat-input::placeholder { color:var(--text-tertiary); }
         .chat-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
 
 
 .chat-attach {
-    width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);
+    width:40px;height:40px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);
     border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;
     transition:all .15s ease;flex-shrink:0;position:relative;
 }
 .chat-attach:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
-.chat-attach img { width:16px;height:16px;opacity:.7; }
+.chat-attach img { width:18px;height:18px;opacity:.7; }
 .chat-attach input[type="file"] { display:none; }
 
 .chat-file-preview {
-    display:flex;gap:6px;padding:6px 8px;flex-wrap:wrap;
+    display:none;
+    gap:4px;
+    padding:4px 6px;
+    flex-wrap:wrap;
     background:rgba(255,255,255,.03);
     border:1px solid var(--glass-border);
     border-radius:4px;
@@ -485,13 +489,13 @@
 
         
 .chat-file-item {
-    display:flex;align-items:center;gap:6px;padding:4px 8px;
+    display:flex;align-items:center;gap:4px;padding:3px 6px;
     background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
-    border-radius:4px;font-size:11px;color:var(--text-secondary);
+    border-radius:4px;font-size:10px;color:var(--text-secondary);
 }
-.chat-file-item img.file-icon { width:14px;height:14px;opacity:.6; }
+.chat-file-item img.file-icon { width:12px;height:12px;opacity:.6; }
 .chat-file-item .file-remove {
-    width:14px;height:14px;cursor:pointer;opacity:.5;
+    width:12px;height:12px;cursor:pointer;opacity:.5;
     transition:opacity .15s ease;
 }
 .chat-file-item .file-remove:hover { opacity:1; }
@@ -504,12 +508,13 @@
 
         
         .chat-send {
-            padding:10px 16px;background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
-            border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
-            cursor:pointer;transition:all .2s ease;font-size:13px;display:flex;align-items:center;justify-content:center;
-        }
-        .chat-send:hover { background:rgba(255,255,255,.15); }
-        .chat-send img { width:16px;height:16px;opacity:.7; }
+    width:40px;height:40px;background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
+    border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
+    cursor:pointer;transition:all .2s ease;display:flex;align-items:center;justify-content:center;
+    padding:0;
+}
+.chat-send:hover { background:rgba(255,255,255,.15); }
+.chat-send img { width:18px;height:18px;opacity:.7; }
 
         /* ─── EMPTY STATE ─── */
         .empty-state { text-align:center;padding:60px 20px;color:var(--text-secondary); }
@@ -1592,7 +1597,6 @@ document.getElementById('chat-input').addEventListener('paste', function(e) {
     }
 });
 
-// Отображение превью файлов
 function renderFilePreview() {
     const container = document.getElementById('chat-file-preview');
     if (attachedFiles.length === 0) {
@@ -1605,7 +1609,7 @@ function renderFilePreview() {
     container.innerHTML = attachedFiles.map((file, index) => `
         <div class="chat-file-item">
             <img class="file-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
-            <span>${file.name || 'Изображение из буфера'}</span>
+            <span>${file.name || 'Изображение'}</span>
             <img class="file-remove icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/45e14291c38b1dac85196a754e13e9d0da4a01cf/delete.svg" alt="" onclick="removeFile(${index})">
         </div>
     `).join('');
