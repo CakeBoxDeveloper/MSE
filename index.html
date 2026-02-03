@@ -184,6 +184,7 @@
     gap: 12px;
     margin-bottom: 20px;
     align-items: start;
+    position: relative; /* Добавляем для абсолютного позиционирования скрытого модуля */
 }
 
  
@@ -730,6 +731,14 @@
         </div>
       </div>
 
+      <!-- THIRD BLOCK (HIDDEN MODULE) - BEHIND OTHER BLOCKS -->
+      <div class="content-block hidden-module" id="hiddenModule" style="background: yellow; position: absolute; top: 0; left: 66px; right: 66px; bottom: 0; z-index: -1; opacity: 0; transition: opacity 0.8s ease;">
+        <div class="block-body">
+          <h2 style="color: black; text-align: center; margin-top: 200px;">Скрытый модуль</h2>
+          <p style="color: black; text-align: center;">Этот модуль виден только когда чат и браузер свёрнуты</p>
+        </div>
+      </div>
+
       <!-- RIGHT BLOCK -->
       <div class="content-block" id="chatBlock">
        <div class="minimized-bar" id="chatMinBar" onclick="toggleMinimize('chatBlock')">
@@ -900,12 +909,18 @@ function toggleMinimize(id) {
 
 function updateGridState() {
     const grid = document.getElementById('contentGrid');
+    const hiddenModule = document.getElementById('hiddenModule');
     const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
     
     if (bothCollapsed) {
         grid.classList.add('both-collapsed');
+        // Плавно показываем скрытый модуль с задержкой
+        setTimeout(() => {
+            hiddenModule.style.opacity = '1';
+        }, RESIZE_DURATION);
     } else {
         grid.classList.remove('both-collapsed');
+        // При разворачивании не трогаем скрытый модуль - это делает expandBlock
     }
 }
 
@@ -938,40 +953,55 @@ function collapseBlock(id) {
 }
 
 function expandBlock(id) {
-    blockState[id] = false;
     const block = document.getElementById(id);
     const body = block.querySelector('.block-body');
     const bar = block.querySelector('.minimized-bar');
+    const hiddenModule = document.getElementById('hiddenModule');
+    
+    // Проверяем, были ли оба блока свёрнуты ДО изменения состояния
+    const bothWereCollapsed = blockState.browserBlock && blockState.chatBlock;
+    
+    // Изменяем состояние
+    blockState[id] = false;
 
-   // НЕ убираем класс сразу - уберём в середине анимации
-    
-    // ШАГ 1: Скрываем bar
-    bar.style.width = '0px';
-    
-    // НЕ обновляем grid state ДО анимации - только ПОСЛЕ
-    
-    // ШАГ 2: Показываем контент с blur и opacity=0 (готовим для разблюривания)
-    body.style.display = 'flex';
-    body.style.filter = 'blur(8px)';
-    body.style.opacity = '0';
-    
-    // ШАГ 3: Запускаем расширение (соседний блок автоматически сжимается)
-    block.classList.remove('collapsed');
-    // Меняем иконку в середине анимации (когда она скрыта)
-setTimeout(() => {
-    block.classList.remove('minimized');
-}, RESIZE_DURATION / 2);
-    
-    // ШАГ 4: Одновременно с расширением разблюриваем и проявляем контент
-    setTimeout(() => {
-        body.style.filter = 'blur(0px)';
-        body.style.opacity = '1';
-    }, 50);
-    
-    // ШАГ 5: Обновляем grid state ПОСЛЕ завершения анимации
-    setTimeout(() => {
-        updateGridState();
-    }, RESIZE_DURATION);
+    if (bothWereCollapsed) {
+        // Если оба были свёрнуты - сначала скрываем модуль, потом разворачиваем
+        hiddenModule.style.opacity = '0';
+        setTimeout(() => {
+            startExpansion();
+        }, 800); // ждём исчезновения скрытого модуля
+    } else {
+        // Если только один был свёрнут - сразу разворачиваем
+        startExpansion();
+    }
+
+    function startExpansion() {
+        // ШАГ 1: Скрываем bar
+        bar.style.width = '0px';
+        
+        // ШАГ 2: Показываем контент с blur и opacity=0 (готовим для разблюривания)
+        body.style.display = 'flex';
+        body.style.filter = 'blur(8px)';
+        body.style.opacity = '0';
+        
+        // ШАГ 3: Запускаем расширение (соседний блок автоматически сжимается)
+        block.classList.remove('collapsed');
+        // Меняем иконку в середине анимации (когда она скрыта)
+        setTimeout(() => {
+            block.classList.remove('minimized');
+        }, RESIZE_DURATION / 2);
+        
+        // ШАГ 4: Одновременно с расширением разблюриваем и проявляем контент
+        setTimeout(() => {
+            body.style.filter = 'blur(0px)';
+            body.style.opacity = '1';
+        }, 50);
+        
+        // ШАГ 5: Обновляем grid state ПОСЛЕ завершения анимации
+        setTimeout(() => {
+            updateGridState();
+        }, RESIZE_DURATION);
+    }
 }
  
 
