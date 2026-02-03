@@ -178,14 +178,13 @@
 
         /* ─── GRID ─── */
         .main-wrapper { margin-top:20px; }
-       .content-grid {
+.content-grid {
     display: flex;
     gap: 12px;
     margin-bottom: 20px;
     align-items: start;
-    position: relative;
-    min-height: var(--block-height);
 }
+
  
        @media(max-width:968px){
     .content-grid { flex-direction: column; } /* ИЗМЕНИТЬ */
@@ -219,6 +218,18 @@
         
 
         /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
+.content-grid {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: start;
+}
+
+/* Когда оба свернуты - разносим по краям с пространством между */
+.content-grid.both-collapsed {
+    justify-content: space-between;
+}
+
 .content-block {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -230,76 +241,42 @@
     flex-direction: row;
     flex: 1 1 0%;
     min-width: 0;
-    transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    position: relative;
-}
-
-/* Состояния для левого блока */
-#browserBlock.collapsed {
-    flex: 0 0 54px;
-    max-width: 54px;
-}
-
-/* Состояния для правого блока */
-#chatBlock.collapsed {
-    flex: 0 0 54px;
-    max-width: 54px;
-}
-        /* Когда оба свернуты - используем абсолютное позиционирование */
-.content-grid.both-collapsed #browserBlock {
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-.content-grid.both-collapsed #chatBlock {
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-        /* ДОБАВИТЬ после .content-block */
-.content-block.collapsing {
-    transition: flex 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .content-block.collapsed {
-    flex: 0 0 auto; /* ИЗМЕНИТЬ */
-    max-width: 54px; /* ИЗМЕНИТЬ */
-    width: 54px; /* ДОБАВИТЬ */
-}
-
-.content-block:not(.collapsed) {
-    flex: 1 1 0%;
+    flex: 0 0 54px;
 }
         
 
         /* The actual body content */
-        .block-body {
-            flex:1;
-            min-width:0;
-            display:flex;
-            flex-direction:column;
-            padding:20px;
-            overflow:hidden;
-            opacity:1;
-            transition:opacity 0.35s ease;
-        }
+.block-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.35s ease;
+}
 
         /* Minimized vertical bar */
-        .minimized-bar {
-            width:0;
-            overflow:hidden;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:center;
-            transition:width 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
-            cursor:pointer;
-            flex-shrink:0;
-        }
-        .minimized-bar .bar-icon {
-            margin-top:12px;
-        }
+.minimized-bar {
+    width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.35s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.minimized-bar .bar-icon {
+    margin-top: 12px;
+}
 
         .btn-minimize {
             width:34px;height:34px;background:transparent;border:1px solid var(--glass-border);
@@ -756,8 +733,8 @@
 // MINIMIZE / EXPAND with smooth animation
 // ============================================================
 const COLLAPSED_WIDTH = '54px';
-const FADE_DURATION = 300;
-const RESIZE_DURATION = 700;
+const FADE_DURATION = 350;
+const RESIZE_DURATION = 800;
 
 const blockState = { browserBlock: false, chatBlock: false };
 
@@ -788,14 +765,22 @@ function collapseBlock(id) {
     const bar = block.querySelector('.minimized-bar');
 
     block.classList.add('minimized');
+    
+    // ОБНОВЛЯЕМ СОСТОЯНИЕ ДО АНИМАЦИИ при сворачивании
+    updateGridState();
+    
+    // ШАГ 1: Fade out контента
     body.style.opacity = '0';
-
+    
+    // ШАГ 2: После fade out запускаем сворачивание
     setTimeout(() => {
-        block.classList.add('collapsed');
-        updateGridState();
+        body.style.display = 'none';
         
+        // Запускаем одновременное сворачивание блока и расширение соседнего
+        block.classList.add('collapsed');
+        
+        // Показываем bar после завершения анимации
         setTimeout(() => {
-            body.style.display = 'none';
             bar.style.width = COLLAPSED_WIDTH;
         }, RESIZE_DURATION);
     }, FADE_DURATION);
@@ -808,19 +793,30 @@ function expandBlock(id) {
     const bar = block.querySelector('.minimized-bar');
 
     block.classList.remove('minimized');
+    
+    // ШАГ 1: Скрываем bar
     bar.style.width = '0px';
     
-    body.style.display = 'flex';
-    body.style.opacity = '0';
-
+    // НЕ обновляем grid state ДО анимации - только ПОСЛЕ
+    
+    // ШАГ 2: Запускаем расширение (соседний блок автоматически сжимается)
+    block.classList.remove('collapsed');
+    
+    // ШАГ 3: Обновляем grid state ПОСЛЕ завершения анимации
     setTimeout(() => {
-        block.classList.remove('collapsed');
         updateGridState();
+    }, RESIZE_DURATION);
+    
+    // ШАГ 4: После расширения показываем контент через fade in
+    setTimeout(() => {
+        body.style.display = 'flex';
+        body.style.opacity = '0';
         
+        // Небольшая задержка перед fade in
         setTimeout(() => {
             body.style.opacity = '1';
-        }, RESIZE_DURATION - FADE_DURATION);
-    }, 10);
+        }, 50);
+    }, RESIZE_DURATION);
 }
  
 
