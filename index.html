@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <style>  
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { 
@@ -1190,7 +1191,7 @@ function register(){
 const TAB_DEFAULTS={
     materials:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg',
     workouts:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_workout.svg',
-    progress:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/progress_empty.svg'
+    progress:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/DNATR.json'
 };
 const tabData={
     materials:[
@@ -1215,11 +1216,57 @@ function renderItemList(items){
     ).join('')+'</div>';
 }
 function renderProgress(){
-    return `<div class="empty-state">
-        <div class="empty-state-icon"><img class="icon-gray" src="${TAB_DEFAULTS.progress}" alt=""></div>
+    const html = `<div class="empty-state">
+        <div class="empty-state-icon" id="lottie-progress" style="width:234px;height:234px;margin:0 auto;"></div>
         <h3>Прогресс и достижения</h3>
         <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. Начните тренироваться, чтобы увидеть свой путь к прогрессу!</p>
     </div>`;
+    setTimeout(async () => {
+        const container = document.getElementById('lottie-progress');
+        if(container && !container.hasAnimation) {
+            try {
+                const response = await fetch(TAB_DEFAULTS.progress);
+                let data = await response.json();
+                
+                // Замена темного цвета на цвет фона браузера (0.11, 0.11, 0.11 = #1c1c1c)
+                const replaceColors = (obj) => {
+                    if (Array.isArray(obj)) {
+                        return obj.map((item) => {
+                            if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
+                                // Если это полностью черный или очень темный цвет, заменяем на цвет фона вкладки
+                                if ((item[0] === 0 && item[1] === 0 && item[2] === 0) ||
+                                    (item[0] < 0.1 && item[1] < 0.1 && item[2] < 0.1)) {
+                                    return [0.11, 0.11, 0.11, item[3]];
+                                }
+                            }
+                            return replaceColors(item);
+                        });
+                    } else if (obj !== null && typeof obj === 'object') {
+                        const result = {};
+                        for (let key in obj) {
+                            result[key] = replaceColors(obj[key]);
+                        }
+                        return result;
+                    }
+                    return obj;
+                };
+                
+                data = replaceColors(data);
+                
+                lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                });
+                container.hasAnimation = true;
+            } catch(e) {
+                console.error('Error loading animation:', e);
+            }
+        }
+    }, 100);
+    return html;
 }
 function getTabHTML(key){ return key==='progress'?renderProgress():renderItemList(tabData[key]); }
 
@@ -1545,9 +1592,57 @@ function renderChatMessages(){
     // Приветствие только для Sofia
     if (messages.length === 0 && activeChatTab === 'sofia') {
         container.innerHTML = `<div class="chat-empty-state">
-            <div class="sofia-icon"><img class="icon-gray" src="https://github.com/CakeBoxDeveloper/MSE/blob/main/Eye%20Loading%20Animation.webp?raw=true" alt=""></div>
+            <div class="sofia-icon" id="lottie-chat-sofia" style="width:90px;height:90px;margin:0 auto;"></div>
             <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
         </div>`;
+        
+        // Загружаем Lottie анимацию для Sofia
+        setTimeout(async () => {
+            const lottieContainer = document.getElementById('lottie-chat-sofia');
+            if(lottieContainer && !lottieContainer.hasAnimation) {
+                try {
+                    const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                    let data = await response.json();
+                    
+                    // Замена белых и светлых цветов на серый (#797979)
+                    const replaceColors = (obj) => {
+                        if (Array.isArray(obj)) {
+                            return obj.map((item) => {
+                                if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
+                                    // Замена белого и светлых цветов на #797979 (0.474, 0.474, 0.474)
+                                    if ((item[0] > 0.8 && item[1] > 0.8 && item[2] > 0.8) ||
+                                        (item[0] === 1 && item[1] === 1 && item[2] === 1)) {
+                                        return [0.474, 0.474, 0.474, item[3]];
+                                    }
+                                }
+                                return replaceColors(item);
+                            });
+                        } else if (obj !== null && typeof obj === 'object') {
+                            const result = {};
+                            for (let key in obj) {
+                                result[key] = replaceColors(obj[key]);
+                            }
+                            return result;
+                        }
+                        return obj;
+                    };
+                    
+                    data = replaceColors(data);
+                    
+                    const animation = lottie.loadAnimation({
+                        container: lottieContainer,
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        animationData: data
+                    });
+                    animation.setSpeed(0.5);
+                    lottieContainer.hasAnimation = true;
+                } catch(e) {
+                    console.error('Error loading chat animation:', e);
+                }
+            }
+        }, 100);
     } else if (messages.length === 0) {
         // Для других чатов - приветствие
         container.innerHTML = `<div class="chat-empty-state">
