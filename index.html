@@ -257,8 +257,9 @@
     flex-direction: column;
     padding: 20px;
     overflow: hidden;
+    filter: blur(0px);
     opacity: 1;
-    transition: opacity 0.35s ease;
+    transition: filter 0.8s ease, opacity 0.8s ease;
 }
 
         /* Minimized vertical bar */
@@ -446,8 +447,8 @@
 
 
 .chat-message-image {
-    max-width:300px;
-    max-height:300px;
+    max-width:150px;
+    max-height:150px;
     border-radius:5px;
     cursor:pointer;
     transition:opacity .2s ease;
@@ -866,24 +867,21 @@ function collapseBlock(id) {
     // ОБНОВЛЯЕМ СОСТОЯНИЕ ДО АНИМАЦИИ при сворачивании
     updateGridState();
     
-    // ШАГ 1: Fade out контента
+    // ШАГ 1: Blur и fade-out контента одновременно со сворачиванием
+    body.style.filter = 'blur(8px)';
     body.style.opacity = '0';
     
-    // ШАГ 2: После fade out запускаем сворачивание
-    setTimeout(() => {
-        body.style.display = 'none';
-        
-        // Запускаем одновременное сворачивание блока и расширение соседнего
-        block.classList.add('collapsed');
-           setTimeout(() => {
+    // Запускаем одновременное сворачивание блока и расширение соседнего
+    block.classList.add('collapsed');
+       setTimeout(() => {
         block.classList.add('minimized');
     }, RESIZE_DURATION / 2);
-        
-        // Показываем bar после завершения анимации
-        setTimeout(() => {
-            bar.style.width = COLLAPSED_WIDTH;
-        }, RESIZE_DURATION);
-    }, FADE_DURATION);
+    
+    // ШАГ 2: После завершения видимой части анимации показываем bar
+    setTimeout(() => {
+        body.style.display = 'none';
+        bar.style.width = COLLAPSED_WIDTH;
+    }, RESIZE_DURATION / 2);
 }
 
 function expandBlock(id) {
@@ -899,27 +897,27 @@ function expandBlock(id) {
     
     // НЕ обновляем grid state ДО анимации - только ПОСЛЕ
     
-    // ШАГ 2: Запускаем расширение (соседний блок автоматически сжимается)
+    // ШАГ 2: Показываем контент с blur и opacity=0 (готовим для разблюривания)
+    body.style.display = 'flex';
+    body.style.filter = 'blur(8px)';
+    body.style.opacity = '0';
+    
+    // ШАГ 3: Запускаем расширение (соседний блок автоматически сжимается)
     block.classList.remove('collapsed');
     // Меняем иконку в середине анимации (когда она скрыта)
 setTimeout(() => {
     block.classList.remove('minimized');
 }, RESIZE_DURATION / 2);
     
-    // ШАГ 3: Обновляем grid state ПОСЛЕ завершения анимации
+    // ШАГ 4: Одновременно с расширением разблюриваем и проявляем контент
+    setTimeout(() => {
+        body.style.filter = 'blur(0px)';
+        body.style.opacity = '1';
+    }, 50);
+    
+    // ШАГ 5: Обновляем grid state ПОСЛЕ завершения анимации
     setTimeout(() => {
         updateGridState();
-    }, RESIZE_DURATION);
-    
-    // ШАГ 4: После расширения показываем контент через fade in
-    setTimeout(() => {
-        body.style.display = 'flex';
-        body.style.opacity = '0';
-        
-        // Небольшая задержка перед fade in
-        setTimeout(() => {
-            body.style.opacity = '1';
-        }, 50);
     }, RESIZE_DURATION);
 }
  
