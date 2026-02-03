@@ -762,7 +762,7 @@ function collapseBlock(id) {
     const body = block.querySelector('.block-body');
     const bar = block.querySelector('.minimized-bar');
 
-    block.classList.add('minimized');
+   // НЕ добавляем класс сразу - добавим в середине анимации
     
     // ОБНОВЛЯЕМ СОСТОЯНИЕ ДО АНИМАЦИИ при сворачивании
     updateGridState();
@@ -776,6 +776,9 @@ function collapseBlock(id) {
         
         // Запускаем одновременное сворачивание блока и расширение соседнего
         block.classList.add('collapsed');
+           setTimeout(() => {
+        block.classList.add('minimized');
+    }, RESIZE_DURATION / 2);
         
         // Показываем bar после завершения анимации
         setTimeout(() => {
@@ -790,7 +793,7 @@ function expandBlock(id) {
     const body = block.querySelector('.block-body');
     const bar = block.querySelector('.minimized-bar');
 
-    block.classList.remove('minimized');
+   // НЕ убираем класс сразу - уберём в середине анимации
     
     // ШАГ 1: Скрываем bar
     bar.style.width = '0px';
@@ -799,6 +802,10 @@ function expandBlock(id) {
     
     // ШАГ 2: Запускаем расширение (соседний блок автоматически сжимается)
     block.classList.remove('collapsed');
+    // Меняем иконку в середине анимации (когда она скрыта)
+setTimeout(() => {
+    block.classList.remove('minimized');
+}, RESIZE_DURATION / 2);
     
     // ШАГ 3: Обновляем grid state ПОСЛЕ завершения анимации
     setTimeout(() => {
