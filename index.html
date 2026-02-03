@@ -324,7 +324,7 @@
             overflow:visible;
         }
         .chat-new-btn {
-            width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:5px;
+            width:34px;height:34px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;
             color:var(--text-tertiary);font-family:'Inter',sans-serif;font-size:18px;font-weight:400;
             cursor:pointer;white-space:nowrap;transition:all .15s ease;flex-shrink:0;
             display:flex;align-items:center;justify-content:center;
@@ -375,7 +375,7 @@
             flex-shrink:0;
         }
         .chat-search-btn {
-            width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:5px;
+            width:34px;height:34px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;
             cursor:pointer;display:flex;align-items:center;justify-content:center;
             transition:all .15s ease;flex-shrink:0;
         }
@@ -468,6 +468,13 @@
 }
 .chat-message-attachment img { width:14px;height:14px;opacity:.6; }
 
+/* When attachment is the only content (no text), remove the separator line */
+.chat-message-attachment.no-sep {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+}
+
 .image-modal {
     position:fixed;
     top:0;left:0;
@@ -544,12 +551,12 @@
 
         
         .chat-send {
-    width:40px;height:40px;background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
+    width:40px;height:40px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);
     border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
     cursor:pointer;transition:all .2s ease;display:flex;align-items:center;justify-content:center;
     padding:0;
 }
-.chat-send:hover { background:rgba(255,255,255,.15); }
+.chat-send:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
 .chat-send img { width:18px;height:18px;opacity:.7; }
 
         /* ─── EMPTY STATE ─── */
@@ -1547,7 +1554,7 @@ function renderChatMessages(){
             <div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt=""></div>
             <p>Это новый чат. Напишите сообщение или прикрепите файл, чтобы начать диалог.</p>
         </div>`;
-    } else {
+        } else {
         container.innerHTML = messages.map(m => {
             if (m.type === 'image') {
                 // Картинка
@@ -1555,9 +1562,10 @@ function renderChatMessages(){
                     <img class="chat-message-image" src="${m.src}" alt="${m.name}" onclick="openImageModal('${m.src}')">
                 </div>`;
             } else if (m.type === 'file') {
-                // Файл
+                // Файл — если сообщение содержит только файл (нет текста), убираем верхнюю разделительную полосу
+                const noSepClass = (typeof m.text === 'undefined' || m.text === null || m.text === '') ? ' no-sep' : '';
                 return `<div class="chat-message ${m.role}">
-                    <div class="chat-message-attachment">
+                    <div class="chat-message-attachment${noSepClass}">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                         <span>${m.name}</span>
                     </div>
@@ -1589,11 +1597,14 @@ function sendMessage(){
     }
     
     // Отправляем каждый файл как отдельное сообщение
+    // If multiple attachments include at least one image, treat all attachments as files (no previews)
+    const treatAllAsFiles = attachedFiles.length > 1 && attachedFiles.some(f => f.type && f.type.startsWith('image/'));
+
     attachedFiles.forEach(file => {
         const isImage = file.type && file.type.startsWith('image/');
         
-        if (isImage) {
-            // Для картинок создаём data URL
+        if (isImage && !treatAllAsFiles) {
+            // For single image attachments we create a data URL preview
             const reader = new FileReader();
             reader.onload = function(e) {
                 chatStore[activeChatTab].push({
@@ -1606,12 +1617,12 @@ function sendMessage(){
             };
             reader.readAsDataURL(file);
         } else {
-            // Для файлов - просто имя с расширением
+            // Treat as generic file (no preview)
             const ext = file.name ? file.name.split('.').pop() : 'file';
             chatStore[activeChatTab].push({
                 role:'user',
                 type:'file',
-                name: `attach.${ext}`
+                name: file.name || `attach.${ext}`
             });
         }
     });
