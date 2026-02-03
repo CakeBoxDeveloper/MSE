@@ -732,10 +732,10 @@
       </div>
 
       <!-- THIRD BLOCK (HIDDEN MODULE) - BEHIND OTHER BLOCKS -->
-      <div class="content-block hidden-module" id="hiddenModule" style="background: yellow; position: absolute; top: 0; left: 66px; right: 66px; bottom: 0; z-index: -1; opacity: 0; transition: opacity 0.8s ease;">
+      <div class="content-block hidden-module" id="hiddenModule" style="background: transparent; border: 1px solid var(--glass-border); position: absolute; top: 0; left: 66px; right: 66px; bottom: 0; z-index: -1; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
         <div class="block-body">
-          <h2 style="color: black; text-align: center; margin-top: 200px;">Скрытый модуль</h2>
-          <p style="color: black; text-align: center;">Этот модуль виден только когда чат и браузер свёрнуты</p>
+          <h2 style="color: var(--text-primary); text-align: center; margin-top: 200px;">Скрытый модуль</h2>
+          <p style="color: var(--text-secondary); text-align: center;">Этот модуль виден только когда чат и браузер свёрнуты</p>
         </div>
       </div>
 
@@ -914,9 +914,10 @@ function updateGridState() {
     
     if (bothCollapsed) {
         grid.classList.add('both-collapsed');
-        // Плавно показываем скрытый модуль с задержкой
+        // Плавно показываем скрытый модуль с задержкой и убираем блюр
         setTimeout(() => {
             hiddenModule.style.opacity = '1';
+            hiddenModule.style.filter = 'blur(0px)';
         }, RESIZE_DURATION);
     } else {
         grid.classList.remove('both-collapsed');
@@ -965,11 +966,11 @@ function expandBlock(id) {
     blockState[id] = false;
 
     if (bothWereCollapsed) {
-        // Если оба были свёрнуты - сначала скрываем модуль, потом разворачиваем
+        // Если оба были свёрнуты - скрываем модуль одновременно с разворачиванием
         hiddenModule.style.opacity = '0';
-        setTimeout(() => {
-            startExpansion();
-        }, 800); // ждём исчезновения скрытого модуля
+        hiddenModule.style.filter = 'blur(8px)';
+        // Сразу начинаем разворачивание (без задержки)
+        startExpansion();
     } else {
         // Если только один был свёрнут - сразу разворачиваем
         startExpansion();
