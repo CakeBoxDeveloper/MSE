@@ -845,14 +845,20 @@
             <!-- Анимированная кардиограмма с Lottie -->
             <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
               <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
-                <!-- Фоновая сетка -->
-                <svg width="100%" height="100%" viewBox="0 0 200 60" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
+                <!-- Фоновая сетка растянутая по горизонтали и вертикали на весь блок -->
+                <svg width="100%" height="100%" viewBox="0 0 150 120" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
                   <defs>
-                    <pattern id="ecgGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                      <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(153,153,153,0.1)" stroke-width="0.5"/>
+                    <pattern id="ecgGrid" width="5" height="5" patternUnits="userSpaceOnUse">
+                      <path d="M 5 0 L 0 0 0 5" fill="none" stroke="rgba(153,153,153,0.15)" stroke-width="0.3"/>
+                    </pattern>
+                    <pattern id="ecgGridMajor" width="25" height="25" patternUnits="userSpaceOnUse">
+                      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="rgba(153,153,153,0.25)" stroke-width="0.5"/>
                     </pattern>
                   </defs>
+                  <!-- Мелкая сетка -->
                   <rect width="100%" height="100%" fill="url(#ecgGrid)" />
+                  <!-- Крупная сетка -->
+                  <rect width="100%" height="100%" fill="url(#ecgGridMajor)" />
                 </svg>
                 
                 <!-- Lottie анимация сердцебиения поверх сетки -->
