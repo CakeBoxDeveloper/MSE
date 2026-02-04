@@ -841,8 +841,42 @@
           <!-- Большой блок "Кардиограмма" (слева) -->
           <div class="monitor-cardiogram-block" style="position: absolute; left: calc(31% - 340px); top: 2.5%; width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">КАРДИОГРАММА</div>
-            <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 11px;">
-              [Место для живого графика ЭКГ]
+            
+            <!-- Анимированная кардиограмма с Lottie -->
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+              <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
+                <!-- Фоновая сетка -->
+                <svg width="100%" height="100%" viewBox="0 0 200 60" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
+                  <defs>
+                    <pattern id="ecgGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                      <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(153,153,153,0.1)" stroke-width="0.5"/>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#ecgGrid)" />
+                </svg>
+                
+                <!-- Lottie анимация сердцебиения поверх сетки -->
+                <div id="heartbeatAnimation" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+              </div>
+              
+              <!-- Показатели -->
+              <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 10px; color: var(--text-secondary);">
+                <div style="text-align: center; flex: 1;">
+                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px;">
+                    <span style="opacity: 0.7;">Пульс </span><span id="pulseValue">72</span>
+                  </div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px;">
+                    <span style="opacity: 0.7;">ЧСС </span><span id="hrrValue">68</span>
+                  </div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px;">
+                    <span style="opacity: 0.7;">O₂ </span><span id="oxygenValue">98</span><span style="opacity: 0.7;">%</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -850,14 +884,89 @@
           <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 6px); width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">МОНИТОРИНГ ВЕСА</div>
             <div style="flex: 1; position: relative; overflow: hidden;">
-              <!-- Простой рандомный график веса -->
-              <svg width="100%" height="100%" viewBox="0 0 186 100" style="border-bottom: 1px solid rgba(255,255,255,.1);">
-                <polyline points="0,80 20,75 40,78 60,72 80,70 100,68 120,65 140,62 160,60 186,58" 
+              <!-- Профессиональный график веса с сеткой и шкалами -->
+              <svg width="100%" height="100%" viewBox="0 0 100 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.2); transform-origin: center center;">
+                <!-- Определяем градиенты -->
+                <defs>
+                  <linearGradient id="gridGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
+                  </linearGradient>
+                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(153,153,153,0.6);stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:rgba(153,153,153,1);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgba(153,153,153,0.8);stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                
+                <!-- Фоновая сетка (горизонтальные линии) -->
+                <line x1="15" y1="10" x2="90" y2="10" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="15" y1="20" x2="90" y2="20" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="15" y1="30" x2="90" y2="30" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="15" y1="40" x2="90" y2="40" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="15" y1="50" x2="90" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="15" y1="60" x2="90" y2="60" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="15" y1="70" x2="90" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                
+                <!-- Вертикальные линии сетки -->
+                <line x1="25" y1="10" x2="25" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="40" y1="10" x2="40" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="55" y1="10" x2="55" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="70" y1="10" x2="70" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="85" y1="10" x2="85" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                
+                <!-- Основные оси -->
+                <line x1="15" y1="10" x2="15" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                <line x1="15" y1="75" x2="90" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                
+                <!-- Засечки на Y-оси (вес) -->
+                <line x1="12" y1="10" x2="15" y2="10" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="12" y1="20" x2="15" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="12" y1="30" x2="15" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="12" y1="40" x2="15" y2="40" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="12" y1="50" x2="15" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="12" y1="60" x2="15" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="12" y1="70" x2="15" y2="70" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                
+                <!-- Засечки на X-оси (время) -->
+                <line x1="15" y1="75" x2="15" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="25" y1="75" x2="25" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="40" y1="75" x2="40" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="55" y1="75" x2="55" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="70" y1="75" x2="70" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="85" y1="75" x2="85" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="90" y1="75" x2="90" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                
+                <!-- Подписи Y-оси (вес в кг) -->
+                <text x="10" y="13" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">85</text>
+                <text x="10" y="33" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">80</text>
+                <text x="10" y="53" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">75</text>
+                <text x="10" y="73" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">70</text>
+                
+                <!-- Подписи X-оси (время) -->
+                <text x="15" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Янв</text>
+                <text x="40" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Мар</text>
+                <text x="70" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Май</text>
+                <text x="90" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Июл</text>
+                
+                <!-- Область под графиком (градиент) -->
+                <path d="M15,70 L20,65 L30,68 L40,62 L50,60 L60,58 L70,55 L80,52 L90,50 L90,75 L15,75 Z" 
+                      fill="url(#gridGradient)" opacity="0.3"/>
+                
+                <!-- Основная линия графика -->
+                <polyline points="15,70 20,65 30,68 40,62 50,60 60,58 70,55 80,52 90,50" 
                           fill="none" 
-                          stroke="rgba(153,153,153,0.8)" 
-                          stroke-width="2"/>
-                <text x="5" y="95" font-size="9" fill="var(--text-tertiary)">Время</text>
-                <text x="150" y="15" font-size="9" fill="var(--text-tertiary)">Вес</text>
+                          stroke="url(#lineGradient)" 
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
+                
+                <!-- Точки данных -->
+                <circle cx="15" cy="70" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="30" cy="68" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="50" cy="60" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="70" cy="55" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="90" cy="50" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
               </svg>
             </div>
           </div>
@@ -2344,8 +2453,138 @@ window.downloadPDF = function() {
 
 document.getElementById('pdfModalOverlay').addEventListener('click', function(e){ if (e.target===this) closePDFModal(); });
 
-// Модифицировать функцию sendMessage
-// Модифицировать функцию sendMessage
+// ============================================================
+// LOTTIE HEARTBEAT ANIMATION INITIALIZATION
+// ============================================================
+function initHeartbeatAnimation() {
+    const container = document.getElementById('heartbeatAnimation');
+    if (container && !container.hasAnimation) {
+        // Load the Lottie animation from GitHub
+        fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Heartbeat%20Lottie%20Animation.json')
+            .then(response => response.json())
+            .then(animationData => {
+                // Convert all colors to grayscale (0% saturation)
+                const convertToGrayscale = (obj) => {
+                    if (Array.isArray(obj)) {
+                        return obj.map((item) => {
+                            if (Array.isArray(item) && item.length >= 3 && typeof item[0] === 'number') {
+                                // Convert RGB to grayscale using luminance formula
+                                const r = item[0];
+                                const g = item[1];
+                                const b = item[2];
+                                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                                return [gray, gray, gray, ...(item.slice(3))];
+                            }
+                            return convertToGrayscale(item);
+                        });
+                    } else if (obj !== null && typeof obj === 'object') {
+                        const result = {};
+                        for (let key in obj) {
+                            result[key] = convertToGrayscale(obj[key]);
+                        }
+                        return result;
+                    }
+                    return obj;
+                };
+                
+                const grayscaleData = convertToGrayscale(animationData);
+                
+                const animation = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: grayscaleData
+                });
+                
+                // Apply CSS to stretch horizontally and make grayscale
+                container.style.filter = 'grayscale(100%)';
+                container.style.transform = 'scaleX(1.5)'; // Stretch horizontally
+                container.style.transformOrigin = 'center center';
+                
+                // Mark container as having animation to prevent reinitialization
+                container.hasAnimation = true;
+                
+                console.log('Heartbeat animation loaded successfully');
+            })
+            .catch(error => {
+                console.error('Error loading heartbeat animation:', error);
+                // Fallback: show a simple static line if animation fails to load
+                container.innerHTML = '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px;">ECG недоступна</div>';
+            });
+    }
+}
+
+// ============================================================
+// ANIMATED VITAL SIGNS VALUES
+// ============================================================
+function initVitalSignsAnimation() {
+    // Base values for vital signs
+    const baseValues = {
+        pulse: 72,
+        hrr: 68,
+        oxygen: 98
+    };
+    
+    // Fluctuation ranges (±)
+    const fluctuations = {
+        pulse: 3,    // ±3 bpm
+        hrr: 2,      // ±2 bpm
+        oxygen: 1    // ±1%
+    };
+    
+    // Update intervals (much slower for natural feel)
+    const intervals = {
+        pulse: 8000,   // 8 seconds
+        hrr: 12000,    // 12 seconds
+        oxygen: 15000  // 15 seconds
+    };
+    
+    function updateValue(elementId, baseValue, fluctuation) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            // Generate random fluctuation
+            const change = (Math.random() - 0.5) * 2 * fluctuation;
+            const newValue = Math.round(baseValue + change);
+            
+            // Very smooth and slow transition effect
+            element.style.transition = 'all 1.5s ease-in-out';
+            element.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                element.textContent = newValue;
+                element.style.opacity = '1';
+            }, 750); // Half of the transition time
+        }
+    }
+    
+    // Start animations for each vital sign
+    setInterval(() => updateValue('pulseValue', baseValues.pulse, fluctuations.pulse), intervals.pulse);
+    setInterval(() => updateValue('hrrValue', baseValues.hrr, fluctuations.hrr), intervals.hrr);
+    setInterval(() => updateValue('oxygenValue', baseValues.oxygen, fluctuations.oxygen), intervals.oxygen);
+    
+    // Initial random delay to stagger the updates (longer delays)
+    setTimeout(() => updateValue('pulseValue', baseValues.pulse, fluctuations.pulse), Math.random() * 5000);
+    setTimeout(() => updateValue('hrrValue', baseValues.hrr, fluctuations.hrr), Math.random() * 7000);
+    setTimeout(() => updateValue('oxygenValue', baseValues.oxygen, fluctuations.oxygen), Math.random() * 10000);
+}
+
+// Initialize heartbeat animation when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    initHeartbeatAnimation();
+    initVitalSignsAnimation();
+});
+
+// Also initialize if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initHeartbeatAnimation();
+        initVitalSignsAnimation();
+    });
+} else {
+    initHeartbeatAnimation();
+    initVitalSignsAnimation();
+}
 </script>
 </body>
 </html>
