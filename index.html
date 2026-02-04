@@ -889,9 +889,9 @@
           <!-- Большой блок "Мониторинг веса" (слева внизу) -->
           <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 6px); width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">МОНИТОРИНГ ВЕСА</div>
-            <div style="flex: 1; position: relative; overflow: hidden;">
+            <div style="flex: 1; position: relative; overflow: visible;">
               <!-- Профессиональный график веса с сеткой и шкалами -->
-              <svg width="100%" height="100%" viewBox="0 0 100 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.2); transform-origin: center center;">
+              <svg width="100%" height="100%" viewBox="0 0 110 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.2); transform-origin: center center; overflow: visible;">
                 <!-- Определяем градиенты -->
                 <defs>
                   <linearGradient id="gridGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -906,61 +906,61 @@
                 </defs>
                 
                 <!-- Фоновая сетка (горизонтальные линии) -->
-                <line x1="15" y1="10" x2="90" y2="10" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="15" y1="20" x2="90" y2="20" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="15" y1="30" x2="90" y2="30" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="15" y1="40" x2="90" y2="40" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="15" y1="50" x2="90" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="15" y1="60" x2="90" y2="60" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="15" y1="70" x2="90" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="20" y1="10" x2="95" y2="10" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="20" y1="20" x2="95" y2="20" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="20" y1="30" x2="95" y2="30" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="20" y1="40" x2="95" y2="40" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="20" y1="50" x2="95" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="20" y1="60" x2="95" y2="60" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                <line x1="20" y1="70" x2="95" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
                 
                 <!-- Вертикальные линии сетки -->
-                <line x1="25" y1="10" x2="25" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="40" y1="10" x2="40" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="55" y1="10" x2="55" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="70" y1="10" x2="70" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="85" y1="10" x2="85" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="30" y1="10" x2="30" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="45" y1="10" x2="45" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="60" y1="10" x2="60" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="75" y1="10" x2="75" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="90" y1="10" x2="90" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
                 
                 <!-- Основные оси -->
-                <line x1="15" y1="10" x2="15" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                <line x1="15" y1="75" x2="90" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                <line x1="20" y1="10" x2="20" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                <line x1="20" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
                 
                 <!-- Засечки на Y-оси (вес) -->
-                <line x1="12" y1="10" x2="15" y2="10" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="12" y1="20" x2="15" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="12" y1="30" x2="15" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="12" y1="40" x2="15" y2="40" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="12" y1="50" x2="15" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="12" y1="60" x2="15" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="12" y1="70" x2="15" y2="70" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="17" y1="10" x2="20" y2="10" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="17" y1="20" x2="20" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="17" y1="30" x2="20" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="17" y1="40" x2="20" y2="40" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="17" y1="50" x2="20" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="17" y1="60" x2="20" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="17" y1="70" x2="20" y2="70" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
                 
                 <!-- Засечки на X-оси (время) -->
-                <line x1="15" y1="75" x2="15" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="25" y1="75" x2="25" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="40" y1="75" x2="40" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="55" y1="75" x2="55" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="70" y1="75" x2="70" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="85" y1="75" x2="85" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="90" y1="75" x2="90" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="20" y1="75" x2="20" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="30" y1="75" x2="30" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="45" y1="75" x2="45" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="60" y1="75" x2="60" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="75" y1="75" x2="75" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <line x1="90" y1="75" x2="90" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+                <line x1="95" y1="75" x2="95" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
                 
-                <!-- Подписи Y-оси (вес в кг) -->
-                <text x="10" y="13" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">85</text>
-                <text x="10" y="33" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">80</text>
-                <text x="10" y="53" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">75</text>
-                <text x="10" y="73" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">70</text>
+                <!-- Подписи Y-оси (вес в кг) - сдвинуты левее -->
+                <text x="14" y="13" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">85</text>
+                <text x="14" y="33" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">80</text>
+                <text x="14" y="53" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">75</text>
+                <text x="14" y="73" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">70</text>
                 
                 <!-- Подписи X-оси (время) -->
-                <text x="15" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Янв</text>
-                <text x="40" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Мар</text>
-                <text x="70" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Май</text>
-                <text x="90" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Июл</text>
+                <text x="20" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Янв</text>
+                <text x="45" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Мар</text>
+                <text x="75" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Май</text>
+                <text x="95" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Июл</text>
                 
                 <!-- Область под графиком (градиент) -->
-                <path d="M15,70 L20,65 L30,68 L40,62 L50,60 L60,58 L70,55 L80,52 L90,50 L90,75 L15,75 Z" 
+                <path d="M20,70 L25,65 L35,68 L45,62 L55,60 L65,58 L75,55 L85,52 L95,50 L95,75 L20,75 Z" 
                       fill="url(#gridGradient)" opacity="0.3"/>
                 
                 <!-- Основная линия графика -->
-                <polyline points="15,70 20,65 30,68 40,62 50,60 60,58 70,55 80,52 90,50" 
+                <polyline points="20,70 25,65 35,68 45,62 55,60 65,58 75,55 85,52 95,50" 
                           fill="none" 
                           stroke="url(#lineGradient)" 
                           stroke-width="1.5"
@@ -968,11 +968,11 @@
                           stroke-linejoin="round"/>
                 
                 <!-- Точки данных -->
-                <circle cx="15" cy="70" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="30" cy="68" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="50" cy="60" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="70" cy="55" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="90" cy="50" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="20" cy="70" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="35" cy="68" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="55" cy="60" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="75" cy="55" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <circle cx="95" cy="50" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
               </svg>
             </div>
           </div>
