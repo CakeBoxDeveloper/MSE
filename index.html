@@ -732,14 +732,14 @@
       </div>
 
       <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND OTHER BLOCKS -->
-      <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 0; left: 80px; right: 80px; z-index: -1; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
+      <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 0; left: 80px; right: 80px; z-index: -1; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease; background: transparent; border: none;">
         <div class="block-body" style="display: flex; align-items: center; justify-content: center; gap: 20px; padding: 0; position: relative; height: var(--block-height); overflow: visible;">
           
           <!-- КОНТЕЙНЕР ДЛЯ РАСТЯЖЕНИЯ НА ВСЮ ОБЛАСТЬ -->
           <div class="monitor-full-container" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; transform: scale(1.05); transform-origin: center center; overflow: visible;">
           
           <!-- Левые блоки (растянуты до высоты резюме) -->
-          <div class="monitor-left-elements" style="position: absolute; left: calc(33% - 90px); top: 5%; transform: none; width: 160px; height: 90%; pointer-events: none;">
+          <div class="monitor-left-elements" style="position: absolute; left: calc(31% - 90px); top: 2.5%; transform: none; width: 160px; height: 95%; pointer-events: none;">
             <!-- Блок 1 - верх головы -->
             <div style="position: absolute; top: 0%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 70px; pointer-events: all;">
               <div style="font-weight: 600; margin-bottom: 8px; text-align: center; line-height: 1.1;">Здоровье ЦНС</div>
@@ -839,7 +839,7 @@
           </div>
           
           <!-- Большой блок "Кардиограмма" (слева) -->
-          <div class="monitor-cardiogram-block" style="position: absolute; left: calc(33% - 330px); top: 5%; width: 210px; height: calc(45% - 5px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
+          <div class="monitor-cardiogram-block" style="position: absolute; left: calc(31% - 340px); top: 2.5%; width: 210px; height: calc(47.5% - 3px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">КАРДИОГРАММА</div>
             <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 11px;">
               [Место для живого графика ЭКГ]
@@ -847,7 +847,7 @@
           </div>
           
           <!-- Большой блок "Мониторинг веса" (слева внизу) -->
-          <div class="monitor-weight-block" style="position: absolute; left: calc(33% - 330px); top: calc(50% + 5px); width: 210px; height: calc(45% - 5px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
+          <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 3px); width: 210px; height: calc(47.5% - 3px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">МОНИТОРИНГ ВЕСА</div>
             <div style="flex: 1; position: relative; overflow: hidden;">
               <!-- Простой рандомный график веса -->
@@ -876,7 +876,7 @@
           </div>
           
           <!-- Правые блоки (растянуты до высоты резюме) -->
-          <div class="monitor-right-elements" style="position: absolute; right: calc(33% - 90px); top: 5%; transform: none; width: 160px; height: 90%; pointer-events: none;">
+          <div class="monitor-right-elements" style="position: absolute; right: calc(31% - 90px); top: 2.5%; transform: none; width: 160px; height: 95%; pointer-events: none;">
             <!-- Блок 6 - верх головы -->
             <div style="position: absolute; top: 0%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; width: 100%; height: 60px; pointer-events: all;">
               <div style="font-weight: 600; margin-bottom: 8px; text-align: center; line-height: 1.1;">Когнитивность</div>
@@ -976,7 +976,7 @@
           </div>
           
           <!-- Большой блок "Резюме" (справа) -->
-          <div class="monitor-resume-block" style="position: absolute; right: calc(33% - 330px); top: 5%; width: 210px; height: 90%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
+          <div class="monitor-resume-block" style="position: absolute; right: calc(31% - 340px); top: 2.5%; width: 210px; height: 95%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 14px; text-align: center;">РЕЗЮМЕ</div>
             <div style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto;">
               <div style="margin-bottom: 10px;">
