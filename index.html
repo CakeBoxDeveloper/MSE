@@ -398,7 +398,20 @@
         .chat-search-input::placeholder { color:var(--text-tertiary); }
 
         .chat-container { display:flex;flex-direction:column;flex:1;min-height:0; }
-        .chat-messages { flex:1;overflow-y:auto;padding:10px 0;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;transition:filter 0.3s ease,opacity 0.3s ease; }
+        .chat-messages { 
+            flex:1;
+            overflow-y:auto;
+            padding:10px 0;
+            margin-bottom:12px;
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+            transition:filter 0.3s ease,opacity 0.3s ease;
+            position: relative;
+            /* Добавляем плавное размытие к верхней границе */
+            mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 100%);
+        }
         .chat-messages::-webkit-scrollbar { width:4px; }
         .chat-messages::-webkit-scrollbar-track { background:transparent; }
         .chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2);border-radius:2px; }
@@ -2596,8 +2609,12 @@ function initECGCanvas() {
     function drawECGWave() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Calculate wave speed based on heart rate (72 bpm = base speed)
-        const waveSpeed = baseWaveSpeed * (currentHeartRate / 72);
+        // Calculate wave speed and amplitude based on heart rate
+        // Higher heart rate = faster animation and higher amplitude
+        // Lower heart rate = slower animation and lower amplitude
+        const heartRateRatio = currentHeartRate / 72; // 72 BPM as baseline
+        const waveSpeed = baseWaveSpeed * heartRateRatio; // Speed scales with heart rate
+        const dynamicAmplitude = amplitude * (0.5 + heartRateRatio * 0.5); // Amplitude: 50% to 150% of base
         
         // Create gradient along the grid boundaries
         const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
@@ -2621,32 +2638,32 @@ function initECGCanvas() {
             // Create ECG-like pattern with spikes
             let y = baselineY;
             
-            // Main heartbeat pattern - frequency based on heart rate
-            const heartbeatFreq = Math.PI * 2 * (currentHeartRate / 60); // Convert BPM to frequency
-            const heartbeatPhase = (waveX % heartbeatFreq);
-            const normalizedPhase = heartbeatPhase / heartbeatFreq * (Math.PI * 2);
+            // Main heartbeat pattern - simpler frequency calculation
+            const heartbeatCycle = Math.PI * 4; // One complete heartbeat cycle
+            const cyclesPerSecond = currentHeartRate / 60; // BPM to Hz
+            const adjustedWaveX = waveX * cyclesPerSecond;
+            const heartbeatPhase = adjustedWaveX % heartbeatCycle;
             
-            if (normalizedPhase > 0.5 && normalizedPhase < 1.5) {
-                // P wave (small)
-                y += Math.sin((normalizedPhase - 0.5) * Math.PI * 2) * amplitude * 0.2;
-            } else if (normalizedPhase > 2 && normalizedPhase < 3) {
-                // QRS complex (large spike) - amplitude increases with heart rate
-                const qrsPhase = (normalizedPhase - 2) * Math.PI;
-                const intensityMultiplier = Math.min(currentHeartRate / 72, 2); // Cap at 2x intensity
+            if (heartbeatPhase > 0.5 && heartbeatPhase < 1.5) {
+                // P wave (small) - scales with heart rate
+                y += Math.sin((heartbeatPhase - 0.5) * Math.PI * 2) * dynamicAmplitude * 0.2;
+            } else if (heartbeatPhase > 2 && heartbeatPhase < 3) {
+                // QRS complex (large spike) - scales with heart rate
+                const qrsPhase = (heartbeatPhase - 2) * Math.PI;
                 if (qrsPhase < Math.PI * 0.3) {
-                    y -= Math.sin(qrsPhase * 3.33) * amplitude * 0.3 * intensityMultiplier; // Q wave
+                    y -= Math.sin(qrsPhase * 3.33) * dynamicAmplitude * 0.3; // Q wave
                 } else if (qrsPhase < Math.PI * 0.7) {
-                    y += Math.sin((qrsPhase - Math.PI * 0.3) * 2.5) * amplitude * 1.2 * intensityMultiplier; // R wave
+                    y += Math.sin((qrsPhase - Math.PI * 0.3) * 2.5) * dynamicAmplitude * 1.2; // R wave
                 } else {
-                    y -= Math.sin((qrsPhase - Math.PI * 0.7) * 3.33) * amplitude * 0.4 * intensityMultiplier; // S wave
+                    y -= Math.sin((qrsPhase - Math.PI * 0.7) * 3.33) * dynamicAmplitude * 0.4; // S wave
                 }
-            } else if (normalizedPhase > 4 && normalizedPhase < 5) {
-                // T wave (medium)
-                y += Math.sin((normalizedPhase - 4) * Math.PI) * amplitude * 0.4;
+            } else if (heartbeatPhase > 4 && heartbeatPhase < 5) {
+                // T wave (medium) - scales with heart rate
+                y += Math.sin((heartbeatPhase - 4) * Math.PI) * dynamicAmplitude * 0.4;
             }
             
-            // Add subtle noise for realism
-            y += (Math.random() - 0.5) * 2;
+            // Add subtle noise for realism (also scales with heart rate)
+            y += (Math.random() - 0.5) * 2 * heartRateRatio;
             
             if (x === 0) {
                 ctx.moveTo(x, y);
@@ -2659,7 +2676,7 @@ function initECGCanvas() {
         
         // Draw gradient fill under the wave
         ctx.beginPath();
-        const fillGradient = ctx.createLinearGradient(0, baselineY - amplitude, 0, baselineY + amplitude);
+        const fillGradient = ctx.createLinearGradient(0, baselineY - dynamicAmplitude, 0, baselineY + dynamicAmplitude);
         fillGradient.addColorStop(0, 'rgba(153, 153, 153, 0.1)');
         fillGradient.addColorStop(0.5, 'rgba(153, 153, 153, 0.05)');
         fillGradient.addColorStop(1, 'rgba(153, 153, 153, 0.02)');
@@ -2671,24 +2688,24 @@ function initECGCanvas() {
             const waveX = normalizedX * Math.PI * 8 + time;
             
             let y = baselineY;
-            const heartbeatFreq = Math.PI * 2 * (currentHeartRate / 60);
-            const heartbeatPhase = (waveX % heartbeatFreq);
-            const normalizedPhase = heartbeatPhase / heartbeatFreq * (Math.PI * 2);
+            const heartbeatCycle = Math.PI * 4; // One complete heartbeat cycle
+            const cyclesPerSecond = currentHeartRate / 60; // BPM to Hz
+            const adjustedWaveX = waveX * cyclesPerSecond;
+            const heartbeatPhase = adjustedWaveX % heartbeatCycle;
             
-            if (normalizedPhase > 0.5 && normalizedPhase < 1.5) {
-                y += Math.sin((normalizedPhase - 0.5) * Math.PI * 2) * amplitude * 0.2;
-            } else if (normalizedPhase > 2 && normalizedPhase < 3) {
-                const qrsPhase = (normalizedPhase - 2) * Math.PI;
-                const intensityMultiplier = Math.min(currentHeartRate / 72, 2);
+            if (heartbeatPhase > 0.5 && heartbeatPhase < 1.5) {
+                y += Math.sin((heartbeatPhase - 0.5) * Math.PI * 2) * dynamicAmplitude * 0.2;
+            } else if (heartbeatPhase > 2 && heartbeatPhase < 3) {
+                const qrsPhase = (heartbeatPhase - 2) * Math.PI;
                 if (qrsPhase < Math.PI * 0.3) {
-                    y -= Math.sin(qrsPhase * 3.33) * amplitude * 0.3 * intensityMultiplier;
+                    y -= Math.sin(qrsPhase * 3.33) * dynamicAmplitude * 0.3;
                 } else if (qrsPhase < Math.PI * 0.7) {
-                    y += Math.sin((qrsPhase - Math.PI * 0.3) * 2.5) * amplitude * 1.2 * intensityMultiplier;
+                    y += Math.sin((qrsPhase - Math.PI * 0.3) * 2.5) * dynamicAmplitude * 1.2;
                 } else {
-                    y -= Math.sin((qrsPhase - Math.PI * 0.7) * 3.33) * amplitude * 0.4 * intensityMultiplier;
+                    y -= Math.sin((qrsPhase - Math.PI * 0.7) * 3.33) * dynamicAmplitude * 0.4;
                 }
-            } else if (normalizedPhase > 4 && normalizedPhase < 5) {
-                y += Math.sin((normalizedPhase - 4) * Math.PI) * amplitude * 0.4;
+            } else if (heartbeatPhase > 4 && heartbeatPhase < 5) {
+                y += Math.sin((heartbeatPhase - 4) * Math.PI) * dynamicAmplitude * 0.4;
             }
             
             if (x === 0) {
@@ -2704,7 +2721,7 @@ function initECGCanvas() {
         ctx.closePath();
         ctx.fill();
         
-        time += waveSpeed;
+        time += waveSpeed; // Now uses dynamic speed based on heart rate
     }
     
     function animate() {
@@ -2780,8 +2797,33 @@ function updateHeartRate(newRate) {
     // Update global heart rate variable
     currentHeartRate = Math.max(30, Math.min(220, newRate)); // Clamp between 30-220 BPM
     
+    console.log(`Updating heart rate to: ${currentHeartRate} BPM`);
+    
+    // Check if Monitor mode is active (elements are visible)
+    const hiddenModule = document.getElementById('hiddenModule');
+    const isMonitorActive = hiddenModule && hiddenModule.style.opacity !== '0';
+    
+    console.log('Monitor mode active:', isMonitorActive);
+    
+    // If Monitor mode is not active, activate it first
+    if (!isMonitorActive) {
+        console.log('Activating Monitor mode first...');
+        toggleMonitorMode();
+        
+        // Wait for Monitor mode to activate, then update values
+        setTimeout(() => {
+            updateHeartRateValues();
+        }, 1000);
+    } else {
+        // Monitor mode is already active, update immediately
+        updateHeartRateValues();
+    }
+}
+
+function updateHeartRateValues() {
     // Update pulse display immediately
     const pulseElement = document.getElementById('pulseValue');
+    console.log('Pulse element found:', pulseElement);
     if (pulseElement) {
         pulseElement.style.transition = 'all 0.8s ease-in-out';
         pulseElement.style.transform = 'scale(1.1)';
@@ -2790,10 +2832,13 @@ function updateHeartRate(newRate) {
         setTimeout(() => {
             pulseElement.style.transform = 'scale(1)';
         }, 400);
+    } else {
+        console.log('Pulse element not found - Monitor mode may not be active');
     }
     
     // Update HRR (Heart Rate Reserve) - typically 4-6 BPM lower than pulse
     const hrrElement = document.getElementById('hrrValue');
+    console.log('HRR element found:', hrrElement);
     if (hrrElement) {
         const hrrValue = Math.max(25, currentHeartRate - Math.floor(Math.random() * 3 + 4));
         hrrElement.style.transition = 'all 0.8s ease-in-out';
@@ -2803,9 +2848,11 @@ function updateHeartRate(newRate) {
         setTimeout(() => {
             hrrElement.style.transform = 'scale(1)';
         }, 400);
+    } else {
+        console.log('HRR element not found - Monitor mode may not be active');
     }
     
-    console.log(`Heart rate updated to: ${currentHeartRate} BPM`);
+    console.log(`Heart rate values updated to: ${currentHeartRate} BPM`);
 }
 
 // Initialize ECG canvas and vital signs animation when DOM is ready
