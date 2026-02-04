@@ -1204,11 +1204,11 @@ function updateGridState() {
     
     if (bothCollapsed) {
         grid.classList.add('both-collapsed');
-        // Плавно показываем скрытый модуль с задержкой и убираем блюр
+        // Показываем скрытый модуль с небольшой задержкой (300мс)
         setTimeout(() => {
             hiddenModule.style.opacity = '1';
             hiddenModule.style.filter = 'blur(0px)';
-        }, RESIZE_DURATION);
+        }, 300);
     } else {
         grid.classList.remove('both-collapsed');
         // При разворачивании не трогаем скрытый модуль - это делает expandBlock
@@ -2079,6 +2079,30 @@ function sendMessage(){
     const hasFiles = attachedFiles.length > 0;
     
     if (!text && !hasFiles) return;
+    
+    // Проверяем команду "София, покажи меня"
+    if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('покажи меня')) {
+        // Добавляем сообщение пользователя в чат
+        if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+        chatStore[activeChatTab].push({role:'user', text: text});
+        
+        // Сначала добавляем ответ Софии
+        chatStore[activeChatTab].push({
+            role:'ai', 
+            text: 'Активирую модуль биометрического мониторинга. Анализирую ваши показатели здоровья...'
+        });
+        
+        // Очищаем поле ввода и рендерим сообщения
+        chatInput.value = '';
+        renderChatMessages();
+        
+        // Через 1 секунду активируем режим "Монитор"
+        setTimeout(() => {
+            toggleMonitorMode();
+        }, 1000);
+        
+        return;
+    }
     
     if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
     
