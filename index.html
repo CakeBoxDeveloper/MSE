@@ -686,7 +686,7 @@
 <header>
   <div class="container"> <!-- ДОБАВИТЬ -->
     <div class="header-inner">
-      <div class="logo">
+      <div class="logo" onclick="toggleMonitorMode()" style="cursor: pointer;">
         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
       </div>
       <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
@@ -839,7 +839,7 @@
           </div>
           
           <!-- Большой блок "Кардиограмма" (слева) -->
-          <div class="monitor-cardiogram-block" style="position: absolute; left: calc(31% - 340px); top: 2.5%; width: 210px; height: calc(47.5% - 3px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
+          <div class="monitor-cardiogram-block" style="position: absolute; left: calc(31% - 340px); top: 2.5%; width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">КАРДИОГРАММА</div>
             <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 11px;">
               [Место для живого графика ЭКГ]
@@ -847,7 +847,7 @@
           </div>
           
           <!-- Большой блок "Мониторинг веса" (слева внизу) -->
-          <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 3px); width: 210px; height: calc(47.5% - 3px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
+          <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 6px); width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
             <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">МОНИТОРИНГ ВЕСА</div>
             <div style="flex: 1; position: relative; overflow: hidden;">
               <!-- Простой рандомный график веса -->
@@ -1169,6 +1169,24 @@ const FADE_DURATION = 350;
 const RESIZE_DURATION = 800;
 
 const blockState = { browserBlock: false, chatBlock: false };
+
+function toggleMonitorMode() {
+    closeAllMenus();
+    
+    // Если оба блока уже свернуты - разворачиваем их
+    if (blockState.browserBlock && blockState.chatBlock) {
+        expandBlock('browserBlock');
+        expandBlock('chatBlock');
+    } else {
+        // Иначе сворачиваем оба блока для показа монитора
+        if (!blockState.browserBlock) {
+            collapseBlock('browserBlock');
+        }
+        if (!blockState.chatBlock) {
+            collapseBlock('chatBlock');
+        }
+    }
+}
 
 function toggleMinimize(id) {
     closeAllMenus();
