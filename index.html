@@ -150,19 +150,21 @@
 
         
 .header-login-btn {
-    padding:6px 14px;
-    background:rgba(255,255,255,.08);
+    width:34px;
+    height:34px;
+    background:transparent;
     border:1px solid var(--glass-border);
-    border-radius:5px;
+    border-radius:4px;
     color:var(--text-primary);
     cursor:pointer;
-    font-family:'Inter',sans-serif;
-    font-size:13px;
-    font-weight:500;
-    transition:all .2s ease;
-    /* УБРАТЬ margin-right:20px; */
+    transition:all .15s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
 }
-        .header-login-btn:hover { background:rgba(255,255,255,.14); }
+        .header-login-btn:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+        .header-login-btn img { width:14px; height:14px; }
 
         /* ─── INNER TABS ─── */
         .inner-tabs { display:flex;gap:8px;margin-bottom:16px;flex-shrink:0;align-items:center; }
@@ -300,10 +302,44 @@
         .content-body { flex:1;display:flex;flex-direction:column;min-height:0;transition:filter 0.3s ease,opacity 0.3s ease; }
 
         /* ─── MATERIALS ─── */
-        .materials-list { display:grid;gap:10px; }
+        .materials-list { 
+            display:grid;
+            gap:10px;
+            overflow-y:auto;
+            max-height:100%;
+            scrollbar-width:none;
+        }
+        .materials-list::-webkit-scrollbar { display:none; }
         .material-item {
             background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:5px;
-            padding:14px;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;gap:12px;
+            padding:20px 14px;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;gap:12px;
+            position:relative;
+            overflow:hidden;
+            min-height:70px;
+        }
+        
+        /* Shimmer animation for highlighting */
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+        
+        .material-item.shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(153, 153, 153, 0.3) 50%, 
+                transparent 100%);
+            animation: shimmer 1s ease-in-out;
         }
         .material-item:hover { background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18); }
         .material-icon {
@@ -382,7 +418,7 @@
             transition:all .15s ease;flex-shrink:0;
         }
         .chat-search-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
-        .chat-search-btn svg { width:14px;height:14px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round; }
+        .chat-search-btn svg { width:14px;height:14px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
 
         .chat-search-wrap {
             position:absolute;top:calc(100% + 8px);right:0;width:200px;
@@ -401,6 +437,7 @@
         .chat-messages { 
             flex:1;
             overflow-y:auto;
+            overflow-x:hidden;
             padding:10px 0;
             margin-bottom:12px;
             display:flex;
@@ -408,16 +445,17 @@
             gap:10px;
             transition:filter 0.3s ease,opacity 0.3s ease;
             position: relative;
-            /* Добавляем плавное размытие к верхней границе */
-            mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 100%);
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 100%);
+            scrollbar-width:none;
+            word-wrap: break-word;
+            word-break: break-word;
         }
-        .chat-messages::-webkit-scrollbar { width:4px; }
-        .chat-messages::-webkit-scrollbar-track { background:transparent; }
-        .chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2);border-radius:2px; }
+        .chat-messages::-webkit-scrollbar { display:none; }
         .chat-message {
             padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;font-size:13px;max-width:85%;line-height:1.5;letter-spacing:-.1px;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
         .chat-message.ai  { align-self:flex-start; }
         .chat-message.user { align-self:flex-end;background:rgba(255,255,255,.08); }
@@ -702,7 +740,14 @@
       <div class="logo" onclick="toggleMonitorMode()" style="cursor: pointer;">
         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
       </div>
-      <button class="header-login-btn" id="headerLoginBtn">Вход в сеть</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="header-login-btn" onclick="alert('Магазин в разработке')">
+          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6a50e74f86f19a5eacbe86caab2219a6292f2afc/Shop.svg" alt="Магазин">
+        </button>
+        <button class="header-login-btn" id="headerLoginBtn">
+          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">
+        </button>
+      </div>
     </div>
   </div> <!-- ДОБАВИТЬ -->
 </header>
@@ -735,10 +780,19 @@
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
               <span>Прогресс</span>
             </button>
-            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')" style="margin-left:auto;">
+            <button class="btn-minimize" onclick="toggleBrowserSearch()" style="margin-left:auto;margin-right:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')">
     <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
     <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
 </button>
+          </div>
+          <div id="browserSearchWrap" class="chat-search-wrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
+            <input type="text" id="browserSearchInput" class="chat-search-input" placeholder="Поиск по всем вкладкам...">
           </div>
           <div class="content-body" id="main-content"></div>
         </div>
@@ -887,9 +941,12 @@
             </div>
           </div>
           
-          <!-- Большой блок "Кардиограмма" (слева) -->
+          <!-- Большой блок "ПРИЗНАКИ ЖИЗНИ" (слева) -->
           <div class="monitor-cardiogram-block" style="position: absolute; left: calc(31% - 340px); top: 2.5%; width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">КАРДИОГРАММА</div>
+            <div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
+              <span>ПРИЗНАКИ ЖИЗНИ</span>
+              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f285999bcbd5f331bffb4244373e3aecc5695eb6/rate.svg" alt="" style="width: 14px; height: 14px;">
+            </div>
             
             <!-- Анимированная кардиограмма с Lottie -->
             <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
@@ -916,18 +973,18 @@
               
               <!-- Показатели -->
               <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 10px; color: var(--text-secondary);">
-                <div style="text-align: center; flex: 1;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px;">
+                <div style="text-align: center; flex: 1; min-width: 0;">
+                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     <span style="opacity: 0.7;">Пульс </span><span id="pulseValue">72</span>
                   </div>
                 </div>
-                <div style="text-align: center; flex: 1;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px;">
+                <div style="text-align: center; flex: 1; min-width: 0;">
+                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     <span style="opacity: 0.7;">ЧСС </span><span id="hrrValue">68</span>
                   </div>
                 </div>
-                <div style="text-align: center; flex: 1;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px;">
+                <div style="text-align: center; flex: 1; min-width: 0;">
+                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     <span style="opacity: 0.7;">O₂ </span><span id="oxygenValue">98</span><span style="opacity: 0.7;">%</span>
                   </div>
                 </div>
@@ -935,9 +992,12 @@
             </div>
           </div>
           
-          <!-- Большой блок "Мониторинг веса" (слева внизу) -->
+          <!-- Большой блок "Весы" (слева внизу) -->
           <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 6px); width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">МОНИТОРИНГ ВЕСА</div>
+            <div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
+              <span>ВЕСЫ</span>
+              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9de8a26dbc1469309e975cc1be78720e41b1aa55/scale.svg" alt="" style="width: 14px; height: 14px;">
+            </div>
             <div style="flex: 1; position: relative; overflow: visible;">
               <!-- Профессиональный график веса с сеткой и шкалами -->
               <svg width="100%" height="100%" viewBox="0 0 120 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.2); transform-origin: center center; overflow: visible;">
@@ -1035,7 +1095,10 @@
           
           <!-- Плашка с номером звена (выровнена по нижней границе) -->
           <div id="monitorUserPlate" style="position: absolute; bottom: 2.5%; left: 50%; transform: translateX(-50%); width: 160px; height: 65px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; pointer-events: all;">
-            <div style="font-weight: 600; margin-bottom: 3px; text-align: center; line-height: 1.1;">Пробное звено</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 3px; text-align: center; line-height: 1.1;">
+              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
+              <span>Пробное звено</span>
+            </div>
             <div style="font-size: 9px; text-align: center; line-height: 1.1; opacity: 0.8;">дата подключения неизвестна</div>
           </div>
           
@@ -1175,9 +1238,12 @@
             </div>
           </div>
           
-          <!-- Большой блок "Резюме" (справа) -->
+          <!-- Большой блок "Биологический профиль" (справа) -->
           <div class="monitor-resume-block" style="position: absolute; right: calc(31% - 340px); top: 2.5%; width: 210px; height: 95%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 14px; text-align: center;">РЕЗЮМЕ</div>
+            <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 14px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
+              <span>БИОЛОГИЧЕСКИЙ ПРОФИЛЬ</span>
+              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px;">
+            </div>
             <div style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto;">
               <div style="margin-bottom: 10px;">
                 <strong>Общее состояние:</strong> Удовлетворительное
@@ -1235,7 +1301,10 @@
             </div>
             <div class="chat-right-controls">
               <button class="chat-search-btn" onclick="toggleChatSearch()">
-                <svg viewBox="0 0 16 16"><circle cx="6" cy="6" r="4"/><line x1="9" y1="9" x2="14" y2="14"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </button>
             <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('chatBlock')" style="margin-left:auto;">
     <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
@@ -1293,7 +1362,10 @@
             <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
           </div>
         </form>
-        <div class="auth-switch">Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button></div>
+        <div class="auth-switch" style="display:flex;align-items:center;justify-content:center;gap:6px;">
+          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width:14px;height:14px;">
+          <span>Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button></span>
+        </div>
       </div>
       <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
       <div id="loginLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
@@ -1582,12 +1654,15 @@ function closeAuth() {
 function confirmLogout() {
     currentUser=null;
     loginDate=null;
-    document.getElementById('headerLoginBtn').textContent='Вход в сеть';
+    document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
     // Сбрасываем плашку в мониторе
     const monitorPlate = document.getElementById('monitorUserPlate');
     if (monitorPlate) {
         monitorPlate.innerHTML = `
-            <div style="font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">Пробное звено</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
+              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
+              <span>Пробное звено</span>
+            </div>
             <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">дата подключения неизвестна</div>
         `;
     }
@@ -1648,7 +1723,7 @@ loginPinInputs.forEach((id,index)=>{
                         currentUser=user;
                         loginDate = new Date();
                         closeAuth();
-                        document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');
+                        document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
                         // Обновляем плашку в мониторе
                         const monitorPlate = document.getElementById('monitorUserPlate');
                         if (monitorPlate) {
@@ -1659,13 +1734,18 @@ loginPinInputs.forEach((id,index)=>{
                             });
                             console.log('Updating monitor plate with date:', dateStr); // Отладка
                             monitorPlate.innerHTML = `
-                                <div style="font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">Звено ${currentUser.id.toString().padStart(4,'0')}</div>
+                                <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
+                                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
+                                  <span>Звено ${currentUser.id.toString().padStart(4,'0')}</span>
+                                </div>
                                 <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">Дата подключения</div>
                                 <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">${dateStr}</div>
                             `;
                         } else {
                             console.log('Monitor plate not found'); // Отладка
                         }
+                        // Обновляем вкладку "Прогресс" если она открыта
+                        refreshProgressTab();
                     },1000);
                 },2000);
             } else {
@@ -1732,7 +1812,7 @@ function register(){
             currentUser=newUser;
             loginDate = new Date();
             closeAuth();
-            document.getElementById('headerLoginBtn').textContent='Звено '+currentUser.id.toString().padStart(4,'0');
+            document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
             // Обновляем плашку в мониторе
             const monitorPlate = document.getElementById('monitorUserPlate');
             if (monitorPlate) {
@@ -1743,13 +1823,18 @@ function register(){
                 });
                 console.log('Updating monitor plate (register) with date:', dateStr); // Отладка
                 monitorPlate.innerHTML = `
-                    <div style="font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">Звено ${currentUser.id.toString().padStart(4,'0')}</div>
+                    <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
+                      <span>Звено ${currentUser.id.toString().padStart(4,'0')}</span>
+                    </div>
                     <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">Дата подключения</div>
                     <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">${dateStr}</div>
                 `;
             } else {
                 console.log('Monitor plate not found (register)'); // Отладка
             }
+            // Обновляем вкладку "Прогресс" если она открыта
+            refreshProgressTab();
         },2500);
     },2000);
 }
@@ -1757,6 +1842,72 @@ function register(){
 // ============================================================
 // BROWSER TABS (Materials / Workouts / Progress)
 // ============================================================
+let activeInnerTab = 'materials'; // Track active inner tab
+
+function refreshProgressTab() {
+    // Refresh progress tab content if it's currently active
+    if (activeInnerTab === 'progress') {
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.innerHTML = renderProgress();
+        }
+    }
+}
+
+// Store all tab data for search
+let allBrowserItems = [];
+
+function updateAllBrowserItems() {
+    allBrowserItems = [];
+    
+    // Add materials
+    tabData.materials.forEach((item, index) => {
+        allBrowserItems.push({
+            type: 'materials',
+            index: index,
+            title: item.title,
+            desc: item.desc,
+            icon: item.icon
+        });
+    });
+    
+    // Add workouts
+    tabData.workouts.forEach((item, index) => {
+        allBrowserItems.push({
+            type: 'workouts',
+            index: index,
+            title: item.title,
+            desc: item.desc,
+            icon: item.icon
+        });
+    });
+    
+    // Add notes
+    userNotes.forEach(note => {
+        allBrowserItems.push({
+            type: 'progress',
+            subtype: 'note',
+            id: note.id,
+            title: note.title,
+            desc: note.description,
+            icon: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/e886b5b608c07e53417b231e710e7ace8dbb3932/note.svg'
+        });
+    });
+    
+    // Add achievements
+    userAchievements.forEach(achievement => {
+        allBrowserItems.push({
+            type: 'progress',
+            subtype: 'achievement',
+            id: achievement.id,
+            title: achievement.title,
+            desc: achievement.description,
+            icon: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4cecf715f68ab30916f1aea8a34de2cdac46ea20/puzzle.svg',
+            unlocked: achievement.unlocked
+        });
+    });
+}
+
 const TAB_DEFAULTS={
     materials:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg',
     workouts:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_workout.svg',
@@ -1776,19 +1927,119 @@ const tabData={
         {title:'День ног',desc:'Квадрицепсы, бицепсы бедра · 60 минут',icon:TAB_DEFAULTS.workouts}
     ]
 };
-function renderItemList(items){
-    return '<div class="materials-list">'+items.map(item=>
-        `<div class="material-item">
+function renderItemList(items, tabType){
+    return '<div class="materials-list">'+items.map((item, index)=>
+        `<div class="material-item clickable-item" data-item-type="${tabType}" data-item-index="${index}">
             <div class="material-icon"><img class="icon-gray" src="${item.icon}" alt=""></div>
             <div class="material-info"><h3>${item.title}</h3><p>${item.desc}</p></div>
          </div>`
     ).join('')+'</div>';
 }
 function renderProgress(){
+    // Если пользователь не залогинен - показываем приглашение
+    if (!currentUser) {
+        const html = `<div class="empty-state">
+            <div class="empty-state-icon" id="lottie-progress" style="width:234px;height:234px;margin:0 auto;"></div>
+            <h3>Прогресс и достижения</h3>
+            <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. <strong style="font-weight:600;white-space:nowrap;"><a href="#" onclick="document.getElementById('headerLoginBtn').click();return false;" style="color:var(--text-primary);text-decoration:none;cursor:pointer;">Войдите, чтобы увидеть больше.</a></strong></p>
+        </div>`;
+        
+        setTimeout(async () => {
+            const container = document.getElementById('lottie-progress');
+            if(container && !container.hasAnimation) {
+                try {
+                    const response = await fetch(TAB_DEFAULTS.progress);
+                    let data = await response.json();
+                    
+                    // Замена темного цвета на цвет фона браузера
+                    const replaceColors = (obj) => {
+                        if (Array.isArray(obj)) {
+                            return obj.map((item) => {
+                                if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
+                                    if ((item[0] === 0 && item[1] === 0 && item[2] === 0) ||
+                                        (item[0] < 0.1 && item[1] < 0.1 && item[2] < 0.1)) {
+                                        return [0.11, 0.11, 0.11, item[3]];
+                                    }
+                                }
+                                return replaceColors(item);
+                            });
+                        } else if (obj !== null && typeof obj === 'object') {
+                            const result = {};
+                            for (let key in obj) {
+                                result[key] = replaceColors(obj[key]);
+                            }
+                            return result;
+                        }
+                        return obj;
+                    };
+                    
+                    data = replaceColors(data);
+                    
+                    const animation = lottie.loadAnimation({
+                        container: container,
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        animationData: data
+                    });
+                    animation.setSpeed(0.5);
+                    container.hasAnimation = true;
+                } catch(e) {
+                    console.error('Error loading progress animation:', e);
+                }
+            }
+        }, 100);
+        
+        return html;
+    }
+    
+    // Если пользователь залогинен - показываем достижения и заметки
+    let html = '<div class="materials-list">';
+    
+    // Сначала показываем заметки
+    userNotes.forEach(note => {
+        html += `
+            <div class="material-item" data-note-id="${note.id}" data-item-type="note">
+                <div class="material-icon">
+                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/e886b5b608c07e53417b231e710e7ace8dbb3932/note.svg" alt="">
+                </div>
+                <div class="material-info">
+                    <h3>${note.title}</h3>
+                    <p>${note.description}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Затем показываем достижения
+    userAchievements.forEach(achievement => {
+        const lockIcon = achievement.unlocked ? '' : `
+            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/e886b5b608c07e53417b231e710e7ace8dbb3932/padlock.svg" 
+                 alt="Заблокировано" style="width:16px;height:16px;opacity:0.5;margin-left:auto;">
+        `;
+        
+        html += `
+            <div class="material-item" data-achievement-id="${achievement.id}" data-item-type="achievement" style="opacity:${achievement.unlocked ? '1' : '0.5'};">
+                <div class="material-icon">
+                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4cecf715f68ab30916f1aea8a34de2cdac46ea20/puzzle.svg" alt="">
+                </div>
+                <div class="material-info" style="flex:1;">
+                    <h3>${achievement.title}</h3>
+                    <p>${achievement.description}</p>
+                </div>
+                ${lockIcon}
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    return html;
+}
+function renderProgress_OLD(){
     const html = `<div class="empty-state">
         <div class="empty-state-icon" id="lottie-progress" style="width:234px;height:234px;margin:0 auto;"></div>
         <h3>Прогресс и достижения</h3>
-        <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. Начните тренироваться, чтобы увидеть свой путь к прогрессу!</p>
+        <p>Войдите, чтобы увидеть больше. <button onclick="document.getElementById('headerLoginBtn').click()" style="background:none;border:none;color:var(--text-primary);text-decoration:underline;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;">Войти в сеть</button></p>
     </div>`;
     setTimeout(async () => {
         const container = document.getElementById('lottie-progress');
@@ -1837,12 +2088,15 @@ function renderProgress(){
     }, 100);
     return html;
 }
-function getTabHTML(key){ return key==='progress'?renderProgress():renderItemList(tabData[key]); }
+function getTabHTML(key){ return key==='progress'?renderProgress():renderItemList(tabData[key], key); }
 
 // Initialize UI after DOM is ready
 // Attach click handlers to material items based on tab type
 function attachMaterialClickHandlers(tabType) {
-    const items = document.querySelectorAll('.material-item');
+    // Don't attach PDF handlers for progress tab
+    if (tabType === 'progress') return;
+    
+    const items = document.querySelectorAll('.clickable-item');
     items.forEach(item => {
         // avoid adding duplicate listeners
         if (item.dataset.pdfBound) return;
@@ -1879,6 +2133,7 @@ function initUI() {
                 // Фаза 2: Переключение вкладки (в момент полного исчезновения)
                 innerTabs.forEach(t=>t.classList.remove('active'));
                 tab.classList.add('active');
+                activeInnerTab = tab.dataset.inner; // Track active tab
                 mainContent.innerHTML = getTabHTML(tab.dataset.inner);
                 
                 // Фаза 3: Разблюривание и fade-in
@@ -2247,7 +2502,41 @@ function renderChatMessages(){
         </div>`;
         } else {
         container.innerHTML = messages.map(m => {
-            if (m.type === 'image') {
+            if (m.type === 'thinking') {
+                // Анимация "София думает/анализирует"
+                return `<div class="chat-message ${m.role}" style="background:transparent;border:none;padding:10px 0;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div id="lottie-thinking-${m.id}" style="width:22px;height:22px;flex-shrink:0;"></div>
+                        <span style="font-size:13px;color:var(--text-secondary);">София думает...</span>
+                    </div>
+                </div>`;
+            } else if (m.type === 'achievement') {
+                // Достижение
+                return `<div class="chat-message ${m.role}" onclick="event.preventDefault();highlightInBrowser('achievement', ${m.achievementId});return false;" style="cursor:pointer;">
+                    <div class="material-item" style="margin:0;cursor:pointer;">
+                        <div class="material-icon">
+                            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4cecf715f68ab30916f1aea8a34de2cdac46ea20/puzzle.svg" alt="">
+                        </div>
+                        <div class="material-info">
+                            <h3>${m.title}</h3>
+                            <p>${m.description}</p>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (m.type === 'note') {
+                // Заметка
+                return `<div class="chat-message ${m.role}" onclick="event.preventDefault();highlightInBrowser('note', ${m.noteId});return false;" style="cursor:pointer;">
+                    <div class="material-item" style="margin:0;cursor:pointer;">
+                        <div class="material-icon">
+                            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/e886b5b608c07e53417b231e710e7ace8dbb3932/note.svg" alt="">
+                        </div>
+                        <div class="material-info">
+                            <h3>${m.title}</h3>
+                            <p>${m.description}</p>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (m.type === 'image') {
                 // Картинка
                 return `<div class="chat-message ${m.role}">
                     <img class="chat-message-image" src="${m.src}" alt="${m.name}" onclick="openImageModal('${m.src}')">
@@ -2267,6 +2556,60 @@ function renderChatMessages(){
             }
         }).join('');
         container.scrollTop = container.scrollHeight;
+        
+        // Загружаем Lottie анимации для "думающих" сообщений
+        messages.forEach(m => {
+            if (m.type === 'thinking') {
+                setTimeout(async () => {
+                    const lottieContainer = document.getElementById(`lottie-thinking-${m.id}`);
+                    if(lottieContainer && !lottieContainer.hasAnimation) {
+                        try {
+                            const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                            let data = await response.json();
+                            
+                            // Замена белых и светлых цветов на серый (#797979)
+                            const replaceColors = (obj) => {
+                                if (Array.isArray(obj)) {
+                                    return obj.map((item) => {
+                                        if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
+                                            if ((item[0] > 0.8 && item[1] > 0.8 && item[2] > 0.8) ||
+                                                (item[0] === 1 && item[1] === 1 && item[2] === 1)) {
+                                                return [0.474, 0.474, 0.474, item[3]];
+                                            }
+                                        }
+                                        return replaceColors(item);
+                                    });
+                                } else if (obj !== null && typeof obj === 'object') {
+                                    const result = {};
+                                    for (let key in obj) {
+                                        result[key] = replaceColors(obj[key]);
+                                    }
+                                    return result;
+                                }
+                                return obj;
+                            };
+                            
+                            data = replaceColors(data);
+                            
+                            const animation = lottie.loadAnimation({
+                                container: lottieContainer,
+                                renderer: 'svg',
+                                loop: true,
+                                autoplay: true,
+                                animationData: data
+                            });
+                            animation.setSpeed(0.5);
+                            lottieContainer.hasAnimation = true;
+                            
+                            // Apply gray color filter to match text color
+                            lottieContainer.style.filter = 'invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%)';
+                        } catch(e) {
+                            console.error('Error loading thinking animation:', e);
+                        }
+                    }
+                }, 100);
+            }
+        });
     }
 }
 renderChatMessages();
@@ -2280,26 +2623,58 @@ function sendMessage(){
     
     if (!text && !hasFiles) return;
     
+    // Add "София думает..." before every Sofia response
+    const addThinkingMessage = () => {
+        const thinkingMessageId = Date.now();
+        chatStore[activeChatTab].push({
+            role:'ai', 
+            type:'thinking',
+            id: thinkingMessageId
+        });
+        return thinkingMessageId;
+    };
+    
+    // Calculate thinking time based on message length (1-10 seconds)
+    const calculateThinkingTime = (messageText) => {
+        const baseTime = 1000; // 1 second minimum
+        const maxTime = 10000; // 10 seconds maximum
+        const charCount = messageText.length;
+        // ~100 chars = 1 sec, ~1000 chars = 10 sec
+        const thinkingTime = Math.min(maxTime, baseTime + (charCount * 9));
+        return thinkingTime;
+    };
+    
     // Проверяем команду "София, покажи меня"
     if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('покажи меня')) {
         // Добавляем сообщение пользователя в чат
         if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
         chatStore[activeChatTab].push({role:'user', text: text});
         
-        // Сначала добавляем ответ Софии
-        chatStore[activeChatTab].push({
-            role:'ai', 
-            text: 'Активирую модуль биометрического мониторинга. Анализирую ваши показатели здоровья...'
-        });
-        
-        // Очищаем поле ввода и рендерим сообщения
+        // Добавляем "София думает..."
+        const thinkingId = addThinkingMessage();
         chatInput.value = '';
         renderChatMessages();
         
-        // Через 1 секунду активируем режим "Монитор"
+        const responseText = 'Активирую модуль биометрического мониторинга. Анализирую ваши показатели здоровья...';
+        const thinkingTime = calculateThinkingTime(responseText);
+        
+        // Через calculated time заменяем на ответ
         setTimeout(() => {
-            toggleMonitorMode();
-        }, 1000);
+            // Удаляем сообщение "думает"
+            chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+            
+            chatStore[activeChatTab].push({
+                role:'ai', 
+                text: 'Активирую модуль биометрического мониторинга. Анализирую ваши показатели здоровья...'
+            });
+            
+            renderChatMessages();
+            
+            // Через еще 1 секунду активируем режим "Монитор"
+            setTimeout(() => {
+                toggleMonitorMode();
+            }, 1000);
+        }, thinkingTime);
         
         return;
     }
@@ -2313,20 +2688,183 @@ function sendMessage(){
         if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
         chatStore[activeChatTab].push({role:'user', text: text});
         
-        // Добавляем ответ Софии
-        chatStore[activeChatTab].push({
-            role:'ai', 
-            text: `Устанавливаю пульс на ${newHeartRate} уд/мин. Корректирую параметры кардиограммы...`
-        });
-        
-        // Очищаем поле ввода и рендерим сообщения
+        // Добавляем "София думает..."
+        const thinkingId = addThinkingMessage();
         chatInput.value = '';
         renderChatMessages();
         
-        // Обновляем показатели пульса
-        updateHeartRate(newHeartRate);
+        const responseText = `Устанавливаю пульс на ${newHeartRate} уд/мин. Корректирую параметры кардиограммы...`;
+        const thinkingTime = calculateThinkingTime(responseText);
+        
+        // Через calculated time заменяем на ответ
+        setTimeout(() => {
+            // Удаляем сообщение "думает"
+            chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+            
+            chatStore[activeChatTab].push({
+                role:'ai', 
+                text: `Устанавливаю пульс на ${newHeartRate} уд/мин. Корректирую параметры кардиограммы...`
+            });
+            
+            renderChatMessages();
+            
+            // Обновляем показатели пульса
+            updateHeartRate(newHeartRate);
+        }, thinkingTime);
         
         return;
+    }
+    
+    // Проверяем команду "София, заметка" для добавления заметки
+    if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('заметка')) {
+        // Check if user is logged in
+        if (!currentUser) {
+            if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+            chatStore[activeChatTab].push({role:'user', text: text});
+            
+            const thinkingId = addThinkingMessage();
+            chatInput.value = '';
+            renderChatMessages();
+            
+            const responseText = 'Для работы с заметками необходимо войти в систему.';
+            const thinkingTime = calculateThinkingTime(responseText);
+            
+            setTimeout(() => {
+                chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+                chatStore[activeChatTab].push({role:'ai', text: responseText});
+                renderChatMessages();
+            }, thinkingTime);
+            
+            return;
+        }
+        
+        if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+        chatStore[activeChatTab].push({role:'user', text: text});
+        
+        // Добавляем "София думает..." с Lottie анимацией
+        const thinkingMessageId = Date.now();
+        chatStore[activeChatTab].push({
+            role:'ai', 
+            type:'thinking',
+            id: thinkingMessageId
+        });
+        chatInput.value = '';
+        renderChatMessages();
+        
+        const responseText = 'Добавляю заметку в твой профиль.';
+        const thinkingTime = calculateThinkingTime(responseText);
+        
+        // Через calculated time добавляем заметку
+        setTimeout(() => {
+            // Удаляем сообщение "думает"
+            chatStore[activeChatTab].pop();
+            
+            // Добавляем случайную заметку
+            const note = addNote();
+            
+            chatStore[activeChatTab].push({
+                role:'ai', 
+                text: `Добавляю заметку в твой профиль.`
+            });
+            
+            // Добавляем блок заметки в чат
+            chatStore[activeChatTab].push({
+                role:'ai',
+                type:'note',
+                noteId: note.id,
+                title: note.title,
+                description: note.description
+            });
+            
+            renderChatMessages();
+            
+            // Обновляем вкладку "Прогресс" сразу
+            refreshProgressTab();
+        }, thinkingTime);
+        
+        return;
+    }
+    
+    // Проверяем команду "София [название достижения]" для разблокировки достижения
+    const achievementMatch = text.match(/софия\s+(.+)/i);
+    if (achievementMatch && text.toLowerCase().includes('софия')) {
+        const achievementTitle = achievementMatch[1].trim();
+        
+        // Check if user is logged in
+        if (!currentUser) {
+            if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+            chatStore[activeChatTab].push({role:'user', text: text});
+            
+            const thinkingId = addThinkingMessage();
+            chatInput.value = '';
+            renderChatMessages();
+            
+            const responseText = 'Для работы с достижениями необходимо войти в систему.';
+            const thinkingTime = calculateThinkingTime(responseText);
+            
+            setTimeout(() => {
+                chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+                chatStore[activeChatTab].push({role:'ai', text: responseText});
+                renderChatMessages();
+            }, thinkingTime);
+            
+            return;
+        }
+        
+        // Проверяем, существует ли такое достижение
+        const achievement = userAchievements.find(a => 
+            a.title.toLowerCase() === achievementTitle.toLowerCase()
+        );
+        
+        if (achievement && !achievement.unlocked) {
+            if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+            chatStore[activeChatTab].push({role:'user', text: text});
+            
+            // Добавляем "София думает..." с Lottie анимацией
+            const thinkingMessageId = Date.now();
+            chatStore[activeChatTab].push({
+                role:'ai', 
+                type:'thinking',
+                id: thinkingMessageId
+            });
+            chatInput.value = '';
+            renderChatMessages();
+            
+            const responseText = `Вижу, пора присвоить тебе достижение "${achievementTitle}"! 🎉`;
+            const thinkingTime = calculateThinkingTime(responseText);
+            
+            // Через calculated time разблокируем достижение
+            setTimeout(() => {
+                // Удаляем сообщение "думает"
+                chatStore[activeChatTab].pop();
+                
+                // Разблокируем достижение
+                const unlockedAchievement = unlockAchievement(achievementTitle);
+                
+                if (unlockedAchievement) {
+                    chatStore[activeChatTab].push({
+                        role:'ai', 
+                        text: `Вижу, пора присвоить тебе достижение "${unlockedAchievement.title}"! 🎉`
+                    });
+                    
+                    // Добавляем блок достижения в чат
+                    chatStore[activeChatTab].push({
+                        role:'ai',
+                        type:'achievement',
+                        achievementId: unlockedAchievement.id,
+                        title: unlockedAchievement.title,
+                        description: unlockedAchievement.description
+                    });
+                }
+                
+                renderChatMessages();
+                
+                // Обновляем вкладку "Прогресс" сразу (не только если она открыта)
+                refreshProgressTab();
+            }, thinkingTime);
+            
+            return;
+        }
     }
     
     if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
@@ -2372,10 +2910,20 @@ function sendMessage(){
     renderFilePreview();
     renderChatMessages();
     
+    // Add thinking animation before Sofia's response
+    const thinkingId = addThinkingMessage();
+    renderChatMessages();
+    
+    const responseText = 'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.';
+    const thinkingTime = calculateThinkingTime(responseText);
+    
     setTimeout(() => {
-        chatStore[activeChatTab].push({role:'ai', text:'Спасибо за вопрос! Это демо-версия чата. Функционал Софии будет доработан позже.'});
+        // Remove thinking message
+        chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+        
+        chatStore[activeChatTab].push({role:'ai', text: responseText});
         renderChatMessages();
-    }, 800);
+    }, thinkingTime);
 }
 
 chatSend.addEventListener('click', sendMessage);
@@ -2739,6 +3287,8 @@ function initECGCanvas() {
 // ============================================================
 // ANIMATED VITAL SIGNS VALUES
 // ============================================================
+let vitalSignsIntervals = []; // Store interval IDs for cleanup
+
 function initVitalSignsAnimation() {
     // Base values for vital signs
     const baseValues = {
@@ -2764,9 +3314,18 @@ function initVitalSignsAnimation() {
     function updateValue(elementId, baseValue, fluctuation) {
         const element = document.getElementById(elementId);
         if (element) {
+            // Use currentHeartRate for pulse calculations if it's been manually set
+            let actualBaseValue = baseValue;
+            if (elementId === 'pulseValue' && currentHeartRate !== 72) {
+                actualBaseValue = currentHeartRate;
+            }
+            if (elementId === 'hrrValue' && currentHeartRate !== 72) {
+                actualBaseValue = currentHeartRate - Math.floor(Math.random() * 3 + 4);
+            }
+            
             // Generate random fluctuation
             const change = (Math.random() - 0.5) * 2 * fluctuation;
-            const newValue = Math.round(baseValue + change);
+            const newValue = Math.round(actualBaseValue + change);
             
             // Very smooth and slow transition effect
             element.style.transition = 'all 1.5s ease-in-out';
@@ -2779,10 +3338,14 @@ function initVitalSignsAnimation() {
         }
     }
     
+    // Clear existing intervals
+    vitalSignsIntervals.forEach(id => clearInterval(id));
+    vitalSignsIntervals = [];
+    
     // Start animations for each vital sign
-    setInterval(() => updateValue('pulseValue', baseValues.pulse, fluctuations.pulse), intervals.pulse);
-    setInterval(() => updateValue('hrrValue', baseValues.hrr, fluctuations.hrr), intervals.hrr);
-    setInterval(() => updateValue('oxygenValue', baseValues.oxygen, fluctuations.oxygen), intervals.oxygen);
+    vitalSignsIntervals.push(setInterval(() => updateValue('pulseValue', baseValues.pulse, fluctuations.pulse), intervals.pulse));
+    vitalSignsIntervals.push(setInterval(() => updateValue('hrrValue', baseValues.hrr, fluctuations.hrr), intervals.hrr));
+    vitalSignsIntervals.push(setInterval(() => updateValue('oxygenValue', baseValues.oxygen, fluctuations.oxygen), intervals.oxygen));
     
     // Initial random delay to stagger the updates (longer delays)
     setTimeout(() => updateValue('pulseValue', baseValues.pulse, fluctuations.pulse), Math.random() * 5000);
@@ -2871,6 +3434,364 @@ if (document.readyState === 'loading') {
     initECGCanvas();
     initVitalSignsAnimation();
 }
+
+// ============================================================
+// BROWSER SEARCH FUNCTIONALITY
+// ============================================================
+let isSearchActive = false;
+
+function toggleBrowserSearch() {
+    const wrap = document.getElementById('browserSearchWrap');
+    const input = document.getElementById('browserSearchInput');
+    const mainContent = document.getElementById('main-content');
+    
+    if (wrap.style.display === 'none') {
+        wrap.style.display = 'block';
+        input.focus();
+        isSearchActive = true;
+        // Update items list
+        updateAllBrowserItems();
+    } else {
+        wrap.style.display = 'none';
+        input.value = '';
+        isSearchActive = false;
+        // Restore current tab content
+        mainContent.innerHTML = getTabHTML(activeInnerTab);
+        attachMaterialClickHandlers(activeInnerTab);
+    }
+}
+
+function renderSearchResults(query) {
+    updateAllBrowserItems();
+    
+    const filtered = allBrowserItems.filter(item => {
+        const title = item.title.toLowerCase();
+        const desc = item.desc.toLowerCase();
+        return title.includes(query) || desc.includes(query);
+    });
+    
+    let html = '<div class="materials-list">';
+    
+    filtered.forEach(item => {
+        const lockIcon = (item.subtype === 'achievement' && !item.unlocked) ? `
+            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/e886b5b608c07e53417b231e710e7ace8dbb3932/padlock.svg" 
+                 alt="Заблокировано" style="width:16px;height:16px;opacity:0.5;margin-left:auto;">
+        ` : '';
+        
+        const opacity = (item.subtype === 'achievement' && !item.unlocked) ? '0.5' : '1';
+        
+        const dataAttrs = item.subtype ? 
+            `data-search-type="${item.type}" data-search-subtype="${item.subtype}" data-search-id="${item.id}"` :
+            `data-search-type="${item.type}" data-search-index="${item.index}"`;
+        
+        const itemClass = item.subtype ? 'material-item' : 'material-item clickable-item';
+        
+        html += `
+            <div class="${itemClass} search-result-item" ${dataAttrs} style="opacity:${opacity};cursor:pointer;">
+                <div class="material-icon">
+                    <img class="icon-gray" src="${item.icon}" alt="">
+                </div>
+                <div class="material-info" style="flex:1;">
+                    <h3>${item.title}</h3>
+                    <p>${item.desc}</p>
+                </div>
+                ${lockIcon}
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    return html;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const browserSearchInput = document.getElementById('browserSearchInput');
+    if (browserSearchInput) {
+        browserSearchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const mainContent = document.getElementById('main-content');
+            
+            if (query === '') {
+                // Show current tab content
+                mainContent.innerHTML = getTabHTML(activeInnerTab);
+                attachMaterialClickHandlers(activeInnerTab);
+            } else {
+                // Show search results
+                mainContent.innerHTML = renderSearchResults(query);
+                attachSearchResultHandlers();
+            }
+        });
+    }
+});
+
+function attachSearchResultHandlers() {
+    const items = document.querySelectorAll('.search-result-item');
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            const type = item.dataset.searchType;
+            const subtype = item.dataset.searchSubtype;
+            const id = item.dataset.searchId;
+            const index = item.dataset.searchIndex;
+            
+            // Close search
+            const wrap = document.getElementById('browserSearchWrap');
+            const input = document.getElementById('browserSearchInput');
+            wrap.style.display = 'none';
+            input.value = '';
+            isSearchActive = false;
+            
+            // Switch to appropriate tab
+            if (type === 'progress') {
+                switchToTab('progress');
+                setTimeout(() => {
+                    if (subtype === 'achievement') {
+                        highlightInBrowser('achievement', parseInt(id));
+                    } else if (subtype === 'note') {
+                        highlightInBrowser('note', parseInt(id));
+                    }
+                }, 400);
+            } else {
+                switchToTab(type);
+                setTimeout(() => {
+                    // Open PDF for materials/workouts
+                    const pdfType = type === 'materials' ? 'materials' : 'workouts';
+                    const pdfUrl = PDF_URLS[pdfType];
+                    const win = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+                    if (!win) {
+                        window.location.href = pdfUrl;
+                    }
+                }, 400);
+            }
+        });
+    });
+}
+
+function switchToTab(tabName) {
+    const tab = document.querySelector(`.inner-tab[data-inner="${tabName}"]`);
+    if (tab && !tab.classList.contains('active')) {
+        tab.click();
+    }
+}
+
+// ============================================================
+// HIGHLIGHT IN BROWSER FUNCTIONALITY
+// ============================================================
+function highlightInBrowser(type, id) {
+    setTimeout(() => {
+        // Check if browser is minimized and expand it first
+        const browserBlock = document.getElementById('browserBlock');
+        const isMinimized = browserBlock && browserBlock.classList.contains('collapsed');
+        
+        if (isMinimized) {
+            toggleMinimize('browserBlock');
+            // Wait for expansion animation
+            setTimeout(() => {
+                switchAndHighlight(type, id);
+            }, 800);
+        } else {
+            switchAndHighlight(type, id);
+        }
+    }, 0);
+}
+
+function switchAndHighlight(type, id) {
+    // Switch to progress tab if not already there
+    if (activeInnerTab !== 'progress') {
+        switchToTab('progress');
+        setTimeout(() => {
+            highlightElement(type, id);
+        }, 400);
+    } else {
+        highlightElement(type, id);
+    }
+}
+
+function highlightElement(type, id) {
+    let selector;
+    if (type === 'achievement') {
+        selector = `.material-item[data-achievement-id="${id}"]`;
+    } else if (type === 'note') {
+        selector = `.material-item[data-note-id="${id}"]`;
+    }
+    
+    const element = document.querySelector(selector);
+    if (element) {
+        // Scroll to element
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Add shimmer effect
+        element.classList.add('shimmer');
+        
+        // Remove shimmer class after animation completes
+        setTimeout(() => {
+            element.classList.remove('shimmer');
+        }, 1000);
+    }
+}
+
+// ============================================================
+// ACHIEVEMENTS AND NOTES SYSTEM
+// ============================================================
+
+// 25 Random achievements
+const ACHIEVEMENTS = [
+    { id: 1, title: "Первый шаг", description: "Начало пути к здоровому образу жизни", unlocked: false },
+    { id: 2, title: "Знаток анатомии", description: "Разбирается в строении мышечной системы", unlocked: false },
+    { id: 3, title: "Мастер кардио", description: "Понимает принципы аэробных тренировок", unlocked: false },
+    { id: 4, title: "Силовой атлет", description: "Освоил базовые силовые упражнения", unlocked: false },
+    { id: 5, title: "Гибкость тела", description: "Знает важность растяжки и мобильности", unlocked: false },
+    { id: 6, title: "Нутрициолог", description: "Понимает основы правильного питания", unlocked: false },
+    { id: 7, title: "Баланс БЖУ", description: "Разбирается в макронутриентах", unlocked: false },
+    { id: 8, title: "Гидратация", description: "Знает важность водного баланса", unlocked: false },
+    { id: 9, title: "Восстановление", description: "Понимает роль отдыха в прогрессе", unlocked: false },
+    { id: 10, title: "Сон - основа", description: "Осознает важность качественного сна", unlocked: false },
+    { id: 11, title: "Зоны пульса", description: "Разбирается в тренировочных зонах ЧСС", unlocked: false },
+    { id: 12, title: "Прогрессивная нагрузка", description: "Знает принцип постепенного увеличения", unlocked: false },
+    { id: 13, title: "Техника превыше всего", description: "Понимает важность правильной формы", unlocked: false },
+    { id: 14, title: "Разминка и заминка", description: "Не пропускает подготовку к тренировке", unlocked: false },
+    { id: 15, title: "Дыхание", description: "Освоил правильное дыхание при нагрузках", unlocked: false },
+    { id: 16, title: "Метаболизм", description: "Понимает процессы обмена веществ", unlocked: false },
+    { id: 17, title: "Гормональный баланс", description: "Знает роль гормонов в тренировках", unlocked: false },
+    { id: 18, title: "Суперкомпенсация", description: "Разбирается в адаптации организма", unlocked: false },
+    { id: 19, title: "Периодизация", description: "Понимает циклирование нагрузок", unlocked: false },
+    { id: 20, title: "Ментальная сила", description: "Развивает психологическую устойчивость", unlocked: false },
+    { id: 21, title: "Постановка целей", description: "Умеет ставить SMART-цели", unlocked: false },
+    { id: 22, title: "Дисциплина", description: "Следует плану тренировок регулярно", unlocked: false },
+    { id: 23, title: "Биомеханика", description: "Понимает механику движений тела", unlocked: false },
+    { id: 24, title: "Профилактика травм", description: "Знает как избежать повреждений", unlocked: false },
+    { id: 25, title: "Холистический подход", description: "Видит связь тела, разума и духа", unlocked: false }
+];
+
+const SAMPLE_NOTES = [
+    { title: "Прогресс в приседаниях", description: "Заметила улучшение техники и глубины приседа" },
+    { title: "Водный баланс", description: "Рекомендую увеличить потребление воды до 2.5л в день" },
+    { title: "Качество сна", description: "Обрати внимание на режим - ложись до 23:00" },
+    { title: "Восстановление", description: "Добавь день отдыха между силовыми тренировками" },
+    { title: "Питание до тренировки", description: "Углеводы за 1-2 часа дадут больше энергии" },
+    { title: "Растяжка", description: "Не забывай про 10 минут стретчинга после тренировки" },
+    { title: "Прогресс в весе", description: "Стабильное снижение - продолжай в том же духе" },
+    { title: "Техника дыхания", description: "Выдох на усилии помогает стабилизировать корпус" },
+    { title: "Разнообразие нагрузок", description: "Попробуй добавить плавание раз в неделю" },
+    { title: "Ментальное состояние", description: "Медитация 10 минут улучшит фокус на тренировках" }
+];
+
+let userAchievements = [...ACHIEVEMENTS];
+let userNotes = [];
+
+function unlockAchievement(achievementTitle) {
+    const achievement = userAchievements.find(a => 
+        a.title.toLowerCase() === achievementTitle.toLowerCase()
+    );
+    
+    if (achievement && !achievement.unlocked) {
+        achievement.unlocked = true;
+        return achievement;
+    }
+    return null;
+}
+
+function addNote(title, description) {
+    const note = {
+        id: Date.now(),
+        title: title || SAMPLE_NOTES[Math.floor(Math.random() * SAMPLE_NOTES.length)].title,
+        description: description || SAMPLE_NOTES[Math.floor(Math.random() * SAMPLE_NOTES.length)].description,
+        date: new Date()
+    };
+    userNotes.unshift(note);
+    return note;
+}
+
+// ============================================================
+// DYNAMIC FADE GRADIENTS FOR CHAT AND BROWSER
+// ============================================================
+
+// Update chat fade gradient based on scroll position
+function updateChatFadeGradient() {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+    
+    const atTop = container.scrollTop <= 5;
+    const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
+    
+    if (atTop && atBottom) {
+        // No scroll needed - no gradient
+        container.style.maskImage = 'none';
+        container.style.webkitMaskImage = 'none';
+    } else if (atTop) {
+        // At top - only bottom gradient
+        container.style.maskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
+        container.style.webkitMaskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
+    } else if (atBottom) {
+        // At bottom - only top gradient
+        container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
+        container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
+    } else {
+        // In middle - both gradients
+        container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
+        container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
+    }
+}
+
+// Update browser fade gradient based on scroll position
+function updateBrowserFadeGradient() {
+    const container = document.querySelector('.materials-list');
+    if (!container) return;
+    
+    const atTop = container.scrollTop <= 5;
+    const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
+    
+    if (atTop && atBottom) {
+        // No scroll needed - no gradient
+        container.style.maskImage = 'none';
+        container.style.webkitMaskImage = 'none';
+    } else if (atTop) {
+        // At top - only bottom gradient
+        container.style.maskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
+        container.style.webkitMaskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
+    } else if (atBottom) {
+        // At bottom - only top gradient
+        container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
+        container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
+    } else {
+        // In middle - both gradients
+        container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
+        container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
+    }
+}
+
+// Add scroll listeners and update on render
+const originalRenderChatMessages = renderChatMessages;
+renderChatMessages = function() {
+    originalRenderChatMessages();
+    setTimeout(updateChatFadeGradient, 100);
+};
+
+// Observer for materials-list (since it's dynamically created)
+const browserObserver = new MutationObserver(() => {
+    const materialsList = document.querySelector('.materials-list');
+    if (materialsList && !materialsList.hasScrollListener) {
+        materialsList.addEventListener('scroll', updateBrowserFadeGradient);
+        materialsList.hasScrollListener = true;
+        // Initial check
+        setTimeout(updateBrowserFadeGradient, 100);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+        chatMessages.addEventListener('scroll', updateChatFadeGradient);
+        // Initial check
+        setTimeout(updateChatFadeGradient, 100);
+    }
+    
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+        browserObserver.observe(mainContent, { childList: true, subtree: true });
+    }
+});
+
 </script>
 </body>
 </html>
