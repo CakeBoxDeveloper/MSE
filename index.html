@@ -3523,6 +3523,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    // Close search when clicking outside
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('browserSearchWrap');
+        const input = document.getElementById('browserSearchInput');
+        const searchBtn = document.querySelector('.btn-minimize[onclick*="toggleBrowserSearch"]');
+        
+        if (wrap && wrap.style.display !== 'none') {
+            // Check if click is outside search input and search button
+            if (!wrap.contains(e.target) && e.target !== searchBtn && !searchBtn.contains(e.target)) {
+                wrap.style.display = 'none';
+                input.value = '';
+                isSearchActive = false;
+                // Restore current tab content
+                const mainContent = document.getElementById('main-content');
+                mainContent.innerHTML = getTabHTML(activeInnerTab);
+                attachMaterialClickHandlers(activeInnerTab);
+            }
+        }
+    });
 });
 
 function attachSearchResultHandlers() {
@@ -3541,7 +3561,7 @@ function attachSearchResultHandlers() {
             input.value = '';
             isSearchActive = false;
             
-            // Switch to appropriate tab
+            // Switch to appropriate tab and highlight item
             if (type === 'progress') {
                 switchToTab('progress');
                 setTimeout(() => {
@@ -3552,19 +3572,33 @@ function attachSearchResultHandlers() {
                     }
                 }, 400);
             } else {
+                // For materials and workouts, switch to tab and highlight
                 switchToTab(type);
                 setTimeout(() => {
-                    // Open PDF for materials/workouts
-                    const pdfType = type === 'materials' ? 'materials' : 'workouts';
-                    const pdfUrl = PDF_URLS[pdfType];
-                    const win = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
-                    if (!win) {
-                        window.location.href = pdfUrl;
-                    }
+                    highlightMaterialItem(type, parseInt(index));
                 }, 400);
             }
         });
     });
+}
+
+function highlightMaterialItem(tabType, itemIndex) {
+    // Find the item by its index in the current tab
+    const items = document.querySelectorAll('.material-item');
+    const element = items[itemIndex];
+    
+    if (element) {
+        // Scroll to element
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Add shimmer effect
+        element.classList.add('shimmer');
+        
+        // Remove shimmer class after animation completes
+        setTimeout(() => {
+            element.classList.remove('shimmer');
+        }, 1000);
+    }
 }
 
 function switchToTab(tabName) {
