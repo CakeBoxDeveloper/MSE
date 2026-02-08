@@ -3,7 +3,8 @@
 <head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSE - Твой спортивный прогресс</title> 
+    <title>MSE - Mixed Sport Elements</title>
+    <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d3167612dcfc7a419e5df239ce7ef69b3c728ba6/MSESVG.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1764,7 +1765,14 @@ function closeAuth() {
 function confirmLogout() {
     currentUser=null;
     loginDate=null;
+    
+    // Clear all user data
+    userAchievements = ACHIEVEMENTS.map(a => ({...a, unlocked: false}));
+    userNotes = [];
+    chatStore = { sofia: [] }; // Reset chat
+    
     document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
+    
     // Сбрасываем плашку в мониторе
     const monitorPlate = document.getElementById('monitorUserPlate');
     if (monitorPlate) {
@@ -1776,12 +1784,17 @@ function confirmLogout() {
             <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">дата подключения неизвестна</div>
         `;
     }
+    
+    // Refresh UI
+    refreshProgressTab();
+    renderChatMessages();
+    
     closeAuth();
 }
 
 // ── Login ID check ──
 let loginIdChecked=false;
-function checkLoginId() {
+async function checkLoginId() {
     const input=document.getElementById('loginId');
     if(input.value.length>4) input.value=input.value.slice(0,4);
     const val=input.value.trim();
@@ -1789,7 +1802,20 @@ function checkLoginId() {
     input.classList.remove('error');
     if(val.length===4&&!loginIdChecked){
         const id=parseInt(val);
-        const exists=users.find(u=>u.id===id);
+        
+        // Check in local users first
+        let exists=users.find(u=>u.id===id);
+        
+        // If not found locally, check Firebase
+        if (!exists) {
+            const firebaseData = await loadUserFromFirebase(id);
+            if (firebaseData) {
+                // User exists in Firebase, add to local array
+                exists = { id: id, pin: firebaseData.pin || '0000' };
+                users.push(exists);
+            }
+        }
+        
         if(exists){
             loginIdChecked=true;
             document.getElementById('stepId').style.display='none';
@@ -1938,9 +1964,20 @@ function register(){
         setModalWidth(SUCCESS_WIDTH);
     }, 100);
     
-    setTimeout(()=>{
+    setTimeout(async ()=>{
         const newUser={id:userId,pin,createdAt:new Date().toISOString()};
-        users.push(newUser);currentUser=newUser;
+        users.push(newUser);
+        currentUser=newUser;
+        
+        // Save new user to Firebase
+        await saveUserToFirebase(userId, {
+            id: userId,
+            pin: pin,
+            createdAt: newUser.createdAt,
+            achievements: userAchievements,
+            notes: userNotes
+        });
+        
         document.getElementById('registerLoader').style.display='none';
         document.getElementById('registerSuccess').style.display='flex';
         document.getElementById('registerSuccess').querySelector('.success-text').innerHTML=
