@@ -1724,7 +1724,7 @@ function showLogin() {
     setTimeout(()=>document.getElementById('loginId').focus(),300);
 }
 
-function showRegister() {
+async function showRegister() {
     document.getElementById('loginContent').style.display='none';
     document.getElementById('loginToRegisterLoader').style.display='flex';
     
@@ -1733,11 +1733,24 @@ function showRegister() {
         setModalWidth(REG_WIDTH);
     }, 100);
     
+    // Find next available ID by checking both local and Firebase
+    let newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1001;
+    
+    // Check if ID exists in Firebase and increment until we find a free one
+    let idExists = true;
+    while (idExists) {
+        const firebaseData = await loadUserFromFirebase(newId);
+        if (!firebaseData) {
+            idExists = false; // ID is free
+        } else {
+            newId++; // Try next ID
+        }
+    }
+    
     setTimeout(()=>{
         document.getElementById('loginForm').style.display='none';
         document.getElementById('registerForm').style.display='block';
         document.getElementById('logoutModal').style.display='none';
-        const newId = users.length>0 ? Math.max(...users.map(u=>u.id))+1 : 1001;
         document.getElementById('newUserId').textContent = newId.toString().padStart(4,'0');
         document.getElementById('registerContent').style.display='block';
         ['pin1','pin2','pin3','pin4'].forEach(id=>document.getElementById(id).value='');
@@ -1769,7 +1782,15 @@ function confirmLogout() {
     // Clear all user data
     userAchievements = ACHIEVEMENTS.map(a => ({...a, unlocked: false}));
     userNotes = [];
-    chatStore = { sofia: [] }; // Reset chat
+    
+    // Reset chat to initial state with Sofia greeting
+    chatStore = { 
+        sofia: [{
+            role: 'ai',
+            text: 'Привет! Я София, твой персональный AI-тренер. Готова помочь тебе с тренировками, питанием и достижением целей. Чем могу быть полезна?'
+        }]
+    };
+    activeChatTab = 'sofia';
     
     document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
     
@@ -1785,10 +1806,19 @@ function confirmLogout() {
         `;
     }
     
-    // Refresh UI
+    // Refresh UI immediately
     refreshProgressTab();
     renderChatMessages();
     
+    // Force update the progress tab content if it's active
+    if (activeInnerTab === 'progress') {
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.innerHTML = renderProgress();
+        }
+    }
+    
+    // Close auth modal
     closeAuth();
 }
 
