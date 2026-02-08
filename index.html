@@ -3,7 +3,7 @@
 <head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mixed Sport Elements</title>
+    <title>MSE - Mixed Sport Elements</title>
     <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d3167612dcfc7a419e5df239ce7ef69b3c728ba6/MSESVG.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -338,8 +338,7 @@
             display:grid;
             gap:10px;
             overflow-y:auto;
-            flex:1;
-            min-height:0;
+            max-height:100%;
             scrollbar-width:none;
         }
         .materials-list::-webkit-scrollbar { display:none; }
@@ -654,7 +653,7 @@
 
         /* ─── AUTH MODAL ─── */
         .auth-overlay {
-            position:fixed;top:0;left:0;width:100%;height:1010%;background:rgba(0,0,0,.8);
+            position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);
             backdrop-filter:saturate(180%) blur(20px);z-index:1000;display:flex;align-items:center;
             justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;
         }
@@ -1377,13 +1376,10 @@
     <!-- LOGIN -->
     <div id="loginForm">
       <div id="loginContent">
-        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:16px;letter-spacing:-.3px;text-align:center;">ПОДКЛЮЧЕНИЕ К СЕТИ MSE</h2>
+        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px;text-align:center;">Вход в сеть</h2>
         <form class="auth-form" onsubmit="return false;">
           <div class="form-group" id="stepId">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:13px;font-weight:500;white-space:nowrap;">ЗВЕНО</span>
-              <input type="number" class="form-input" id="loginId" placeholder="0000" autocomplete="off" style="flex:1;min-width:0;text-align:center;font-weight:600;">
-            </div>
+            <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
           </div>
           <div id="loginTransitionLoader" style="display:none;"><div class="loader"></div></div>
           <div class="form-group" id="stepPin" style="display:none;">
@@ -1728,7 +1724,7 @@ function showLogin() {
     setTimeout(()=>document.getElementById('loginId').focus(),300);
 }
 
-async function showRegister() {
+function showRegister() {
     document.getElementById('loginContent').style.display='none';
     document.getElementById('loginToRegisterLoader').style.display='flex';
     
@@ -1737,25 +1733,11 @@ async function showRegister() {
         setModalWidth(REG_WIDTH);
     }, 100);
     
-    setTimeout(async ()=>{
+    setTimeout(()=>{
         document.getElementById('loginForm').style.display='none';
         document.getElementById('registerForm').style.display='block';
         document.getElementById('logoutModal').style.display='none';
-        
-        // Generate unique ID by checking Firebase
-        let newId = users.length>0 ? Math.max(...users.map(u=>u.id))+1 : 1001;
-        
-        // Check if ID exists in Firebase and increment until we find free one
-        let idExists = true;
-        while (idExists) {
-            const firebaseData = await loadUserFromFirebase(newId);
-            if (firebaseData) {
-                newId++; // ID exists, try next one
-            } else {
-                idExists = false; // ID is free
-            }
-        }
-        
+        const newId = users.length>0 ? Math.max(...users.map(u=>u.id))+1 : 1001;
         document.getElementById('newUserId').textContent = newId.toString().padStart(4,'0');
         document.getElementById('registerContent').style.display='block';
         ['pin1','pin2','pin3','pin4'].forEach(id=>document.getElementById(id).value='');
@@ -1787,15 +1769,7 @@ function confirmLogout() {
     // Clear all user data
     userAchievements = ACHIEVEMENTS.map(a => ({...a, unlocked: false}));
     userNotes = [];
-    
-    // Reset chat to initial state with Sofia greeting
-    chatStore = { 
-        sofia: [{
-            role: 'ai',
-            text: 'Привет! Я София, твой персональный AI-тренер. Готова помочь тебе с тренировками, питанием и достижением целей. Чем могу быть полезна?'
-        }]
-    };
-    activeChatTab = 'sofia';
+    chatStore = { sofia: [] }; // Reset chat
     
     document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
     
@@ -1811,25 +1785,11 @@ function confirmLogout() {
         `;
     }
     
-    // Refresh UI immediately
+    // Refresh UI
     refreshProgressTab();
     renderChatMessages();
     
-    // Force update the progress tab content if it's active
-    if (activeInnerTab === 'progress') {
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            mainContent.innerHTML = renderProgress();
-        }
-    }
-    
-    // Close auth modal with a small delay to ensure UI updates
-    setTimeout(() => {
-        const authOverlay = document.getElementById('authOverlay');
-        if (authOverlay) {
-            authOverlay.classList.remove('active');
-        }
-    }, 50);
+    closeAuth();
 }
 
 // ── Login ID check ──
@@ -2021,11 +1981,7 @@ function register(){
         document.getElementById('registerLoader').style.display='none';
         document.getElementById('registerSuccess').style.display='flex';
         document.getElementById('registerSuccess').querySelector('.success-text').innerHTML=
-            `<div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:12px;">
-                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width:20px;height:20px;">
-                <span style="font-size:14px;">Подключение выполнено</span>
-            </div>
-            <div style="font-size:32px;font-weight:700;text-align:center;letter-spacing:-1px;">#${userId.toString().padStart(4,'0')}</div>`;
+            `Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4,'0')}`;
         setTimeout(()=>{
             currentUser=newUser;
             loginDate = new Date();
@@ -3999,6 +3955,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    // Close search when clicking outside
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('browserSearchWrap');
+        const input = document.getElementById('browserSearchInput');
+        const searchBtn = document.querySelector('.btn-minimize[onclick*="toggleBrowserSearch"]');
+        
+        if (wrap && wrap.style.display !== 'none') {
+            // Check if click is outside search input and search button
+            if (!wrap.contains(e.target) && e.target !== searchBtn && !searchBtn.contains(e.target)) {
+                wrap.style.display = 'none';
+                input.value = '';
+                isSearchActive = false;
+                // Restore current tab content
+                const mainContent = document.getElementById('main-content');
+                mainContent.innerHTML = getTabHTML(activeInnerTab);
+                attachMaterialClickHandlers(activeInnerTab);
+            }
+        }
+    });
 });
 
 function attachSearchResultHandlers() {
@@ -4010,14 +3986,12 @@ function attachSearchResultHandlers() {
             const id = item.dataset.searchId;
             const index = item.dataset.searchIndex;
             
-            // Close search and clear input
+            // Close search
             const wrap = document.getElementById('browserSearchWrap');
             const input = document.getElementById('browserSearchInput');
-            if (wrap && input) {
-                wrap.style.display = 'none';
-                input.value = '';
-                isSearchActive = false;
-            }
+            wrap.style.display = 'none';
+            input.value = '';
+            isSearchActive = false;
             
             // Switch to appropriate tab and highlight item
             if (type === 'progress') {
