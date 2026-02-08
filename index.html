@@ -1776,10 +1776,12 @@ function closeAuth() {
 }
 
 function confirmLogout() {
+    console.log('confirmLogout called');
+    
+    // Clear all user data FIRST
     currentUser=null;
     loginDate=null;
     
-    // Clear all user data
     userAchievements = ACHIEVEMENTS.map(a => ({...a, unlocked: false}));
     userNotes = [];
     
@@ -1792,9 +1794,12 @@ function confirmLogout() {
     };
     activeChatTab = 'sofia';
     
+    console.log('Chat reset to:', chatStore);
+    
+    // Update header button
     document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
     
-    // Сбрасываем плашку в мониторе
+    // Reset monitor plate
     const monitorPlate = document.getElementById('monitorUserPlate');
     if (monitorPlate) {
         monitorPlate.innerHTML = `
@@ -1806,20 +1811,24 @@ function confirmLogout() {
         `;
     }
     
-    // Refresh UI immediately
-    refreshProgressTab();
-    renderChatMessages();
-    
-    // Force update the progress tab content if it's active
-    if (activeInnerTab === 'progress') {
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            mainContent.innerHTML = renderProgress();
-        }
+    // Update UI - refresh progress tab
+    const mainContent = document.getElementById('main-content');
+    if (mainContent && activeInnerTab === 'progress') {
+        console.log('Updating progress tab');
+        mainContent.innerHTML = renderProgress();
     }
     
-    // Close auth modal
-    closeAuth();
+    // Refresh chat messages
+    console.log('Rendering chat messages');
+    renderChatMessages();
+    
+    // Close modal - use direct DOM manipulation to ensure it closes
+    const authOverlay = document.getElementById('authOverlay');
+    console.log('Closing auth overlay:', authOverlay);
+    if (authOverlay) {
+        authOverlay.classList.remove('active');
+        console.log('Auth overlay closed, has active class:', authOverlay.classList.contains('active'));
+    }
 }
 
 // ── Login ID check ──
