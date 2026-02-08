@@ -3,8 +3,8 @@
 <head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSE - Mixed Sport Elements</title>
-    <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d3167612dcfc7a419e5df239ce7ef69b3c728ba6/MSESVG.svg">
+    <title>Mixed Sport Elements</title>
+    <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1376,7 +1376,7 @@
     <!-- LOGIN -->
     <div id="loginForm">
       <div id="loginContent">
-        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px;text-align:center;">Вход в сеть</h2>
+        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px;text-align:center;">Синхронизация с сетью MSE</h2>
         <form class="auth-form" onsubmit="return false;">
           <div class="form-group" id="stepId">
             <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
@@ -1401,7 +1401,10 @@
       </div>
       <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
       <div id="loginLoader" class="fullscreen-loader" style="display:none;"><div class="loader"></div></div>
-      <div id="loginSuccess" class="fullscreen-success" style="display:none;"><div class="success-text">Вход разрешён</div></div>
+      <div id="loginSuccess" class="fullscreen-success" style="display:none;">
+        <div id="lottie-login-chain" style="width:96px;height:96px;margin:0 auto 12px;"></div>
+        <div class="success-text">Синхронизация выполнена</div>
+      </div>
     </div>
     <!-- REGISTER -->
     <div id="registerForm" style="display:none;">
@@ -1440,8 +1443,8 @@
     <!-- LOGOUT -->
     <div id="logoutModal" style="display:none;">
       <div class="logout-modal">
-        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:12px;letter-spacing:-.3px;text-align:center;">Выход из сети</h2>
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.5;text-align:center;">Вы уверены, что хотите выйти из аккаунта?</p>
+        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:12px;letter-spacing:-.3px;text-align:center;">Отключиться от сети MSE</h2>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.5;text-align:center;">Вы уверены, что хотите прекратить синхронизацию?</p>
         <div class="auth-buttons">
           <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
           <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
@@ -1688,6 +1691,42 @@ async function saveMonitorStatsToFirebase(userId, stats) {
     }
 }
 
+// Save chats to Firebase
+async function saveChatsToFirebase(userId, chats) {
+    try {
+        const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
+        await window.firebaseUpdateDoc(userRef, {
+            chats: chats,
+            chatMetadata: chatMetadata,
+            pinnedChats: Array.from(pinnedChats),
+            lastUpdated: window.firebaseServerTimestamp()
+        });
+        console.log('Chats saved to Firebase');
+    } catch (error) {
+        console.error('Error saving chats:', error);
+    }
+}
+
+// Load chats from Firebase
+async function loadChatsFromFirebase(userId) {
+    try {
+        const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
+        const userSnap = await window.firebaseGetDoc(userRef);
+        
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            if (data.chats) {
+                console.log('Chats loaded from Firebase');
+                return data.chats;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error('Error loading chats:', error);
+        return null;
+    }
+}
+
 document.getElementById('headerLoginBtn').addEventListener('click', () => {
     currentUser ? showLogout() : showLogin();
 });
@@ -1776,59 +1815,110 @@ function closeAuth() {
 }
 
 function confirmLogout() {
-    console.log('confirmLogout called');
-    
-    // Clear all user data FIRST
-    currentUser=null;
-    loginDate=null;
-    
-    userAchievements = ACHIEVEMENTS.map(a => ({...a, unlocked: false}));
-    userNotes = [];
-    
-    // Reset chat to initial state with Sofia greeting
-    chatStore = { 
-        sofia: [{
-            role: 'ai',
-            text: 'Привет! Я София, твой персональный AI-тренер. Готова помочь тебе с тренировками, питанием и достижением целей. Чем могу быть полезна?'
-        }]
-    };
-    activeChatTab = 'sofia';
-    
-    console.log('Chat reset to:', chatStore);
-    
-    // Update header button
-    document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
-    
-    // Reset monitor plate
-    const monitorPlate = document.getElementById('monitorUserPlate');
-    if (monitorPlate) {
-        monitorPlate.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
-              <span>Пробное звено</span>
-            </div>
-            <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">дата подключения неизвестна</div>
-        `;
-    }
-    
-    // Update UI - refresh progress tab
+    // Add blur animation to main content areas
+    const chatMessages = document.getElementById('chat-messages');
     const mainContent = document.getElementById('main-content');
-    if (mainContent && activeInnerTab === 'progress') {
-        console.log('Updating progress tab');
-        mainContent.innerHTML = renderProgress();
+    const chatTabs = document.getElementById('chatTabs');
+    
+    // Phase 1: Blur in
+    if (chatMessages) {
+        chatMessages.style.transition = 'filter 0.4s ease, opacity 0.4s ease';
+        chatMessages.style.filter = 'blur(8px)';
+        chatMessages.style.opacity = '0.3';
+    }
+    if (mainContent) {
+        mainContent.style.transition = 'filter 0.4s ease, opacity 0.4s ease';
+        mainContent.style.filter = 'blur(8px)';
+        mainContent.style.opacity = '0.3';
+    }
+    if (chatTabs) {
+        chatTabs.style.transition = 'filter 0.4s ease, opacity 0.4s ease';
+        chatTabs.style.filter = 'blur(4px)';
+        chatTabs.style.opacity = '0.5';
     }
     
-    // Refresh chat messages
-    console.log('Rendering chat messages');
-    renderChatMessages();
-    
-    // Close modal - use direct DOM manipulation to ensure it closes
-    const authOverlay = document.getElementById('authOverlay');
-    console.log('Closing auth overlay:', authOverlay);
-    if (authOverlay) {
-        authOverlay.classList.remove('active');
-        console.log('Auth overlay closed, has active class:', authOverlay.classList.contains('active'));
-    }
+    // Phase 2: Update content after blur animation
+    setTimeout(() => {
+        // Clear all user data
+        currentUser=null;
+        loginDate=null;
+        
+        userAchievements = ACHIEVEMENTS.map(a => ({...a, unlocked: false}));
+        userNotes = [];
+        
+        // Reset chat to EMPTY state (will show lottie animation)
+        chatStore = { 
+            sofia: []  // Empty array will trigger the empty state with lottie
+        };
+        activeChatTab = 'sofia';
+        
+        // Remove all chat tabs except Sofia
+        const chatTabsContainer = document.getElementById('chatTabs');
+        if (chatTabsContainer) {
+            // Remove all tabs except the base Sofia tab
+            const allTabs = chatTabsContainer.querySelectorAll('.chat-tab');
+            allTabs.forEach(tab => {
+                if (!tab.dataset.base) {
+                    tab.remove();
+                } else {
+                    // Make sure Sofia tab is active
+                    tab.classList.add('active');
+                }
+            });
+        }
+        
+        // Reset chat counter
+        chatTabCounter = 1;
+        pinnedChats.clear();
+        
+        // Update header button
+        document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
+        
+        // Reset monitor plate
+        const monitorPlate = document.getElementById('monitorUserPlate');
+        if (monitorPlate) {
+            monitorPlate.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
+                  <span>Пробное звено</span>
+                </div>
+                <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">дата подключения неизвестна</div>
+            `;
+        }
+        
+        // Update UI - refresh progress tab
+        if (mainContent && activeInnerTab === 'progress') {
+            mainContent.innerHTML = renderProgress();
+        }
+        
+        // Refresh chat messages (will show empty state with lottie)
+        renderChatMessages();
+        
+        // Update scroll fade for chat tabs
+        updateChatScrollFade();
+        
+        // Close modal
+        const authOverlay = document.getElementById('authOverlay');
+        if (authOverlay) {
+            authOverlay.classList.remove('active');
+        }
+        
+        // Phase 3: Blur out (fade back in)
+        setTimeout(() => {
+            if (chatMessages) {
+                chatMessages.style.filter = 'blur(0px)';
+                chatMessages.style.opacity = '1';
+            }
+            if (mainContent) {
+                mainContent.style.filter = 'blur(0px)';
+                mainContent.style.opacity = '1';
+            }
+            if (chatTabs) {
+                chatTabs.style.filter = 'blur(0px)';
+                chatTabs.style.opacity = '1';
+            }
+        }, 100);
+    }, 400);
 }
 
 // ── Login ID check ──
@@ -1894,6 +1984,30 @@ loginPinInputs.forEach((id,index)=>{
                 setTimeout(()=>{
                     document.getElementById('loginLoader').style.display='none';
                     document.getElementById('loginSuccess').style.display='flex';
+                    
+                    // Load chain lottie animation for login success
+                    setTimeout(async () => {
+                        const container = document.getElementById('lottie-login-chain');
+                        if(container && !container.hasAnimation) {
+                            try {
+                                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Green%20Link%20Chain.json');
+                                const data = await response.json();
+                                
+                                const animation = lottie.loadAnimation({
+                                    container: container,
+                                    renderer: 'svg',
+                                    loop: true,
+                                    autoplay: true,
+                                    animationData: data
+                                });
+                                animation.setSpeed(1);
+                                container.hasAnimation = true;
+                            } catch(e) {
+                                console.error('Error loading chain animation:', e);
+                            }
+                        }
+                    }, 100);
+                    
                     setTimeout(async ()=>{
                         currentUser=user;
                         loginDate = new Date();
@@ -1914,13 +2028,73 @@ loginPinInputs.forEach((id,index)=>{
                                 // Apply monitor stats if needed
                                 console.log('Monitor stats loaded:', firebaseData.monitorStats);
                             }
+                            // Load chats
+                            if (firebaseData.chats) {
+                                chatStore = firebaseData.chats;
+                                
+                                // Load metadata
+                                if (firebaseData.chatMetadata) {
+                                    chatMetadata = firebaseData.chatMetadata;
+                                }
+                                
+                                // Load pinned chats
+                                if (firebaseData.pinnedChats) {
+                                    pinnedChats = new Set(firebaseData.pinnedChats);
+                                }
+                                
+                                // Recreate chat tabs
+                                const chatTabsContainer = document.getElementById('chatTabs');
+                                const sofiaTab = chatTabsContainer.querySelector('.chat-tab[data-base="true"]');
+                                
+                                // Remove all tabs except Sofia
+                                chatTabsContainer.querySelectorAll('.chat-tab:not([data-base])').forEach(tab => tab.remove());
+                                
+                                // Get all chat IDs except sofia
+                                const chatIds = Object.keys(chatStore).filter(id => id !== 'sofia');
+                                
+                                // Sort: pinned first, then unpinned
+                                const pinnedIds = chatIds.filter(id => pinnedChats.has(id));
+                                const unpinnedIds = chatIds.filter(id => !pinnedChats.has(id));
+                                const sortedIds = [...pinnedIds, ...unpinnedIds];
+                                
+                                // Add tabs in sorted order
+                                sortedIds.forEach(chatId => {
+                                    const chatNumber = chatId.replace('chat', '');
+                                    const chatName = chatMetadata[chatId]?.name || ('Чат ' + chatNumber);
+                                    const tab = createChatTabElement(chatId, chatName, false);
+                                    
+                                    // Restore pinned state
+                                    if (pinnedChats.has(chatId)) {
+                                        tab.classList.add('pinned');
+                                        // Insert after Sofia (or after last pinned)
+                                        if (sofiaTab) {
+                                            sofiaTab.after(tab);
+                                        } else {
+                                            chatTabsContainer.appendChild(tab);
+                                        }
+                                    } else {
+                                        // Append to end
+                                        chatTabsContainer.appendChild(tab);
+                                    }
+                                    
+                                    // Update counter to avoid duplicates
+                                    const num = parseInt(chatNumber);
+                                    if (num >= chatTabCounter) {
+                                        chatTabCounter = num + 1;
+                                    }
+                                });
+                                
+                                updateChatScrollFade();
+                                console.log('Chats loaded from Firebase');
+                            }
                         } else {
                             // First time login - save initial data
                             await saveUserToFirebase(user.id, {
                                 id: user.id,
                                 createdAt: user.createdAt,
                                 achievements: userAchievements,
-                                notes: userNotes
+                                notes: userNotes,
+                                chats: chatStore
                             });
                         }
                         
@@ -2020,7 +2194,33 @@ function register(){
         document.getElementById('registerLoader').style.display='none';
         document.getElementById('registerSuccess').style.display='flex';
         document.getElementById('registerSuccess').querySelector('.success-text').innerHTML=
-            `Подключение выполнено, присоединилось новое звено #${userId.toString().padStart(4,'0')}`;
+            `<div id="lottie-register-chain" style="width:96px;height:96px;margin:0 auto 12px;"></div>
+            <div style="font-size:15px;line-height:1.6;margin-bottom:12px;">Подключение выполнено, присоединилось новое звено</div>
+            <div style="font-size:32px;font-weight:700;letter-spacing:24px;width:100%;text-align:center;">#${userId.toString().padStart(4,'0')}</div>`;
+        
+        // Load chain lottie animation
+        setTimeout(async () => {
+            const container = document.getElementById('lottie-register-chain');
+            if(container && !container.hasAnimation) {
+                try {
+                    const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Green%20Link%20Chain.json');
+                    const data = await response.json();
+                    
+                    const animation = lottie.loadAnimation({
+                        container: container,
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        animationData: data
+                    });
+                    animation.setSpeed(1);
+                    container.hasAnimation = true;
+                } catch(e) {
+                    console.error('Error loading chain animation:', e);
+                }
+            }
+        }, 100);
+        
         setTimeout(()=>{
             currentUser=newUser;
             loginDate = new Date();
@@ -2154,7 +2354,7 @@ function renderProgress(){
         const html = `<div class="empty-state">
             <div class="empty-state-icon" id="lottie-progress" style="width:234px;height:234px;margin:0 auto;"></div>
             <h3>Прогресс и достижения</h3>
-            <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. <strong style="font-weight:600;white-space:nowrap;"><a href="#" onclick="document.getElementById('headerLoginBtn').click();return false;" style="color:var(--text-primary);text-decoration:none;cursor:pointer;">Войдите, чтобы увидеть больше.</a></strong></p>
+            <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. <strong style="font-weight:600;white-space:nowrap;"><a href="#" onclick="document.getElementById('headerLoginBtn').click();return false;" style="color:var(--text-primary);text-decoration:none;cursor:pointer;">Пройдите синхронизацию, чтобы узнать больше.</a></strong></p>
         </div>`;
         
         setTimeout(async () => {
@@ -2613,6 +2813,7 @@ function executeAIActions(actions) {
 let chatTabCounter = 1;
 let activeChatTab  = 'sofia';
 let chatStore      = { sofia: [] };
+let chatMetadata   = {}; // Store chat names and pinned status
 let openMenu       = null;
 let pinnedChats    = new Set();
 
@@ -2729,6 +2930,13 @@ wrap.style.top = rect.bottom + 6 + 'px';
         const newName = input.value.trim();
         if (newName && newName !== nameSpan.textContent) {
             nameSpan.textContent = newName;
+            // Save to metadata
+            if (!chatMetadata[id]) chatMetadata[id] = {};
+            chatMetadata[id].name = newName;
+            // Auto-save to Firebase
+            if (currentUser) {
+                saveChatsToFirebase(currentUser.id, chatStore);
+            }
         }
         wrap.remove();
     });
@@ -2738,6 +2946,13 @@ wrap.style.top = rect.bottom + 6 + 'px';
             const newName = input.value.trim();
             if (newName && newName !== nameSpan.textContent) {
                 nameSpan.textContent = newName;
+                // Save to metadata
+                if (!chatMetadata[id]) chatMetadata[id] = {};
+                chatMetadata[id].name = newName;
+                // Auto-save to Firebase
+                if (currentUser) {
+                    saveChatsToFirebase(currentUser.id, chatStore);
+                }
             }
             wrap.remove();
         }
@@ -2788,6 +3003,11 @@ function togglePinChat(id, tabElement) {
             sofiaTab.after(tabElement);
         }
     }
+    
+    // Auto-save to Firebase
+    if (currentUser) {
+        saveChatsToFirebase(currentUser.id, chatStore);
+    }
 }
 
 function addChatTab(){
@@ -2797,6 +3017,11 @@ function addChatTab(){
     document.getElementById('chatTabs').appendChild(tab);
     switchChatTab(id);
     updateChatScrollFade();
+    
+    // Auto-save chats to Firebase
+    if (currentUser) {
+        saveChatsToFirebase(currentUser.id, chatStore);
+    }
 }
 
 function deleteChatTab(id) {
@@ -2807,6 +3032,11 @@ function deleteChatTab(id) {
         pinnedChats.delete(id);
         if (activeChatTab === id) switchChatTab('sofia');
         updateChatScrollFade();
+        
+        // Auto-save chats to Firebase
+        if (currentUser) {
+            saveChatsToFirebase(currentUser.id, chatStore);
+        }
     }
 }
 
@@ -3075,10 +3305,20 @@ function sendMessage(){
     
     if (!text && !hasFiles) return;
     
+    // ВАЖНО: Запоминаем активный чат в момент отправки
+    const targetChatTab = activeChatTab;
+    
+    // Helper function to render only if we're still in the same chat
+    const safeRenderChatMessages = () => {
+        if (activeChatTab === targetChatTab) {
+            renderChatMessages();
+        }
+    };
+    
     // Add "София думает..." before every Sofia response
     const addThinkingMessage = () => {
         const thinkingMessageId = Date.now();
-        chatStore[activeChatTab].push({
+        chatStore[targetChatTab].push({
             role:'ai', 
             type:'thinking',
             id: thinkingMessageId
@@ -3099,13 +3339,13 @@ function sendMessage(){
     // Проверяем команду "София, покажи меня"
     if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('покажи меня')) {
         // Добавляем сообщение пользователя в чат
-        if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
-        chatStore[activeChatTab].push({role:'user', text: text});
+        if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+        chatStore[targetChatTab].push({role:'user', text: text});
         
         // Добавляем "София думает..."
         const thinkingId = addThinkingMessage();
         chatInput.value = '';
-        renderChatMessages();
+        safeRenderChatMessages();
         
         const responseText = 'Активирую модуль биометрического мониторинга. Анализирую ваши показатели здоровья...';
         const thinkingTime = calculateThinkingTime(responseText);
@@ -3113,14 +3353,14 @@ function sendMessage(){
         // Через calculated time заменяем на ответ
         setTimeout(() => {
             // Удаляем сообщение "думает"
-            chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
             
-            chatStore[activeChatTab].push({
+            chatStore[targetChatTab].push({
                 role:'ai', 
                 text: 'Активирую модуль биометрического мониторинга. Анализирую ваши показатели здоровья...'
             });
             
-            renderChatMessages();
+            safeRenderChatMessages();
             
             // Через еще 1 секунду активируем режим "Монитор"
             setTimeout(() => {
@@ -3137,13 +3377,13 @@ function sendMessage(){
         const newHeartRate = parseInt(heartRateMatch[1]);
         
         // Добавляем сообщение пользователя в чат
-        if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
-        chatStore[activeChatTab].push({role:'user', text: text});
+        if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+        chatStore[targetChatTab].push({role:'user', text: text});
         
         // Добавляем "София думает..."
         const thinkingId = addThinkingMessage();
         chatInput.value = '';
-        renderChatMessages();
+        safeRenderChatMessages();
         
         const responseText = `Устанавливаю пульс на ${newHeartRate} уд/мин. Корректирую параметры кардиограммы...`;
         const thinkingTime = calculateThinkingTime(responseText);
@@ -3151,14 +3391,14 @@ function sendMessage(){
         // Через calculated time заменяем на ответ
         setTimeout(() => {
             // Удаляем сообщение "думает"
-            chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
             
-            chatStore[activeChatTab].push({
+            chatStore[targetChatTab].push({
                 role:'ai', 
                 text: `Устанавливаю пульс на ${newHeartRate} уд/мин. Корректирую параметры кардиограммы...`
             });
             
-            renderChatMessages();
+            safeRenderChatMessages();
             
             // Обновляем показатели пульса
             updateHeartRate(newHeartRate);
@@ -3171,37 +3411,37 @@ function sendMessage(){
     if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('заметка')) {
         // Check if user is logged in
         if (!currentUser) {
-            if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
-            chatStore[activeChatTab].push({role:'user', text: text});
+            if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+            chatStore[targetChatTab].push({role:'user', text: text});
             
             const thinkingId = addThinkingMessage();
             chatInput.value = '';
-            renderChatMessages();
+            safeRenderChatMessages();
             
             const responseText = 'Для работы с заметками необходимо войти в систему.';
             const thinkingTime = calculateThinkingTime(responseText);
             
             setTimeout(() => {
-                chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
-                chatStore[activeChatTab].push({role:'ai', text: responseText});
-                renderChatMessages();
+                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                chatStore[targetChatTab].push({role:'ai', text: responseText});
+                safeRenderChatMessages();
             }, thinkingTime);
             
             return;
         }
         
-        if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
-        chatStore[activeChatTab].push({role:'user', text: text});
+        if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+        chatStore[targetChatTab].push({role:'user', text: text});
         
         // Добавляем "София думает..." с Lottie анимацией
         const thinkingMessageId = Date.now();
-        chatStore[activeChatTab].push({
+        chatStore[targetChatTab].push({
             role:'ai', 
             type:'thinking',
             id: thinkingMessageId
         });
         chatInput.value = '';
-        renderChatMessages();
+        safeRenderChatMessages();
         
         const responseText = 'Добавляю заметку в твой профиль.';
         const thinkingTime = calculateThinkingTime(responseText);
@@ -3209,18 +3449,18 @@ function sendMessage(){
         // Через calculated time добавляем заметку
         setTimeout(() => {
             // Удаляем сообщение "думает"
-            chatStore[activeChatTab].pop();
+            chatStore[targetChatTab].pop();
             
             // Добавляем случайную заметку
             const note = addNote();
             
-            chatStore[activeChatTab].push({
+            chatStore[targetChatTab].push({
                 role:'ai', 
                 text: `Добавляю заметку в твой профиль.`
             });
             
             // Добавляем блок заметки в чат
-            chatStore[activeChatTab].push({
+            chatStore[targetChatTab].push({
                 role:'ai',
                 type:'note',
                 noteId: note.id,
@@ -3228,7 +3468,7 @@ function sendMessage(){
                 description: note.description
             });
             
-            renderChatMessages();
+            safeRenderChatMessages();
             
             // Обновляем вкладку "Прогресс" сразу
             refreshProgressTab();
@@ -3244,20 +3484,20 @@ function sendMessage(){
         
         // Check if user is logged in
         if (!currentUser) {
-            if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
-            chatStore[activeChatTab].push({role:'user', text: text});
+            if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+            chatStore[targetChatTab].push({role:'user', text: text});
             
             const thinkingId = addThinkingMessage();
             chatInput.value = '';
-            renderChatMessages();
+            safeRenderChatMessages();
             
             const responseText = 'Для работы с достижениями необходимо войти в систему.';
             const thinkingTime = calculateThinkingTime(responseText);
             
             setTimeout(() => {
-                chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
-                chatStore[activeChatTab].push({role:'ai', text: responseText});
-                renderChatMessages();
+                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                chatStore[targetChatTab].push({role:'ai', text: responseText});
+                safeRenderChatMessages();
             }, thinkingTime);
             
             return;
@@ -3269,18 +3509,18 @@ function sendMessage(){
         );
         
         if (achievement && !achievement.unlocked) {
-            if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
-            chatStore[activeChatTab].push({role:'user', text: text});
+            if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+            chatStore[targetChatTab].push({role:'user', text: text});
             
             // Добавляем "София думает..." с Lottie анимацией
             const thinkingMessageId = Date.now();
-            chatStore[activeChatTab].push({
+            chatStore[targetChatTab].push({
                 role:'ai', 
                 type:'thinking',
                 id: thinkingMessageId
             });
             chatInput.value = '';
-            renderChatMessages();
+            safeRenderChatMessages();
             
             const responseText = `Вижу, пора присвоить тебе достижение "${achievementTitle}"! 🎉`;
             const thinkingTime = calculateThinkingTime(responseText);
@@ -3288,19 +3528,19 @@ function sendMessage(){
             // Через calculated time разблокируем достижение
             setTimeout(() => {
                 // Удаляем сообщение "думает"
-                chatStore[activeChatTab].pop();
+                chatStore[targetChatTab].pop();
                 
                 // Разблокируем достижение
                 const unlockedAchievement = unlockAchievement(achievementTitle);
                 
                 if (unlockedAchievement) {
-                    chatStore[activeChatTab].push({
+                    chatStore[targetChatTab].push({
                         role:'ai', 
                         text: `Вижу, пора присвоить тебе достижение "${unlockedAchievement.title}"! 🎉`
                     });
                     
                     // Добавляем блок достижения в чат
-                    chatStore[activeChatTab].push({
+                    chatStore[targetChatTab].push({
                         role:'ai',
                         type:'achievement',
                         achievementId: unlockedAchievement.id,
@@ -3309,7 +3549,7 @@ function sendMessage(){
                     });
                 }
                 
-                renderChatMessages();
+                safeRenderChatMessages();
                 
                 // Обновляем вкладку "Прогресс" сразу (не только если она открыта)
                 refreshProgressTab();
@@ -3319,11 +3559,11 @@ function sendMessage(){
         }
     }
     
-    if (!chatStore[activeChatTab]) chatStore[activeChatTab] = [];
+    if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
     
     // Отправляем текст как отдельное сообщение (если есть)
     if (text) {
-        chatStore[activeChatTab].push({role:'user', text: text});
+        chatStore[targetChatTab].push({role:'user', text: text});
     }
     
     // Отправляем каждый файл как отдельное сообщение
@@ -3337,19 +3577,19 @@ function sendMessage(){
             // For single image attachments we create a data URL preview
             const reader = new FileReader();
             reader.onload = function(e) {
-                chatStore[activeChatTab].push({
+                chatStore[targetChatTab].push({
                     role:'user', 
                     type:'image',
                     src: e.target.result,
                     name: file.name || 'Изображение'
                 });
-                renderChatMessages();
+                safeRenderChatMessages();
             };
             reader.readAsDataURL(file);
         } else {
             // Treat as generic file (no preview)
             const ext = file.name ? file.name.split('.').pop() : 'file';
-            chatStore[activeChatTab].push({
+            chatStore[targetChatTab].push({
                 role:'user',
                 type:'file',
                 name: file.name || `attach.${ext}`
@@ -3360,41 +3600,49 @@ function sendMessage(){
     chatInput.value = '';
     attachedFiles = [];
     renderFilePreview();
-    renderChatMessages();
+    safeRenderChatMessages();
     
     // Add thinking animation before Sofia's response
     const thinkingId = addThinkingMessage();
-    renderChatMessages();
+    safeRenderChatMessages();
     
     // Call Gemini AI
     const userMessageText = text || 'Файл прикреплён';
-    callGeminiAPI(userMessageText, chatStore[activeChatTab]).then(aiResult => {
+    callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
         const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
         const thinkingTime = calculateThinkingTime(responseText);
         
         setTimeout(() => {
             // Remove thinking message
-            chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
+            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
             
             // Add AI text response
-            chatStore[activeChatTab].push({role:'ai', text: responseText});
+            chatStore[targetChatTab].push({role:'ai', text: responseText});
             
             // Execute AI actions (achievements, notes, etc.)
             executeAIActions(aiResult.actions);
             
-            renderChatMessages();
+            safeRenderChatMessages();
         }, thinkingTime);
     }).catch(error => {
         console.error('AI error:', error);
         setTimeout(() => {
-            chatStore[activeChatTab] = chatStore[activeChatTab].filter(m => m.id !== thinkingId);
-            chatStore[activeChatTab].push({
+            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+            chatStore[targetChatTab].push({
                 role:'ai', 
                 text: 'Извини, произошла ошибка при обработке запроса. Попробуй ещё раз. 🔧'
             });
-            renderChatMessages();
+            safeRenderChatMessages();
         }, 1000);
     });
+    
+    // Auto-save chats to Firebase (with debounce)
+    if (currentUser) {
+        clearTimeout(window.chatSaveTimeout);
+        window.chatSaveTimeout = setTimeout(() => {
+            saveChatsToFirebase(currentUser.id, chatStore);
+        }, 2000); // Save after 2 seconds of inactivity
+    }
 }
 
 chatSend.addEventListener('click', sendMessage);
