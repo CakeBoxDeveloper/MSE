@@ -339,8 +339,6 @@
             gap:10px;
             overflow-y:auto;
             max-height:100%;
-            flex:1; /* ДОБАВЛЕНО - позволяет списку занимать доступное пространство */
-            min-height:0; /* ДОБАВЛЕНО - позволяет overflow работать правильно */
             scrollbar-width:none;
         }
         .materials-list::-webkit-scrollbar { display:none; }
@@ -4000,9 +3998,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
-    // Close search when clicking outside - REMOVED
-    // User wants search to stay open until manually closed or cleared
 });
 
 function attachSearchResultHandlers() {
