@@ -1769,7 +1769,15 @@ function confirmLogout() {
     // Clear all user data
     userAchievements = ACHIEVEMENTS.map(a => ({...a, unlocked: false}));
     userNotes = [];
-    chatStore = { sofia: [] }; // Reset chat
+    
+    // Reset chat to initial state with Sofia greeting
+    chatStore = { 
+        sofia: [{
+            role: 'ai',
+            text: 'Привет! Я София, твой персональный AI-тренер. Готова помочь тебе с тренировками, питанием и достижением целей. Чем могу быть полезна?'
+        }]
+    };
+    activeChatTab = 'sofia';
     
     document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
     
@@ -1789,6 +1797,7 @@ function confirmLogout() {
     refreshProgressTab();
     renderChatMessages();
     
+    // Close auth modal
     closeAuth();
 }
 
