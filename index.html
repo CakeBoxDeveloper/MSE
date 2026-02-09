@@ -918,8 +918,7 @@
         .auth-overlay.active { opacity:1;pointer-events:all; }
 
         .auth-modal {
-            background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:5px;padding:24px;
-            backdrop-filter:saturate(180%) blur(20px);
+            background:rgba(28,28,28,1);border:1px solid var(--glass-border);border-radius:5px;padding:24px;
             width:320px; /* Фиксированная начальная ширина */
             max-width:calc(100% - 40px);
             /* ПЛАВНОЕ изменение размера */
@@ -943,11 +942,11 @@
         .form-input[type="number"]::-webkit-outer-spin-button,
         .form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
-        .pin-input-container { display:flex;gap:12px;justify-content:space-between;margin:0 0 16px 0;width:100%; }
+        .pin-input-container { display:flex;gap:0;justify-content:space-between;margin:0;width:100%; }
         .pin-digit {
-            flex:1;min-width:0;height:60px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
+            width:60px;height:60px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:24px;
-            font-weight:600;text-align:center;transition:all .2s ease;
+            font-weight:600;text-align:center;transition:all .2s ease;flex-shrink:0;
         }
         .pin-digit.error { border-color:rgba(255,80,80,.5) !important; }
         .pin-digit:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3); }
@@ -956,7 +955,7 @@
         .pin-digit[type="number"]::-webkit-outer-spin-button,
         .pin-digit[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
-        .auth-buttons { display:flex;gap:8px;margin-top:8px;width:100%; }
+        .auth-buttons { display:flex;gap:8px;margin-top:0;width:100%; }
         .auth-btn {
             flex:1;padding:10px 16px;background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
@@ -970,7 +969,7 @@
         .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:12px; }
 
         /* Register form */
-        .register-form-content { display:flex;flex-direction:column;align-items:stretch;width:100%;gap:16px; }
+        .register-form-content { display:flex;flex-direction:column;align-items:stretch;width:100%;gap:20px; }
         .register-form-content .auth-header { font-size:18px;font-weight:600;letter-spacing:-.3px;text-align:center;width:100%; }
         .user-id-display {
             padding:16px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
@@ -979,15 +978,15 @@
         }
         .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
         .user-id-number { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
-        .register-form-content .auth-form { width:100%;display:flex;flex-direction:column;gap:0; }
+        .register-form-content .auth-form { width:100%;display:flex;flex-direction:column;gap:20px; }
         .register-form-content .form-label-key {
-            text-align:center;font-size:14px;font-weight:600;
+            text-align:center;font-size:16px;font-weight:600;
             display:flex;align-items:center;justify-content:center;gap:8px;
-            width:100%;margin:0 0 16px 0;
+            width:100%;margin:0;
         }
         .key-icon { width:20px;height:20px; }
 
-        .checkbox-group { display:flex;align-items:center;gap:8px;width:100%; }
+        .checkbox-group { display:flex;align-items:flex-start;gap:8px;width:100%; }
         .checkbox-group input[type="checkbox"] {
             appearance:none;width:18px;height:18px;border:2px solid var(--text-secondary);border-radius:3px;
             cursor:pointer;position:relative;transition:all .2s ease;background:transparent;flex-shrink:0;
@@ -997,8 +996,41 @@
             content:'';position:absolute;left:5px;top:2px;width:4px;height:8px;
             border:solid var(--bg-primary);border-width:0 2px 2px 0;transform:rotate(45deg);
         }
-        .checkbox-group label { font-size:12px;color:var(--text-secondary);cursor:pointer; }
+        .checkbox-group label { font-size:13px;color:var(--text-secondary);cursor:pointer;line-height:1.4; }
         .checkbox-group a { color:var(--text-secondary);text-decoration:underline; }
+
+        /* Age slider styles */
+        .age-slider-container { width:100%;margin:0; }
+        .age-display { display:flex;justify-content:space-between;align-items:center;margin-bottom:12px; }
+        .age-label { font-size:14px;color:var(--text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:0.5px; }
+        .age-value { font-size:14px;color:var(--text-primary);font-weight:700; }
+        .age-slider {
+            width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;
+            outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+        }
+        .age-slider::-webkit-slider-thumb {
+            -webkit-appearance:none;appearance:none;width:20px;height:20px;
+            background:var(--text-secondary);border-radius:50%;cursor:pointer;
+            transition:all .2s ease;
+        }
+        .age-slider::-webkit-slider-thumb:hover { background:var(--text-primary);transform:scale(1.1); }
+        .age-slider::-moz-range-thumb {
+            width:20px;height:20px;background:var(--text-secondary);border-radius:50%;
+            cursor:pointer;border:none;transition:all .2s ease;
+        }
+        .age-slider::-moz-range-thumb:hover { background:var(--text-primary);transform:scale(1.1); }
+
+        /* Gender buttons */
+        .gender-buttons { display:flex;gap:8px;width:100%;margin:0; }
+        .gender-btn {
+            flex:1;padding:12px 16px;background:rgba(255,255,255,.05);
+            border:1px solid var(--glass-border);border-radius:5px;
+            color:var(--text-secondary);font-family:'Inter',sans-serif;font-weight:500;
+            cursor:pointer;transition:all .2s ease;font-size:13px;
+            display:flex;align-items:center;justify-content:center;
+        }
+        .gender-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
+        .gender-btn.selected { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
 
         .loader {
             width:30px;height:30px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--text-primary);
@@ -1015,18 +1047,18 @@
                         grayscale(1) blur(0px);
             }
             100% {
-                filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.3)) 
-                        drop-shadow(0 0 12px rgba(255, 100, 50, 0.2)) 
-                        drop-shadow(0 0 18px rgba(255, 140, 70, 0.15)) 
+                filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.08)) 
+                        drop-shadow(0 0 12px rgba(255, 100, 50, 0.05)) 
+                        drop-shadow(0 0 18px rgba(255, 140, 70, 0.04)) 
                         grayscale(0) blur(0px);
             }
         }
         
         @keyframes glowFadeOut {
             0% {
-                filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.3)) 
-                        drop-shadow(0 0 12px rgba(255, 100, 50, 0.2)) 
-                        drop-shadow(0 0 18px rgba(255, 140, 70, 0.15)) 
+                filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.08)) 
+                        drop-shadow(0 0 12px rgba(255, 100, 50, 0.05)) 
+                        drop-shadow(0 0 18px rgba(255, 140, 70, 0.04)) 
                         grayscale(0) blur(0px);
             }
             100% {
@@ -1039,15 +1071,15 @@
         
         @keyframes glowPulse {
             0%, 100% {
-                filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.3)) 
-                        drop-shadow(0 0 12px rgba(255, 100, 50, 0.2)) 
-                        drop-shadow(0 0 18px rgba(255, 140, 70, 0.15)) 
+                filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.08)) 
+                        drop-shadow(0 0 12px rgba(255, 100, 50, 0.05)) 
+                        drop-shadow(0 0 18px rgba(255, 140, 70, 0.04)) 
                         grayscale(0) blur(0px);
             }
             50% {
-                filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.35)) 
-                        drop-shadow(0 0 14px rgba(255, 100, 50, 0.25)) 
-                        drop-shadow(0 0 20px rgba(255, 140, 70, 0.18)) 
+                filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.1)) 
+                        drop-shadow(0 0 14px rgba(255, 100, 50, 0.06)) 
+                        drop-shadow(0 0 20px rgba(255, 140, 70, 0.05)) 
                         grayscale(0) blur(0px);
             }
         }
@@ -1424,7 +1456,7 @@
           </div>
           
           <!-- Центральная картинка (человек - точно в центре) -->
-          <div class="monitor-center-image" style="position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); width: 415px; height: 607px; display: flex; align-items: center; justify-content: center; z-index: 1; overflow: visible; padding: 20px;">
+          <div class="monitor-center-image" style="position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); width: 450px; height: 660px; display: flex; align-items: center; justify-content: center; z-index: 1; overflow: visible; padding: 20px;">
             <video id="monitorHumanVideo" 
                    autoplay 
                    loop 
@@ -1433,7 +1465,7 @@
                    style="width: 100%; height: 100%; opacity: 0.7; object-fit: contain; 
                           filter: drop-shadow(0 0 0px rgba(255, 165, 0, 0)) grayscale(1);
                           animation: glowFadeIn 2s ease-out forwards, glowPulse 4s ease-in-out 2s infinite;">
-              <source src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Webp343MAFA%202.webm" type="video/webm">
+              <source id="monitorVideoSource" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/AlphaHeatMap.webm" type="video/webm">
               <!-- Fallback to SVG if video doesn't load -->
               <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/5ec8acac0d97faf61ecd4b56746d3ab429bb6a25/human_male.svg" 
                    alt="Human Monitor" 
@@ -1442,12 +1474,15 @@
           </div>
           
           <!-- Плашка с номером звена (выровнена по нижней границе) -->
-          <div id="monitorUserPlate" style="position: absolute; bottom: 2.5%; left: 50%; transform: translateX(-50%); width: 160px; height: 65px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; pointer-events: all;">
-            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 3px; text-align: center; line-height: 1.1;">
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
-              <span>Пробное звено</span>
+          <div id="monitorUserPlate" style="position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); width: 160px; height: 60px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; color: var(--text-secondary); font-size: 11px; pointer-events: all;">
+            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; font-weight: 600; width: 100%;">
+              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 14px; height: 14px;">
+              <span style="text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px;">Пробное звено</span>
             </div>
-            <div style="font-size: 9px; text-align: center; line-height: 1.1; opacity: 0.8;">дата подключения неизвестна</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; width: 100%;">
+              <span style="opacity: 0.8;">Дата подключения</span>
+              <span style="opacity: 0.8;">неизвестна</span>
+            </div>
           </div>
           
           <!-- Правые блоки (растянуты до высоты резюме) -->
@@ -1725,13 +1760,13 @@
     <!-- REGISTER -->
     <div id="registerForm" style="display:none;">
       <div id="registerContent">
-        <div class="register-form-content">
-          <h2 class="auth-header">Новое подключение к сети MSE</h2>
+        <!-- STEP 1: PIN CODE -->
+        <div class="register-form-content" id="registerStep1">
           <div class="user-id-display">
             <span class="user-id-label">Вы станете звеном под номером:</span>
             <span class="user-id-number" id="newUserId">----</span>
           </div>
-          <form class="auth-form" onsubmit="return false;">
+          <form class="auth-form" onsubmit="return false;" style="margin-top: 24px;">
             <div class="form-label-key">
               <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="">
               <span>Создайте уникальный ключ доступа</span>
@@ -1742,9 +1777,30 @@
               <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
             </div>
+          </form>
+        </div>
+        
+        <!-- STEP 2: AGE AND GENDER -->
+        <div class="register-form-content" id="registerStep2" style="display:none;">
+          <form class="auth-form" onsubmit="return false;">
+            <div class="age-slider-container">
+              <div class="age-display">
+                <div class="age-label">Возраст</div>
+                <div class="age-value" id="ageValue">18</div>
+              </div>
+              <input type="range" class="age-slider" id="ageSlider" min="6" max="99" value="18">
+            </div>
+            <div class="gender-buttons">
+              <button type="button" class="gender-btn" id="genderMale" onclick="selectGender('male')">
+                <span>Мужской</span>
+              </button>
+              <button type="button" class="gender-btn" id="genderFemale" onclick="selectGender('female')">
+                <span>Женский</span>
+              </button>
+            </div>
             <div class="checkbox-group">
-              <input type="checkbox" id="termsCheckbox">
-              <label for="termsCheckbox">Я принимаю <a href="#" target="_blank">условия подключения к сети MSE</a></label>
+              <input type="checkbox" id="termsCheckbox2">
+              <label for="termsCheckbox2">Я принимаю <span style="font-weight:600;">условия подключения к сети MSE</span></label>
             </div>
             <div class="auth-buttons" id="registerButtons">
               <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
@@ -1811,6 +1867,27 @@ const FADE_DURATION = 350;
 const RESIZE_DURATION = 800;
 
 const blockState = { browserBlock: false, chatBlock: false };
+
+// Update monitor video based on user gender
+function updateMonitorVideo(gender) {
+    const videoSource = document.getElementById('monitorVideoSource');
+    const video = document.getElementById('monitorHumanVideo');
+    
+    if (!videoSource || !video) return;
+    
+    let videoUrl;
+    if (gender === 'male') {
+        videoUrl = 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/AlphaHeat_M.webm';
+    } else if (gender === 'female') {
+        videoUrl = 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/AlphaHeat_F.webm';
+    } else {
+        // Default/neutral video
+        videoUrl = 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/AlphaHeatMap.webm';
+    }
+    
+    videoSource.src = videoUrl;
+    video.load(); // Reload video with new source
+}
 
 function toggleMonitorMode() {
     closeAllMenus();
@@ -2143,13 +2220,35 @@ async function showRegister() {
         document.getElementById('logoutModal').style.display='none';
         document.getElementById('newUserId').textContent = newId.toString().padStart(4,'0');
         document.getElementById('registerContent').style.display='block';
+        
+        // Reset step 1
+        document.getElementById('registerStep1').style.display='block';
+        document.getElementById('registerStep1').style.filter='blur(0px)';
+        document.getElementById('registerStep1').style.opacity='1';
+        
+        // Reset step 2
+        document.getElementById('registerStep2').style.display='none';
+        document.getElementById('registerStep2').style.filter='blur(0px)';
+        document.getElementById('registerStep2').style.opacity='1';
+        
+        // Reset form values
         ['pin1','pin2','pin3','pin4'].forEach(id=>document.getElementById(id).value='');
-        document.getElementById('termsCheckbox').checked=false;
+        document.getElementById('termsCheckbox2').checked=false;
+        document.getElementById('ageSlider').value=18;
+        document.getElementById('ageValue').textContent='18';
+        selectedAge = 18;
+        selectedGender = null;
+        document.getElementById('genderMale').classList.remove('selected');
+        document.getElementById('genderFemale').classList.remove('selected');
+        
         document.getElementById('registerBtn').disabled=true;
         document.getElementById('registerLoader').style.display='none';
         document.getElementById('registerSuccess').style.display='none';
         document.getElementById('registerButtons').style.display='flex';
         document.getElementById('loginToRegisterLoader').style.display='none';
+        
+        // Focus first PIN input
+        setTimeout(() => document.getElementById('pin1').focus(), 100);
     }, 800);
 }
 
@@ -2239,12 +2338,21 @@ function confirmLogout() {
         const monitorPlate = document.getElementById('monitorUserPlate');
         if (monitorPlate) {
             monitorPlate.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
-                  <span>Пробное звено</span>
+                <div style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; font-weight: 600; width: 100%;">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 14px; height: 14px;">
+                  <span style="text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px;">Пробное звено</span>
                 </div>
-                <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">дата подключения неизвестна</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; width: 100%;">
+                  <span style="opacity: 0.8;">Дата подключения</span>
+                  <span style="opacity: 0.8;">неизвестна</span>
+                </div>
             `;
+        }
+        
+        // Close monitor mode if it's open
+        const hiddenModule = document.getElementById('hiddenModule');
+        if (hiddenModule && hiddenModule.style.opacity === '1') {
+            toggleMonitorMode(); // Close the monitor
         }
         
         // Update UI - refresh progress tab
@@ -2383,6 +2491,13 @@ loginPinInputs.forEach((id,index)=>{
                         // Load user data from Firebase
                         const firebaseData = await loadUserFromFirebase(user.id);
                         if (firebaseData) {
+                            // Load gender and age
+                            if (firebaseData.gender) {
+                                currentUser.gender = firebaseData.gender;
+                            }
+                            if (firebaseData.age) {
+                                currentUser.age = firebaseData.age;
+                            }
                             // Load achievements
                             if (firebaseData.achievements) {
                                 userAchievements = firebaseData.achievements;
@@ -2478,16 +2593,24 @@ loginPinInputs.forEach((id,index)=>{
                             });
                             console.log('Updating monitor plate with date:', dateStr); // Отладка
                             monitorPlate.innerHTML = `
-                                <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
-                                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
-                                  <span>Звено ${currentUser.id.toString().padStart(4,'0')}</span>
+                                <div style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; font-weight: 600; width: 100%;">
+                                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 14px; height: 14px;">
+                                  <span style="text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>
                                 </div>
-                                <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">Дата подключения</div>
-                                <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">${dateStr}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; width: 100%;">
+                                  <span style="opacity: 0.8;">Дата подключения</span>
+                                  <span style="opacity: 0.8;">${dateStr}</span>
+                                </div>
                             `;
                         } else {
                             console.log('Monitor plate not found'); // Отладка
                         }
+                        
+                        // Update monitor video based on user gender
+                        if (currentUser && currentUser.gender) {
+                            updateMonitorVideo(currentUser.gender);
+                        }
+                        
                         // Обновляем вкладку "Прогресс" если она открыта
                         refreshProgressTab();
                     },1000);
@@ -2512,20 +2635,96 @@ loginPinInputs.forEach((id,index)=>{
 
 // ── Register PIN ──
 const pinInputs=['pin1','pin2','pin3','pin4'];
+let selectedGender = null;
+let selectedAge = 18;
+
+// Age slider handler
+document.addEventListener('DOMContentLoaded', () => {
+    const ageSlider = document.getElementById('ageSlider');
+    const ageValue = document.getElementById('ageValue');
+    
+    if (ageSlider && ageValue) {
+        ageSlider.addEventListener('input', function() {
+            selectedAge = this.value;
+            ageValue.textContent = this.value;
+        });
+    }
+});
+
+// Gender selection
+function selectGender(gender) {
+    selectedGender = gender;
+    document.getElementById('genderMale').classList.remove('selected');
+    document.getElementById('genderFemale').classList.remove('selected');
+    
+    if (gender === 'male') {
+        document.getElementById('genderMale').classList.add('selected');
+    } else {
+        document.getElementById('genderFemale').classList.add('selected');
+    }
+    
+    checkRegisterButton2();
+}
+
+// Check if step 2 is ready
+function checkRegisterButton2() {
+    const termsChecked = document.getElementById('termsCheckbox2').checked;
+    const genderSelected = selectedGender !== null;
+    document.getElementById('registerBtn').disabled = !(termsChecked && genderSelected);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const termsCheckbox2 = document.getElementById('termsCheckbox2');
+    if (termsCheckbox2) {
+        termsCheckbox2.addEventListener('change', checkRegisterButton2);
+    }
+});
+
 pinInputs.forEach((id,index)=>{
     const input=document.getElementById(id);
     input.addEventListener('input',function(){
         if(this.value.length>1)this.value=this.value.slice(0,1);
-        if(this.value.length===1&&index<pinInputs.length-1)
-            document.getElementById(pinInputs[index+1]).focus();
-        checkRegisterButton();
+        if(this.value.length===1) {
+            if(index<pinInputs.length-1) {
+                document.getElementById(pinInputs[index+1]).focus();
+            } else {
+                // All 4 digits entered - transition to step 2
+                const allFilled = pinInputs.every(id=>document.getElementById(id).value.length===1);
+                if (allFilled) {
+                    transitionToStep2();
+                }
+            }
+        }
     });
     input.addEventListener('keydown',function(e){
         if(e.key==='Backspace'&&this.value===''&&index>0)
             document.getElementById(pinInputs[index-1]).focus();
     });
 });
-document.getElementById('termsCheckbox').addEventListener('change',checkRegisterButton);
+
+function transitionToStep2() {
+    const step1 = document.getElementById('registerStep1');
+    const step2 = document.getElementById('registerStep2');
+    
+    // Blur out step 1
+    step1.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+    step1.style.filter = 'blur(8px)';
+    step1.style.opacity = '0';
+    
+    setTimeout(() => {
+        step1.style.display = 'none';
+        step2.style.display = 'block';
+        step2.style.filter = 'blur(8px)';
+        step2.style.opacity = '0';
+        
+        // Blur in step 2
+        setTimeout(() => {
+            step2.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+            step2.style.filter = 'blur(0px)';
+            step2.style.opacity = '1';
+        }, 50);
+    }, 300);
+}
 
 function checkRegisterButton(){
     const allFilled=pinInputs.every(id=>document.getElementById(id).value.length===1);
@@ -2535,7 +2734,7 @@ function checkRegisterButton(){
 function register(){
     const pin=pinInputs.map(id=>document.getElementById(id).value).join('');
     const userId=parseInt(document.getElementById('newUserId').textContent);
-    if(pin.length!==4||!document.getElementById('termsCheckbox').checked)return;
+    if(pin.length!==4 || !selectedGender || !document.getElementById('termsCheckbox2').checked) return;
     
     document.getElementById('registerContent').style.display='none';
     document.getElementById('registerLoader').style.display='flex';
@@ -2546,7 +2745,13 @@ function register(){
     }, 100);
     
     setTimeout(async ()=>{
-        const newUser={id:userId,pin,createdAt:new Date().toISOString()};
+        const newUser={
+            id:userId,
+            pin,
+            age: selectedAge,
+            gender: selectedGender,
+            createdAt:new Date().toISOString()
+        };
         users.push(newUser);
         currentUser=newUser;
         
@@ -2557,6 +2762,8 @@ function register(){
         await saveUserToFirebase(userId, {
             id: userId,
             pin: pin,
+            age: selectedAge,
+            gender: selectedGender,
             createdAt: newUser.createdAt,
             achievements: userAchievements,
             notes: userNotes
@@ -2565,9 +2772,10 @@ function register(){
         document.getElementById('registerLoader').style.display='none';
         document.getElementById('registerSuccess').style.display='flex';
         document.getElementById('registerSuccess').querySelector('.success-text').innerHTML=
-            `<div id="lottie-register-chain" style="width:96px;height:96px;margin:0 auto 12px;"></div>
-            <div style="font-size:15px;line-height:1.6;margin-bottom:12px;">Подключение выполнено, присоединилось новое звено</div>
-            <div style="font-size:32px;font-weight:700;letter-spacing:24px;width:100%;text-align:center;">#${userId.toString().padStart(4,'0')}</div>`;
+            `<div id="lottie-register-chain" style="width:96px;height:96px;margin:0 auto 16px;"></div>
+            <div style="font-size:18px;line-height:1.4;margin-bottom:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;width:100%;text-align:center;">СИНХРОНИЗИРОВАНО</div>
+            <div style="font-size:14px;line-height:1.4;margin-bottom:20px;width:100%;text-align:center;color:var(--text-secondary);white-space:nowrap;">#${userId.toString().padStart(4,'0')} подключен к ядру MSE</div>
+            <button onclick="completeRegistration(${userId})" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.15)'" style="width:100%;padding:12px 16px;background:rgba(255,255,255,.15);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;cursor:pointer;transition:all .2s ease;font-size:13px;">Перейти в свою ячейку</button>`;
         
         // Load chain lottie animation
         setTimeout(async () => {
@@ -2592,40 +2800,53 @@ function register(){
             }
         }, 100);
         
-        setTimeout(()=>{
-            currentUser=newUser;
-            loginDate = new Date();
-            
-            // Clear all chats before starting (remove non-logged-in messages)
-            chatStore = { sofia: [] };
-            renderChatMessages();
-            
-            closeAuth();
-            document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
-            // Обновляем плашку в мониторе
-            const monitorPlate = document.getElementById('monitorUserPlate');
-            if (monitorPlate) {
-                const dateStr = loginDate.toLocaleDateString('ru-RU', {
-                    day: '2-digit',
-                    month: '2-digit', 
-                    year: 'numeric'
-                });
-                console.log('Updating monitor plate (register) with date:', dateStr); // Отладка
-                monitorPlate.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 2px; text-align: center; line-height: 1.1;">
-                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 12px; height: 12px;">
-                      <span>Звено ${currentUser.id.toString().padStart(4,'0')}</span>
-                    </div>
-                    <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">Дата подключения</div>
-                    <div style="font-size: 8px; text-align: center; line-height: 1.1; opacity: 0.8;">${dateStr}</div>
-                `;
-            } else {
-                console.log('Monitor plate not found (register)'); // Отладка
-            }
-            // Обновляем вкладку "Прогресс" если она открыта
-            refreshProgressTab();
-        },2500);
+        // Don't auto-close - wait for user to click button
     },2000);
+}
+
+// Complete registration when user clicks button
+function completeRegistration(userId) {
+    const newUser = users.find(u => u.id === userId);
+    if (!newUser) return;
+    
+    currentUser = newUser;
+    loginDate = new Date();
+    
+    // Clear all chats before starting (remove non-logged-in messages)
+    chatStore = { sofia: [] };
+    renderChatMessages();
+    
+    closeAuth();
+    document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
+    
+    // Обновляем плашку в мониторе
+    const monitorPlate = document.getElementById('monitorUserPlate');
+    if (monitorPlate) {
+        const dateStr = loginDate.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit', 
+            year: 'numeric'
+        });
+        console.log('Updating monitor plate (register) with date:', dateStr);
+        monitorPlate.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; font-weight: 600; width: 100%;">
+              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width: 14px; height: 14px;">
+              <span style="text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; width: 100%;">
+              <span style="opacity: 0.8;">Дата подключения</span>
+              <span style="opacity: 0.8;">${dateStr}</span>
+            </div>
+        `;
+    }
+    
+    // Update monitor video based on user gender
+    if (currentUser && currentUser.gender) {
+        updateMonitorVideo(currentUser.gender);
+    }
+    
+    // Обновляем вкладку "Прогресс" если она открыта
+    refreshProgressTab();
 }
 
 // ============================================================
@@ -3385,25 +3606,44 @@ const TAB_DEFAULTS={
 };
 const tabData={
     materials:[
-        {title:'Основы правильного питания',desc:'Гайд по макронутриентам и калориям',icon:TAB_DEFAULTS.materials},
-        {title:'Техника выполнения упражнений',desc:'Видео-уроки от профессионалов',icon:TAB_DEFAULTS.materials},
-        {title:'Программы тренировок',desc:'Готовые планы на разные цели',icon:TAB_DEFAULTS.materials},
-        {title:'Восстановление и стретчинг',desc:'Упражнения для гибкости и релаксации',icon:TAB_DEFAULTS.materials}
+        {title:'Анатомия кардиотренировок',desc:'Основы сердечно-сосудистых тренировок',icon:TAB_DEFAULTS.materials, locked: false},
+        {title:'Основы правильного питания',desc:'Гайд по макронутриентам и калориям',icon:TAB_DEFAULTS.materials, locked: true},
+        {title:'Техника выполнения упражнений',desc:'Видео-уроки от профессионалов',icon:TAB_DEFAULTS.materials, locked: true},
+        {title:'Программы тренировок',desc:'Готовые планы на разные цели',icon:TAB_DEFAULTS.materials, locked: true}
     ],
     workouts:[
-        {title:'Силовая тренировка — День 1',desc:'Грудь и трицепс · 45 минут',icon:TAB_DEFAULTS.workouts},
-        {title:'Кардио тренировка',desc:'HIIT интервалы · 30 минут',icon:TAB_DEFAULTS.workouts},
-        {title:'Силовая тренировка — День 2',desc:'Спина и бицепс · 50 минут',icon:TAB_DEFAULTS.workouts},
-        {title:'День ног',desc:'Квадрицепсы, бицепсы бедра · 60 минут',icon:TAB_DEFAULTS.workouts}
+        {title:'HIIT-тренировка',desc:'Высокоинтенсивные интервалы · 30 минут',icon:TAB_DEFAULTS.workouts, locked: false},
+        {title:'Силовая тренировка — День 1',desc:'Грудь и трицепс · 45 минут',icon:TAB_DEFAULTS.workouts, comingSoon: true},
+        {title:'Силовая тренировка — День 2',desc:'Спина и бицепс · 50 минут',icon:TAB_DEFAULTS.workouts, comingSoon: true},
+        {title:'День ног',desc:'Квадрицепсы, бицепсы бедра · 60 минут',icon:TAB_DEFAULTS.workouts, comingSoon: true}
     ]
 };
 function renderItemList(items, tabType){
-    return '<div class="materials-list">'+items.map((item, index)=>
-        `<div class="material-item clickable-item" data-item-type="${tabType}" data-item-index="${index}">
+    return '<div class="materials-list">'+items.map((item, index)=>{
+        // Определяем иконку статуса
+        let statusIcon = '';
+        let itemOpacity = '1';
+        let cursorStyle = 'pointer';
+        
+        if (item.locked) {
+            statusIcon = '<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4cecf715f68ab30916f1aea8a34de2cdac46ea20/puzzle.svg" alt="Заблокировано" style="width:16px;height:16px;opacity:0.5;position:absolute;top:12px;right:12px;">';
+            itemOpacity = '0.5';
+            cursorStyle = 'not-allowed';
+        } else if (item.comingSoon) {
+            statusIcon = '<span style="font-size:16px;opacity:0.5;position:absolute;top:12px;right:12px;">⏱️</span>';
+            itemOpacity = '0.5';
+            cursorStyle = 'not-allowed';
+        }
+        
+        return `<div class="material-item ${!item.locked && !item.comingSoon ? 'clickable-item' : ''}" 
+                     data-item-type="${tabType}" 
+                     data-item-index="${index}"
+                     style="opacity:${itemOpacity};cursor:${cursorStyle};position:relative;">
             <div class="material-icon"><img class="icon-gray" src="${item.icon}" alt=""></div>
             <div class="material-info"><h3>${item.title}</h3><p>${item.desc}</p></div>
-         </div>`
-    ).join('')+'</div>';
+            ${statusIcon}
+         </div>`;
+    }).join('')+'</div>';
 }
 function renderProgress(){
     // Если пользователь не залогинен - показываем приглашение
@@ -4068,6 +4308,14 @@ function togglePinChat(id, tabElement) {
 }
 
 function addChatTab(){
+    // Проверяем, залогинен ли пользователь
+    if (!currentUser) {
+        // Показываем уведомление или открываем окно логина
+        alert('Пройдите синхронизацию, чтобы создавать новые чаты');
+        document.getElementById('headerLoginBtn').click();
+        return;
+    }
+    
     const id = 'chat' + chatTabCounter++;
     chatStore[id] = [];
     const tab = createChatTabElement(id, 'Чат ' + (chatTabCounter - 1), false);
@@ -4388,10 +4636,18 @@ const chatInput = document.getElementById('chat-input');
 const chatSend  = document.getElementById('chat-send');
 
 function sendMessage(){
+    console.log('sendMessage called'); // DEBUG
     const text = chatInput.value.trim();
     const hasFiles = attachedFiles.length > 0;
     
-    if (!text && !hasFiles) return;
+    console.log('Message text:', text); // DEBUG
+    console.log('Has files:', hasFiles); // DEBUG
+    console.log('Current user:', currentUser); // DEBUG
+    
+    if (!text && !hasFiles) {
+        console.log('No text and no files, returning'); // DEBUG
+        return;
+    }
     
     // Check if Sofia is already thinking - block sending
     const isThinking = chatStore[activeChatTab]?.some(m => m.type === 'thinking');
@@ -4450,7 +4706,7 @@ function sendMessage(){
         renderFilePreview();
         safeRenderChatMessages();
         
-        const responseText = 'Пройди синхронизацию, чтобы я тебя запомнила. А пока можешь ознакомиться с тем, как устроена система MSE.';
+        const responseText = 'Похоже у тебя есть вопросы. Пройди синхронизацию, чтобы я тебя запомнила настолько, насколько позволяет моя архитектура. А пока можешь ознакомиться с тем, как устроена система MSE.';
         const thinkingTime = calculateThinkingTime(responseText);
         
         setTimeout(() => {
@@ -4460,7 +4716,7 @@ function sendMessage(){
             // Add Sofia's text response with clickable "синхронизацию" link
             chatStore[targetChatTab].push({
                 role:'ai', 
-                text: 'Пройди <span class="chat-login-link" onclick="openLoginFromChat(); return false;">синхронизацию</span>, чтобы я тебя запомнила. А пока можешь ознакомиться с тем, как устроена система MSE.'
+                text: 'Похоже у тебя есть вопросы. <strong><span class="chat-login-link" onclick="openLoginFromChat(); return false;">Пройди синхронизацию</span></strong>, чтобы я тебя запомнила настолько, насколько позволяет моя архитектура. А пока можешь ознакомиться с тем, как устроена система MSE.'
             });
             
             // Add 3 PDF manuals as file attachments
@@ -4965,6 +5221,7 @@ function sendMessage(){
     
     // If no images, render immediately and add thinking
     if (!hasImages) {
+        console.log('No images, rendering and calling AI'); // DEBUG
         safeRenderChatMessages();
         
         // Add thinking animation before Sofia's response
@@ -4973,7 +5230,9 @@ function sendMessage(){
         
         // Call Gemini AI
         const userMessageText = text || 'Файл прикреплён';
+        console.log('Calling Gemini API with message:', userMessageText); // DEBUG
         callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+            console.log('Gemini API response received:', aiResult); // DEBUG
             const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
             const thinkingTime = calculateThinkingTime(responseText);
             
@@ -5015,6 +5274,9 @@ function sendMessage(){
 
 chatSend.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage(); });
+console.log('Chat event listeners attached'); // DEBUG
+console.log('chatSend element:', chatSend); // DEBUG
+console.log('chatInput element:', chatInput); // DEBUG
     document.addEventListener('DOMContentLoaded', () => {
     const sofiaTab = document.querySelector('.chat-tab[data-base="true"]');
     if (sofiaTab && !sofiaTab.hasAttribute('data-listener')) {
