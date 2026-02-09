@@ -15,6 +15,7 @@
         // Firebase configuration and initialization
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
         
         const firebaseConfig = {
             apiKey: "AIzaSyAC8pTGZB2toqkCf_I55V6O0WMCdYF8FtI",
@@ -27,6 +28,7 @@
         
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
         
         // Make Firebase available globally
         window.firebaseDB = db;
@@ -36,6 +38,12 @@
         window.firebaseUpdateDoc = updateDoc;
         window.firebaseCollection = collection;
         window.firebaseServerTimestamp = serverTimestamp;
+        
+        // Firebase Storage
+        window.firebaseStorage = storage;
+        window.firebaseStorageRef = ref;
+        window.firebaseUploadBytes = uploadBytes;
+        window.firebaseGetDownloadURL = getDownloadURL;
         
         console.log('Firebase initialized successfully!');
     </script>
@@ -488,9 +496,222 @@
             word-wrap: break-word;
             word-break: break-word;
             overflow-wrap: break-word;
+            min-width:0;
+            transition:border-color .3s ease, border-style .3s ease;
         }
         .chat-message.ai  { align-self:flex-start; }
         .chat-message.user { align-self:flex-end;background:rgba(255,255,255,.08); }
+        
+        /* Message freshness classes - removed dashed border */
+        .chat-message.message-fresh,
+        .chat-message.message-aging,
+        .chat-message.message-expiring,
+        .chat-message.message-expired {
+            /* No special border styling */
+        }
+
+        /* ─── BENTO GRID STYLES ─── */
+        .bento-grid {
+            display: grid;
+            gap: 4px;
+            margin-top: 8px;
+            max-width: 320px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .bento-expiry-hint {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 6px;
+            opacity: 0.7;
+            text-align: center;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            padding: 6px 10px;
+            max-width: 320px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        
+        .single-image-expiry-hint {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 6px;
+            opacity: 0.7;
+            text-align: center;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            padding: 6px 10px;
+            max-width: 150px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        
+        .expiry-learn-more {
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+        .expiry-learn-more:hover {
+            color: var(--text-primary);
+        }
+        
+        .chat-login-link {
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+        .chat-login-link:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Storage Info Modal */
+        .storage-info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s ease;
+        }
+        .storage-info-modal.active {
+            display: flex;
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .storage-info-content {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 24px;
+            backdrop-filter: saturate(180%) blur(20px);
+            width: 420px;
+            max-width: calc(100% - 40px);
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            transition: transform .3s ease;
+            transform: scale(.9);
+        }
+        .storage-info-modal.active .storage-info-content {
+            transform: scale(1);
+        }
+        
+        .storage-info-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: -.3px;
+        }
+        
+        .storage-info-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+            letter-spacing: -.1px;
+        }
+        
+        .storage-info-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .storage-info-btn {
+            width: 100%;
+            padding: 10px 16px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s ease;
+            font-size: 13px;
+        }
+        .storage-info-btn:hover {
+            background: rgba(255,255,255,.15);
+        }
+        .storage-info-btn.primary {
+            background: rgba(255,255,255,.15);
+        }
+        
+        .bento-grid-item {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            overflow: hidden;
+            background: rgba(255,255,255,.05);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        
+        .bento-grid-item:hover {
+            transform: scale(1.02);
+            background: rgba(255,255,255,.08);
+        }
+        
+        .bento-grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .bento-grid-item.expired {
+            cursor: default;
+            background: rgba(255,255,255,.03);
+        }
+        
+        .bento-grid-item.expired:hover {
+            transform: none;
+        }
+        
+        .expired-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 8px;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+        
+        .expired-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+            opacity: 0.5;
+        }
+        
+        .expired-name {
+            font-size: 10px;
+            margin-bottom: 2px;
+            word-break: break-all;
+        }
+        
+        .expired-hint {
+            font-size: 9px;
+            opacity: 0.7;
+        }
 
         .chat-empty-state {
             flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -521,13 +742,14 @@
 
 .chat-file-preview {
     display:none;
-    gap:4px;
-    padding:4px 6px;
+    gap:6px;
+    padding:6px 8px;
     flex-wrap:wrap;
     background:rgba(255,255,255,.03);
     border:1px solid var(--glass-border);
     border-radius:4px;
     margin-bottom:8px;
+    align-items:center;
 }
 
 
@@ -542,7 +764,7 @@
 .chat-message-image:hover { opacity:.85; }
 
 .chat-message-attachment {
-    display:flex;
+    display:flex !important;
     align-items:center;
     gap:6px;
     margin-top:8px;
@@ -550,8 +772,26 @@
     border-top:1px solid rgba(255,255,255,.05);
     font-size:12px;
     color:var(--text-secondary);
+    max-width:100%;
+    min-width:0 !important;
+    overflow:hidden !important;
 }
-.chat-message-attachment img { width:14px;height:14px;opacity:.6; }
+.chat-message-attachment img { 
+    width:14px;
+    height:14px;
+    opacity:.6;
+    flex-shrink:0;
+}
+.chat-message-attachment span {
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+    word-break:break-all;
+    min-width:0 !important;
+    max-width:250px !important;
+    flex:1;
+    display:inline-block !important;
+}
 
 /* When attachment is the only content (no text), remove the separator line */
 .chat-message-attachment.no-sep {
@@ -617,14 +857,32 @@
 
         
 .chat-file-item {
-    display:flex;align-items:center;gap:4px;padding:3px 6px;
-    background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
-    border-radius:4px;font-size:10px;color:var(--text-secondary);
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding:4px 8px;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--glass-border);
+    border-radius:4px;
+    font-size:11px;
+    color:var(--text-secondary);
+    max-width:150px;
 }
-.chat-file-item img.file-icon { width:12px;height:12px;opacity:.6; }
+.chat-file-item span {
+    flex:1;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    min-width:0;
+}
+.chat-file-item img.file-icon { width:12px;height:12px;opacity:.6;flex-shrink:0; }
 .chat-file-item .file-remove {
-    width:12px;height:12px;cursor:pointer;opacity:.5;
+    width:14px;
+    height:14px;
+    cursor:pointer;
+    opacity:.5;
     transition:opacity .15s ease;
+    flex-shrink:0;
 }
 .chat-file-item .file-remove:hover { opacity:1; }
 
@@ -1467,6 +1725,25 @@
     <img id="modalImage" src="" alt="">
 </div>
 
+<!-- Storage Info Modal -->
+<div class="storage-info-modal" id="storageInfoModal">
+    <div class="storage-info-content" onclick="event.stopPropagation();">
+        <div class="storage-info-title">Как работает хранение вложений</div>
+        <div class="storage-info-text">
+            Когда вы отправляете изображения в чат, они сохраняются в локальном хранилище вашего браузера.
+        </div>
+        <div class="storage-info-text">
+            Ваши переписки с Софией хранятся в облаке, а изображения остаются на вашем устройстве для быстрого доступа.
+        </div>
+        <div class="storage-info-text">
+            Если вы очистите данные браузера, изображения станут недоступны, но текст переписки сохранится.
+        </div>
+        <div class="storage-info-buttons">
+            <button class="storage-info-btn primary" onclick="closeStorageInfoModal(); hideStorageHintForever();">Понятно, больше не показывать</button>
+        </div>
+    </div>
+</div>
+
 <script>
 // ============================================================
 // MINIMIZE / EXPAND with smooth animation
@@ -1814,7 +2091,17 @@ function closeAuth() {
     document.getElementById('authOverlay').classList.remove('active'); 
 }
 
+// Function to open login from chat message
+function openLoginFromChat() {
+    if (!currentUser) {
+        showLogin();
+    }
+}
+
 function confirmLogout() {
+    // Stop lifecycle manager
+    lifecycleManager.stop();
+    
     // Add blur animation to main content areas
     const chatMessages = document.getElementById('chat-messages');
     const mainContent = document.getElementById('main-content');
@@ -2012,6 +2299,13 @@ loginPinInputs.forEach((id,index)=>{
                         currentUser=user;
                         loginDate = new Date();
                         
+                        // Clear all chats before loading from Firebase (remove non-logged-in messages)
+                        chatStore = { sofia: [] };
+                        renderChatMessages();
+                        
+                        // Start lifecycle manager
+                        lifecycleManager.start();
+                        
                         // Load user data from Firebase
                         const firebaseData = await loadUserFromFirebase(user.id);
                         if (firebaseData) {
@@ -2182,6 +2476,9 @@ function register(){
         users.push(newUser);
         currentUser=newUser;
         
+        // Start lifecycle manager
+        lifecycleManager.start();
+        
         // Save new user to Firebase
         await saveUserToFirebase(userId, {
             id: userId,
@@ -2224,6 +2521,11 @@ function register(){
         setTimeout(()=>{
             currentUser=newUser;
             loginDate = new Date();
+            
+            // Clear all chats before starting (remove non-logged-in messages)
+            chatStore = { sofia: [] };
+            renderChatMessages();
+            
             closeAuth();
             document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
             // Обновляем плашку в мониторе
@@ -2250,6 +2552,687 @@ function register(){
             refreshProgressTab();
         },2500);
     },2000);
+}
+
+// ============================================================
+// ATTACHMENT STORAGE MANAGERS
+// ============================================================
+
+/**
+ * Firebase Storage Manager
+ * Handles uploading and downloading images from Firebase Storage
+ */
+class FirebaseStorageManager {
+    /**
+     * Uploads an image to Firebase Storage
+     * @param {File} file - Image file to upload
+     * @param {string} userId - User ID
+     * @param {string} chatId - Chat ID
+     * @returns {Promise<{url: string, expiresAt: number}>}
+     */
+    async uploadImage(file, userId, chatId) {
+        try {
+            // Generate path: /users/{userId}/chats/{chatId}/{timestamp}_{filename}
+            const timestamp = Date.now();
+            const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const path = `users/${userId}/chats/${chatId}/${timestamp}_${sanitizedFilename}`;
+            
+            // Upload to Firebase Storage
+            const storageRef = window.firebaseStorageRef(window.firebaseStorage, path);
+            await window.firebaseUploadBytes(storageRef, file);
+            
+            // Get download URL
+            const url = await window.firebaseGetDownloadURL(storageRef);
+            
+            // Calculate expiration (30 seconds for testing - change to 24 hours for production)
+            const expiresAt = timestamp + (30 * 1000); // 30 seconds
+            // const expiresAt = timestamp + (24 * 60 * 60 * 1000); // 24 hours (production)
+            
+            console.log(`Image uploaded to Firebase Storage: ${path}`);
+            return { url, expiresAt, uploadedAt: timestamp };
+        } catch (error) {
+            console.error('Firebase Storage upload failed:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Downloads an image from Firebase Storage
+     * @param {string} url - Image URL
+     * @returns {Promise<Blob>}
+     */
+    async downloadImage(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
+            }
+            return await response.blob();
+        } catch (error) {
+            console.error('Failed to download image:', error);
+            throw error;
+        }
+    }
+}
+
+/**
+ * LocalStorage Manager
+ * Handles storing and retrieving images from browser localStorage
+ */
+class LocalStorageManager {
+    /**
+     * Saves an image to localStorage as base64
+     * @param {string} key - Storage key
+     * @param {Blob} blob - Image blob
+     * @returns {Promise<string>} - base64 data URL
+     */
+    async saveImage(key, blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    localStorage.setItem(key, reader.result);
+                    console.log(`Image saved to localStorage: ${key}`);
+                    resolve(reader.result);
+                } catch (e) {
+                    if (e.name === 'QuotaExceededError') {
+                        reject(new Error('localStorage quota exceeded'));
+                    } else {
+                        reject(e);
+                    }
+                }
+            };
+            reader.onerror = () => reject(new Error('Failed to read blob'));
+            reader.readAsDataURL(blob);
+        });
+    }
+    
+    /**
+     * Gets an image from localStorage
+     * @param {string} key - Storage key
+     * @returns {string|null} - base64 data URL or null
+     */
+    getImage(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            console.error('Failed to get image from localStorage:', e);
+            return null;
+        }
+    }
+    
+    /**
+     * Removes an image from localStorage
+     * @param {string} key - Storage key
+     */
+    removeImage(key) {
+        try {
+            localStorage.removeItem(key);
+            console.log(`Image removed from localStorage: ${key}`);
+        } catch (e) {
+            console.error('Failed to remove image from localStorage:', e);
+        }
+    }
+    
+    /**
+     * Gets available space in localStorage (approximate)
+     * @returns {number} - Approximate free bytes
+     */
+    getAvailableSpace() {
+        try {
+            let total = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    total += (localStorage[key].length + key.length) * 2; // UTF-16 = 2 bytes per char
+                }
+            }
+            // Assume 5MB limit (conservative estimate)
+            const limit = 5 * 1024 * 1024;
+            return Math.max(0, limit - total);
+        } catch (e) {
+            console.error('Failed to calculate localStorage space:', e);
+            return 0;
+        }
+    }
+    
+    /**
+     * Checks if localStorage is available
+     * @returns {boolean}
+     */
+    static isAvailable() {
+        try {
+            const test = '__localStorage_test__';
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+}
+
+/**
+ * Storage utility functions
+ */
+const StorageUtils = {
+    /**
+     * Generates a localStorage key for an image
+     * @param {string} userId - User ID
+     * @param {string} chatId - Chat ID
+     * @param {number} messageIndex - Message index in chat
+     * @returns {string}
+     */
+    generateLocalKey(userId, chatId, messageIndex) {
+        return `mse_image_${userId}_${chatId}_${messageIndex}`;
+    },
+    
+    /**
+     * Generates a Firebase Storage path for an image
+     * @param {string} userId - User ID
+     * @param {string} chatId - Chat ID
+     * @param {string} filename - Original filename
+     * @returns {string}
+     */
+    generateStoragePath(userId, chatId, filename) {
+        const timestamp = Date.now();
+        const sanitizedFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+        return `users/${userId}/chats/${chatId}/${timestamp}_${sanitizedFilename}`;
+    },
+    
+    /**
+     * Cleans old images from localStorage (older than specified days)
+     * @param {number} daysOld - Age threshold in days
+     */
+    cleanOldLocalStorageImages(daysOld = 7) {
+        try {
+            const prefix = 'mse_image_';
+            const cutoffTime = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
+            let cleaned = 0;
+            
+            for (let key in localStorage) {
+                if (key.startsWith(prefix)) {
+                    // Try to extract timestamp from key or check if image is referenced in chatStore
+                    let shouldRemove = false;
+                    
+                    // Check if this image is still referenced in any chat
+                    let isReferenced = false;
+                    for (let chatId in chatStore) {
+                        const messages = chatStore[chatId];
+                        for (let msg of messages) {
+                            if (msg.localKey === key) {
+                                isReferenced = true;
+                                break;
+                            }
+                        }
+                        if (isReferenced) break;
+                    }
+                    
+                    // Remove if not referenced
+                    if (!isReferenced) {
+                        localStorage.removeItem(key);
+                        cleaned++;
+                    }
+                }
+            }
+            
+            console.log(`Cleaned ${cleaned} old images from localStorage`);
+            return cleaned;
+        } catch (e) {
+            console.error('Failed to clean old localStorage images:', e);
+            return 0;
+        }
+    }
+};
+
+// Initialize storage managers
+const firebaseStorageManager = new FirebaseStorageManager();
+const localStorageManager = new LocalStorageManager();
+
+// ============================================================
+// IMAGE FRESHNESS INDICATOR
+// ============================================================
+
+/**
+ * Calculates freshness class based on time remaining until expiration
+ * @param {number} uploadedAt - Upload timestamp
+ * @param {number} expiresAt - Expiration timestamp
+ * @returns {string} - CSS class name (message-level)
+ */
+function getImageFreshnessClass(uploadedAt, expiresAt) {
+    if (!expiresAt) return 'message-expired'; // No expiration = already expired/localStorage
+    
+    const now = Date.now();
+    const totalLifetime = expiresAt - uploadedAt; // 30 seconds (testing) or 24 hours (production)
+    const remaining = expiresAt - now;
+    const percentRemaining = (remaining / totalLifetime) * 100;
+    
+    if (percentRemaining > 75) {
+        return 'message-fresh'; // 75-100% remaining
+    } else if (percentRemaining > 50) {
+        return 'message-aging'; // 50-75% remaining
+    } else if (percentRemaining > 0) {
+        return 'message-expiring'; // 0-50% remaining
+    } else {
+        return 'message-expired'; // Expired
+    }
+}
+
+/**
+ * Gets freshness class for Bento Grid (based on oldest image)
+ * @param {Array} attachments - Array of image attachments
+ * @returns {string} - CSS class name (message-level)
+ */
+function getBentoFreshnessClass(attachments) {
+    if (!attachments || attachments.length === 0) return 'message-expired';
+    
+    // Find the oldest (most expired) image
+    let oldestClass = 'message-fresh';
+    let minPercentRemaining = 100;
+    
+    attachments.forEach(img => {
+        if (!img.expiresAt) {
+            oldestClass = 'message-expired';
+            minPercentRemaining = 0;
+            return;
+        }
+        
+        const now = Date.now();
+        const totalLifetime = img.expiresAt - img.uploadedAt;
+        const remaining = img.expiresAt - now;
+        const percentRemaining = (remaining / totalLifetime) * 100;
+        
+        if (percentRemaining < minPercentRemaining) {
+            minPercentRemaining = percentRemaining;
+        }
+    });
+    
+    if (minPercentRemaining > 75) {
+        return 'message-fresh';
+    } else if (minPercentRemaining > 50) {
+        return 'message-aging';
+    } else if (minPercentRemaining > 25) {
+        return 'message-expiring';
+    } else if (minPercentRemaining > 0) {
+        return 'message-expiring';
+    } else {
+        return 'message-expired';
+    }
+}
+
+// ============================================================
+// LIFECYCLE MANAGER
+// ============================================================
+
+/**
+ * Lifecycle Manager
+ * Automatically migrates images from Firebase Storage to localStorage after 24 hours
+ */
+class LifecycleManager {
+    constructor(storageManager, localStorageManager) {
+        this.storageManager = storageManager;
+        this.localStorageManager = localStorageManager;
+        this.checkInterval = 5 * 60 * 1000; // 5 minutes
+        this.intervalId = null;
+    }
+    
+    /**
+     * Starts the background process
+     */
+    start() {
+        if (this.intervalId) return;
+        
+        console.log('Lifecycle Manager started');
+        
+        this.intervalId = setInterval(() => {
+            this.checkExpiring();
+        }, this.checkInterval);
+        
+        // Run first check immediately
+        this.checkExpiring();
+    }
+    
+    /**
+     * Stops the background process
+     */
+    stop() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+            console.log('Lifecycle Manager stopped');
+        }
+    }
+    
+    /**
+     * Checks and migrates expiring images
+     */
+    async checkExpiring() {
+        if (!currentUser) return;
+        
+        const now = Date.now();
+        const oneHour = 60 * 60 * 1000;
+        let modified = false;
+        
+        console.log('Lifecycle Manager: Checking for expiring images...');
+        
+        // Iterate through all chats
+        for (const chatId in chatStore) {
+            const messages = chatStore[chatId];
+            
+            for (let i = 0; i < messages.length; i++) {
+                const msg = messages[i];
+                
+                // Handle single image messages
+                if (msg.type === 'image' && msg.url && !msg.localKey) {
+                    if (msg.expiresAt && (msg.expiresAt - now) < oneHour) {
+                        try {
+                            console.log(`Migrating image: ${msg.name}`);
+                            
+                            // Download image
+                            const blob = await this.storageManager.downloadImage(msg.url);
+                            
+                            // Generate localStorage key
+                            const messageId = `${chatId}_${i}`;
+                            const localKey = StorageUtils.generateLocalKey(currentUser.id, chatId, i);
+                            
+                            // Save to localStorage
+                            await this.localStorageManager.saveImage(localKey, blob);
+                            
+                            // Update message
+                            messages[i] = {
+                                ...msg,
+                                localKey: localKey,
+                                url: null // Remove expired URL
+                            };
+                            
+                            modified = true;
+                            console.log(`Successfully migrated image to localStorage: ${localKey}`);
+                        } catch (error) {
+                            console.error('Failed to migrate image:', error);
+                            
+                            // Handle quota exceeded
+                            if (error.message.includes('quota exceeded')) {
+                                console.log('localStorage quota exceeded, cleaning old images...');
+                                StorageUtils.cleanOldLocalStorageImages(7);
+                                
+                                // Retry once
+                                try {
+                                    const blob = await this.storageManager.downloadImage(msg.url);
+                                    const localKey = StorageUtils.generateLocalKey(currentUser.id, chatId, i);
+                                    await this.localStorageManager.saveImage(localKey, blob);
+                                    
+                                    messages[i] = {
+                                        ...msg,
+                                        localKey: localKey,
+                                        url: null
+                                    };
+                                    
+                                    modified = true;
+                                    console.log(`Successfully migrated image after cleanup: ${localKey}`);
+                                } catch (retryError) {
+                                    console.error('Failed to migrate image even after cleanup:', retryError);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Handle multiple images (Bento Grid)
+                if (msg.type === 'images' && msg.attachments) {
+                    let attachmentsModified = false;
+                    
+                    for (let j = 0; j < msg.attachments.length; j++) {
+                        const img = msg.attachments[j];
+                        
+                        if (img.url && !img.localKey && img.expiresAt && (img.expiresAt - now) < oneHour) {
+                            try {
+                                console.log(`Migrating image from Bento Grid: ${img.name}`);
+                                
+                                const blob = await this.storageManager.downloadImage(img.url);
+                                const localKey = StorageUtils.generateLocalKey(currentUser.id, chatId, `${i}_${j}`);
+                                await this.localStorageManager.saveImage(localKey, blob);
+                                
+                                msg.attachments[j] = {
+                                    ...img,
+                                    localKey: localKey,
+                                    url: null
+                                };
+                                
+                                attachmentsModified = true;
+                                console.log(`Successfully migrated Bento Grid image: ${localKey}`);
+                            } catch (error) {
+                                console.error('Failed to migrate Bento Grid image:', error);
+                            }
+                        }
+                    }
+                    
+                    if (attachmentsModified) {
+                        modified = true;
+                    }
+                }
+            }
+        }
+        
+        // Save changes to Firebase
+        if (modified && currentUser) {
+            console.log('Lifecycle Manager: Saving updated chats to Firebase...');
+            await saveChatsToFirebase(currentUser.id, chatStore);
+        }
+    }
+}
+
+// Initialize lifecycle manager
+const lifecycleManager = new LifecycleManager(firebaseStorageManager, localStorageManager);
+
+// Start lifecycle manager when user logs in
+// (will be called in login/register functions)
+
+// ============================================================
+// BENTO GRID RENDERER
+// ============================================================
+
+/**
+ * Bento Grid Renderer
+ * Renders multiple images in a beautiful grid layout (like Telegram)
+ */
+class BentoGridRenderer {
+    /**
+     * Gets CSS grid template for given number of images
+     * @param {number} count - Number of images (2-9)
+     * @returns {string} - CSS grid template
+     */
+    static getGridTemplate(count) {
+        switch (count) {
+            case 2:
+                return 'grid-template-columns: repeat(2, 1fr); grid-template-rows: 1fr;';
+            case 3:
+                return 'grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);';
+            case 4:
+                return 'grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);';
+            case 5:
+            case 6:
+                return 'grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);';
+            case 7:
+            case 8:
+            case 9:
+                return 'grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);';
+            default:
+                return 'grid-template-columns: 1fr;';
+        }
+    }
+    
+    /**
+     * Gets special positioning for 3 images (third spans full width)
+     * @param {number} index - Image index (0-2)
+     * @returns {string} - CSS grid positioning
+     */
+    static getThreeImagePosition(index) {
+        if (index === 2) {
+            return 'grid-column: 1 / -1;';
+        }
+        return '';
+    }
+    
+    /**
+     * Gets image source (base64 data URL from localStorage)
+     * @param {Object} img - Image object
+     * @returns {string|null} - Image source URL or null if unavailable
+     */
+    static getImageSource(img) {
+        // Check for src property (base64 data URL)
+        if (img.src) {
+            return img.src;
+        }
+        
+        // Image unavailable
+        return null;
+    }
+    
+    /**
+     * Renders Bento Grid for multiple images
+     * @param {Array} images - Array of image objects
+     * @returns {string} - HTML string
+     */
+    static render(images) {
+        const count = Math.min(images.length, 9);
+        const gridTemplate = this.getGridTemplate(count);
+        
+        const imageElements = images.slice(0, 9).map((img, index) => {
+            const src = this.getImageSource(img);
+            const specialPosition = count === 3 ? this.getThreeImagePosition(index) : '';
+            
+            if (src === null) {
+                // Expired/unavailable image fallback
+                return `
+                    <div class="bento-grid-item expired" style="${specialPosition}" title="Изображение было удалено из кеша">
+                        <div class="expired-placeholder">
+                            <span class="expired-icon">📎</span>
+                            <span class="expired-name">${img.name || 'Изображение'}</span>
+                            <span class="expired-hint">недоступно</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="bento-grid-item" style="${specialPosition}" onclick="openImageModal('${src.replace(/'/g, "\\'")}')">
+                    <img src="${src}" alt="${img.name || 'Изображение'}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'expired-placeholder\\'>📎 ${img.name || 'Изображение'} (ошибка загрузки)</div>'">
+                </div>
+            `;
+        }).join('');
+        
+        // Check if user has hidden the storage hint
+        const hideHint = localStorage.getItem('mse_hide_storage_hint') === 'true';
+        const hintHTML = hideHint ? '' : `
+            <div class="bento-expiry-hint">
+                Изображения хранятся в локальном хранилище браузера. 
+                <span class="expiry-learn-more" onclick="openStorageInfoModal()">Узнать больше</span>
+            </div>
+        `;
+        
+        return `
+            <div class="bento-grid" style="${gridTemplate}">
+                ${imageElements}
+            </div>
+            ${hintHTML}
+        `;
+    }
+}
+
+// ============================================================
+// ATTACHMENT VALIDATOR
+// ============================================================
+
+/**
+ * Attachment Validator
+ * Validates files before upload (size, type, count limits)
+ */
+class AttachmentValidator {
+    static MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    static MAX_FILES = 15;
+    static MAX_IMAGE_PREVIEWS = 9;
+    
+    static SUPPORTED_IMAGE_TYPES = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp'
+    ];
+    
+    /**
+     * Validates a single file
+     * @param {File} file - File to validate
+     * @returns {{valid: boolean, error: string|null}}
+     */
+    static validateFile(file) {
+        if (file.size > this.MAX_FILE_SIZE) {
+            return {
+                valid: false,
+                error: `Файл "${file.name}" превышает максимальный размер 5MB`
+            };
+        }
+        return { valid: true, error: null };
+    }
+    
+    /**
+     * Validates a list of files
+     * @param {File[]} files - Array of files
+     * @param {number} existingCount - Number of already attached files
+     * @returns {{valid: boolean, error: string|null}}
+     */
+    static validateFileList(files, existingCount = 0) {
+        const totalCount = files.length + existingCount;
+        
+        if (totalCount > this.MAX_FILES) {
+            return {
+                valid: false,
+                error: `Максимум ${this.MAX_FILES} файлов в одном сообщении`
+            };
+        }
+        
+        // Check each file
+        for (const file of files) {
+            const result = this.validateFile(file);
+            if (!result.valid) return result;
+        }
+        
+        return { valid: true, error: null };
+    }
+    
+    /**
+     * Checks if file is an image
+     * @param {File} file - File to check
+     * @returns {boolean}
+     */
+    static isImage(file) {
+        return this.SUPPORTED_IMAGE_TYPES.includes(file.type);
+    }
+    
+    /**
+     * Counts images in file list
+     * @param {File[]} files - Array of files
+     * @returns {number}
+     */
+    static countImages(files) {
+        return files.filter(f => this.isImage(f)).length;
+    }
+    
+    /**
+     * Shows notification to user
+     * @param {string} message - Message to show
+     * @param {string} type - Type: 'error', 'warning', 'success'
+     */
+    static showNotification(message, type = 'error') {
+        // Simple console notification for now
+        // Can be replaced with UI notification later
+        const prefix = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅';
+        console.log(`${prefix} ${message}`);
+        
+        // Also show browser alert for important errors
+        if (type === 'error') {
+            alert(message);
+        }
+    }
 }
 
 // ============================================================
@@ -2570,7 +3553,7 @@ if (document.readyState === 'loading') {
 // GEMINI AI INTEGRATION
 // ============================================================
 
-const GEMINI_API_KEY = 'AIzaSyDlTNE94C2II0ZnaWS6aVpUw-g3OECS23Y';
+const GEMINI_API_KEY = 'AIzaSyDhl7aG8nKFP6LspD75VUcMr92hTepKiyQ';
 // Try stable models without -exp suffix
 const GEMINI_MODELS = [
     'gemini-2.0-flash',
@@ -3219,9 +4202,40 @@ function renderChatMessages(){
                     </div>
                 </div>`;
             } else if (m.type === 'image') {
-                // Картинка
-                return `<div class="chat-message ${m.role}">
-                    <img class="chat-message-image" src="${m.src}" alt="${m.name}" onclick="openImageModal('${m.src}')">
+                // Single image - check new format (Firebase Storage) or old format (base64)
+                const src = BentoGridRenderer.getImageSource(m);
+                const freshnessClass = getImageFreshnessClass(m.uploadedAt, m.expiresAt);
+                
+                if (src === null) {
+                    // Expired/unavailable image
+                    return `<div class="chat-message ${m.role} ${freshnessClass}">
+                        <div class="expired-placeholder" style="max-width:300px;padding:20px;background:rgba(255,255,255,.03);border-radius:8px;">
+                            <span class="expired-icon">📎</span>
+                            <span class="expired-name">${m.name || 'Изображение'}</span>
+                            <span class="expired-hint">недоступно</span>
+                        </div>
+                    </div>`;
+                }
+                
+                // Check if user has hidden the storage hint
+                const hideHint = localStorage.getItem('mse_hide_storage_hint') === 'true';
+                const hintHTML = hideHint ? '' : `
+                    <div class="single-image-expiry-hint">
+                        Изображения хранятся в локальном хранилище браузера. 
+                        <span class="expiry-learn-more" onclick="openStorageInfoModal()">Узнать больше</span>
+                    </div>
+                `;
+                
+                return `<div class="chat-message ${m.role} ${freshnessClass}">
+                    <img class="chat-message-image" src="${src}" alt="${m.name || 'Изображение'}" onclick="openImageModal('${src.replace(/'/g, "\\'")}')" onerror="this.parentElement.innerHTML='<div class=\\'expired-placeholder\\' style=\\'max-width:300px;padding:20px;background:rgba(255,255,255,.03);border-radius:8px;\\'><span class=\\'expired-icon\\'>📎</span><span class=\\'expired-name\\'>${m.name || 'Изображение'}</span><span class=\\'expired-hint\\'>ошибка загрузки</span></div>'">
+                    ${hintHTML}
+                </div>`;
+            } else if (m.type === 'images') {
+                // Multiple images - Bento Grid
+                const freshnessClass = getBentoFreshnessClass(m.attachments);
+                console.log('Rendering Bento Grid with attachments:', m.attachments);
+                return `<div class="chat-message ${m.role} ${freshnessClass}">
+                    ${BentoGridRenderer.render(m.attachments)}
                 </div>`;
             } else if (m.type === 'file') {
                 // Файл — если сообщение содержит только файл (нет текста), убираем верхнюю разделительную полосу
@@ -3305,6 +4319,13 @@ function sendMessage(){
     
     if (!text && !hasFiles) return;
     
+    // Check if Sofia is already thinking - block sending
+    const isThinking = chatStore[activeChatTab]?.some(m => m.type === 'thinking');
+    if (isThinking) {
+        console.log('Sofia is thinking, please wait...');
+        return;
+    }
+    
     // ВАЖНО: Запоминаем активный чат в момент отправки
     const targetChatTab = activeChatTab;
     
@@ -3335,6 +4356,62 @@ function sendMessage(){
         const thinkingTime = Math.min(maxTime, baseTime + (charCount * 9));
         return thinkingTime;
     };
+    
+    // ============================================================
+    // CHECK IF USER IS LOGGED IN - BLOCK CHAT IF NOT
+    // ============================================================
+    if (!currentUser) {
+        // User not logged in - show Sofia's response with PDF manuals
+        if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+        
+        // Add user message
+        if (text) {
+            chatStore[targetChatTab].push({role:'user', text: text});
+        }
+        
+        // Add thinking animation
+        const thinkingId = addThinkingMessage();
+        chatInput.value = '';
+        attachedFiles = [];
+        renderFilePreview();
+        safeRenderChatMessages();
+        
+        const responseText = 'Пройди синхронизацию, чтобы я тебя запомнила. А пока можешь ознакомиться с тем, как устроена система MSE.';
+        const thinkingTime = calculateThinkingTime(responseText);
+        
+        setTimeout(() => {
+            // Remove thinking message
+            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+            
+            // Add Sofia's text response with clickable "синхронизацию" link
+            chatStore[targetChatTab].push({
+                role:'ai', 
+                text: 'Пройди <span class="chat-login-link" onclick="openLoginFromChat(); return false;">синхронизацию</span>, чтобы я тебя запомнила. А пока можешь ознакомиться с тем, как устроена система MSE.'
+            });
+            
+            // Add 3 PDF manuals as file attachments
+            const pdfManuals = [
+                { name: 'MSE_Cardio_Anatomy.pdf', extension: 'pdf', size: 2048000 },
+                { name: 'MSE_Workout_Guide.pdf', extension: 'pdf', size: 1536000 },
+                { name: 'MSE_Nutrition_Plan.pdf', extension: 'pdf', size: 1024000 }
+            ];
+            
+            pdfManuals.forEach(pdf => {
+                chatStore[targetChatTab].push({
+                    role: 'ai',
+                    type: 'file',
+                    name: pdf.name,
+                    extension: pdf.extension,
+                    size: pdf.size
+                });
+            });
+            
+            safeRenderChatMessages();
+        }, thinkingTime);
+        
+        return; // Stop execution - don't process message further
+    }
+    // ============================================================
     
     // Проверяем команду "София, покажи меня"
     if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('покажи меня')) {
@@ -3566,83 +4643,300 @@ function sendMessage(){
         chatStore[targetChatTab].push({role:'user', text: text});
     }
     
-    // Отправляем каждый файл как отдельное сообщение
-    // If multiple attachments include at least one image, treat all attachments as files (no previews)
-    const treatAllAsFiles = attachedFiles.length > 1 && attachedFiles.some(f => f.type && f.type.startsWith('image/'));
-
-    attachedFiles.forEach(file => {
-        const isImage = file.type && file.type.startsWith('image/');
+    // Process attachments with new localStorage system
+    let hasImages = false; // Track if we have images for later (initialize outside if block)
+    if (attachedFiles.length > 0) {
+        console.log('attachedFiles:', attachedFiles);
+        const images = attachedFiles.filter(f => AttachmentValidator.isImage(f));
+        const files = attachedFiles.filter(f => !AttachmentValidator.isImage(f));
         
-        if (isImage && !treatAllAsFiles) {
-            // For single image attachments we create a data URL preview
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                chatStore[targetChatTab].push({
-                    role:'user', 
-                    type:'image',
-                    src: e.target.result,
-                    name: file.name || 'Изображение'
-                });
-                safeRenderChatMessages();
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // Treat as generic file (no preview)
-            const ext = file.name ? file.name.split('.').pop() : 'file';
-            chatStore[targetChatTab].push({
-                role:'user',
-                type:'file',
-                name: file.name || `attach.${ext}`
+        hasImages = images.length > 0; // Save for later check
+        
+        console.log(`Processing attachments: ${images.length} images, ${files.length} files`);
+        console.log('hasImages:', hasImages);
+        
+        // Handle images (upload to Firebase Storage)
+        if (images.length === 1) {
+            console.log('Single image detected');
+            // Single image - upload and create message
+            const image = images[0];
+            
+            console.log('Current user:', currentUser);
+            console.log('Image file:', image);
+            
+            if (currentUser) {
+                console.log('User logged in, saving image to localStorage...');
+                // Save to localStorage as base64
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    chatStore[targetChatTab].push({
+                        role: 'user',
+                        type: 'image',
+                        src: e.target.result,
+                        name: image.name || 'Изображение'
+                    });
+                    safeRenderChatMessages();
+                    
+                    // Add thinking and call AI after image is loaded
+                    const thinkingId = addThinkingMessage();
+                    safeRenderChatMessages();
+                    
+                    const userMessageText = text || 'Файл прикреплён';
+                    callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                        const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
+                        const thinkingTime = calculateThinkingTime(responseText);
+                        
+                        setTimeout(() => {
+                            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                            chatStore[targetChatTab].push({role:'ai', text: responseText});
+                            executeAIActions(aiResult.actions);
+                            safeRenderChatMessages();
+                        }, thinkingTime);
+                    }).catch(error => {
+                        console.error('AI error:', error);
+                        setTimeout(() => {
+                            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                            chatStore[targetChatTab].push({
+                                role:'ai', 
+                                text: 'Извини, произошла ошибка при обработке запроса. Попробуй ещё раз. 🔧'
+                            });
+                            safeRenderChatMessages();
+                        }, 1000);
+                    });
+                    
+                    // Auto-save to Firebase
+                    if (currentUser) {
+                        clearTimeout(window.chatSaveTimeout);
+                        window.chatSaveTimeout = setTimeout(() => {
+                            saveChatsToFirebase(currentUser.id, chatStore);
+                        }, 2000);
+                    }
+                };
+                reader.readAsDataURL(image);
+            } else {
+                // User not logged in - use base64 fallback
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    chatStore[targetChatTab].push({
+                        role: 'user',
+                        type: 'image',
+                        src: e.target.result,
+                        name: image.name || 'Изображение'
+                    });
+                    safeRenderChatMessages();
+                };
+                reader.readAsDataURL(image);
+            }
+        } else if (images.length >= 2 && images.length <= 9) {
+            console.log(`Multiple images detected: ${images.length} images for Bento Grid`);
+            // Multiple images (2-9) - Bento Grid
+            // Save all images to localStorage as base64
+            let loadedCount = 0;
+            const imageData = [];
+            
+            images.forEach((image, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData[index] = {
+                        type: 'image',
+                        name: image.name || 'Изображение',
+                        src: e.target.result
+                    };
+                    loadedCount++;
+                    
+                    // When all images are loaded, create Bento Grid message
+                    if (loadedCount === images.length) {
+                        chatStore[targetChatTab].push({
+                            role: 'user',
+                            type: 'images',
+                            attachments: imageData
+                        });
+                        safeRenderChatMessages();
+                        
+                        // Add thinking and call AI after images are loaded
+                        const thinkingId = addThinkingMessage();
+                        safeRenderChatMessages();
+                        
+                        const userMessageText = text || 'Файлы прикреплены';
+                        callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                            const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
+                            const thinkingTime = calculateThinkingTime(responseText);
+                            
+                            setTimeout(() => {
+                                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                                chatStore[targetChatTab].push({role:'ai', text: responseText});
+                                executeAIActions(aiResult.actions);
+                                safeRenderChatMessages();
+                            }, thinkingTime);
+                        }).catch(error => {
+                            console.error('AI error:', error);
+                            setTimeout(() => {
+                                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                                chatStore[targetChatTab].push({
+                                    role:'ai', 
+                                    text: 'Извини, произошла ошибка при обработке запроса. Попробуй ещё раз. 🔧'
+                                });
+                                safeRenderChatMessages();
+                            }, 1000);
+                        });
+                        
+                        // Auto-save to Firebase
+                        if (currentUser) {
+                            clearTimeout(window.chatSaveTimeout);
+                            window.chatSaveTimeout = setTimeout(() => {
+                                saveChatsToFirebase(currentUser.id, chatStore);
+                            }, 2000);
+                        }
+                    }
+                };
+                reader.readAsDataURL(image);
+            });
+        } else if (images.length > 9) {
+            console.log(`More than 9 images detected: ${images.length} images`);
+            // More than 9 images - first 9 in Bento Grid, rest as files
+            const firstNine = images.slice(0, 9);
+            const remaining = images.slice(9);
+            
+            // Save first 9 to localStorage as base64
+            let loadedCount = 0;
+            const imageData = [];
+            
+            firstNine.forEach((image, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData[index] = {
+                        type: 'image',
+                        name: image.name || 'Изображение',
+                        src: e.target.result
+                    };
+                    loadedCount++;
+                    
+                    // When all first 9 are loaded
+                    if (loadedCount === firstNine.length) {
+                        chatStore[targetChatTab].push({
+                            role: 'user',
+                            type: 'images',
+                            attachments: imageData
+                        });
+                        
+                        // Add remaining as files
+                        remaining.forEach(img => {
+                            chatStore[targetChatTab].push({
+                                role: 'user',
+                                type: 'file',
+                                name: img.name || 'Изображение',
+                                extension: img.name ? img.name.split('.').pop() : 'jpg',
+                                size: img.size
+                            });
+                        });
+                        
+                        safeRenderChatMessages();
+                        
+                        // Add thinking and call AI after images are loaded
+                        const thinkingId = addThinkingMessage();
+                        safeRenderChatMessages();
+                        
+                        const userMessageText = text || 'Файлы прикреплены';
+                        callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                            const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
+                            const thinkingTime = calculateThinkingTime(responseText);
+                            
+                            setTimeout(() => {
+                                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                                chatStore[targetChatTab].push({role:'ai', text: responseText});
+                                executeAIActions(aiResult.actions);
+                                safeRenderChatMessages();
+                            }, thinkingTime);
+                        }).catch(error => {
+                            console.error('AI error:', error);
+                            setTimeout(() => {
+                                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                                chatStore[targetChatTab].push({
+                                    role:'ai', 
+                                    text: 'Извини, произошла ошибка при обработке запроса. Попробуй ещё раз. 🔧'
+                                });
+                                safeRenderChatMessages();
+                            }, 1000);
+                        });
+                        
+                        // Auto-save to Firebase
+                        if (currentUser) {
+                            clearTimeout(window.chatSaveTimeout);
+                            window.chatSaveTimeout = setTimeout(() => {
+                                saveChatsToFirebase(currentUser.id, chatStore);
+                            }, 2000);
+                        }
+                    }
+                };
+                reader.readAsDataURL(image);
             });
         }
-    });
+        
+        // Handle non-image files
+        files.forEach(file => {
+            const ext = file.name ? file.name.split('.').pop() : 'file';
+            chatStore[targetChatTab].push({
+                role: 'user',
+                type: 'file',
+                name: file.name || `attach.${ext}`,
+                extension: ext,
+                size: file.size
+            });
+        });
+    }
     
     chatInput.value = '';
     attachedFiles = [];
     renderFilePreview();
-    safeRenderChatMessages();
     
-    // Add thinking animation before Sofia's response
-    const thinkingId = addThinkingMessage();
-    safeRenderChatMessages();
-    
-    // Call Gemini AI
-    const userMessageText = text || 'Файл прикреплён';
-    callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
-        const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
-        const thinkingTime = calculateThinkingTime(responseText);
+    // If no images, render immediately and add thinking
+    if (!hasImages) {
+        safeRenderChatMessages();
         
-        setTimeout(() => {
-            // Remove thinking message
-            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+        // Add thinking animation before Sofia's response
+        const thinkingId = addThinkingMessage();
+        safeRenderChatMessages();
+        
+        // Call Gemini AI
+        const userMessageText = text || 'Файл прикреплён';
+        callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+            const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
+            const thinkingTime = calculateThinkingTime(responseText);
             
-            // Add AI text response
-            chatStore[targetChatTab].push({role:'ai', text: responseText});
-            
-            // Execute AI actions (achievements, notes, etc.)
-            executeAIActions(aiResult.actions);
-            
-            safeRenderChatMessages();
-        }, thinkingTime);
-    }).catch(error => {
-        console.error('AI error:', error);
-        setTimeout(() => {
-            chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
-            chatStore[targetChatTab].push({
-                role:'ai', 
-                text: 'Извини, произошла ошибка при обработке запроса. Попробуй ещё раз. 🔧'
-            });
-            safeRenderChatMessages();
-        }, 1000);
-    });
-    
-    // Auto-save chats to Firebase (with debounce)
-    if (currentUser) {
-        clearTimeout(window.chatSaveTimeout);
-        window.chatSaveTimeout = setTimeout(() => {
-            saveChatsToFirebase(currentUser.id, chatStore);
-        }, 2000); // Save after 2 seconds of inactivity
+            setTimeout(() => {
+                // Remove thinking message
+                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                
+                // Add AI text response
+                chatStore[targetChatTab].push({role:'ai', text: responseText});
+                
+                // Execute AI actions (achievements, notes, etc.)
+                executeAIActions(aiResult.actions);
+                
+                safeRenderChatMessages();
+                
+                // Auto-save to Firebase
+                if (currentUser) {
+                    clearTimeout(window.chatSaveTimeout);
+                    window.chatSaveTimeout = setTimeout(() => {
+                        saveChatsToFirebase(currentUser.id, chatStore);
+                    }, 2000);
+                }
+            }, thinkingTime);
+        }).catch(error => {
+            console.error('AI error:', error);
+            setTimeout(() => {
+                chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                chatStore[targetChatTab].push({
+                    role:'ai', 
+                    text: 'Извини, произошла ошибка при обработке запроса. Попробуй ещё раз. 🔧'
+                });
+                safeRenderChatMessages();
+            }, 1000);
+        });
     }
+    // If has images, thinking and AI call will be added after image upload completes
+    // (handled in the image upload .then() callbacks below)
 }
 
 chatSend.addEventListener('click', sendMessage);
@@ -3670,23 +4964,54 @@ document.getElementById('chat-attach').addEventListener('click', () => {
 // Выбор файлов через input
 document.getElementById('chat-file-input').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
+    
+    // Validate files
+    const validation = AttachmentValidator.validateFileList(files, attachedFiles.length);
+    
+    if (!validation.valid) {
+        AttachmentValidator.showNotification(validation.error, 'error');
+        e.target.value = ''; // Clear input
+        return;
+    }
+    
+    // Add valid files
     files.forEach(file => {
         attachedFiles.push(file);
     });
+    
     renderFilePreview();
-    e.target.value = ''; // Очищаем input для повторного выбора
+    e.target.value = ''; // Clear input for next selection
 });
 
 // Вставка из буфера обмена
 document.getElementById('chat-input').addEventListener('paste', function(e) {
     const items = e.clipboardData.items;
+    const newFiles = [];
+    
     for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') !== -1) {
             const blob = items[i].getAsFile();
-            attachedFiles.push(blob);
-            renderFilePreview();
-            e.preventDefault();
+            newFiles.push(blob);
         }
+    }
+    
+    if (newFiles.length > 0) {
+        // Validate before adding
+        const validation = AttachmentValidator.validateFileList(newFiles, attachedFiles.length);
+        
+        if (!validation.valid) {
+            AttachmentValidator.showNotification(validation.error, 'error');
+            e.preventDefault();
+            return;
+        }
+        
+        // Add valid files
+        newFiles.forEach(file => {
+            attachedFiles.push(file);
+        });
+        
+        renderFilePreview();
+        e.preventDefault();
     }
 });
 
@@ -3716,6 +5041,8 @@ function removeFile(index) {
 // ============================================================
 // IMAGE MODAL
 // ============================================================
+// IMAGE MODAL
+// ============================================================
 function openImageModal(src) {
     document.getElementById('modalImage').src = src;
     document.getElementById('imageModal').classList.add('show');
@@ -3726,6 +5053,40 @@ document.getElementById('imageModal').addEventListener('click', function(e) {
         this.classList.remove('show');
     }
 });
+
+// ============================================================
+// STORAGE INFO MODAL
+// ============================================================
+function openStorageInfoModal() {
+    // Check if user has hidden this hint
+    const hideHint = localStorage.getItem('mse_hide_storage_hint');
+    if (hideHint === 'true') {
+        return; // Don't show modal if user chose to hide it
+    }
+    
+    const modal = document.getElementById('storageInfoModal');
+    modal.classList.add('active');
+}
+
+function closeStorageInfoModal() {
+    const modal = document.getElementById('storageInfoModal');
+    modal.classList.remove('active');
+}
+
+function hideStorageHintForever() {
+    localStorage.setItem('mse_hide_storage_hint', 'true');
+}
+
+// Close modal when clicking outside
+document.getElementById('storageInfoModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeStorageInfoModal();
+    }
+});
+
+// ============================================================
+// PDF MODAL
+// ============================================================
 // PDF modal functions
 var PDF_URLS = {
     materials: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/MSE%20Cardio%20Anatomy.pdf',
