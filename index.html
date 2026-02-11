@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head> 
     <meta charset="UTF-8">
@@ -1106,6 +1106,24 @@
             font-size:18px;font-weight:600;margin-bottom:16px;letter-spacing:-.3px;text-align:center;
             display:flex;align-items:center;justify-content:center;gap:8px;
         }
+        
+        .product-name-plate {
+            background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:5px;
+            padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;
+        }
+        .product-name-plate .material-icon {
+            width:32px;height:32px;background:rgba(255,255,255,.08);border-radius:5px;
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        }
+        .product-name-plate .material-icon img { width:18px;height:18px;opacity:.7; }
+        .product-name-plate .product-info { flex:1;min-width:0; }
+        .product-name-plate .product-info h3 { 
+            font-size:13px;font-weight:500;margin-bottom:2px;letter-spacing:-.2px;color:var(--text-primary);
+        }
+        .product-name-plate .product-info p { 
+            font-size:11px;color:var(--text-secondary);letter-spacing:-.1px;
+        }
+        
         .product-key-input {
             width:100%;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:14px;
@@ -1858,6 +1876,18 @@
       <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="" style="width:20px;height:20px;">
       <span>Введите ключ продукта</span>
     </div>
+    
+    <!-- Product Name Plate -->
+    <div class="product-name-plate" id="productNamePlate">
+      <div class="material-icon">
+        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/doc.svg" alt="">
+      </div>
+      <div class="product-info">
+        <h3 id="productNameTitle">Название продукта</h3>
+        <p id="productNameDesc">Описание продукта</p>
+      </div>
+    </div>
+    
     <div style="display:flex;gap:6px;margin-bottom:16px;width:100%;">
       <input type="text" class="product-key-block" id="keyBlock1" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock2" placeholder="XXXX" maxlength="4">
@@ -2593,6 +2623,20 @@ async function loadChainAnimation(containerId, speed = 1) {
 
 function showProductKeyModal(itemTitle, itemIndex, tabType) {
     currentLockedItem = { title: itemTitle, index: itemIndex, tabType: tabType };
+    
+    // Set product name in the plate
+    document.getElementById('productNameTitle').textContent = itemTitle;
+    
+    // Set description based on tab type
+    let description = '';
+    if (tabType === 'notes') {
+        description = 'Заметка';
+    } else if (tabType === 'achievements') {
+        description = 'Достижение';
+    } else {
+        description = 'Продукт';
+    }
+    document.getElementById('productNameDesc').textContent = description;
     
     // Clear all blocks
     ['keyBlock1', 'keyBlock2', 'keyBlock3', 'keyBlock4'].forEach(id => {
