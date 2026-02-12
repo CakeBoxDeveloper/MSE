@@ -344,6 +344,7 @@
         /* ─── MATERIALS ─── */
         .materials-list { 
             display:grid;
+            grid-template-columns:1fr;
             gap:10px;
             overflow-y:auto;
             max-height:100%;
@@ -499,6 +500,33 @@
             min-width:0;
             transition:border-color .3s ease, border-style .3s ease;
         }
+        
+        /* Blur fade-in animation for NEW messages only */
+        .chat-message.new-message.user,
+        .chat-message.new-message.ai {
+            opacity: 0;
+            filter: blur(8px);
+            animation: messageBlurFadeIn 0.6s ease-out forwards;
+        }
+        
+        /* No animation for thinking message */
+        .chat-message.thinking {
+            opacity: 1 !important;
+            filter: none !important;
+            animation: none !important;
+        }
+        
+        @keyframes messageBlurFadeIn {
+            0% {
+                opacity: 0;
+                filter: blur(8px);
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0px);
+            }
+        }
+        
         .chat-message.ai  { align-self:flex-start; }
         .chat-message.user { align-self:flex-end;background:rgba(255,255,255,.08); }
         
@@ -1039,6 +1067,24 @@
         @keyframes spin { to{transform:rotate(360deg);} }
         
         /* Monitor video animations */
+        @keyframes colorFadeIn {
+            0% {
+                filter: grayscale(1);
+            }
+            100% {
+                filter: grayscale(0);
+            }
+        }
+        
+        @keyframes colorFadeOut {
+            0% {
+                filter: grayscale(0);
+            }
+            100% {
+                filter: grayscale(1);
+            }
+        }
+        
         @keyframes glowFadeIn {
             0% {
                 filter: drop-shadow(0 0 0px rgba(255, 165, 0, 0)) 
@@ -1103,8 +1149,15 @@
         }
         .product-key-overlay.active .product-key-modal { transform:scale(1); }
         .product-key-header {
-            font-size:18px;font-weight:600;margin-bottom:16px;letter-spacing:-.3px;text-align:center;
-            display:flex;align-items:center;justify-content:center;gap:8px;
+            font-size:18px;font-weight:600;margin-bottom:16px;
+            display:flex;align-items:center;justify-content:space-between;
+            width:100%;
+        }
+        .product-key-header span {
+            display:flex;
+            justify-content:space-between;
+            flex:1;
+            margin-left:12px;
         }
         
         .product-name-plate {
@@ -1131,6 +1184,34 @@
         }
         .product-key-input::placeholder { color:var(--text-tertiary); }
         .product-key-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+        
+        /* Alert Modal */
+        .alert-overlay {
+            position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);
+            backdrop-filter:saturate(180%) blur(20px);z-index:2000;display:flex;align-items:center;
+            justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;
+        }
+        .alert-overlay.active { opacity:1;pointer-events:all; }
+        .alert-modal {
+            background:rgba(28,28,28,1);border:1px solid var(--glass-border);border-radius:8px;padding:24px;
+            width:380px;max-width:calc(100% - 40px);transition:transform .3s ease;transform:scale(.9);
+        }
+        .alert-overlay.active .alert-modal { transform:scale(1); }
+        .alert-title {
+            font-size:18px;font-weight:600;margin-bottom:12px;letter-spacing:-.3px;
+            color:var(--text-primary);text-align:center;
+        }
+        .alert-message {
+            font-size:14px;color:var(--text-secondary);margin-bottom:20px;
+            line-height:1.6;text-align:center;
+        }
+        .alert-button {
+            width:100%;padding:12px 16px;background:rgba(255,255,255,.1);
+            border:1px solid var(--glass-border);border-radius:5px;
+            color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;
+            cursor:pointer;transition:all .2s ease;font-size:14px;
+        }
+        .alert-button:hover { background:rgba(255,255,255,.15); }
         
         .product-key-block {
             flex:1;padding:8px 6px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
@@ -1162,7 +1243,7 @@
         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button class="header-login-btn" onclick="alert('Магазин в разработке')">
+        <button class="header-login-btn" onclick="showAlert('Магазин в разработке', 'Магазин')">
           <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6a50e74f86f19a5eacbe86caab2219a6292f2afc/Shop.svg" alt="Магазин">
         </button>
         <button class="header-login-btn" id="headerLoginBtn">
@@ -1514,7 +1595,9 @@
                    loop 
                    muted 
                    playsinline
-                   style="width: 100%; height: 100%; opacity: 0.7; object-fit: contain; cursor: pointer;">
+                   style="width: 100%; height: 100%; opacity: 0.7; object-fit: contain; cursor: pointer;
+                          filter: grayscale(1);
+                          animation: colorFadeIn 2s ease-out forwards;">
               <source id="monitorVideoSource" src="" type="video/webm">
               <!-- Fallback to SVG if video doesn't load -->
               <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/5ec8acac0d97faf61ecd4b56746d3ab429bb6a25/human_male.svg" 
@@ -1524,7 +1607,7 @@
           </div>
           
           <!-- Плашка с номером звена (выровнена по нижней границе) -->
-          <div id="monitorUserPlate" style="position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); width: 160px; height: 60px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; pointer-events: all;">
+          <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); width: 160px; height: 60px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; pointer-events: all; cursor: pointer; transition: all 0.2s ease;">
             <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
           </div>
           
@@ -1874,7 +1957,7 @@
   <div class="product-key-modal" onclick="event.stopPropagation();">
     <div class="product-key-header">
       <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="" style="width:20px;height:20px;">
-      <span>Введите ключ продукта</span>
+      <span><span>Введите</span><span>ключ</span><span>продукта</span></span>
     </div>
     
     <!-- Product Name Plate -->
@@ -1934,7 +2017,63 @@
     </div>
 </div>
 
+<!-- Alert Modal -->
+<div class="alert-overlay" id="alertOverlay" onclick="closeAlert()">
+    <div class="alert-modal" onclick="event.stopPropagation();">
+        <div id="alertAnimationContainer" style="display:none;width:96px;height:96px;margin:0 auto 16px;"></div>
+        <div class="alert-title" id="alertTitle">Уведомление</div>
+        <div class="alert-message" id="alertMessage">Сообщение</div>
+        <button class="alert-button" id="alertButton" onclick="closeAlert()">OK</button>
+    </div>
+</div>
+
 <script>
+// ============================================================
+// ALERT MODAL FUNCTIONS
+// ============================================================
+function showAlert(message, title = 'Подтвердите действие', options = {}) {
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertMessage').textContent = message;
+    
+    const animationContainer = document.getElementById('alertAnimationContainer');
+    const button = document.getElementById('alertButton');
+    
+    // Show animation if requested
+    if (options.showAnimation) {
+        animationContainer.style.display = 'block';
+        animationContainer.innerHTML = ''; // Clear previous animation
+        
+        // Load chain animation
+        fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Green%20Link%20Chain.json')
+            .then(response => response.json())
+            .then(data => {
+                lottie.loadAnimation({
+                    container: animationContainer,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                }).setSpeed(1.5);
+            })
+            .catch(e => {
+                console.error('Failed to load animation:', e);
+                animationContainer.innerHTML = '<div style="width:96px;height:96px;border-radius:50%;background:rgba(153,153,153,0.2);display:flex;align-items:center;justify-content:center;font-size:48px;">🔗</div>';
+            });
+    } else {
+        animationContainer.style.display = 'none';
+    }
+    
+    // Set button text and action
+    button.textContent = options.buttonText || 'OK';
+    button.onclick = options.buttonAction || closeAlert;
+    
+    document.getElementById('alertOverlay').classList.add('active');
+}
+
+function closeAlert() {
+    document.getElementById('alertOverlay').classList.remove('active');
+}
+
 // ============================================================
 // MINIMIZE / EXPAND with smooth animation
 // ============================================================
@@ -1959,7 +2098,9 @@ const videoSkins = {
     }
 };
 
-// Get random video from all available skins (for non-logged in state)
+// Track last video to avoid repeats
+let lastVideoUrl = null;
+
 function getRandomVideo() {
     const allVideos = [
         videoSkins.male.heat,
@@ -1967,13 +2108,52 @@ function getRandomVideo() {
         videoSkins.female.heat,
         videoSkins.female.xray
     ];
-    const randomVideo = allVideos[Math.floor(Math.random() * allVideos.length)];
-    console.log('[VIDEO] Random video selected:', randomVideo);
+    
+    // Filter out the last video if we have more than 1 option
+    let availableVideos = allVideos;
+    if (lastVideoUrl && allVideos.length > 1) {
+        availableVideos = allVideos.filter(v => v !== lastVideoUrl);
+    }
+    
+    const randomVideo = availableVideos[Math.floor(Math.random() * availableVideos.length)];
+    console.log('[VIDEO] Random video selected:', randomVideo, '(excluded last:', lastVideoUrl, ')');
     return randomVideo;
 }
 
-// Update monitor video based on user gender and current skin
-function updateMonitorVideo(gender, skin = currentSkin) {
+// Get random video for specific gender
+// VERSION: 2025-02-10-FIX-v3
+function getRandomVideoForGender(gender) {
+    if (!gender || (gender !== 'male' && gender !== 'female')) {
+        return getRandomVideo(); // Fallback to all videos
+    }
+    
+    const genderVideos = [
+        videoSkins[gender].heat,
+        videoSkins[gender].xray
+    ];
+    
+    console.log('[VIDEO] All available videos for', gender, ':', genderVideos);
+    console.log('[VIDEO] Last video was:', lastVideoUrl);
+    
+    // Filter out the last video if we have more than 1 option
+    let availableVideos = genderVideos;
+    if (lastVideoUrl && genderVideos.length > 1) {
+        availableVideos = genderVideos.filter(v => {
+            const matches = v === lastVideoUrl;
+            console.log('[VIDEO] Comparing', v, '===', lastVideoUrl, ':', matches);
+            return !matches;
+        });
+    }
+    
+    console.log('[VIDEO] Available videos after filter:', availableVideos);
+    
+    const randomVideo = availableVideos[Math.floor(Math.random() * availableVideos.length)];
+    console.log('[VIDEO] Random', gender, 'video selected:', randomVideo);
+    return randomVideo;
+}
+
+// Update monitor video based on user gender
+function updateMonitorVideo(gender) {
     const videoSource = document.getElementById('monitorVideoSource');
     const video = document.getElementById('monitorHumanVideo');
     
@@ -1982,35 +2162,45 @@ function updateMonitorVideo(gender, skin = currentSkin) {
         return;
     }
     
+    console.log('[VIDEO] ========== updateMonitorVideo START ==========');
+    console.log('[VIDEO] VERSION: 2025-02-10-FIX-v3');
+    console.log('[VIDEO] Called with gender:', gender);
+    console.log('[VIDEO] currentUser:', currentUser);
+    console.log('[VIDEO] lastVideoUrl before:', lastVideoUrl);
+    
     let videoUrl;
     
     if (gender && (gender === 'male' || gender === 'female')) {
-        // Logged in - use gender-specific skin
-        videoUrl = videoSkins[gender][skin];
-        currentSkin = skin;
-        console.log('[VIDEO] Logged in - Loading', gender, skin, ':', videoUrl);
+        // Logged in - random video for this gender (excluding last one)
+        console.log('[VIDEO] User is logged in, selecting video for gender:', gender);
+        videoUrl = getRandomVideoForGender(gender);
     } else {
-        // Not logged in - random video
+        // Not logged in - random video from all (excluding last one)
+        console.log('[VIDEO] User not logged in, selecting from all videos');
         videoUrl = getRandomVideo();
     }
     
-    videoSource.src = videoUrl;
-    video.load(); // Reload video with new source
-    console.log('[VIDEO] Video source updated to:', videoUrl);
+    // Save this video as the last one
+    lastVideoUrl = videoUrl;
+    console.log('[VIDEO] lastVideoUrl after:', lastVideoUrl);
+    
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
+    videoSource.src = videoUrl + '?t=' + timestamp;
+    
+    console.log('[VIDEO] Video source updated to:', videoSource.src);
+    console.log('[VIDEO] ========== updateMonitorVideo END ==========');
+    
+    // Force reload
+    video.load();
+    video.play().catch(e => console.log('[VIDEO] Autoplay prevented:', e));
 }
 
-// Toggle between heat and xray skins
+// Toggle between heat and xray skins (DISABLED - now using random selection)
 function toggleMonitorSkin(event) {
-    if (event) event.stopPropagation(); // Prevent event bubbling
-    
-    if (!currentUser) {
-        console.log('[SKIN] Not logged in, cannot toggle skin');
-        return; // Only toggle when logged in
-    }
-    
-    currentSkin = currentSkin === 'heat' ? 'xray' : 'heat';
-    console.log('[SKIN] Toggling to:', currentSkin, 'for gender:', currentUser.gender);
-    updateMonitorVideo(currentUser.gender, currentSkin);
+    if (event) event.stopPropagation();
+    console.log('[SKIN] Skin toggle disabled - using random selection on monitor open/close');
+    return;
 }
 
 function toggleMonitorMode() {
@@ -2054,9 +2244,17 @@ function updateGridState() {
             
             // Update video when opening monitor
             if (currentUser && currentUser.gender) {
-                updateMonitorVideo(currentUser.gender, currentSkin);
+                updateMonitorVideo(currentUser.gender);
             } else {
                 updateMonitorVideo(null); // Random video for non-logged in
+            }
+            
+            // Запускаем анимацию перехода от grayscale к цветному
+            const video = document.getElementById('monitorHumanVideo');
+            if (video) {
+                video.style.animation = 'none';
+                void video.offsetWidth; // Trigger reflow
+                video.style.animation = 'colorFadeIn 2s ease-out forwards';
             }
         }, 300);
     } else {
@@ -2106,7 +2304,11 @@ function expandBlock(id) {
     blockState[id] = false;
 
     if (bothWereCollapsed) {
-        // Если оба были свёрнуты - скрываем модуль
+        // Если оба были свёрнуты - запускаем обратную анимацию видео
+        const video = document.getElementById('monitorHumanVideo');
+        if (video) {
+            video.style.animation = 'colorFadeOut 1s ease-out forwards';
+        }
         
         // Скрываем модуль одновременно с разворачиванием
         hiddenModule.style.opacity = '0';
@@ -2383,7 +2585,7 @@ async function showRegister() {
     
     if (attempts >= maxAttempts) {
         console.error('[REGISTER] Could not find available ID after 100 attempts');
-        alert('Ошибка: не удалось найти свободный номер звена. Попробуйте позже.');
+        showAlert('Ошибка: не удалось найти свободный номер звена. Попробуйте позже.', 'Ошибка регистрации');
         closeAuth();
         return;
     }
@@ -2621,22 +2823,20 @@ async function loadChainAnimation(containerId, speed = 1) {
     }
 }
 
-function showProductKeyModal(itemTitle, itemIndex, tabType) {
+function showProductKeyModal(itemTitle, itemIndex, tabType, itemIcon, itemDesc) {
     currentLockedItem = { title: itemTitle, index: itemIndex, tabType: tabType };
+    
+    // Set product icon in the plate
+    const iconImg = document.querySelector('#productNamePlate .material-icon img');
+    if (iconImg && itemIcon) {
+        iconImg.src = itemIcon;
+    }
     
     // Set product name in the plate
     document.getElementById('productNameTitle').textContent = itemTitle;
     
-    // Set description based on tab type
-    let description = '';
-    if (tabType === 'notes') {
-        description = 'Заметка';
-    } else if (tabType === 'achievements') {
-        description = 'Достижение';
-    } else {
-        description = 'Продукт';
-    }
-    document.getElementById('productNameDesc').textContent = description;
+    // Set description from item
+    document.getElementById('productNameDesc').textContent = itemDesc || 'Продукт';
     
     // Clear all blocks
     ['keyBlock1', 'keyBlock2', 'keyBlock3', 'keyBlock4'].forEach(id => {
@@ -2664,13 +2864,13 @@ function validateProductKey() {
     const key = `${block1}-${block2}-${block3}-${block4}`;
     
     if (!block1 || !block2 || !block3 || !block4) {
-        alert('Введите ключ продукта');
+        showAlert('Введите ключ продукта', 'Ошибка');
         return;
     }
     
     // TODO: Здесь будет механизм валидации ключа
     // Пока просто показываем сообщение
-    alert(`Валидация ключа "${key}" для продукта "${currentLockedItem.title}" будет реализована позже`);
+    showAlert(`Валидация ключа "${key}" для продукта "${currentLockedItem.title}" будет реализована позже`, 'Валидация ключа');
     
     // Закрываем модалку
     closeProductKeyModal();
@@ -3983,7 +4183,7 @@ class AttachmentValidator {
         
         // Also show browser alert for important errors
         if (type === 'error') {
-            alert(message);
+            showAlert(message, 'Ошибка');
         }
     }
 }
@@ -4091,7 +4291,7 @@ function renderItemList(items, tabType){
             itemOpacity = '0.5';
             cursorStyle = 'pointer';
             clickClass = 'locked-item';
-            clickHandler = `onclick="showProductKeyModal('${item.title}', ${index}, '${tabType}')"`;
+            clickHandler = `onclick="showProductKeyModal('${item.title}', ${index}, '${tabType}', '${item.icon}', '${item.desc}')"`;
         } else if (item.comingSoon) {
             // Для тренировок - новая иконка часов
             statusIcon = '<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b57a46ace876ce0400102a0f3091207991784203/clocksoon.svg" alt="Скоро" style="width:16px;height:16px;opacity:0.5;position:absolute;top:12px;right:12px;">';
@@ -4330,27 +4530,26 @@ if (document.readyState === 'loading') {
 }
 
 // ============================================================
-// GEMINI AI INTEGRATION
+// GROQ AI INTEGRATION (Free & Fast!)
 // ============================================================
 
+// Get your free API key at: https://console.groq.com/
 // API key split into parts to avoid GitHub secret scanning
-const GEMINI_KEY_PART1 = 'AIzaSyDthj';
-const GEMINI_KEY_PART2 = 'SeUt9qv4NZ';
-const GEMINI_KEY_PART3 = 'sVOeDhkaRM';
-const GEMINI_KEY_PART4 = 'GLBZ0Fa1o';
-const GEMINI_API_KEY = GEMINI_KEY_PART1 + GEMINI_KEY_PART2 + GEMINI_KEY_PART3 + GEMINI_KEY_PART4;
+const GROQ_KEY_PART1 = 'gsk_AVeaiRC73zMpTC5';
+const GROQ_KEY_PART2 = 'WoNiSWGdyb3FYA92t';
+const GROQ_KEY_PART3 = 'SUujToRtCQH9hRFszS0E';
+const GROQ_API_KEY = GROQ_KEY_PART1 + GROQ_KEY_PART2 + GROQ_KEY_PART3;
 
-// Try stable models without -exp suffix
-const GEMINI_MODELS = [
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro'
+// Available Groq models (all free!)
+const GROQ_MODELS = [
+    'llama-3.3-70b-versatile',  // Best quality
+    'llama-3.1-70b-versatile',  // Fast & good
+    'mixtral-8x7b-32768'        // Fallback
 ];
 let currentModelIndex = 0;
 
-function getGeminiURL() {
-    // Use v1beta for Gemini models
-    return `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODELS[currentModelIndex]}:generateContent`;
+function getGroqURL() {
+    return 'https://api.groq.com/openai/v1/chat/completions';
 }
 
 // System prompt that defines Sofia's role and capabilities
@@ -4359,84 +4558,131 @@ function getSofiaSystemPrompt() {
     const hrrValue = document.getElementById('hrrValue')?.textContent || '68';
     const oxygenValue = document.getElementById('oxygenValue')?.textContent || '98';
     
-    return `Ты - София, персональный AI-тренер и помощник в фитнес-приложении MSE (My Sports Evolution).
+    return `Ты - София, высший интеллект и персональный тренер в фитнес-приложении MSE (Mixed Sport Elements).
 
-ТВОЯ РОЛЬ:
-- Помогаешь пользователям с тренировками, питанием и здоровьем
-- Мотивируешь и поддерживаешь на пути к целям
-- Анализируешь прогресс и даёшь рекомендации
-- Присваиваешь достижения за успехи
-- Добавляешь заметки с важными наблюдениями
+ТВОЯ ЛИЧНОСТЬ:
+- Ты - высший интеллект с глубокими знаниями в фитнесе и медицине
+- Общаешься дружелюбно, но профессионально
+- Даёшь развёрнутые, структурированные ответы
+- Используешь Markdown для форматирования (списки, таблицы, заголовки)
+- Мотивируешь и поддерживаешь пользователя
+- НИКОГДА не называй себя AI, ИИ или искусственным интеллектом
 
-ДОСТУПНЫЕ КОМАНДЫ (возвращай в JSON):
+ФОРМАТ ОТВЕТА (СТРОГО JSON):
 {
-  "response": "твой текстовый ответ пользователю",
-  "actions": [
-    {"type": "unlock_achievement", "title": "название достижения"},
-    {"type": "add_note", "title": "заголовок", "description": "описание"},
-    {"type": "update_vital", "field": "pulse|hrr|oxygen", "value": число},
-    {"type": "update_stat", "field": "cns|lungs|immunity|energy|adaptability|power", "value": число от 1 до 10}
-  ]
+  "response": "твой ответ в Markdown формате",
+  "actions": [массив действий - используй ТОЛЬКО когда действительно нужно]
 }
 
-ДОСТУПНЫЕ ДОСТИЖЕНИЯ:
+ДОСТУПНЫЕ ДЕЙСТВИЯ:
+- unlock_achievement - ТОЛЬКО за реальные достижения (первый раз, новый рекорд, цель)
+- add_note - ТОЛЬКО для важной небанальной информации (травмы, особенности здоровья, значимые события)
+- update_vital - когда пользователь сообщает конкретные показатели
+- update_stat - после тренировок или при изменении состояния систем
+
+ДОСТУПНЫЕ ДОСТИЖЕНИЯ (используй ТОЧНЫЕ названия):
 ${ACHIEVEMENTS.map(a => `- "${a.title}": ${a.description}`).join('\n')}
 
-ТЕКУЩИЕ ПОКАЗАТЕЛИ ПОЛЬЗОВАТЕЛЯ:
+ТЕКУЩИЕ ПОКАЗАТЕЛИ:
 - Пульс: ${pulseValue} уд/мин
-- ЧСС: ${hrrValue} уд/мин
+- ЧСС: ${hrrValue} уд/мин  
 - O₂: ${oxygenValue}%
 
-ПРАВИЛА:
-1. Отвечай по-русски, дружелюбно и мотивирующе
-2. Если пользователь достиг успеха - присваивай достижение
-3. Если есть важное наблюдение - добавляй заметку
-4. Можешь менять показатели монитора при необходимости
-5. Будь конкретной и полезной
-6. Используй эмодзи умеренно
-7. ВСЕГДА возвращай ответ в JSON формате с полями "response" и "actions"
+ФОРМАТИРОВАНИЕ ОТВЕТОВ:
+Используй Markdown для структурирования:
+
+**Программы тренировок:**
+\`\`\`
+День 1: Грудь + Трицепс
+• Жим лёжа: 4×8-10
+• Жим гантелей на наклонной: 3×10-12
+• Разводка гантелей: 3×12-15
+• Французский жим: 3×10-12
+\`\`\`
+
+**Таблицы:**
+| Упражнение | Подходы | Повторы |
+|------------|---------|---------|
+| Приседания | 4 | 8-10 |
+| Жим ногами | 3 | 10-12 |
+
+**Списки:**
+- Пункт 1
+- Пункт 2
+  - Подпункт
+
+КОГДА НЕ ИСПОЛЬЗОВАТЬ ACTIONS:
+❌ Обычные вопросы о тренировках
+❌ Просьбы составить программу
+❌ Общие советы по питанию
+❌ Банальная информация
+
+КОГДА ИСПОЛЬЗОВАТЬ ACTIONS:
+✅ Достижение - "Впервые пробежал 10 км!", "Поставил рекорд в жиме"
+✅ Заметка - "У меня травма колена", "Аллергия на лактозу", "Начал принимать креатин"
+✅ Показатели - "Пульс сейчас 145", "Кислород упал до 94%"
 
 ПРИМЕРЫ:
-Пользователь: "Я сегодня пробежал 5 км!"
-Ответ: {"response": "Отлично! 5 км - это серьёзное достижение! 🏃‍♂️ Присваиваю тебе достижение за освоение кардио.", "actions": [{"type": "unlock_achievement", "title": "Мастер кардио"}, {"type": "add_note", "title": "Пробежка 5 км", "description": "Отличный результат в кардио тренировке"}]}
 
-Пользователь: "Как правильно дышать при приседаниях?"
-Ответ: {"response": "При приседаниях важно: вдох при опускании, выдох при подъёме. Это помогает стабилизировать корпус и защитить позвоночник. Держи спину прямой! 💪", "actions": []}`;
+Пример 1 - Программа (БЕЗ actions):
+Пользователь: "Составь программу на неделю"
+Ответ: {"response": "Конечно! Вот сбалансированная программа на неделю:\\n\\n**Понедельник: Грудь + Трицепс**\\n• Жим штанги лёжа: 4×8-10\\n• Жим гантелей на наклонной: 3×10-12\\n• Разводка гантелей: 3×12-15\\n• Французский жим: 3×10-12\\n• Разгибания на блоке: 3×12-15\\n\\n**Среда: Спина + Бицепс**\\n• Подтягивания: 4×макс\\n• Тяга штанги в наклоне: 4×8-10\\n• Тяга верхнего блока: 3×10-12\\n• Подъём штанги на бицепс: 3×10-12\\n• Молотки: 3×12-15\\n\\n**Пятница: Ноги + Плечи**\\n• Приседания: 4×8-10\\n• Жим ногами: 3×10-12\\n• Румынская тяга: 3×10-12\\n• Жим гантелей сидя: 4×8-10\\n• Махи в стороны: 3×12-15\\n\\nОтдых между подходами 60-90 секунд. Не забывай про разминку! 💪", "actions": []}
+
+Пример 2 - Важная информация (С actions):
+Пользователь: "У меня хроническая травма правого колена, нужно избегать глубоких приседаний"
+Ответ: {"response": "Спасибо, что сообщил! Это важная информация. Будем избегать глубоких приседаний и заменим их на:\\n\\n• Жим ногами (контролируемая амплитуда)\\n• Болгарские сплит-приседы\\n• Разгибания ног в тренажёре\\n\\nЭти упражнения дадут нагрузку на квадрицепсы без риска для колена. Обязательно делай разминку и следи за ощущениями! 🏥", "actions": [{"type": "add_note", "title": "Травма правого колена", "description": "Хроническая травма, избегать глубоких приседаний. Использовать альтернативные упражнения с контролируемой амплитудой"}]}
+
+Пример 3 - Достижение (С actions):
+Пользователь: "Сегодня впервые пробежал 10 км без остановок!"
+Ответ: {"response": "Вау! 10 километров без остановок - это невероятное достижение! 🏃‍♂️🎉 Ты показываешь отличную выносливость. Такая дистанция говорит о серьёзном прогрессе в кардио. Как ощущения? Не забудь хорошо восстановиться!", "actions": [{"type": "unlock_achievement", "title": "Мастер кардио"}, {"type": "add_note", "title": "Первые 10 км", "description": "Успешно пробежал 10 км без остановок - значительный прогресс в выносливости"}]}
+
+ВАЖНО:
+- Используй Markdown для структурирования
+- Actions ТОЛЬКО когда действительно нужно
+- Будь избирательной с достижениями и заметками
+- ВСЕГДА возвращай валидный JSON`;
 }
 
 async function callGeminiAPI(userMessage, conversationHistory = []) {
     try {
         // Build conversation context (last 10 messages)
-        const context = conversationHistory.slice(-10).map(msg => {
-            if (msg.type === 'thinking') return '';
-            return `${msg.role === 'user' ? 'Пользователь' : 'София'}: ${msg.text || ''}`;
-        }).filter(m => m).join('\n');
+        const messages = [];
         
-        const systemPrompt = getSofiaSystemPrompt();
-        const fullPrompt = `${systemPrompt}\n\nИСТОРИЯ ДИАЛОГА:\n${context}\n\nПользователь: ${userMessage}\n\nСофия (ответь ТОЛЬКО в JSON формате):`;
+        // Add system prompt
+        messages.push({
+            role: 'system',
+            content: getSofiaSystemPrompt()
+        });
         
-        console.log('Calling Gemini API with model:', GEMINI_MODELS[currentModelIndex]);
+        // Add conversation history
+        conversationHistory.slice(-10).forEach(msg => {
+            if (msg.type === 'thinking') return;
+            messages.push({
+                role: msg.role === 'user' ? 'user' : 'assistant',
+                content: msg.text || ''
+            });
+        });
         
-        const apiUrl = getGeminiURL();
-        console.log('API URL:', apiUrl);
+        // Add current user message
+        messages.push({
+            role: 'user',
+            content: userMessage
+        });
         
-        const response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
+        console.log('Calling Groq API with model:', GROQ_MODELS[currentModelIndex]);
+        
+        const response = await fetch(getGroqURL(), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: fullPrompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 1024,
-                }
+                model: GROQ_MODELS[currentModelIndex],
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 1024,
+                response_format: { type: 'json_object' }
             })
         });
         
@@ -4444,16 +4690,16 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('Gemini API error response:', errorData);
+            console.error('Groq API error response:', errorData);
             
             // Don't retry on quota errors (429)
             if (response.status === 429) {
                 throw new Error('Quota exceeded. Please wait a minute and try again.');
             }
             
-            // Only try next model if 404 and we have more models
-            if (response.status === 404 && currentModelIndex < GEMINI_MODELS.length - 1) {
-                console.log('Model not found, trying next model...');
+            // Try next model if current fails
+            if (currentModelIndex < GROQ_MODELS.length - 1) {
+                console.log('Model failed, trying next model...');
                 currentModelIndex++;
                 return callGeminiAPI(userMessage, conversationHistory);
             }
@@ -4462,32 +4708,19 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
         }
         
         const data = await response.json();
-        console.log('Gemini API response:', data);
+        console.log('Groq API response:', data);
         
-        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
             console.error('Unexpected API response structure:', data);
             throw new Error('Invalid API response structure');
         }
         
-        const aiResponse = data.candidates[0].content.parts[0].text;
+        const aiResponse = data.choices[0].message.content;
         console.log('AI response text:', aiResponse);
         
-        // Try to parse JSON response
+        // Parse JSON response
         try {
-            // Extract JSON from markdown code blocks if present
-            let jsonText = aiResponse;
-            const jsonMatch = aiResponse.match(/```json\s*([\s\S]*?)\s*```/);
-            if (jsonMatch) {
-                jsonText = jsonMatch[1];
-            } else {
-                // Try to find JSON object in text
-                const objectMatch = aiResponse.match(/\{[\s\S]*\}/);
-                if (objectMatch) {
-                    jsonText = objectMatch[0];
-                }
-            }
-            
-            const parsed = JSON.parse(jsonText);
+            const parsed = JSON.parse(aiResponse);
             console.log('Parsed AI response:', parsed);
             return parsed;
         } catch (e) {
@@ -4499,7 +4732,7 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
             };
         }
     } catch (error) {
-        console.error('Gemini API error:', error);
+        console.error('Groq API error:', error);
         console.error('Error stack:', error.stack);
         
         // Check if it's a quota error
@@ -4520,38 +4753,52 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
 function executeAIActions(actions) {
     if (!actions || actions.length === 0) return;
     
+    let delay = 0;
+    
     actions.forEach(action => {
         switch(action.type) {
             case 'unlock_achievement':
                 if (!currentUser) return; // Require login
-                const achievement = unlockAchievement(action.title);
-                if (achievement) {
-                    // Add achievement block to chat
-                    chatStore[activeChatTab].push({
-                        role:'ai',
-                        type:'achievement',
-                        achievementId: achievement.id,
-                        title: achievement.title,
-                        description: achievement.description
-                    });
-                    refreshProgressTab();
-                }
+                
+                // Add delay for achievement (show as separate message)
+                setTimeout(() => {
+                    const achievement = unlockAchievement(action.title);
+                    if (achievement) {
+                        // Add achievement block to chat
+                        chatStore[activeChatTab].push({
+                            role:'ai',
+                            type:'achievement',
+                            achievementId: achievement.id,
+                            title: achievement.title,
+                            description: achievement.description
+                        });
+                        refreshProgressTab();
+                        safeRenderChatMessages();
+                    }
+                }, delay);
+                delay += 1500; // 1.5 second delay between achievements
                 break;
                 
             case 'add_note':
                 if (!currentUser) return; // Require login
-                const note = addNote(action.title, action.description);
-                if (note) {
-                    // Add note block to chat
-                    chatStore[activeChatTab].push({
-                        role:'ai',
-                        type:'note',
-                        noteId: note.id,
-                        title: note.title,
-                        description: note.description
-                    });
-                    refreshProgressTab();
-                }
+                
+                // Add delay for note (show as separate message)
+                setTimeout(() => {
+                    const note = addNote(action.title, action.description);
+                    if (note) {
+                        // Add note block to chat
+                        chatStore[activeChatTab].push({
+                            role:'ai',
+                            type:'note',
+                            noteId: note.id,
+                            title: note.title,
+                            description: note.description
+                        });
+                        refreshProgressTab();
+                        safeRenderChatMessages();
+                    }
+                }, delay);
+                delay += 1500; // 1.5 second delay between notes
                 break;
                 
             case 'update_vital':
@@ -4782,9 +5029,15 @@ function togglePinChat(id, tabElement) {
 function addChatTab(){
     // Проверяем, залогинен ли пользователь
     if (!currentUser) {
-        // Показываем уведомление или открываем окно логина
-        alert('Пройдите синхронизацию, чтобы создавать новые чаты');
-        document.getElementById('headerLoginBtn').click();
+        // Показываем уведомление с анимацией
+        showAlert('Пройдите синхронизацию, чтобы продолжить работу', 'Требуется синхронизация', {
+            showAnimation: true,
+            buttonText: 'В СИНХРОНИЗАТОР',
+            buttonAction: () => {
+                closeAlert();
+                document.getElementById('headerLoginBtn').click();
+            }
+        });
         return;
     }
     
@@ -5694,10 +5947,10 @@ function sendMessage(){
     // If no images, render immediately and add thinking
     if (!hasImages) {
         console.log('No images, rendering and calling AI'); // DEBUG
-        safeRenderChatMessages();
-        
-        // Add thinking animation before Sofia's response
+        // Add thinking animation IMMEDIATELY
         const thinkingId = addThinkingMessage();
+        
+        // Render both user message and thinking together
         safeRenderChatMessages();
         
         // Call Gemini AI
@@ -6725,12 +6978,7 @@ document.addEventListener('DOMContentLoaded', () => {
         browserObserver.observe(mainContent, { childList: true, subtree: true });
     }
     
-    // Initialize monitor video on page load
-    if (currentUser && currentUser.gender) {
-        updateMonitorVideo(currentUser.gender, currentSkin);
-    } else {
-        updateMonitorVideo(null); // Random video for non-logged in
-    }
+    // Don't initialize video on page load - let it update when monitor opens
     
     // Add click handler to monitor video for skin toggling
     const monitorVideo = document.getElementById('monitorHumanVideo');
@@ -6745,5 +6993,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+<script src="video-random-fix.js"></script>
 </body>
 </html>
