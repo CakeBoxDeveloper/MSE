@@ -1044,12 +1044,12 @@
         .form-input[type="number"]::-webkit-outer-spin-button,
         .form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
         
-        /* Shimmer animation for form inputs */
-        .form-input.shimmer {
+        /* Shimmer animation for form-group container */
+        .form-group.shimmer {
             position: relative;
             overflow: hidden;
         }
-        .form-input.shimmer::after {
+        .form-group.shimmer::after {
             content: '';
             position: absolute;
             top: 0;
@@ -1058,11 +1058,12 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent 0%, 
-                rgba(255,255,255,0.15) 50%, 
+                rgba(255,255,255,0.2) 50%, 
                 transparent 100%
             );
             animation: shimmer 1.5s infinite;
             pointer-events: none;
+            z-index: 10;
         }
 
         .pin-input-container { display:flex;gap:0;justify-content:space-between;margin:0;width:100%; }
@@ -2633,7 +2634,10 @@ function showLogin() {
     document.getElementById('loginButtons').style.display='flex';
     document.getElementById('loginId').value='';
     document.getElementById('loginId').classList.remove('error');
-    document.getElementById('loginId').classList.remove('shimmer');
+    
+    // Remove shimmer from container
+    stepId.classList.remove('shimmer');
+    
     ['loginPin1','loginPin2','loginPin3','loginPin4'].forEach(id=>document.getElementById(id).value='');
     loginIdChecked=false;
     document.getElementById('authOverlay').classList.add('active');
@@ -3160,15 +3164,24 @@ function confirmLogout() {
 let loginIdChecked=false;
 async function checkLoginId() {
     const input=document.getElementById('loginId');
+    const stepId=document.getElementById('stepId');
+    
     if(input.value.length>4) input.value=input.value.slice(0,4);
     const val=input.value.trim();
-    if(val===''){input.classList.remove('error');input.classList.remove('shimmer');return;}
+    
+    if(val===''){
+        input.classList.remove('error');
+        stepId.classList.remove('shimmer');
+        return;
+    }
+    
     input.classList.remove('error');
+    
     if(val.length===4&&!loginIdChecked){
         const id=parseInt(val);
         
-        // Add shimmer animation while checking
-        input.classList.add('shimmer');
+        // Add shimmer animation to container immediately when 4th digit is entered
+        stepId.classList.add('shimmer');
         
         // Check in local users first
         let exists=users.find(u=>u.id===id);
@@ -3183,14 +3196,13 @@ async function checkLoginId() {
             }
         }
         
-        // Remove shimmer animation
-        input.classList.remove('shimmer');
+        // Remove shimmer animation from container
+        stepId.classList.remove('shimmer');
         
         if(exists){
             loginIdChecked=true;
             
             // Blur transition without loader
-            const stepId = document.getElementById('stepId');
             stepId.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
             stepId.style.filter = 'blur(8px)';
             stepId.style.opacity = '0';
@@ -3210,7 +3222,9 @@ async function checkLoginId() {
                     setTimeout(()=>document.getElementById('loginPin1').focus(),100);
                 }, 50);
             }, 300);
-        } else { input.classList.add('error'); }
+        } else { 
+            input.classList.add('error'); 
+        }
     }
 }
 (function(){
