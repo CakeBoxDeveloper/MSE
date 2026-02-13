@@ -293,7 +293,7 @@
 .content-grid {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0; /* MOBILE: убираем gap, будем использовать margin */
     margin-bottom: 20px;
     height: calc(100vh - 78px); /* Высота экрана минус header (50px) и отступы (8px сверху + 20px снизу) */
     padding-top: 8px; /* MOBILE: отступ сверху от header */
@@ -317,6 +317,16 @@
     position: relative;
 }
 
+/* MOBILE: Отступ сверху для браузера */
+.content-block#browserBlock {
+    margin-top: 0;
+}
+
+/* MOBILE: Отступ сверху для чата = отступу между header и браузером */
+.content-block#chatBlock {
+    margin-top: 8px;
+}
+
 /* MOBILE: Браузер сворачивается вверх */
 .content-block#browserBlock.collapsed {
     flex: 0 0 58px;
@@ -327,9 +337,15 @@
     flex: 0 0 62px;
 }
 
-/* MOBILE: Когда оба свернуты, разносим их по краям */
-.content-grid.both-collapsed {
-    justify-content: space-between;
+/* MOBILE: Spacer между блоками - растет когда оба блока свернуты */
+.block-spacer {
+    flex: 0 0 0px;
+    transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* MOBILE: Когда оба свернуты, spacer растет и разносит блоки */
+.content-grid.both-collapsed .block-spacer {
+    flex: 1 1 0%;
 }
 
 /* MOBILE: Скрываем монитор на мобильной версии (пока) */
@@ -1452,7 +1468,7 @@
 <header>
   <div class="container"> <!-- ДОБАВИТЬ -->
     <div class="header-inner">
-      <div class="logo" onclick="toggleMonitorMode()" style="cursor: pointer;">
+      <div class="logo" onclick="toggleMonitorMode(event)" style="cursor: pointer;">
         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
@@ -1993,6 +2009,9 @@
         </div>
       </div>
 
+      <!-- MOBILE: Spacer для разнесения блоков когда оба свернуты -->
+      <div class="block-spacer" id="blockSpacer"></div>
+
       <!-- RIGHT BLOCK -->
       <div class="content-block" id="chatBlock">
         <!-- MOBILE: minimized-bar удалён -->
@@ -2409,21 +2428,96 @@ function toggleMonitorSkin(event) {
     return;
 }
 
-function toggleMonitorMode() {
+// MOBILE: Флаг для предотвращения двойного вызова
+let isTogglingMonitor = false;
+
+function toggleMonitorMode(event) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    // MOBILE: Защита от двойного вызова
+    if (isTogglingMonitor) {
+        console.log('[MSE] Already toggling, ignoring...');
+        return;
+    }
+    
+    isTogglingMonitor = true;
+    console.log('[MSE] toggleMonitorMode called');
+    console.trace('[MSE] Call stack:');
     closeAllMenus();
     
     // MOBILE: Если оба блока уже свернуты - разворачиваем их
     if (blockState.browserBlock && blockState.chatBlock) {
+        console.log('[MSE] Both collapsed, expanding...');
         expandBlock('browserBlock');
         expandBlock('chatBlock');
+        
+        // MOBILE: Сбрасываем флаг после завершения анимации
+        setTimeout(() => {
+            isTogglingMonitor = false;
+            console.log('[MSE] Toggle complete (expand)');
+        }, RESIZE_DURATION);
     } else {
+        console.log('[MSE] Collapsing both blocks...');
+        console.log('[MSE] Before - browserBlock:', blockState.browserBlock, 'chatBlock:', blockState.chatBlock);
+        
         // Иначе сворачиваем оба блока
+        // MOBILE: Сначала изменяем состояния
         if (!blockState.browserBlock) {
-            collapseBlock('browserBlock');
+            blockState.browserBlock = true;
         }
         if (!blockState.chatBlock) {
-            collapseBlock('chatBlock');
+            blockState.chatBlock = true;
         }
+        
+        console.log('[MSE] After - browserBlock:', blockState.browserBlock, 'chatBlock:', blockState.chatBlock);
+        
+        // MOBILE: Вызываем updateGridState СРАЗУ, чтобы spacer начал расти
+        console.log('[MSE] Calling updateGridState...');
+        updateGridState();
+        
+        // MOBILE: Теперь запускаем анимацию блюра и сворачивания для каждого блока
+        if (document.getElementById('browserBlock') && !document.getElementById('browserBlock').classList.contains('collapsed')) {
+            const browserBlock = document.getElementById('browserBlock');
+            const browserContent = browserBlock.querySelector('.content-body');
+            
+            console.log('[MSE] Collapsing browserBlock');
+            if (browserContent) {
+                browserContent.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
+                browserContent.style.filter = 'blur(8px)';
+                browserContent.style.opacity = '0';
+            }
+            
+            browserBlock.classList.add('collapsed');
+            setTimeout(() => {
+                browserBlock.classList.add('minimized');
+            }, RESIZE_DURATION / 2);
+        }
+        
+        if (document.getElementById('chatBlock') && !document.getElementById('chatBlock').classList.contains('collapsed')) {
+            const chatBlock = document.getElementById('chatBlock');
+            const chatContent = chatBlock.querySelector('.chat-container');
+            
+            console.log('[MSE] Collapsing chatBlock');
+            if (chatContent) {
+                chatContent.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
+                chatContent.style.filter = 'blur(8px)';
+                chatContent.style.opacity = '0';
+            }
+            
+            chatBlock.classList.add('collapsed');
+            setTimeout(() => {
+                chatBlock.classList.add('minimized');
+            }, RESIZE_DURATION / 2);
+        }
+        
+        // MOBILE: Сбрасываем флаг после завершения анимации
+        setTimeout(() => {
+            isTogglingMonitor = false;
+            console.log('[MSE] Toggle complete (collapse)');
+        }, RESIZE_DURATION);
     }
 }
 
@@ -2447,14 +2541,19 @@ function updateGridState() {
     const grid = document.getElementById('contentGrid');
     const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
     
+    console.log('[GRID] updateGridState - bothCollapsed:', bothCollapsed);
+    
     if (bothCollapsed) {
+        console.log('[GRID] Adding both-collapsed class');
         grid.classList.add('both-collapsed');
     } else {
+        console.log('[GRID] Removing both-collapsed class');
         grid.classList.remove('both-collapsed');
     }
 }
 
-function collapseBlock(id) {
+function collapseBlock(id, skipGridUpdate = false) {
+    console.log('[COLLAPSE]', id, '- skipGridUpdate:', skipGridUpdate);
     blockState[id] = true;
     const block = document.getElementById(id);
     const body = block.querySelector('.block-body');
@@ -2462,21 +2561,29 @@ function collapseBlock(id) {
     const chatContainer = block.querySelector('.chat-container');
     const content = contentBody || chatContainer;
 
-    // MOBILE: ОБНОВЛЯЕМ СОСТОЯНИЕ ДО АНИМАЦИИ при сворачивании (как в десктопе)
-    updateGridState();
+    console.log('[COLLAPSE]', id, '- found content:', !!content);
+
+    // MOBILE: ОБНОВЛЯЕМ СОСТОЯНИЕ ДО АНИМАЦИИ при сворачивании (если не пропускаем)
+    if (!skipGridUpdate) {
+        console.log('[COLLAPSE]', id, '- calling updateGridState');
+        updateGridState();
+    }
     
     // MOBILE: ШАГ 1: Blur и fade-out контента одновременно со сворачиванием
     if (content) {
         content.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
         content.style.filter = 'blur(8px)';
         content.style.opacity = '0';
+        console.log('[COLLAPSE]', id, '- applied blur');
     }
     
     // MOBILE: Запускаем одновременное сворачивание блока
     block.classList.add('collapsed');
+    console.log('[COLLAPSE]', id, '- added collapsed class');
     
     setTimeout(() => {
         block.classList.add('minimized');
+        console.log('[COLLAPSE]', id, '- added minimized class');
     }, RESIZE_DURATION / 2);
 }
 
@@ -2490,7 +2597,7 @@ function expandBlock(id) {
     // MOBILE: Проверяем, были ли оба блока свёрнуты ДО изменения состояния
     const bothWereCollapsed = blockState.browserBlock && blockState.chatBlock;
     
-    // MOBILE: Изменяем состояние
+    // MOBILE: Изменяем состояние (но НЕ вызываем updateGridState сразу)
     blockState[id] = false;
 
     // MOBILE: Сразу начинаем разворачивание
@@ -2499,9 +2606,6 @@ function expandBlock(id) {
     function startExpansion() {
         // MOBILE: ШАГ 1: Разворачиваем блок
         block.classList.remove('collapsed');
-        
-        // MOBILE: Обновляем состояние сетки
-        updateGridState();
         
         // MOBILE: ШАГ 2: Меняем иконку в середине анимации
         setTimeout(() => {
@@ -2521,6 +2625,11 @@ function expandBlock(id) {
                 content.style.opacity = '1';
             }, 50);
         }
+        
+        // MOBILE: ШАГ 4: Обновляем grid state ПОСЛЕ завершения анимации (как в десктопе)
+        setTimeout(() => {
+            updateGridState();
+        }, RESIZE_DURATION);
     }
 }
  
