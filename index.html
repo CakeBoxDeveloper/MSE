@@ -1043,6 +1043,27 @@
         .form-input[type="number"] { -moz-appearance:textfield; }
         .form-input[type="number"]::-webkit-outer-spin-button,
         .form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
+        
+        /* Shimmer animation for form inputs */
+        .form-input.shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .form-input.shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.15) 50%, 
+                transparent 100%
+            );
+            animation: shimmer 1.5s infinite;
+            pointer-events: none;
+        }
 
         .pin-input-container { display:flex;gap:0;justify-content:space-between;margin:0;width:100%; }
         .pin-digit {
@@ -2158,17 +2179,19 @@ const RESIZE_DURATION = 800;
 const blockState = { browserBlock: false, chatBlock: false };
 
 // Monitor skin state
-let currentSkin = 'heat'; // 'heat' or 'xray'
+let currentSkin = 'heat'; // 'heat', 'xray', or 'grid'
 
 // All available video skins
 const videoSkins = {
     male: {
         heat: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineHeatMale.webm',
-        xray: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineXRayMale.webm'
+        xray: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineXRayMale.webm',
+        grid: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineGridMale.webm'
     },
     female: {
         heat: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineHeatFemale.webm',
-        xray: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineXRayFemale.webm'
+        xray: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineXRayFemale.webm',
+        grid: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/OutlineGridFamale.webm'
     }
 };
 
@@ -2179,8 +2202,10 @@ function getRandomVideo() {
     const allVideos = [
         videoSkins.male.heat,
         videoSkins.male.xray,
+        videoSkins.male.grid,
         videoSkins.female.heat,
-        videoSkins.female.xray
+        videoSkins.female.xray,
+        videoSkins.female.grid
     ];
     
     // Filter out the last video if we have more than 1 option
@@ -2195,7 +2220,7 @@ function getRandomVideo() {
 }
 
 // Get random video for specific gender
-// VERSION: 2025-02-10-FIX-v3
+// VERSION: 2025-02-10-FIX-v4 (added grid skin)
 function getRandomVideoForGender(gender) {
     if (!gender || (gender !== 'male' && gender !== 'female')) {
         return getRandomVideo(); // Fallback to all videos
@@ -2203,7 +2228,8 @@ function getRandomVideoForGender(gender) {
     
     const genderVideos = [
         videoSkins[gender].heat,
-        videoSkins[gender].xray
+        videoSkins[gender].xray,
+        videoSkins[gender].grid
     ];
     
     console.log('[VIDEO] All available videos for', gender, ':', genderVideos);
@@ -2774,7 +2800,7 @@ async function loadHiveAnimation(containerId, width = 240, height = 240) {
     container.innerHTML = '';
     
     try {
-        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Load%20HIVE.json');
+        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loading.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -3225,15 +3251,6 @@ loginPinInputs.forEach((id,index)=>{
                             currentUser=user;
                             loginDate = new Date();
                             
-                            console.log('[LOGIN] Clearing old chats...');
-                            // Clear all chats before loading from Firebase (remove non-logged-in messages)
-                            chatStore = { sofia: [] };
-                            activeChatTab = 'sofia'; // Ensure Sofia tab is active
-                            renderedMessageCounts = {}; // Reset message counts
-                            
-                            console.log('[LOGIN] Rendering empty chat...');
-                            renderChatMessages();
-                            
                             console.log('[LOGIN] Starting lifecycle manager...');
                             // Start lifecycle manager
                             lifecycleManager.start();
@@ -3244,12 +3261,32 @@ loginPinInputs.forEach((id,index)=>{
                             console.log('[LOGIN] Firebase data loaded:', firebaseData);
                             
                             if (firebaseData) {
+                                console.log('[LOGIN] Processing Firebase data...');
+                                
+                                // Clear old chats BEFORE loading from Firebase
+                                console.log('[LOGIN] Clearing old chats...');
+                                chatStore = { sofia: [] };
+                                activeChatTab = 'sofia';
+                                renderedMessageCounts = {};
+                                
                                 // Load gender and age
                                 if (firebaseData.gender) {
                                     currentUser.gender = firebaseData.gender;
+                                    console.log('[LOGIN] Gender loaded:', currentUser.gender);
+                                } else {
+                                    console.log('[LOGIN] No gender in Firebase data, setting default');
+                                    currentUser.gender = 'male'; // Default gender
+                                    // Save default gender to Firebase
+                                    await saveUserToFirebase(user.id, {
+                                        ...firebaseData,
+                                        gender: currentUser.gender
+                                    });
                                 }
                                 if (firebaseData.age) {
                                     currentUser.age = firebaseData.age;
+                                    console.log('[LOGIN] Age loaded:', currentUser.age);
+                                } else {
+                                    currentUser.age = 18; // Default age
                                 }
                                 // Load achievements
                                 if (firebaseData.achievements) {
@@ -3329,20 +3366,41 @@ loginPinInputs.forEach((id,index)=>{
                                     // Render messages for active chat (Sofia by default)
                                     renderChatMessages();
                                 } else {
-                                    console.log('[LOGIN] No chats in Firebase, rendering empty Sofia chat');
-                                    // No chats in Firebase, render empty Sofia chat
+                                    console.log('[LOGIN] No chats in Firebase, clearing and rendering empty Sofia chat');
+                                    // No chats in Firebase - clear and render empty Sofia chat
+                                    chatStore = { sofia: [] };
+                                    activeChatTab = 'sofia';
+                                    renderedMessageCounts = {};
                                     renderChatMessages();
                                 }
                             } else {
                                 console.log('[LOGIN] First time login, saving initial data...');
                                 // First time login - save initial data
+                                
+                                // Clear old chats
+                                console.log('[LOGIN] Clearing old chats for first time login...');
+                                chatStore = { sofia: [] };
+                                activeChatTab = 'sofia';
+                                renderedMessageCounts = {};
+                                
+                                // Set default gender if not provided
+                                if (!currentUser.gender) {
+                                    currentUser.gender = 'male'; // Default gender
+                                    console.log('[LOGIN] No gender found, setting default:', currentUser.gender);
+                                }
+                                
                                 await saveUserToFirebase(user.id, {
                                     id: user.id,
                                     createdAt: user.createdAt,
+                                    gender: currentUser.gender,
+                                    age: currentUser.age || 18,
                                     achievements: userAchievements,
                                     notes: userNotes,
                                     chats: chatStore
                                 });
+                                
+                                // Render empty chat
+                                renderChatMessages();
                             }
                             
                             console.log('[LOGIN] Hiding success screen and closing auth...');
@@ -3368,26 +3426,34 @@ loginPinInputs.forEach((id,index)=>{
                             
                             console.log('[LOGIN] Updating UI elements...');
                             console.log('[LOGIN] Current user ID:', currentUser.id);
+                            console.log('[LOGIN] Current user gender:', currentUser.gender);
+                            console.log('[LOGIN] Current user object:', currentUser);
+                            
                             document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
+                            
                             // Обновляем плашку в мониторе
                             const monitorPlate = document.getElementById('monitorUserPlate');
+                            console.log('[LOGIN] Monitor plate element:', monitorPlate);
                             if (monitorPlate) {
                                 const dateStr = loginDate.toLocaleDateString('ru-RU', {
                                     day: '2-digit',
                                     month: '2-digit', 
                                     year: 'numeric'
                                 });
-                                console.log('Updating monitor plate with date:', dateStr); // Отладка
+                                console.log('[LOGIN] Updating monitor plate with user ID:', currentUser.id);
                                 monitorPlate.innerHTML = `
                                     <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>
                             `;
                             } else {
-                                console.log('Monitor plate not found'); // Отладка
+                                console.log('[LOGIN] Monitor plate not found!');
                             }
                             
                             // Update monitor video based on user gender
+                            console.log('[LOGIN] Updating monitor video with gender:', currentUser.gender);
                             if (currentUser && currentUser.gender) {
                                 updateMonitorVideo(currentUser.gender);
+                            } else {
+                                console.log('[LOGIN] No gender available, video will not be updated');
                             }
                             
                             // Обновляем вкладку "Прогресс" если она открыта
@@ -5671,12 +5737,31 @@ function processAttachments(files, targetChat, messageText) {
     const images = files.filter(f => AttachmentValidator.isImage(f));
     const nonImages = files.filter(f => !AttachmentValidator.isImage(f));
     
+    // Helper functions for this context
+    const addThinkingMessage = () => {
+        const thinkingMessageId = Date.now();
+        chatStore[targetChat].push({
+            role:'ai', 
+            type:'thinking',
+            id: thinkingMessageId
+        });
+        return thinkingMessageId;
+    };
+    
+    const calculateThinkingTime = (messageText) => {
+        const baseTime = 1000;
+        const maxTime = 10000;
+        const charCount = messageText.length;
+        const thinkingTime = Math.min(maxTime, baseTime + (charCount * 9));
+        return thinkingTime;
+    };
+    
     // Process single image
     if (images.length === 1) {
         const image = images[0];
         const reader = new FileReader();
         reader.onload = function(e) {
-            // Add image with delay
+            // Add image with delay and blur animation
             setTimeout(() => {
                 chatStore[targetChat].push({
                     role: 'user',
@@ -5686,15 +5771,15 @@ function processAttachments(files, targetChat, messageText) {
                 });
                 renderChatMessages();
                 
-                // Add thinking and call AI after short delay
+                // Add thinking and call AI after image blur animation
                 setTimeout(() => {
-                    const thinkingId = addGlobalThinkingMessage(targetChat);
+                    const thinkingId = addThinkingMessage();
                     renderChatMessages();
                     
                     const userMessageText = messageText || 'Файл прикреплён';
                     callGeminiAPI(userMessageText, chatStore[targetChat]).then(aiResult => {
                         const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
-                        const thinkingTime = calculateGlobalThinkingTime(responseText);
+                        const thinkingTime = calculateThinkingTime(responseText);
                         
                         setTimeout(() => {
                             chatStore[targetChat] = chatStore[targetChat].filter(m => m.id !== thinkingId);
@@ -5721,7 +5806,7 @@ function processAttachments(files, targetChat, messageText) {
                             renderChatMessages();
                         }, 1000);
                     });
-                }, 800); // Wait for image blur animation
+                }, 800); // Wait for image blur animation (600ms) + small delay (200ms)
             }, 150); // Small initial delay
         };
         reader.readAsDataURL(image);
