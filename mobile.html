@@ -330,12 +330,12 @@
 
 /* MOBILE: Браузер сворачивается вверх */
 .content-block#browserBlock.collapsed {
-    flex: 0 0 58px;
+    flex: 0 0 58px; /* MOBILE: увеличено с 50px до 58px для вкладок с отступами */
 }
 
 /* MOBILE: Чат сворачивается вниз */
 .content-block#chatBlock.collapsed {
-    flex: 0 0 62px;
+    flex: 0 0 58px; /* MOBILE: увеличено с 50px до 58px для вкладок с отступами */
 }
 
 /* MOBILE: Spacer между блоками - растет когда оба блока свернуты */
@@ -397,7 +397,7 @@
     display: flex;
     flex-direction: column;
     padding: 12px; /* MOBILE: ещё меньше padding */
-    overflow: hidden;
+    overflow: visible; /* MOBILE: изменено с hidden на visible для видимости blur */
     filter: blur(0px);
     opacity: 1;
     transition: filter 0.4s ease, opacity 0.4s ease;
@@ -436,16 +436,21 @@
 
 /* MOBILE: Когда блок свёрнут, скрываем только контент, но оставляем верхнюю панель */
 .content-block.collapsed .block-body {
-    padding: 12px 12px 0 12px; /* Убираем нижний padding */
+    padding: 12px 12px 0 12px; /* MOBILE: убираем нижний padding */
+}
+
+/* MOBILE: Добавляем отступ снизу у вкладок в свернутом состоянии (равный верхнему padding) */
+.content-block.collapsed .inner-tabs {
+    margin-bottom: 12px;
 }
 
 /* MOBILE: Скрываем контент при сворачивании, но оставляем верхнюю панель */
-/* Используем только height и overflow, без visibility для плавной анимации */
+/* Используем только height, БЕЗ overflow для видимости blur анимации */
 .content-block.collapsed .content-body,
 .content-block.collapsed .chat-container {
     height: 0 !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    /* overflow: hidden убран - будет добавлен через JS после анимации */
     margin: 0 !important;
     padding: 0 !important;
     transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -462,7 +467,7 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
-            overflow-y: auto; /* MOBILE: добавляем скролл */
+            overflow: visible; /* MOBILE: изменено с auto на visible для видимости blur */
             overflow-x: hidden;
             transition: filter 0.8s ease, opacity 0.8s ease; /* MOBILE: синхронизируем с анимацией сворачивания */
             scrollbar-width: none; /* MOBILE: скрываем scrollbar */
@@ -473,10 +478,11 @@
 
         /* ─── MATERIALS ─── */
         .materials-list { 
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex; /* MOBILE: изменено с grid на flex */
+            flex-direction: column; /* MOBILE: вертикальное расположение */
             gap: 8px; /* MOBILE: меньше gap */
-            overflow-y: auto;
+            overflow-y: auto; /* MOBILE: скролл для списка */
+            overflow-x: hidden;
             max-height: 100%;
             flex: 1; /* MOBILE: занимает всё доступное пространство */
             scrollbar-width: none;
@@ -495,6 +501,7 @@
             position: relative;
             overflow: hidden;
             min-height: 60px; /* MOBILE: меньше высота */
+            flex-shrink: 0; /* MOBILE: не сжимать и не растягивать */
         }
         
         /* Shimmer animation for highlighting */
@@ -955,11 +962,11 @@
 
         .chat-empty-state {
             flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-            text-align:center;padding:20px 10px;gap:16px;pointer-events:none;
+            text-align:center;padding:20px 10px;gap:12px;pointer-events:none; /* MOBILE: gap уменьшен с 16px до 12px */
         }
-        .chat-empty-state .sofia-icon { width:90px;height:90px;opacity:.5; }
+        .chat-empty-state .sofia-icon { width:60px;height:60px;opacity:.5; } /* MOBILE: уменьшен с 90px до 60px */
         .chat-empty-state .sofia-icon img { width:100%;height:100%;opacity:.7; }
-        .chat-empty-state p { font-size:13px;line-height:1.6;color:var(--text-secondary);letter-spacing:-.15px;max-width:260px; }
+        .chat-empty-state p { font-size:11px;line-height:1.5;color:var(--text-secondary);letter-spacing:-.15px;max-width:240px; } /* MOBILE: font-size уменьшен с 13px до 11px, max-width с 260px до 240px */
 
         .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch; }
         .chat-input {
@@ -1143,11 +1150,11 @@
 .chat-send img { width:18px;height:18px;opacity:.7; }
 
         /* ─── EMPTY STATE ─── */
-        .empty-state { text-align:center;padding:60px 20px;color:var(--text-secondary); }
-        .empty-state-icon { margin-bottom:16px;opacity:.4; }
-        .empty-state-icon img { width:90px;height:90px;opacity:.7; }
-        .empty-state h3 { font-size:15px;margin-bottom:8px;color:var(--text-primary);font-weight:500;letter-spacing:-.2px; }
-        .empty-state p { font-size:13px;line-height:1.5;letter-spacing:-.1px; }
+        .empty-state { text-align:center;padding:20px 10px;color:var(--text-secondary); } /* MOBILE: уменьшен padding с 60px до 20px */
+        .empty-state-icon { margin-bottom:12px;opacity:.4; } /* MOBILE: уменьшен margin с 16px до 12px */
+        .empty-state-icon img { width:60px;height:60px;opacity:.7; } /* MOBILE: уменьшен с 90px до 60px */
+        .empty-state h3 { font-size:13px;margin-bottom:6px;color:var(--text-primary);font-weight:500;letter-spacing:-.2px; } /* MOBILE: уменьшен с 15px до 13px */
+        .empty-state p { font-size:11px;line-height:1.4;letter-spacing:-.1px; } /* MOBILE: уменьшен с 13px до 11px */
 
         /* ─── AUTH MODAL ─── */
         .auth-overlay {
@@ -2496,41 +2503,31 @@ function toggleMonitorMode(event) {
         const chatBlock = document.getElementById('chatBlock');
         
         if (browserBlock && !browserBlock.classList.contains('collapsed')) {
-            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing browserBlock via collapseBlock()`);
-            // Вручную запускаем анимацию без изменения состояния (оно уже изменено)
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing browserBlock`);
             const browserContent = browserBlock.querySelector('.content-body');
             if (browserContent) {
-                browserContent.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
-                browserContent.style.filter = 'blur(8px)';
+                // MOBILE: Только fade, без blur
+                browserContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
                 browserContent.style.opacity = '0';
             }
             browserBlock.classList.add('collapsed');
             
-            // Используем requestAnimationFrame для гарантии, что minimized добавится вовремя
-            const startTime = performance.now();
             setTimeout(() => {
-                const elapsed = performance.now() - startTime;
-                console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] browserBlock.minimized added (elapsed: ${elapsed.toFixed(2)}ms)`);
                 browserBlock.classList.add('minimized');
             }, RESIZE_DURATION / 2);
         }
         
         if (chatBlock && !chatBlock.classList.contains('collapsed')) {
-            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing chatBlock via collapseBlock()`);
-            // Вручную запускаем анимацию без изменения состояния (оно уже изменено)
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing chatBlock`);
             const chatContent = chatBlock.querySelector('.chat-container');
             if (chatContent) {
-                chatContent.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
-                chatContent.style.filter = 'blur(8px)';
+                // MOBILE: Только fade, без blur
+                chatContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
                 chatContent.style.opacity = '0';
             }
             chatBlock.classList.add('collapsed');
             
-            // Используем requestAnimationFrame для гарантии, что minimized добавится вовремя
-            const startTime = performance.now();
             setTimeout(() => {
-                const elapsed = performance.now() - startTime;
-                console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] chatBlock.minimized added (elapsed: ${elapsed.toFixed(2)}ms)`);
                 chatBlock.classList.add('minimized');
             }, RESIZE_DURATION / 2);
         }
@@ -2592,14 +2589,17 @@ function collapseBlock(id, skipGridUpdate = false) {
     }
     
     if (content) {
-        content.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
-        content.style.filter = 'blur(8px)';
+        // MOBILE: Только fade, без blur
+        content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
         content.style.opacity = '0';
-        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - blur animation started`);
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - fade animation started`);
     }
     
-    block.classList.add('collapsed');
-    console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - collapsed class added`);
+    // MOBILE: Добавляем collapsed класс с небольшой задержкой
+    setTimeout(() => {
+        block.classList.add('collapsed');
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - collapsed class added`);
+    }, 50);
     
     setTimeout(() => {
         block.classList.add('minimized');
@@ -2637,15 +2637,13 @@ function expandBlock(id) {
         
         // MOBILE: ШАГ 1: Устанавливаем transition для контента ПЕРЕД разворачиванием
         if (content) {
-            content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
-            // Устанавливаем начальное состояние (блюр)
-            content.style.filter = 'blur(8px)';
+            content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
+            // Устанавливаем начальное состояние (прозрачный)
             content.style.opacity = '0';
             console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - content transition setup`);
         }
         
         // MOBILE: ШАГ 2: Разворачиваем блок (убираем collapsed класс)
-        // Это автоматически уберет height: 0 и запустит transition
         block.classList.remove('collapsed');
         console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - collapsed class removed`);
         
@@ -2655,13 +2653,11 @@ function expandBlock(id) {
             console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - minimized class removed`);
         }, RESIZE_DURATION / 2);
         
-        // MOBILE: ШАГ 4: Разблюриваем контент одновременно с разворачиванием
+        // MOBILE: ШАГ 4: Проявляем контент одновременно с разворачиванием
         if (content) {
-            // Затем плавно убираем блюр
             setTimeout(() => {
-                content.style.filter = 'blur(0px)';
                 content.style.opacity = '1';
-                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - blur animation started`);
+                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - fade animation started`);
             }, 50);
         }
         
@@ -4772,7 +4768,7 @@ function renderProgress(){
     // Если пользователь не залогинен - показываем приглашение
     if (!currentUser) {
         const html = `<div class="empty-state">
-            <div class="empty-state-icon" id="lottie-progress" style="width:234px;height:234px;margin:0 auto;"></div>
+            <div class="empty-state-icon" id="lottie-progress" style="width:120px;height:120px;margin:0 auto;"></div>
             <h3>Прогресс и достижения</h3>
             <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. <strong style="font-weight:600;white-space:nowrap;"><a href="#" onclick="document.getElementById('headerLoginBtn').click();return false;" style="color:var(--text-primary);text-decoration:none;cursor:pointer;">Пройдите синхронизацию, чтобы узнать больше.</a></strong></p>
         </div>`;
@@ -5767,7 +5763,7 @@ function renderChatMessages(){
     // Приветствие только для Sofia
     if (messages.length === 0 && activeChatTab === 'sofia') {
         container.innerHTML = `<div class="chat-empty-state">
-            <div class="sofia-icon" id="lottie-chat-sofia" style="width:90px;height:90px;margin:0 auto;"></div>
+            <div class="sofia-icon" id="lottie-chat-sofia" style="width:60px;height:60px;margin:0 auto;"></div>
             <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
         </div>`;
         
