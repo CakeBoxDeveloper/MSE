@@ -315,6 +315,7 @@
     min-height: 0; /* MOBILE: важно для flex */
     transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    will-change: flex; /* MOBILE: оптимизация анимации */
 }
 
 /* MOBILE: Отступ сверху для браузера */
@@ -340,12 +341,15 @@
 /* MOBILE: Spacer между блоками - растет когда оба блока свернуты */
 .block-spacer {
     flex: 0 0 0px;
-    transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 0;
+    transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: flex, min-height;
 }
 
 /* MOBILE: Когда оба свернуты, spacer растет и разносит блоки */
 .content-grid.both-collapsed .block-spacer {
     flex: 1 1 0%;
+    min-height: 100px; /* Минимальная высота для видимости */
 }
 
 /* MOBILE: Скрываем монитор на мобильной версии (пока) */
@@ -444,6 +448,7 @@
     overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
+    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* MOBILE: Скрываем поиск при сворачивании */
@@ -2430,130 +2435,151 @@ function toggleMonitorSkin(event) {
 
 // MOBILE: Флаг для предотвращения двойного вызова
 let isTogglingMonitor = false;
+let lastToggleTime = 0;
+const TOGGLE_DEBOUNCE = 1000; // 1 секунда
+let toggleCallId = 0; // Уникальный ID для каждого вызова
 
 function toggleMonitorMode(event) {
+    const callId = ++toggleCallId;
+    const startTime = performance.now();
+    console.log(`[${startTime.toFixed(2)}ms] [MSE #${callId}] toggleMonitorMode called`);
+    
     if (event) {
         event.stopPropagation();
         event.preventDefault();
     }
     
+    // MOBILE: Debounce - игнорируем клики в течение 1 секунды
+    const now = Date.now();
+    if (now - lastToggleTime < TOGGLE_DEBOUNCE) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Debounce - ignoring (${now - lastToggleTime}ms since last)`);
+        return;
+    }
+    lastToggleTime = now;
+    
     // MOBILE: Защита от двойного вызова
     if (isTogglingMonitor) {
-        console.log('[MSE] Already toggling, ignoring...');
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Already toggling, ignoring`);
         return;
     }
     
     isTogglingMonitor = true;
-    console.log('[MSE] toggleMonitorMode called');
-    console.trace('[MSE] Call stack:');
     closeAllMenus();
     
     // MOBILE: Если оба блока уже свернуты - разворачиваем их
     if (blockState.browserBlock && blockState.chatBlock) {
-        console.log('[MSE] Both collapsed, expanding...');
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Both collapsed, expanding...`);
         expandBlock('browserBlock');
         expandBlock('chatBlock');
         
-        // MOBILE: Сбрасываем флаг после завершения анимации
         setTimeout(() => {
             isTogglingMonitor = false;
-            console.log('[MSE] Toggle complete (expand)');
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Toggle complete (expand)`);
         }, RESIZE_DURATION);
     } else {
-        console.log('[MSE] Collapsing both blocks...');
-        console.log('[MSE] Before - browserBlock:', blockState.browserBlock, 'chatBlock:', blockState.chatBlock);
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing both blocks...`);
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Before - browser:${blockState.browserBlock} chat:${blockState.chatBlock}`);
         
-        // Иначе сворачиваем оба блока
-        // MOBILE: Сначала изменяем состояния
-        if (!blockState.browserBlock) {
-            blockState.browserBlock = true;
-        }
-        if (!blockState.chatBlock) {
-            blockState.chatBlock = true;
-        }
+        // MOBILE: Сначала обновляем состояния обоих блоков
+        blockState.browserBlock = true;
+        blockState.chatBlock = true;
         
-        console.log('[MSE] After - browserBlock:', blockState.browserBlock, 'chatBlock:', blockState.chatBlock);
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] After - browser:${blockState.browserBlock} chat:${blockState.chatBlock}`);
         
-        // MOBILE: Вызываем updateGridState СРАЗУ, чтобы spacer начал расти
-        console.log('[MSE] Calling updateGridState...');
+        // MOBILE: Обновляем grid state СРАЗУ (до анимации)
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Calling updateGridState...`);
         updateGridState();
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] updateGridState done`);
         
-        // MOBILE: Теперь запускаем анимацию блюра и сворачивания для каждого блока
-        if (document.getElementById('browserBlock') && !document.getElementById('browserBlock').classList.contains('collapsed')) {
-            const browserBlock = document.getElementById('browserBlock');
+        // MOBILE: Используем collapseBlock для каждого блока (с skipGridUpdate=true)
+        const browserBlock = document.getElementById('browserBlock');
+        const chatBlock = document.getElementById('chatBlock');
+        
+        if (browserBlock && !browserBlock.classList.contains('collapsed')) {
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing browserBlock via collapseBlock()`);
+            // Вручную запускаем анимацию без изменения состояния (оно уже изменено)
             const browserContent = browserBlock.querySelector('.content-body');
-            
-            console.log('[MSE] Collapsing browserBlock');
             if (browserContent) {
                 browserContent.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
                 browserContent.style.filter = 'blur(8px)';
                 browserContent.style.opacity = '0';
             }
-            
             browserBlock.classList.add('collapsed');
+            
+            // Используем requestAnimationFrame для гарантии, что minimized добавится вовремя
+            const startTime = performance.now();
             setTimeout(() => {
+                const elapsed = performance.now() - startTime;
+                console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] browserBlock.minimized added (elapsed: ${elapsed.toFixed(2)}ms)`);
                 browserBlock.classList.add('minimized');
             }, RESIZE_DURATION / 2);
         }
         
-        if (document.getElementById('chatBlock') && !document.getElementById('chatBlock').classList.contains('collapsed')) {
-            const chatBlock = document.getElementById('chatBlock');
+        if (chatBlock && !chatBlock.classList.contains('collapsed')) {
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing chatBlock via collapseBlock()`);
+            // Вручную запускаем анимацию без изменения состояния (оно уже изменено)
             const chatContent = chatBlock.querySelector('.chat-container');
-            
-            console.log('[MSE] Collapsing chatBlock');
             if (chatContent) {
                 chatContent.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
                 chatContent.style.filter = 'blur(8px)';
                 chatContent.style.opacity = '0';
             }
-            
             chatBlock.classList.add('collapsed');
+            
+            // Используем requestAnimationFrame для гарантии, что minimized добавится вовремя
+            const startTime = performance.now();
             setTimeout(() => {
+                const elapsed = performance.now() - startTime;
+                console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] chatBlock.minimized added (elapsed: ${elapsed.toFixed(2)}ms)`);
                 chatBlock.classList.add('minimized');
             }, RESIZE_DURATION / 2);
         }
         
-        // MOBILE: Сбрасываем флаг после завершения анимации
         setTimeout(() => {
             isTogglingMonitor = false;
-            console.log('[MSE] Toggle complete (collapse)');
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Toggle complete (collapse)`);
         }, RESIZE_DURATION);
     }
 }
 
 function toggleMinimize(id) {
+    console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] toggleMinimize(${id}) called`);
     closeAllMenus();
     
     // MOBILE: Если оба блока свернуты и мы разворачиваем один
     if (blockState.browserBlock && blockState.chatBlock) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] Both collapsed, expanding ${id}`);
         // Просто разворачиваем нужный блок, он заполнит свободное место
         expandBlock(id);
     } else if (blockState[id]) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] ${id} is collapsed, expanding`);
         // Если блок свернут, разворачиваем его
         expandBlock(id);
     } else {
+        console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] ${id} is expanded, collapsing`);
         // Если блок развернут, сворачиваем его
         collapseBlock(id);
     }
 }
 
 function updateGridState() {
+    const t = performance.now();
     const grid = document.getElementById('contentGrid');
     const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
     
-    console.log('[GRID] updateGridState - bothCollapsed:', bothCollapsed);
+    console.log(`[${t.toFixed(2)}ms] [GRID] updateGridState - bothCollapsed:${bothCollapsed}`);
     
     if (bothCollapsed) {
-        console.log('[GRID] Adding both-collapsed class');
         grid.classList.add('both-collapsed');
+        console.log(`[${performance.now().toFixed(2)}ms] [GRID] Added both-collapsed class`);
     } else {
-        console.log('[GRID] Removing both-collapsed class');
         grid.classList.remove('both-collapsed');
+        console.log(`[${performance.now().toFixed(2)}ms] [GRID] Removed both-collapsed class`);
     }
 }
 
 function collapseBlock(id, skipGridUpdate = false) {
-    console.log('[COLLAPSE]', id, '- skipGridUpdate:', skipGridUpdate);
+    console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] collapseBlock(${id}, skipGridUpdate:${skipGridUpdate})`);
     blockState[id] = true;
     const block = document.getElementById(id);
     const body = block.querySelector('.block-body');
@@ -2561,33 +2587,28 @@ function collapseBlock(id, skipGridUpdate = false) {
     const chatContainer = block.querySelector('.chat-container');
     const content = contentBody || chatContainer;
 
-    console.log('[COLLAPSE]', id, '- found content:', !!content);
-
-    // MOBILE: ОБНОВЛЯЕМ СОСТОЯНИЕ ДО АНИМАЦИИ при сворачивании (если не пропускаем)
     if (!skipGridUpdate) {
-        console.log('[COLLAPSE]', id, '- calling updateGridState');
         updateGridState();
     }
     
-    // MOBILE: ШАГ 1: Blur и fade-out контента одновременно со сворачиванием
     if (content) {
         content.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
         content.style.filter = 'blur(8px)';
         content.style.opacity = '0';
-        console.log('[COLLAPSE]', id, '- applied blur');
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - blur animation started`);
     }
     
-    // MOBILE: Запускаем одновременное сворачивание блока
     block.classList.add('collapsed');
-    console.log('[COLLAPSE]', id, '- added collapsed class');
+    console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - collapsed class added`);
     
     setTimeout(() => {
         block.classList.add('minimized');
-        console.log('[COLLAPSE]', id, '- added minimized class');
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - minimized class added`);
     }, RESIZE_DURATION / 2);
 }
 
 function expandBlock(id) {
+    console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] expandBlock(${id}) called`);
     const block = document.getElementById(id);
     const body = block.querySelector('.block-body');
     const contentBody = block.querySelector('.content-body');
@@ -2596,40 +2617,61 @@ function expandBlock(id) {
     
     // MOBILE: Проверяем, были ли оба блока свёрнуты ДО изменения состояния
     const bothWereCollapsed = blockState.browserBlock && blockState.chatBlock;
+    console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - bothWereCollapsed:${bothWereCollapsed}`);
     
     // MOBILE: Изменяем состояние (но НЕ вызываем updateGridState сразу)
     blockState[id] = false;
+    console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - state changed to false`);
+    
+    // MOBILE: Если оба были свернуты, обновляем grid state СРАЗУ
+    if (bothWereCollapsed) {
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - calling updateGridState() immediately (both were collapsed)`);
+        updateGridState();
+    }
 
     // MOBILE: Сразу начинаем разворачивание
     startExpansion();
 
     function startExpansion() {
-        // MOBILE: ШАГ 1: Разворачиваем блок
-        block.classList.remove('collapsed');
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - startExpansion()`);
         
-        // MOBILE: ШАГ 2: Меняем иконку в середине анимации
-        setTimeout(() => {
-            block.classList.remove('minimized');
-        }, RESIZE_DURATION / 2);
-        
-        // MOBILE: ШАГ 3: Разблюриваем и проявляем контент одновременно с разворачиванием
+        // MOBILE: ШАГ 1: Устанавливаем transition для контента ПЕРЕД разворачиванием
         if (content) {
+            content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
             // Устанавливаем начальное состояние (блюр)
             content.style.filter = 'blur(8px)';
             content.style.opacity = '0';
-            content.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
-            
+            console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - content transition setup`);
+        }
+        
+        // MOBILE: ШАГ 2: Разворачиваем блок (убираем collapsed класс)
+        // Это автоматически уберет height: 0 и запустит transition
+        block.classList.remove('collapsed');
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - collapsed class removed`);
+        
+        // MOBILE: ШАГ 3: Меняем иконку в середине анимации
+        setTimeout(() => {
+            block.classList.remove('minimized');
+            console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - minimized class removed`);
+        }, RESIZE_DURATION / 2);
+        
+        // MOBILE: ШАГ 4: Разблюриваем контент одновременно с разворачиванием
+        if (content) {
             // Затем плавно убираем блюр
             setTimeout(() => {
                 content.style.filter = 'blur(0px)';
                 content.style.opacity = '1';
+                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - blur animation started`);
             }, 50);
         }
         
-        // MOBILE: ШАГ 4: Обновляем grid state ПОСЛЕ завершения анимации (как в десктопе)
-        setTimeout(() => {
-            updateGridState();
-        }, RESIZE_DURATION);
+        // MOBILE: ШАГ 5: Обновляем grid state ПОСЛЕ завершения анимации (только если оба НЕ были свернуты)
+        if (!bothWereCollapsed) {
+            setTimeout(() => {
+                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - calling updateGridState()`);
+                updateGridState();
+            }, RESIZE_DURATION);
+        }
     }
 }
  
@@ -3305,6 +3347,7 @@ function confirmLogout() {
         // Close monitor mode if it's open
         const hiddenModule = document.getElementById('hiddenModule');
         if (hiddenModule && hiddenModule.style.opacity === '1') {
+            console.log(`[${performance.now().toFixed(2)}ms] [AUTO-CALL-3] Closing monitor from hiddenModule check`);
             toggleMonitorMode(); // Close the monitor
         }
         
@@ -6192,6 +6235,7 @@ function sendMessage(){
                     
                     // Через еще 1 секунду активируем режим "Монитор"
                     setTimeout(() => {
+                        console.log(`[${performance.now().toFixed(2)}ms] [AUTO-CALL-1] Chat logic calling toggleMonitorMode()`);
                         toggleMonitorMode();
                     }, 1000);
                 }, thinkingTime);
@@ -7337,7 +7381,7 @@ function updateHeartRate(newRate) {
     
     // If Monitor mode is not active, activate it first
     if (!isMonitorActive) {
-        console.log('Activating Monitor mode first...');
+        console.log(`[${performance.now().toFixed(2)}ms] [AUTO-CALL-2] Activating Monitor mode first...`);
         toggleMonitorMode();
         
         // Wait for Monitor mode to activate, then update values
