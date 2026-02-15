@@ -448,11 +448,13 @@
 /* Используем только height, БЕЗ overflow для видимости blur анимации */
 .content-block.collapsed .content-body,
 .content-block.collapsed .chat-container {
-    height: 0 !important;
-    min-height: 0 !important;
+    height: 0;
+    min-height: 0;
     /* overflow: hidden убран - будет добавлен через JS после анимации */
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
+    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease;
+}
     transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
@@ -2506,8 +2508,9 @@ function toggleMonitorMode(event) {
             console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing browserBlock`);
             const browserContent = browserBlock.querySelector('.content-body');
             if (browserContent) {
-                // MOBILE: Только fade, без blur
-                browserContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
+                // MOBILE: Blur и fade
+                browserContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+                browserContent.style.filter = 'blur(8px)';
                 browserContent.style.opacity = '0';
             }
             browserBlock.classList.add('collapsed');
@@ -2521,8 +2524,9 @@ function toggleMonitorMode(event) {
             console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing chatBlock`);
             const chatContent = chatBlock.querySelector('.chat-container');
             if (chatContent) {
-                // MOBILE: Только fade, без blur
-                chatContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
+                // MOBILE: Blur и fade
+                chatContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+                chatContent.style.filter = 'blur(8px)';
                 chatContent.style.opacity = '0';
             }
             chatBlock.classList.add('collapsed');
@@ -2588,11 +2592,12 @@ function collapseBlock(id, skipGridUpdate = false) {
         updateGridState();
     }
     
+    // MOBILE: Применяем blur и fade к контенту
     if (content) {
-        // MOBILE: Только fade, без blur
-        content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
+        content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+        content.style.filter = 'blur(8px)';
         content.style.opacity = '0';
-        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - fade animation started`);
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - blur and fade animation started`);
     }
     
     // MOBILE: Добавляем collapsed класс с небольшой задержкой
@@ -2637,8 +2642,9 @@ function expandBlock(id) {
         
         // MOBILE: ШАГ 1: Устанавливаем transition для контента ПЕРЕД разворачиванием
         if (content) {
-            content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease';
-            // Устанавливаем начальное состояние (прозрачный)
+            content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+            // Устанавливаем начальное состояние (блюр и прозрачный)
+            content.style.filter = 'blur(8px)';
             content.style.opacity = '0';
             console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - content transition setup`);
         }
@@ -2653,11 +2659,12 @@ function expandBlock(id) {
             console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - minimized class removed`);
         }, RESIZE_DURATION / 2);
         
-        // MOBILE: ШАГ 4: Проявляем контент одновременно с разворачиванием
+        // MOBILE: ШАГ 4: Разблюриваем и проявляем контент одновременно с разворачиванием
         if (content) {
             setTimeout(() => {
+                content.style.filter = 'blur(0px)';
                 content.style.opacity = '1';
-                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - fade animation started`);
+                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - blur and fade animation started`);
             }, 50);
         }
         
