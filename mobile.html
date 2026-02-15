@@ -315,6 +315,7 @@
     min-height: 0; /* MOBILE: важно для flex */
     transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    z-index: 1; /* MOBILE: блоки над монитором */
     will-change: flex; /* MOBILE: оптимизация анимации */
 }
 
@@ -352,9 +353,17 @@
     min-height: 100px; /* Минимальная высота для видимости */
 }
 
-/* MOBILE: Скрываем монитор на мобильной версии (пока) */
+/* MOBILE: Монитор всегда отображается, но за блоками в блюре */
 .hidden-module {
-    display: none !important;
+    display: flex !important;
+    position: absolute !important;
+    z-index: 0 !important;
+}
+
+/* MOBILE: Когда оба блока свёрнуты, монитор управляется через JavaScript */
+.content-grid.both-collapsed .hidden-module {
+    /* opacity и filter управляются через JS */
+}
 }
 
 
@@ -439,6 +448,13 @@
     padding: 12px 12px 0 12px; /* MOBILE: убираем нижний padding */
 }
 
+/* MOBILE: Скрываем строку ввода при сворачивании chatBlock */
+#chatBlock.collapsed .chat-input-area {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.1s ease !important;
+}
+
 /* MOBILE: Добавляем отступ снизу у вкладок в свернутом состоянии (равный верхнему padding) */
 .content-block.collapsed .inner-tabs {
     margin-bottom: 12px;
@@ -455,7 +471,6 @@
     padding: 0;
     transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease;
 }
-    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* MOBILE: Скрываем поиск при сворачивании */
@@ -970,6 +985,13 @@
         .chat-empty-state .sofia-icon img { width:100%;height:100%;opacity:.7; }
         .chat-empty-state p { font-size:11px;line-height:1.5;color:var(--text-secondary);letter-spacing:-.15px;max-width:240px; } /* MOBILE: font-size уменьшен с 13px до 11px, max-width с 260px до 240px */
 
+        .chat-input-area { 
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            margin-top: auto; /* Прижимаем к низу */
+        }
+        
         .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch; }
         .chat-input {
             flex:1;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
@@ -1537,491 +1559,51 @@
         </div>
       </div>
 
-      <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND OTHER BLOCKS -->
-      <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 0; left: 80px; right: 80px; z-index: -1; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease; background: transparent; border: none;">
-        <div class="block-body" style="display: flex; align-items: center; justify-content: center; gap: 20px; padding: 0; position: relative; height: var(--block-height); overflow: visible;">
+      <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
+      <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
+        <div class="block-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; overflow: hidden; height: 100%; gap: 20px;">
           
-          <!-- КОНТЕЙНЕР ДЛЯ РАСТЯЖЕНИЯ НА ВСЮ ОБЛАСТЬ -->
-          <div class="monitor-full-container" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; transform: scale(1.05); transform-origin: center center; overflow: visible;">
-          
-          <!-- Левые блоки (растянуты до высоты резюме) -->
-          <div class="monitor-left-elements" style="position: absolute; left: calc(31% - 90px); top: 2.5%; transform: none; width: 160px; height: 95%; pointer-events: none;">
-            <!-- Блок 1 - верх головы -->
-            <div style="position: absolute; top: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_brain.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Здоровье ЦНС</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 2 - грудь -->
-            <div style="position: absolute; top: calc(65px + (100% - 390px) / 5 * 1); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_lungs.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Функция лёгких</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">6</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 3 - новый блок -->
-            <div style="position: absolute; top: calc(130px + (100% - 390px) / 5 * 2); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_immunity.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Иммунитет</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">7</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 4 - живот -->
-            <div style="position: absolute; top: calc(195px + (100% - 390px) / 5 * 3); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_energy.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Энергообмен</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">9</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 5 - бедра -->
-            <div style="position: absolute; top: calc(260px + (100% - 390px) / 5 * 4); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_flexibility.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Адаптивность</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">4</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 6 - ноги -->
-            <div style="position: absolute; bottom: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_power.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Сила мышц</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Большой блок "ПРИЗНАКИ ЖИЗНИ" (слева) -->
-          <div class="monitor-cardiogram-block" style="position: absolute; left: calc(31% - 340px); top: 2.5%; width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
-              <span>ПРИЗНАКИ ЖИЗНИ</span>
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f285999bcbd5f331bffb4244373e3aecc5695eb6/rate.svg" alt="" style="width: 14px; height: 14px;">
-            </div>
-            
-            <!-- Анимированная кардиограмма с Lottie -->
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-              <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
-                <!-- Фоновая сетка растянутая по горизонтали и вертикали на весь блок -->
-                <svg width="100%" height="100%" viewBox="0 0 150 120" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
-                  <defs>
-                    <pattern id="ecgGrid" width="5" height="5" patternUnits="userSpaceOnUse">
-                      <path d="M 5 0 L 0 0 0 5" fill="none" stroke="rgba(153,153,153,0.15)" stroke-width="0.3"/>
-                    </pattern>
-                    <pattern id="ecgGridMajor" width="25" height="25" patternUnits="userSpaceOnUse">
-                      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="rgba(153,153,153,0.25)" stroke-width="0.5"/>
-                    </pattern>
-                  </defs>
-                  <!-- Мелкая сетка -->
-                  <rect width="100%" height="100%" fill="url(#ecgGrid)" />
-                  <!-- Крупная сетка -->
-                  <rect width="100%" height="100%" fill="url(#ecgGridMajor)" />
-                </svg>
-                
-                <!-- Интерактивный canvas с градиентом поверх сетки -->
-                <canvas id="ecgCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; transform: scaleX(-1) scaleY(-1);"></canvas>
-              </div>
-              
-              <!-- Показатели -->
-              <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 10px; color: var(--text-secondary);">
-                <div style="text-align: center; flex: 1; min-width: 0;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <span style="opacity: 0.7;">Пульс </span><span id="pulseValue">72</span>
-                  </div>
-                </div>
-                <div style="text-align: center; flex: 1; min-width: 0;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <span style="opacity: 0.7;">ЧСС </span><span id="hrrValue">68</span>
-                  </div>
-                </div>
-                <div style="text-align: center; flex: 1; min-width: 0;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <span style="opacity: 0.7;">O₂ </span><span id="oxygenValue">98</span><span style="opacity: 0.7;">%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Большой блок "Весы" (слева внизу) -->
-          <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 6px); width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
-              <span>ВЕСЫ</span>
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9de8a26dbc1469309e975cc1be78720e41b1aa55/scale.svg" alt="" style="width: 14px; height: 14px;">
-            </div>
-            <div style="flex: 1; position: relative; overflow: visible;">
-              <!-- Профессиональный график веса с сеткой и шкалами -->
-              <svg width="100%" height="100%" viewBox="0 0 120 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.2); transform-origin: center center; overflow: visible;">
-                <!-- Определяем градиенты -->
-                <defs>
-                  <linearGradient id="gridGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
-                  </linearGradient>
-                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:rgba(153,153,153,0.6);stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:rgba(153,153,153,1);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:rgba(153,153,153,0.8);stop-opacity:1" />
-                  </linearGradient>
-                </defs>
-                
-                <!-- Фоновая сетка (горизонтальные линии) -->
-                <line x1="20" y1="10" x2="95" y2="10" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="20" x2="95" y2="20" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="30" x2="95" y2="30" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="40" x2="95" y2="40" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="50" x2="95" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="60" x2="95" y2="60" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="70" x2="95" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                
-                <!-- Вертикальные линии сетки -->
-                <line x1="30" y1="10" x2="30" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="45" y1="10" x2="45" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="60" y1="10" x2="60" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="75" y1="10" x2="75" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="90" y1="10" x2="90" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                
-                <!-- Основные оси -->
-                <line x1="20" y1="10" x2="20" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                <line x1="20" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                
-                <!-- Засечки на Y-оси (вес) -->
-                <line x1="17" y1="10" x2="20" y2="10" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="17" y1="20" x2="20" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="17" y1="30" x2="20" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="17" y1="40" x2="20" y2="40" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="17" y1="50" x2="20" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="17" y1="60" x2="20" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="17" y1="70" x2="20" y2="70" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                
-                <!-- Засечки на X-оси (время) -->
-                <line x1="20" y1="75" x2="20" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="30" y1="75" x2="30" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="45" y1="75" x2="45" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="60" y1="75" x2="60" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="75" y1="75" x2="75" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="90" y1="75" x2="90" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="95" y1="75" x2="95" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                
-                <!-- Подписи Y-оси (вес в кг) - сдвинуты левее для предотвращения обрезания -->
-                <text x="16" y="13" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">85</text>
-                <text x="16" y="33" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">80</text>
-                <text x="16" y="53" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">75</text>
-                <text x="16" y="73" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">70</text>
-                
-                <!-- Подписи X-оси (время) -->
-                <text x="20" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Янв</text>
-                <text x="45" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Мар</text>
-                <text x="75" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Май</text>
-                <text x="95" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Июл</text>
-                
-                <!-- Область под графиком (градиент) -->
-                <path d="M20,70 L25,65 L35,68 L45,62 L55,60 L65,58 L75,55 L85,52 L95,50 L95,75 L20,75 Z" 
-                      fill="url(#gridGradient)" opacity="0.3"/>
-                
-                <!-- Основная линия графика -->
-                <polyline points="20,70 25,65 35,68 45,62 55,60 65,58 75,55 85,52 95,50" 
-                          fill="none" 
-                          stroke="url(#lineGradient)" 
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"/>
-                
-                <!-- Точки данных -->
-                <circle cx="20" cy="70" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="35" cy="68" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="55" cy="60" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="75" cy="55" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="95" cy="50" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-              </svg>
-            </div>
-          </div>
-          
-          <!-- Центральная картинка (человек - точно в центре) -->
-          <div class="monitor-center-image" style="position: absolute; left: 50%; top: 43%; transform: translate(-50%, -50%); width: 450px; height: 660px; display: flex; align-items: center; justify-content: center; z-index: 1; overflow: visible; padding: 20px;">
+          <!-- Центральное видео (аватар) -->
+          <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
             <video id="monitorHumanVideo" 
                    autoplay 
                    loop 
                    muted 
                    playsinline
-                   style="width: 100%; height: 100%; opacity: 0.7; object-fit: contain; cursor: pointer;
+                   style="width: 115%; height: auto; max-height: 115%; opacity: 0.7; object-fit: contain;
                           filter: grayscale(1);
                           animation: colorFadeIn 2s ease-out forwards;">
               <source id="monitorVideoSource" src="" type="video/webm">
-              <!-- Fallback to SVG if video doesn't load -->
-              <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/5ec8acac0d97faf61ecd4b56746d3ab429bb6a25/human_male.svg" 
-                   alt="Human Monitor" 
-                   style="width: 100%; height: 100%; opacity: 0.7; filter: invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%);">
             </video>
           </div>
           
-          <!-- Плашка с номером звена (выровнена по нижней границе) -->
-          <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); width: 160px; height: 60px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; pointer-events: all; cursor: pointer; transition: all 0.2s ease;">
-            <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
+          <!-- Плашка с номером звена и кнопки навигации -->
+          <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;">
+            
+            <!-- Кнопка влево -->
+            <button onclick="navigateMonitor('left')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18l-6-6 6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            
+            <!-- Плашка с номером звена -->
+            <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="width: 200px; height: 50px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.2s ease;">
+              <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 13px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
+            </div>
+            
+            <!-- Кнопка вправо -->
+            <button onclick="navigateMonitor('right')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18l6-6-6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            
           </div>
-          
-          <!-- Правые блоки (растянуты до высоты резюме) -->
-          <div class="monitor-right-elements" style="position: absolute; right: calc(31% - 90px); top: 2.5%; transform: none; width: 160px; height: 95%; pointer-events: none;">
-            <!-- Блок 6 - верх головы -->
-            <div style="position: absolute; top: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_nerve.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Когнитивность</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">7</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 7 - грудь -->
-            <div style="position: absolute; top: calc(65px + (100% - 390px) / 5 * 1); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-heart.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Сердце</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">9</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 8 - новый блок -->
-            <div style="position: absolute; top: calc(130px + (100% - 390px) / 5 * 2); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-blood.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Кровообращение</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 9 - живот -->
-            <div style="position: absolute; top: calc(195px + (100% - 390px) / 5 * 3); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-stomach.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Пищеварение</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">5</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 10 - бедра -->
-            <div style="position: absolute; top: calc(260px + (100% - 390px) / 5 * 4); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-hormone.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Гормоны</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">3</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 11 - ноги -->
-            <div style="position: absolute; bottom: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-Endurance.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Выносливость</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Большой блок "Биологический профиль" (справа) -->
-          <div class="monitor-resume-block" style="position: absolute; right: calc(31% - 340px); top: 2.5%; width: 210px; height: 95%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 14px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
-              <span>БИОЛОГИЧЕСКИЙ ПРОФИЛЬ</span>
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px;">
-            </div>
-            <div style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto;">
-              <div style="margin-bottom: 10px;">
-                <strong>Общее состояние:</strong> Удовлетворительное
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>ЧСС:</strong> 72 уд/мин (норма)
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Давление:</strong> 120/80 мм рт.ст.
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Вес:</strong> Стабильный, в пределах нормы
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Энергетический баланс:</strong> Высокий уровень
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Рекомендации:</strong>
-              </div>
-              <div style="font-size: 10px; color: var(--text-tertiary);">
-                • Поддерживать текущий режим тренировок<br>
-                • Увеличить потребление воды<br>
-                • Контролировать уровень стресса<br>
-                • Регулярный сон 7-8 часов
-              </div>
-            </div>
-          </div>
-          
-          </div> <!-- Закрытие monitor-full-container -->
           
         </div>
       </div>
+          
 
       <!-- MOBILE: Spacer для разнесения блоков когда оба свернуты -->
       <div class="block-spacer" id="blockSpacer"></div>
@@ -2060,21 +1642,22 @@
           </div>
           <div class="chat-container">
             <div class="chat-messages" id="chat-messages"></div>
-      <div style="display:flex;flex-direction:column;flex-shrink:0;">
-  <div style="position:relative;display:flex;flex-direction:column;">
-    <div class="chat-file-preview" id="chat-file-preview"></div>
-    <div class="chat-input-wrapper">
-      <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
-      <button class="chat-attach" id="chat-attach">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="">
-        <input type="file" id="chat-file-input" multiple accept="*/*">
-      </button>
-      <button class="chat-send" id="chat-send">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
-      </button>
-    </div>
-  </div>
-</div>
+          </div>
+          <div class="chat-input-area">
+            <div style="position:relative;display:flex;flex-direction:column;">
+              <div class="chat-file-preview" id="chat-file-preview"></div>
+              <div class="chat-input-wrapper">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
+                <button class="chat-attach" id="chat-attach">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="">
+                  <input type="file" id="chat-file-input" multiple accept="*/*">
+                </button>
+                <button class="chat-send" id="chat-send">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2442,6 +2025,12 @@ function toggleMonitorSkin(event) {
     return;
 }
 
+// MOBILE: Navigate monitor screens (left/right)
+function navigateMonitor(direction) {
+    console.log(`[MONITOR] Navigate ${direction} - будет реализовано позже`);
+    // TODO: Implement horizontal scroll/swipe navigation
+}
+
 // MOBILE: Флаг для предотвращения двойного вызова
 let isTogglingMonitor = false;
 let lastToggleTime = 0;
@@ -2573,9 +2162,68 @@ function updateGridState() {
     if (bothCollapsed) {
         grid.classList.add('both-collapsed');
         console.log(`[${performance.now().toFixed(2)}ms] [GRID] Added both-collapsed class`);
+        
+        // MOBILE: Обновляем видео монитора при появлении
+        console.log(`[${performance.now().toFixed(2)}ms] [GRID] Calling updateMonitorVideo...`);
+        if (currentUser && currentUser.gender) {
+            updateMonitorVideo(currentUser.gender);
+        } else {
+            updateMonitorVideo(null); // Random video for non-logged in
+        }
+        
+        const monitor = document.getElementById('hiddenModule');
+        
+        if (monitor) {
+            // MOBILE: Логируем начальную позицию из HTML
+            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Initial position from HTML - top:${monitor.style.top}, computed top:${getComputedStyle(monitor).top}`);
+            
+            // MOBILE: Скрываем монитор через blur
+            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Setting blur state - opacity:0, filter:blur(8px)`);
+            monitor.style.opacity = '0';
+            monitor.style.filter = 'blur(8px)';
+            
+            // MOBILE: Вычисляем и устанавливаем позицию после завершения анимации, затем сразу разблюриваем
+            setTimeout(() => {
+                const browserBlock = document.getElementById('browserBlock');
+                const chatBlock = document.getElementById('chatBlock');
+                
+                if (browserBlock && chatBlock) {
+                    const browserRect = browserBlock.getBoundingClientRect();
+                    const chatRect = chatBlock.getBoundingClientRect();
+                    const gridRect = grid.getBoundingClientRect();
+                    
+                    const topOffset = browserRect.bottom - gridRect.top + 8;
+                    const monitorHeight = chatRect.top - browserRect.bottom - 16;
+                    
+                    console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Setting position - top:${topOffset}px, height:${monitorHeight}px`);
+                    console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Browser bottom:${browserRect.bottom}, Chat top:${chatRect.top}, Grid top:${gridRect.top}`);
+                    console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Current opacity before unblur:${monitor.style.opacity}`);
+                    
+                    // Устанавливаем позицию
+                    monitor.style.top = `${topOffset}px`;
+                    monitor.style.height = `${monitorHeight}px`;
+                    monitor.style.bottom = 'auto';
+                    
+                    // Сразу разблюриваем (без дополнительной задержки)
+                    requestAnimationFrame(() => {
+                        console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Unblur started - opacity:1, filter:blur(0px)`);
+                        monitor.style.opacity = '1';
+                        monitor.style.filter = 'blur(0px)';
+                    });
+                }
+            }, 850);
+        }
     } else {
         grid.classList.remove('both-collapsed');
         console.log(`[${performance.now().toFixed(2)}ms] [GRID] Removed both-collapsed class`);
+        
+        // MOBILE: Скрываем монитор через blur и fade
+        const monitor = document.getElementById('hiddenModule');
+        if (monitor) {
+            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Hiding monitor - opacity:0, filter:blur(8px)`);
+            monitor.style.opacity = '0';
+            monitor.style.filter = 'blur(8px)';
+        }
     }
 }
 
@@ -2598,6 +2246,19 @@ function collapseBlock(id, skipGridUpdate = false) {
         content.style.filter = 'blur(8px)';
         content.style.opacity = '0';
         console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - blur and fade animation started`);
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - content element:`, content.className);
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - content height before:`, content.offsetHeight);
+    }
+    
+    // MOBILE: Логируем chat-input-area если это chatBlock
+    if (id === 'chatBlock') {
+        const chatInputArea = block.querySelector('.chat-input-area');
+        if (chatInputArea) {
+            console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] chatBlock - chat-input-area found, height:`, chatInputArea.offsetHeight);
+            console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] chatBlock - chat-input-area parent:`, chatInputArea.parentElement.className);
+        } else {
+            console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] chatBlock - chat-input-area NOT FOUND`);
+        }
     }
     
     // MOBILE: Добавляем collapsed класс с небольшой задержкой
@@ -2633,6 +2294,15 @@ function expandBlock(id) {
         console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - calling updateGridState() immediately (both were collapsed)`);
         updateGridState();
     }
+    
+    // MOBILE: Если оба были свернуты, обновляем grid state СРАЗУ
+    if (bothWereCollapsed) {
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - calling updateGridState() immediately (both were collapsed)`);
+        updateGridState();
+    }
+
+    // MOBILE: Сразу начинаем разворачивание
+    startExpansion();
 
     // MOBILE: Сразу начинаем разворачивание
     startExpansion();
@@ -4956,6 +4626,12 @@ function initUI() {
     const mainContent=document.getElementById('main-content');
     mainContent.innerHTML=getTabHTML('materials');
     setTimeout(()=>attachMaterialClickHandlers('materials'), 0);
+    
+    // MOBILE: Вызываем градиент сразу после рендера материалов
+    setTimeout(() => {
+        console.log('[INIT] Calling updateBrowserFadeGradient after materials render');
+        updateBrowserFadeGradient();
+    }, 100);
 
     innerTabs.forEach(tab=>{
         tab.addEventListener('click',()=>{
@@ -7795,26 +7471,39 @@ function updateChatFadeGradient() {
 
 // Update browser fade gradient based on scroll position
 function updateBrowserFadeGradient() {
+    console.log('[BROWSER GRADIENT] updateBrowserFadeGradient called');
     const container = document.querySelector('.materials-list');
-    if (!container) return;
+    
+    if (!container) {
+        console.log('[BROWSER GRADIENT] Container not found');
+        return;
+    }
+    
+    console.log('[BROWSER GRADIENT] Container found, scrollTop:', container.scrollTop, 'clientHeight:', container.clientHeight, 'scrollHeight:', container.scrollHeight);
     
     const atTop = container.scrollTop <= 5;
     const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
     
+    console.log('[BROWSER GRADIENT] atTop:', atTop, 'atBottom:', atBottom);
+    
     if (atTop && atBottom) {
         // No scroll needed - no gradient
+        console.log('[BROWSER GRADIENT] No scroll needed - removing gradient');
         container.style.maskImage = 'none';
         container.style.webkitMaskImage = 'none';
     } else if (atTop) {
         // At top - only bottom gradient
+        console.log('[BROWSER GRADIENT] At top - applying bottom gradient');
         container.style.maskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
         container.style.webkitMaskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
     } else if (atBottom) {
         // At bottom - only top gradient
+        console.log('[BROWSER GRADIENT] At bottom - applying top gradient');
         container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
         container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
     } else {
         // In middle - both gradients
+        console.log('[BROWSER GRADIENT] In middle - applying both gradients');
         container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
         container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
     }
@@ -7829,12 +7518,24 @@ renderChatMessages = function() {
 
 // Observer for materials-list (since it's dynamically created)
 const browserObserver = new MutationObserver(() => {
+    console.log('[BROWSER OBSERVER] Mutation detected');
     const materialsList = document.querySelector('.materials-list');
+    console.log('[BROWSER OBSERVER] materialsList found:', !!materialsList);
+    
     if (materialsList && !materialsList.hasScrollListener) {
+        console.log('[BROWSER OBSERVER] Adding scroll listener to materialsList');
         materialsList.addEventListener('scroll', updateBrowserFadeGradient);
         materialsList.hasScrollListener = true;
-        // Initial check
-        setTimeout(updateBrowserFadeGradient, 100);
+        
+        // Initial check - вызываем сразу без задержки
+        console.log('[BROWSER OBSERVER] Calling updateBrowserFadeGradient immediately');
+        updateBrowserFadeGradient();
+        
+        // Дополнительная проверка через небольшую задержку на случай если контент ещё загружается
+        setTimeout(() => {
+            console.log('[BROWSER OBSERVER] Calling updateBrowserFadeGradient after 50ms delay');
+            updateBrowserFadeGradient();
+        }, 50);
     }
 });
 
