@@ -1513,8 +1513,8 @@
 <header>
   <div class="container"> <!-- ДОБАВИТЬ -->
     <div class="header-inner">
-      <div class="logo" onclick="toggleMonitorMode(event)" style="cursor: pointer;">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
+      <div class="logo" onclick="toggleMonitorMode(event)" style="cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
         <button class="header-login-btn" onclick="showAlert('Магазин в разработке', 'Магазин')">
@@ -1570,13 +1570,13 @@
 
       <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
       <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
-        <div class="block-body" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+        <div class="block-body" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: auto;">
           
           <!-- Широкий контейнер с тремя аватарами -->
           <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%; width: 300%; position: relative;">
             
             <!-- ЛЕВЫЙ БЛОК -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 8px; flex-shrink: 0; scroll-snap-align: start;">
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 8px; flex-shrink: 0; scroll-snap-align: center; scroll-snap-stop: always;">
               
               <!-- Признаки жизни и Весы (СНАЧАЛА) -->
               <div style="width: 260px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
@@ -1805,7 +1805,7 @@
             </div>
             
             <!-- ЦЕНТРАЛЬНЫЙ АВАТАР (оригинальный) -->
-            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0; scroll-snap-align: start;">
+            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0; scroll-snap-align: center; scroll-snap-stop: always;">
               <!-- Центральное видео (аватар) -->
               <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
                 <video id="monitorHumanVideo" 
@@ -1846,7 +1846,7 @@
             </div>
             
             <!-- ПРАВЫЙ БЛОК -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 10px; flex-shrink: 0; scroll-snap-align: start;">
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 10px; flex-shrink: 0; scroll-snap-align: center; scroll-snap-stop: always;">
               
               <!-- Правая колонка статов -->
               <div style="width: 257px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
@@ -7587,37 +7587,68 @@ if (document.readyState === 'loading') {
     initVitalSignsAnimation();
 }
 
-// Motion blur при скролле монитора
+// Motion blur при скролле монитора + жесткий snap
 const monitorScrollContainer = document.querySelector('#hiddenModule .block-body');
 if (monitorScrollContainer) {
     let scrollTimeout;
     let lastScrollLeft = 0;
+    let isSnapping = false;
+    
+    // Функция для жесткого snap к ближайшему блоку
+    function snapToNearestBlock() {
+        if (isSnapping) return;
+        isSnapping = true;
+        
+        const containerWidth = monitorScrollContainer.clientWidth;
+        const currentScroll = monitorScrollContainer.scrollLeft;
+        const blockIndex = Math.round(currentScroll / containerWidth);
+        const targetScroll = blockIndex * containerWidth;
+        
+        // Плавный переход к целевой позиции
+        monitorScrollContainer.scrollTo({
+            left: targetScroll,
+            behavior: 'smooth'
+        });
+        
+        setTimeout(() => {
+            isSnapping = false;
+        }, 300);
+    }
     
     monitorScrollContainer.addEventListener('scroll', function() {
         const currentScrollLeft = this.scrollLeft;
         const scrollDelta = Math.abs(currentScrollLeft - lastScrollLeft);
         
         // Применяем motion blur в зависимости от скорости скролла
-        const blurAmount = Math.min(scrollDelta / 10, 8); // Максимум 8px blur
+        const blurAmount = Math.min(scrollDelta / 10, 8);
         const container = this.querySelector('div[style*="width: 300%"]');
         
-        if (container) {
-            if (scrollDelta > 5) {
-                // Определяем направление
-                const direction = currentScrollLeft > lastScrollLeft ? 'right' : 'left';
-                container.style.filter = `blur(${blurAmount}px)`;
-                container.style.transition = 'filter 0.05s ease-out';
-            }
-            
-            // Убираем blur когда скролл останавливается
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                container.style.filter = 'blur(0px)';
-                container.style.transition = 'filter 0.3s ease-out';
-            }, 50);
+        if (container && scrollDelta > 5) {
+            container.style.filter = `blur(${blurAmount}px)`;
+            container.style.transition = 'filter 0.05s ease-out';
         }
         
+        // Убираем blur и делаем snap когда скролл останавливается
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            if (container) {
+                container.style.filter = 'blur(0px)';
+                container.style.transition = 'filter 0.3s ease-out';
+            }
+            snapToNearestBlock();
+        }, 100);
+        
         lastScrollLeft = currentScrollLeft;
+    });
+    
+    // Snap при окончании touch события
+    monitorScrollContainer.addEventListener('touchend', function() {
+        setTimeout(snapToNearestBlock, 50);
+    });
+    
+    // Snap при окончании mouse drag
+    monitorScrollContainer.addEventListener('mouseup', function() {
+        setTimeout(snapToNearestBlock, 50);
     });
 }
 
