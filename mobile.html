@@ -653,6 +653,27 @@
             word-break: break-word;
         }
         .chat-messages::-webkit-scrollbar { display:none; }
+        
+        /* Monitor horizontal scrollbar */
+        .hidden-module .block-body::-webkit-scrollbar {
+            height: 8px;
+        }
+        .hidden-module .block-body::-webkit-scrollbar-track {
+            background: rgba(255,255,255,.05);
+            border-radius: 4px;
+        }
+        .hidden-module .block-body::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.2);
+            border-radius: 4px;
+        }
+        .hidden-module .block-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,.3);
+        }
+        .hidden-module .block-body {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,.2) rgba(255,255,255,.05);
+        }
+        
         .chat-message {
             padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;font-size:13px;max-width:85%;line-height:1.5;letter-spacing:-.1px;
@@ -1561,43 +1582,115 @@
 
       <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
       <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
-        <div class="block-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; overflow: hidden; height: 100%; gap: 20px;">
+        <div class="block-body" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%;">
           
-          <!-- Центральное видео (аватар) -->
-          <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
-            <video id="monitorHumanVideo" 
-                   autoplay 
-                   loop 
-                   muted 
-                   playsinline
-                   style="width: 115%; height: auto; max-height: 115%; opacity: 0.7; object-fit: contain;
-                          filter: grayscale(1);
-                          animation: colorFadeIn 2s ease-out forwards;">
-              <source id="monitorVideoSource" src="" type="video/webm">
-            </video>
-          </div>
-          
-          <!-- Плашка с номером звена и кнопки навигации -->
-          <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;">
+          <!-- Широкий контейнер с тремя аватарами -->
+          <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%; width: 300%; position: relative;">
             
-            <!-- Кнопка влево -->
-            <button onclick="navigateMonitor('left')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 18l-6-6 6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            
-            <!-- Плашка с номером звена -->
-            <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="width: 200px; height: 50px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.2s ease;">
-              <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 13px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
+            <!-- ЛЕВЫЙ АВАТАР -->
+            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0;">
+              <!-- Центральное видео (аватар) -->
+              <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
+                <video autoplay loop muted playsinline
+                       style="width: 115%; height: auto; max-height: 115%; opacity: 0.7; object-fit: contain;
+                              filter: grayscale(1);
+                              animation: colorFadeIn 2s ease-out forwards;">
+                  <source src="" type="video/webm">
+                </video>
+              </div>
+              
+              <!-- Плашка с номером звена -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;">
+                <button onclick="navigateMonitor('left')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18l-6-6 6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                
+                <div style="width: 200px; height: 50px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.2s ease;">
+                  <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 13px; white-space: nowrap; font-weight: 600;">Левый блок</span>
+                </div>
+                
+                <button onclick="navigateMonitor('right')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18l6-6-6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
             
-            <!-- Кнопка вправо -->
-            <button onclick="navigateMonitor('right')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 18l6-6-6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <!-- ЦЕНТРАЛЬНЫЙ АВАТАР (оригинальный) -->
+            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0;">
+              <!-- Центральное видео (аватар) -->
+              <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
+                <video id="monitorHumanVideo" 
+                       autoplay 
+                       loop 
+                       muted 
+                       playsinline
+                       style="width: 115%; height: auto; max-height: 115%; opacity: 0.7; object-fit: contain;
+                              filter: grayscale(1);
+                              animation: colorFadeIn 2s ease-out forwards;">
+                  <source id="monitorVideoSource" src="" type="video/webm">
+                </video>
+              </div>
+              
+              <!-- Плашка с номером звена и кнопки навигации -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;">
+                
+                <!-- Кнопка влево -->
+                <button onclick="navigateMonitor('left')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18l-6-6 6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                
+                <!-- Плашка с номером звена -->
+                <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="width: 200px; height: 50px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.2s ease;">
+                  <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 13px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
+                </div>
+                
+                <!-- Кнопка вправо -->
+                <button onclick="navigateMonitor('right')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18l6-6-6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                
+              </div>
+            </div>
+            
+            <!-- ПРАВЫЙ АВАТАР -->
+            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0;">
+              <!-- Центральное видео (аватар) -->
+              <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
+                <video autoplay loop muted playsinline
+                       style="width: 115%; height: auto; max-height: 115%; opacity: 0.7; object-fit: contain;
+                              filter: grayscale(1);
+                              animation: colorFadeIn 2s ease-out forwards;">
+                  <source src="" type="video/webm">
+                </video>
+              </div>
+              
+              <!-- Плашка с номером звена -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;">
+                <button onclick="navigateMonitor('left')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18l-6-6 6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                
+                <div style="width: 200px; height: 50px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.2s ease;">
+                  <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 13px; white-space: nowrap; font-weight: 600;">Правый блок</span>
+                </div>
+                
+                <button onclick="navigateMonitor('right')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18l6-6-6-6" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
             
           </div>
           
@@ -2209,6 +2302,14 @@ function updateGridState() {
                         console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Unblur started - opacity:1, filter:blur(0px)`);
                         monitor.style.opacity = '1';
                         monitor.style.filter = 'blur(0px)';
+                        
+                        // Scroll to center block (33.333% of total width)
+                        const blockBody = monitor.querySelector('.block-body');
+                        if (blockBody) {
+                            const scrollToCenter = blockBody.clientWidth; // Скроллим на одну ширину = центральный блок
+                            blockBody.scrollLeft = scrollToCenter;
+                            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Scrolled to center:`, scrollToCenter);
+                        }
                     });
                 }
             }, 850);
@@ -2225,6 +2326,33 @@ function updateGridState() {
             monitor.style.filter = 'blur(8px)';
         }
     }
+}
+
+// Navigate between monitor blocks
+function navigateMonitor(direction) {
+    console.log('navigateMonitor called with direction:', direction);
+    const hiddenModule = document.getElementById('hiddenModule');
+    const blockBody = hiddenModule ? hiddenModule.querySelector('.block-body') : null;
+    
+    if (!blockBody) {
+        console.log('blockBody not found!');
+        return;
+    }
+    
+    // Скроллим на ширину контейнера (один блок = 33.333% от 300% = 100% видимой области)
+    const scrollAmount = blockBody.clientWidth;
+    console.log('Scrolling by:', scrollAmount, 'px');
+    console.log('Current scrollLeft:', blockBody.scrollLeft);
+    
+    if (direction === 'left') {
+        blockBody.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else if (direction === 'right') {
+        blockBody.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+    
+    setTimeout(() => {
+        console.log('After scroll - scrollLeft:', blockBody.scrollLeft);
+    }, 500);
 }
 
 function collapseBlock(id, skipGridUpdate = false) {
@@ -7124,6 +7252,46 @@ if (document.readyState === 'loading') {
     initECGCanvas();
     initVitalSignsAnimation();
 }
+
+// ============================================================
+// MONITOR SCROLL HANDLERS (Keyboard & Mouse Wheel)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const hiddenModule = document.getElementById('hiddenModule');
+    const blockBody = hiddenModule ? hiddenModule.querySelector('.block-body') : null;
+    
+    if (blockBody) {
+        // Keyboard arrows for horizontal scroll
+        document.addEventListener('keydown', (e) => {
+            // Only scroll if monitor is visible (check if both blocks are collapsed)
+            const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
+            if (bothCollapsed) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    console.log('Arrow Left pressed - navigating left');
+                    navigateMonitor('left');
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    console.log('Arrow Right pressed - navigating right');
+                    navigateMonitor('right');
+                }
+            }
+        });
+        
+        // Mouse wheel for horizontal scroll (convert vertical to horizontal)
+        blockBody.addEventListener('wheel', (e) => {
+            // Only if monitor is visible
+            const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
+            if (bothCollapsed) {
+                e.preventDefault();
+                console.log('Wheel scroll detected:', e.deltaY);
+                blockBody.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+        
+        console.log('Monitor scroll handlers initialized');
+    }
+});
 
 // ============================================================
 // BROWSER SEARCH FUNCTIONALITY
