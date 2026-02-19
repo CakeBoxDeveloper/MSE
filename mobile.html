@@ -217,9 +217,9 @@
 }
        
 .logo img { 
-    width: 80px; /* MOBILE: меньше */
-    height: 28px; /* MOBILE: меньше */
-    object-fit: contain; /* Предотвращает искажение */
+    width: 160px; /* MOBILE: увеличено вдвое */
+    height: 56px; /* MOBILE: увеличено вдвое */
+    object-fit: contain;
 }
 
         
@@ -1570,13 +1570,13 @@
 
       <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
       <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
-        <div class="block-body" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: auto;">
+        <div class="block-body" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%;">
           
           <!-- Широкий контейнер с тремя аватарами -->
           <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%; width: 300%; position: relative;">
             
             <!-- ЛЕВЫЙ БЛОК -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 8px; flex-shrink: 0; scroll-snap-align: center; scroll-snap-stop: always;">
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 8px; flex-shrink: 0;">
               
               <!-- Признаки жизни и Весы (СНАЧАЛА) -->
               <div style="width: 260px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
@@ -1664,7 +1664,7 @@
               <!-- Левая колонка статов (ПОТОМ) -->
               <div style="width: 248px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
                 <!-- Здоровье ЦНС -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_brain.svg" alt="" style="width: 12px; height: 12px;">
@@ -1687,7 +1687,7 @@
                 </div>
                 
                 <!-- Функция лёгких -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_lungs.svg" alt="" style="width: 12px; height: 12px;">
@@ -1710,7 +1710,7 @@
                 </div>
                 
                 <!-- Иммунитет -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_immunity.svg" alt="" style="width: 12px; height: 12px;">
@@ -1733,7 +1733,7 @@
                 </div>
                 
                 <!-- Энергообмен -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_energy.svg" alt="" style="width: 12px; height: 12px;">
@@ -1756,7 +1756,7 @@
                 </div>
                 
                 <!-- Адаптивность -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_flexibility.svg" alt="" style="width: 12px; height: 12px;">
@@ -1779,7 +1779,7 @@
                 </div>
                 
                 <!-- Сила мышц -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_power.svg" alt="" style="width: 12px; height: 12px;">
@@ -1805,7 +1805,7 @@
             </div>
             
             <!-- ЦЕНТРАЛЬНЫЙ АВАТАР (оригинальный) -->
-            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0; scroll-snap-align: center; scroll-snap-stop: always;">
+            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px; flex-shrink: 0;">
               <!-- Центральное видео (аватар) -->
               <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
                 <video id="monitorHumanVideo" 
@@ -1821,7 +1821,7 @@
               </div>
               
               <!-- Плашка с номером звена и кнопки навигации -->
-              <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;">
+              <div style="display: flex; align-items: flex-end; justify-content: center; gap: 12px; width: 100%;">
                 
                 <!-- Кнопка влево -->
                 <button onclick="navigateMonitor('left')" style="width: 40px; height: 40px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;">
@@ -1831,8 +1831,8 @@
                 </button>
                 
                 <!-- Плашка с номером звена -->
-                <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="width: 200px; height: 50px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.2s ease;">
-                  <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 13px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
+                <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="width: 200px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: pointer; transition: all 0.2s ease;">
+                  <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
                 </div>
                 
                 <!-- Кнопка вправо -->
@@ -1846,12 +1846,12 @@
             </div>
             
             <!-- ПРАВЫЙ БЛОК -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 10px; flex-shrink: 0; scroll-snap-align: center; scroll-snap-stop: always;">
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 10px; flex-shrink: 0;">
               
               <!-- Правая колонка статов -->
               <div style="width: 257px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
                 <!-- Когнитивность -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_nerve.svg" alt="" style="width: 12px; height: 12px;">
@@ -1874,7 +1874,7 @@
                 </div>
                 
                 <!-- Сердце -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-heart.svg" alt="" style="width: 12px; height: 12px;">
@@ -1897,7 +1897,7 @@
                 </div>
                 
                 <!-- Кровообращение -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-blood.svg" alt="" style="width: 12px; height: 12px;">
@@ -1920,7 +1920,7 @@
                 </div>
                 
                 <!-- Пищеварение -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-stomach.svg" alt="" style="width: 12px; height: 12px;">
@@ -1943,7 +1943,7 @@
                 </div>
                 
                 <!-- Гормоны -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-hormone.svg" alt="" style="width: 12px; height: 12px;">
@@ -1966,7 +1966,7 @@
                 </div>
                 
                 <!-- Выносливость -->
-                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 8px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 13px 10px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-Endurance.svg" alt="" style="width: 12px; height: 12px;">
@@ -2049,9 +2049,9 @@
                 <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
               </button>
             </div>
-            <div class="chat-search-wrap" id="chatSearchWrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
-              <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск чатов…">
-            </div>
+          </div>
+          <div class="chat-search-wrap" id="chatSearchWrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
+            <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск чатов…">
           </div>
           <div class="chat-container">
             <div class="chat-messages" id="chat-messages"></div>
@@ -7585,71 +7585,6 @@ if (document.readyState === 'loading') {
 } else {
     initECGCanvas();
     initVitalSignsAnimation();
-}
-
-// Motion blur при скролле монитора + жесткий snap
-const monitorScrollContainer = document.querySelector('#hiddenModule .block-body');
-if (monitorScrollContainer) {
-    let scrollTimeout;
-    let lastScrollLeft = 0;
-    let isSnapping = false;
-    
-    // Функция для жесткого snap к ближайшему блоку
-    function snapToNearestBlock() {
-        if (isSnapping) return;
-        isSnapping = true;
-        
-        const containerWidth = monitorScrollContainer.clientWidth;
-        const currentScroll = monitorScrollContainer.scrollLeft;
-        const blockIndex = Math.round(currentScroll / containerWidth);
-        const targetScroll = blockIndex * containerWidth;
-        
-        // Плавный переход к целевой позиции
-        monitorScrollContainer.scrollTo({
-            left: targetScroll,
-            behavior: 'smooth'
-        });
-        
-        setTimeout(() => {
-            isSnapping = false;
-        }, 300);
-    }
-    
-    monitorScrollContainer.addEventListener('scroll', function() {
-        const currentScrollLeft = this.scrollLeft;
-        const scrollDelta = Math.abs(currentScrollLeft - lastScrollLeft);
-        
-        // Применяем motion blur в зависимости от скорости скролла
-        const blurAmount = Math.min(scrollDelta / 10, 8);
-        const container = this.querySelector('div[style*="width: 300%"]');
-        
-        if (container && scrollDelta > 5) {
-            container.style.filter = `blur(${blurAmount}px)`;
-            container.style.transition = 'filter 0.05s ease-out';
-        }
-        
-        // Убираем blur и делаем snap когда скролл останавливается
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            if (container) {
-                container.style.filter = 'blur(0px)';
-                container.style.transition = 'filter 0.3s ease-out';
-            }
-            snapToNearestBlock();
-        }, 100);
-        
-        lastScrollLeft = currentScrollLeft;
-    });
-    
-    // Snap при окончании touch события
-    monitorScrollContainer.addEventListener('touchend', function() {
-        setTimeout(snapToNearestBlock, 50);
-    });
-    
-    // Snap при окончании mouse drag
-    monitorScrollContainer.addEventListener('mouseup', function() {
-        setTimeout(snapToNearestBlock, 50);
-    });
 }
 
 // ============================================================
