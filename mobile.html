@@ -1569,13 +1569,13 @@
 
       <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
       <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
-        <div class="block-body" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%;">
+        <div class="block-body" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
           
           <!-- Широкий контейнер с тремя аватарами -->
           <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%; width: 300%; position: relative;">
             
             <!-- ЛЕВЫЙ БЛОК -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 8px; flex-shrink: 0;">
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 8px; flex-shrink: 0; scroll-snap-align: start;">
               
               <!-- Признаки жизни и Весы (СНАЧАЛА) -->
               <div style="width: 260px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
@@ -1804,7 +1804,7 @@
             </div>
             
             <!-- ЦЕНТРАЛЬНЫЙ АВАТАР (оригинальный) -->
-            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0;">
+            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; flex-shrink: 0; scroll-snap-align: start;">
               <!-- Центральное видео (аватар) -->
               <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
                 <video id="monitorHumanVideo" 
@@ -1845,7 +1845,7 @@
             </div>
             
             <!-- ПРАВЫЙ БЛОК -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 10px; flex-shrink: 0;">
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 0px; gap: 10px; flex-shrink: 0; scroll-snap-align: start;">
               
               <!-- Правая колонка статов -->
               <div style="width: 257px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
@@ -1989,7 +1989,7 @@
               </div>
               
               <!-- Биологический профиль -->
-              <div style="width: 275px; height: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column;">
+              <div style="width: 270px; height: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column;">
                 <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                   <span style="white-space: nowrap;">БИОЛОГИЧЕСКИЙ ПРОФИЛЬ</span>
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px; flex-shrink: 0;">
