@@ -7606,6 +7606,81 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, { passive: false });
         
+        // ============================================================
+        // MOTION BLUR EFFECT ON SCROLL (HORIZONTAL ONLY)
+        // ============================================================
+        
+        // Create SVG filter for directional blur
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("style", "position: absolute; width: 0; height: 0;");
+        svg.innerHTML = `
+            <defs>
+                <filter id="motionBlurLeft">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="0,0" />
+                    <feComponentTransfer>
+                        <feFuncA type="linear" slope="1"/>
+                    </feComponentTransfer>
+                </filter>
+                <filter id="motionBlurRight">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="0,0" />
+                    <feComponentTransfer>
+                        <feFuncA type="linear" slope="1"/>
+                    </feComponentTransfer>
+                </filter>
+            </defs>
+        `;
+        document.body.appendChild(svg);
+        
+        let scrollTimeout;
+        let lastScrollLeft = blockBody.scrollLeft;
+        let scrollVelocity = 0;
+        
+        blockBody.addEventListener('scroll', () => {
+            const currentScrollLeft = blockBody.scrollLeft;
+            const delta = currentScrollLeft - lastScrollLeft;
+            scrollVelocity = Math.abs(delta);
+            
+            // Determine direction: positive = right, negative = left
+            const direction = delta > 0 ? 'right' : 'left';
+            
+            // Calculate blur amount based on velocity (max 6px horizontal)
+            const blurAmount = Math.min(scrollVelocity * 0.4, 6);
+            
+            // Apply horizontal motion blur
+            if (blurAmount > 0.5) {
+                const container = blockBody.querySelector('div[style*="width: 300%"]');
+                if (container) {
+                    // Update SVG filter
+                    const filter = direction === 'right' ? 
+                        document.querySelector('#motionBlurRight feGaussianBlur') :
+                        document.querySelector('#motionBlurLeft feGaussianBlur');
+                    
+                    if (filter) {
+                        // stdDeviation: "x,y" - only blur horizontally
+                        filter.setAttribute('stdDeviation', `${blurAmount},0`);
+                    }
+                    
+                    // Apply filter
+                    container.style.filter = `url(#motionBlur${direction === 'right' ? 'Right' : 'Left'})`;
+                }
+            }
+            
+            // Clear previous timeout
+            clearTimeout(scrollTimeout);
+            
+            // Remove blur after scrolling stops
+            scrollTimeout = setTimeout(() => {
+                const container = blockBody.querySelector('div[style*="width: 300%"]');
+                if (container) {
+                    container.style.filter = 'none';
+                }
+                scrollVelocity = 0;
+            }, 100);
+            
+            lastScrollLeft = currentScrollLeft;
+        });
+        
         console.log('Monitor scroll handlers initialized');
     }
 });
