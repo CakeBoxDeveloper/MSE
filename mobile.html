@@ -7673,6 +7673,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         console.log('Monitor scroll handlers initialized');
+        
+        // ============================================================
+        // CLICK NAVIGATION (LIKE INSTAGRAM STORIES)
+        // ============================================================
+        let currentSection = 1; // 0 = left, 1 = center, 2 = right
+        
+        const snapToSection = (section) => {
+            const containerWidth = blockBody.clientWidth;
+            const scrollPosition = containerWidth * section;
+            blockBody.scrollTo({
+                left: scrollPosition,
+                behavior: 'smooth'
+            });
+            currentSection = section;
+            console.log(`[SNAP] Snapped to section ${section}`);
+        };
+        
+        // Click navigation - left side = previous, right side = next
+        blockBody.addEventListener('click', (e) => {
+            const rect = blockBody.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const containerWidth = rect.width;
+            const clickPosition = clickX / containerWidth;
+            
+            // Left third = previous section
+            if (clickPosition < 0.33 && currentSection > 0) {
+                snapToSection(currentSection - 1);
+            }
+            // Right third = next section
+            else if (clickPosition > 0.66 && currentSection < 2) {
+                snapToSection(currentSection + 1);
+            }
+            // Middle third = do nothing (or could toggle something)
+        });
+        
+        // Track current section on scroll end
+        let scrollEndTimeout;
+        blockBody.addEventListener('scroll', () => {
+            clearTimeout(scrollEndTimeout);
+            scrollEndTimeout = setTimeout(() => {
+                const containerWidth = blockBody.clientWidth;
+                const scrollLeft = blockBody.scrollLeft;
+                const nearestSection = Math.round(scrollLeft / containerWidth);
+                currentSection = nearestSection;
+                console.log(`[SCROLL] Current section: ${currentSection}`);
+            }, 150);
+        });
+        
+        console.log('Click navigation initialized');
     }
 });
 
