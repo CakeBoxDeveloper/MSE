@@ -660,6 +660,15 @@
         }
         .hidden-module .block-body {
             scrollbar-width: none;
+            scroll-behavior: auto; /* Faster scroll for programmatic navigation */
+        }
+        
+        /* Disable manual horizontal scroll on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            .hidden-module .block-body {
+                overflow-x: hidden !important;
+                touch-action: pan-y; /* Allow vertical scroll only */
+            }
         }
         
         .chat-message {
@@ -7697,17 +7706,28 @@ document.addEventListener('DOMContentLoaded', () => {
             isNavigating = true; // Disable scroll handler
             const containerWidth = blockBody.clientWidth;
             const scrollPosition = containerWidth * section;
-            blockBody.scrollTo({
-                left: scrollPosition,
-                behavior: 'smooth'
-            });
-            window.monitorCurrentSection = section;
-            console.log(`[SNAP] Snapped to section ${section}`);
             
-            // Re-enable scroll handler after animation completes
+            // Use instant scroll on mobile for faster response
+            const isMobile = 'ontouchstart' in window;
+            
+            if (isMobile) {
+                // Instant scroll on mobile
+                blockBody.scrollLeft = scrollPosition;
+            } else {
+                // Smooth scroll on desktop
+                blockBody.scrollTo({
+                    left: scrollPosition,
+                    behavior: 'smooth'
+                });
+            }
+            
+            window.monitorCurrentSection = section;
+            console.log(`[SNAP] Snapped to section ${section} (${isMobile ? 'instant' : 'smooth'})`);
+            
+            // Re-enable scroll handler after animation completes (shorter timeout for instant scroll)
             setTimeout(() => {
                 isNavigating = false;
-            }, 500);
+            }, isMobile ? 100 : 300);
         };
         
         // Overlay click handlers - these catch clicks before content
