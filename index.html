@@ -2,8 +2,10 @@
 <html lang="ru">
 <head> 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mixed Sport Elements</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Mixed Sport Elements - Mobile</title>
     <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +52,28 @@
     
     <style>  
         * { margin:0; padding:0; box-sizing:border-box; }
+        
+        /* MOBILE: Запрет зума и горизонтального скролла */
+        html {
+            overflow-x: hidden;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a; /* Серый фон по бокам для видимости границ */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        body {
+            overflow: hidden; /* MOBILE: запрет скролла */
+            width: 430px; /* MOBILE: фиксированная ширина как у iPhone */
+            height: 100vh;
+            position: relative;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+        
         :root { 
             --bg-primary:#000;
             --glass-bg:rgba(255,255,255,.05); 
@@ -144,94 +168,203 @@
 .rename-btn:hover { background:rgba(255,255,255,.15); }
         
         body {
-            font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-            background:var(--bg-primary);color:var(--text-primary);
-            overflow-x:hidden;min-height:100vh;
-            -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden; /* MOBILE: запрет скролла */
+            min-height: 100vh;
+            height: 100vh; /* MOBILE: фиксированная высота */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .container { max-width:1400px;margin:0 auto;padding:0 20px; }
+        .container { 
+            max-width: 100%; /* MOBILE: на всю ширину */
+            margin: 0;
+            padding: 0; /* MOBILE: убираем padding, блоки на всю ширину */
+        }
         .icon-gray { filter:invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%); }
 
         /* ─── HEADER ─── */
       header {
-    position:sticky;
-    top:0;
-    z-index:100;
-    padding:0;  /* УБРАТЬ верхний padding */
-    background:transparent;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0;
+    background: transparent;
 }
 .header-inner {
-    max-width:100%;
-    margin:0 auto;
-    padding:12px 20px;
-    backdrop-filter:saturate(180%) blur(20px);
-    background:var(--glass-bg);           /* ИЗМЕНИТЬ с red */
-    border:1px solid var(--glass-border);
-    border-top:none; /* ДОБАВИТЬ - убирает верхнюю линию */
-    border-radius:0 0 8px 8px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
+    max-width: 95%; /* MOBILE: 95% ширины */
+    margin: 0 auto; /* MOBILE: центрируем */
+    padding: 8px 12px; /* MOBILE: меньше padding */
+    backdrop-filter: saturate(180%) blur(20px);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-top: none;
+    border-radius: 0 0 8px 8px; /* MOBILE: скругление снизу */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    height: 50px; /* MOBILE: меньше высота */
 }
 .logo { 
-    width:128px;
-    height:32px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
+    width: 100px; /* MOBILE: меньше */
+    height: 28px; /* MOBILE: меньше */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
        
 .logo img { 
-    width:100px;
-    height:32px;
+    width: 160px; /* MOBILE: увеличено вдвое */
+    height: 56px; /* MOBILE: увеличено вдвое */
+    object-fit: contain;
 }
 
         
 .header-login-btn {
-    width:34px;
-    height:34px;
-    background:transparent;
-    border:1px solid var(--glass-border);
-    border-radius:4px;
-    color:var(--text-primary);
-    cursor:pointer;
-    transition:all .15s ease;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
+    width: 32px; /* MOBILE: меньше */
+    height: 32px; /* MOBILE: меньше */
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all .15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
-        .header-login-btn:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
-        .header-login-btn img { width:14px; height:14px; }
+        .header-login-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+        .header-login-btn img { width: 12px; height: 12px; } /* MOBILE: меньше */
 
         /* ─── INNER TABS ─── */
-        .inner-tabs { display:flex;gap:8px;margin-bottom:16px;flex-shrink:0;align-items:center; }
-        .inner-tab {
-            padding:8px 14px;background:transparent;border:1px solid var(--text-secondary);
-            border-radius:6px;color:var(--text-secondary);cursor:pointer;font-family:'Inter',sans-serif;
-            font-size:12px;font-weight:500;transition:all .2s ease;display:flex;align-items:center;gap:6px;
-            height:34px;
+        .inner-tabs { 
+            display: flex;
+            gap: 4px; /* MOBILE: еще меньше gap */
+            margin-bottom: 12px; /* MOBILE: меньше отступ */
+            flex-shrink: 0;
+            align-items: center;
+            flex-wrap: nowrap; /* MOBILE: не переносим */
+            overflow-x: visible; /* MOBILE: без скролла */
+            scrollbar-width: none;
         }
-        .inner-tab-icon { width:14px;height:14px; }
-        .inner-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
-        .inner-tab.active .inner-tab-icon { filter:invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
-        .inner-tab:hover:not(.active) { border-color:rgba(255,255,255,.3); }
+        .inner-tabs::-webkit-scrollbar { display: none; }
+        .inner-tab {
+            padding: 6px 8px; /* MOBILE: еще меньше padding */
+            background: transparent;
+            border: 1px solid var(--text-secondary);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px; /* MOBILE: еще меньше шрифт */
+            font-weight: 500;
+            transition: all .2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px; /* MOBILE: меньше gap между иконкой и текстом */
+            height: 32px; /* MOBILE: меньше высота */
+            white-space: nowrap;
+            flex-shrink: 1; /* MOBILE: позволяем сжиматься */
+            min-width: 0; /* MOBILE: позволяем сжиматься */
+        }
+        .inner-tab span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .inner-tab-icon { width: 12px; height: 12px; flex-shrink: 0; } /* MOBILE: меньше иконки, не сжимаются */
+        .inner-tab.active { background: var(--text-secondary); color: var(--bg-primary); border-color: var(--text-secondary); }
+        .inner-tab.active .inner-tab-icon { filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
+        .inner-tab:hover:not(.active) { border-color: rgba(255,255,255,.3); }
 
         /* ─── GRID ─── */
-        .main-wrapper { margin-top:20px; }
+        .main-wrapper { 
+            margin-top: 0; /* Убираем отступ сверху для мобильной версии */
+            height: calc(100vh - 50px); /* Высота экрана минус header (50px) */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+/* MOBILE: Вертикальная сетка для блоков */
 .content-grid {
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 0; /* MOBILE: убираем gap, будем использовать margin */
     margin-bottom: 20px;
-    align-items: start;
-    position: relative; /* Добавляем для абсолютного позиционирования скрытого модуля */
+    height: calc(100vh - 78px); /* Высота экрана минус header (50px) и отступы (8px сверху + 20px снизу) */
+    padding-top: 8px; /* MOBILE: отступ сверху от header */
 }
 
- 
-       @media(max-width:968px){
-    .content-grid { flex-direction: column; } /* ИЗМЕНИТЬ */
+/* MOBILE: Блоки занимают равное пространство по умолчанию */
+.content-block {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px; /* MOBILE: скругление */
+    backdrop-filter: saturate(180%) blur(20px);
+    width: 95%; /* MOBILE: 95% ширины как у header */
+    margin: 0 auto; /* MOBILE: центрируем */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column; /* MOBILE: вертикальная ориентация */
+    flex: 1 1 0%; /* MOBILE: как в десктопе */
+    min-width: 0;
+    min-height: 0; /* MOBILE: важно для flex */
+    transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1; /* MOBILE: блоки над монитором */
+    will-change: flex; /* MOBILE: оптимизация анимации */
+}
+
+/* MOBILE: Отступ сверху для браузера */
+.content-block#browserBlock {
+    margin-top: 0;
+}
+
+/* MOBILE: Отступ сверху для чата = отступу между header и браузером */
+.content-block#chatBlock {
+    margin-top: 8px;
+}
+
+/* MOBILE: Браузер сворачивается вверх */
+.content-block#browserBlock.collapsed {
+    flex: 0 0 58px; /* MOBILE: увеличено с 50px до 58px для вкладок с отступами */
+}
+
+/* MOBILE: Чат сворачивается вниз */
+.content-block#chatBlock.collapsed {
+    flex: 0 0 58px; /* MOBILE: увеличено с 50px до 58px для вкладок с отступами */
+}
+
+/* MOBILE: Spacer между блоками - растет когда оба блока свернуты */
+.block-spacer {
+    flex: 0 0 0px;
+    min-height: 0;
+    transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: flex, min-height;
+}
+
+/* MOBILE: Когда оба свернуты, spacer растет и разносит блоки */
+.content-grid.both-collapsed .block-spacer {
+    flex: 1 1 0%;
+    min-height: 100px; /* Минимальная высота для видимости */
+}
+
+/* MOBILE: Монитор всегда отображается, но за блоками в блюре */
+.hidden-module {
+    display: flex !important;
+    position: absolute !important;
+    z-index: 0 !important;
+}
+
+/* MOBILE: Когда оба блока свёрнуты, монитор управляется через JavaScript */
+.content-grid.both-collapsed .hidden-module {
+    /* opacity и filter управляются через JS */
+}
 }
 
 
@@ -262,74 +395,46 @@
         
 
         /* ─── CONTENT BLOCK & MINIMIZE ANIMATION ─── */
-.content-grid {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-    align-items: start;
-}
+/* MOBILE: content-grid уже определен выше */
 
-/* Когда оба свернуты - разносим по краям с пространством между */
-.content-grid.both-collapsed {
-    justify-content: space-between;
-}
-
-.content-block {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 5px;
-    backdrop-filter: saturate(180%) blur(20px);
-    height: var(--block-height);
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    flex: 1 1 0%;
-    min-width: 0;
-    transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.content-block.collapsed {
-    flex: 0 0 54px;
-}
-        
+/* УДАЛЕНО: старые desktop стили для .content-block - используем только мобильные стили выше */
 
         /* The actual body content */
 .block-body {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    overflow: hidden;
+    padding: 12px; /* MOBILE: ещё меньше padding */
+    overflow: visible; /* MOBILE: изменено с hidden на visible для видимости blur */
     filter: blur(0px);
     opacity: 1;
-    transition: filter 0.8s ease, opacity 0.8s ease;
+    transition: filter 0.4s ease, opacity 0.4s ease;
 }
 
-        /* Minimized vertical bar */
+        /* MOBILE: Minimized horizontal bar (для браузера - сверху, для чата - снизу) */
 .minimized-bar {
-    width: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: width 0.35s ease;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.minimized-bar .bar-icon {
-    margin-top: 12px;
+    display: none !important; /* MOBILE: полностью скрываем minimized-bar */
 }
 
         .btn-minimize {
-    width:34px;height:34px;background:transparent;border:1px solid var(--glass-border);
-    border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:all .15s ease;flex-shrink:0;
+    width: 32px; /* MOBILE: меньше */
+    height: 32px; /* MOBILE: меньше */
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s ease;
+    flex-shrink: 0;
+    position: relative; /* MOBILE: для z-index */
+    z-index: 10; /* MOBILE: поверх всего */
 }
-.btn-minimize:hover { background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
-.btn-minimize img { width:14px;height:14px; }
+.btn-minimize:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+.btn-minimize img { width: 12px; height: 12px; } /* MOBILE: меньше иконки */
 
 /* Показываем minimize по умолчанию, maximize скрыт */
 .btn-minimize .icon-minimize { display:block; }
@@ -339,24 +444,82 @@
 .content-block.minimized .btn-minimize .icon-minimize { display:none; }
 .content-block.minimized .btn-minimize .icon-maximize { display:block; }
 
-        .content-body { flex:1;display:flex;flex-direction:column;min-height:0;transition:filter 0.3s ease,opacity 0.3s ease; }
+/* MOBILE: Когда блок свёрнут, скрываем только контент, но оставляем верхнюю панель */
+.content-block.collapsed .block-body {
+    padding: 12px 12px 0 12px; /* MOBILE: убираем нижний padding */
+}
+
+/* MOBILE: Скрываем строку ввода при сворачивании chatBlock */
+#chatBlock.collapsed .chat-input-area {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.1s ease !important;
+}
+
+/* MOBILE: Добавляем отступ снизу у вкладок в свернутом состоянии (равный верхнему padding) */
+.content-block.collapsed .inner-tabs {
+    margin-bottom: 12px;
+}
+
+/* MOBILE: Скрываем контент при сворачивании, но оставляем верхнюю панель */
+/* Используем только height, БЕЗ overflow для видимости blur анимации */
+.content-block.collapsed .content-body,
+.content-block.collapsed .chat-container {
+    height: 0;
+    min-height: 0;
+    /* overflow: hidden убран - будет добавлен через JS после анимации */
+    margin: 0;
+    padding: 0;
+    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease;
+}
+}
+
+/* MOBILE: Скрываем поиск при сворачивании */
+.content-block.collapsed #browserSearchWrap,
+.content-block.collapsed #chatSearchWrap {
+    display: none !important;
+}
+
+        .content-body { 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: visible; /* MOBILE: изменено с auto на visible для видимости blur */
+            overflow-x: hidden;
+            transition: filter 0.8s ease, opacity 0.8s ease; /* MOBILE: синхронизируем с анимацией сворачивания */
+            scrollbar-width: none; /* MOBILE: скрываем scrollbar */
+            filter: blur(0px);
+            opacity: 1;
+        }
+        .content-body::-webkit-scrollbar { display: none; } /* MOBILE: скрываем scrollbar */
 
         /* ─── MATERIALS ─── */
         .materials-list { 
-            display:grid;
-            grid-template-columns:1fr;
-            gap:10px;
-            overflow-y:auto;
-            max-height:100%;
-            scrollbar-width:none;
+            display: flex; /* MOBILE: изменено с grid на flex */
+            flex-direction: column; /* MOBILE: вертикальное расположение */
+            gap: 8px; /* MOBILE: меньше gap */
+            overflow-y: auto; /* MOBILE: скролл для списка */
+            overflow-x: hidden;
+            max-height: 100%;
+            flex: 1; /* MOBILE: занимает всё доступное пространство */
+            scrollbar-width: none;
         }
-        .materials-list::-webkit-scrollbar { display:none; }
+        .materials-list::-webkit-scrollbar { display: none; }
         .material-item {
-            background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:5px;
-            padding:20px 14px;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;gap:12px;
-            position:relative;
-            overflow:hidden;
-            min-height:70px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            padding: 14px 12px; /* MOBILE: меньше padding */
+            cursor: pointer;
+            transition: all .2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* MOBILE: меньше gap */
+            position: relative;
+            overflow: hidden;
+            min-height: 60px; /* MOBILE: меньше высота */
+            flex-shrink: 0; /* MOBILE: не сжимать и не растягивать */
         }
         
         /* Shimmer animation for highlighting */
@@ -382,14 +545,20 @@
                 transparent 100%);
             animation: shimmer 1s ease-in-out;
         }
-        .material-item:hover { background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18); }
+        .material-item:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
         .material-icon {
-            width:36px;height:36px;background:rgba(255,255,255,.08);border-radius:5px;
-            display:flex;align-items:center;justify-content:center;flex-shrink:0;
+            width: 32px; /* MOBILE: меньше */
+            height: 32px; /* MOBILE: меньше */
+            background: rgba(255,255,255,.08);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        .material-icon img { width:20px;height:20px;opacity:.7; }
-        .material-info h3 { font-size:14px;font-weight:500;margin-bottom:4px;letter-spacing:-.2px; }
-        .material-info p { font-size:12px;color:var(--text-secondary);letter-spacing:-.1px; }
+        .material-icon img { width: 18px; height: 18px; opacity: .7; } /* MOBILE: меньше */
+        .material-info h3 { font-size: 13px; font-weight: 500; margin-bottom: 3px; letter-spacing: -.2px; } /* MOBILE: меньше */
+        .material-info p { font-size: 11px; color: var(--text-secondary); letter-spacing: -.1px; } /* MOBILE: меньше */
 
         /* ─── CHAT PANEL ─── */
         .chat-top-bar {
@@ -461,11 +630,6 @@
         .chat-search-btn:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
         .chat-search-btn svg { width:14px;height:14px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
 
-        .chat-search-wrap {
-            position:absolute;top:calc(100% + 8px);right:0;width:200px;
-            display:none;z-index:50;
-        }
-        .chat-search-wrap.open { display:block; }
         .chat-search-input {
             width:100%;height:34px;padding:0 12px;background:rgba(30,30,30,.95);
             border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);
@@ -474,7 +638,7 @@
         .chat-search-input:focus { outline:none;border-color:rgba(255,255,255,.2);background:rgba(40,40,40,.95); }
         .chat-search-input::placeholder { color:var(--text-tertiary); }
 
-        .chat-container { display:flex;flex-direction:column;flex:1;min-height:0; }
+        .chat-container { display:flex;flex-direction:column;flex:1;min-height:0;transition:filter 0.8s ease,opacity 0.8s ease;filter:blur(0px);opacity:1; }
         .chat-messages { 
             flex:1;
             overflow-y:auto;
@@ -484,13 +648,20 @@
             display:flex;
             flex-direction:column;
             gap:10px;
-            transition:filter 0.3s ease,opacity 0.3s ease;
             position: relative;
             scrollbar-width:none;
             word-wrap: break-word;
             word-break: break-word;
         }
         .chat-messages::-webkit-scrollbar { display:none; }
+        
+        .hidden-module .block-body::-webkit-scrollbar {
+            display: none;
+        }
+        .hidden-module .block-body {
+            scrollbar-width: none;
+        }
+        
         .chat-message {
             padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;font-size:13px;max-width:85%;line-height:1.5;letter-spacing:-.1px;
@@ -817,12 +988,19 @@
 
         .chat-empty-state {
             flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-            text-align:center;padding:20px 10px;gap:16px;pointer-events:none;
+            text-align:center;padding:20px 10px;gap:12px;pointer-events:none; /* MOBILE: gap уменьшен с 16px до 12px */
         }
-        .chat-empty-state .sofia-icon { width:90px;height:90px;opacity:.5; }
+        .chat-empty-state .sofia-icon { width:60px;height:60px;opacity:.5; } /* MOBILE: уменьшен с 90px до 60px */
         .chat-empty-state .sofia-icon img { width:100%;height:100%;opacity:.7; }
-        .chat-empty-state p { font-size:13px;line-height:1.6;color:var(--text-secondary);letter-spacing:-.15px;max-width:260px; }
+        .chat-empty-state p { font-size:11px;line-height:1.5;color:var(--text-secondary);letter-spacing:-.15px;max-width:240px; } /* MOBILE: font-size уменьшен с 13px до 11px, max-width с 260px до 240px */
 
+        .chat-input-area { 
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            margin-top: auto; /* Прижимаем к низу */
+        }
+        
         .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch; }
         .chat-input {
             flex:1;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
@@ -1005,11 +1183,11 @@
 .chat-send img { width:18px;height:18px;opacity:.7; }
 
         /* ─── EMPTY STATE ─── */
-        .empty-state { text-align:center;padding:60px 20px;color:var(--text-secondary); }
-        .empty-state-icon { margin-bottom:16px;opacity:.4; }
-        .empty-state-icon img { width:90px;height:90px;opacity:.7; }
-        .empty-state h3 { font-size:15px;margin-bottom:8px;color:var(--text-primary);font-weight:500;letter-spacing:-.2px; }
-        .empty-state p { font-size:13px;line-height:1.5;letter-spacing:-.1px; }
+        .empty-state { text-align:center;padding:20px 10px;color:var(--text-secondary); } /* MOBILE: уменьшен padding с 60px до 20px */
+        .empty-state-icon { margin-bottom:12px;opacity:.4; } /* MOBILE: уменьшен margin с 16px до 12px */
+        .empty-state-icon img { width:60px;height:60px;opacity:.7; } /* MOBILE: уменьшен с 90px до 60px */
+        .empty-state h3 { font-size:13px;margin-bottom:6px;color:var(--text-primary);font-weight:500;letter-spacing:-.2px; } /* MOBILE: уменьшен с 15px до 13px */
+        .empty-state p { font-size:11px;line-height:1.4;letter-spacing:-.1px; } /* MOBILE: уменьшен с 13px до 11px */
 
         /* ─── AUTH MODAL ─── */
         .auth-overlay {
@@ -1319,15 +1497,6 @@
         .product-key-block:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
         .product-key-block.error { border-color:rgba(255,100,100,.5);animation:shake .3s ease; }
 
-        @media(max-width:480px){
-            .container{ padding:0 16px; }
-            .block-body{ padding:16px; }
-            header{ padding:8px 0 0 0; }
-            .header-inner{ padding:10px 16px; }
-            .logo{ width:29px;height:29px; }
-            .logo img{ width:86px;height:86px; }
-            .pin-digit{ height:55px;font-size:20px; }
-        }
     </style>
 </head>
 <body>
@@ -1335,8 +1504,8 @@
 <header>
   <div class="container"> <!-- ДОБАВИТЬ -->
     <div class="header-inner">
-      <div class="logo" onclick="toggleMonitorMode()" style="cursor: pointer;">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="">
+      <div class="logo" onclick="toggleMonitorMode(event)" style="cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
         <button class="header-login-btn" onclick="showAlert('Магазин в разработке', 'Магазин')">
@@ -1356,14 +1525,7 @@
 
       <!-- LEFT BLOCK -->
       <div class="content-block" id="browserBlock">
-        <div class="minimized-bar" id="browserMinBar" onclick="toggleMinimize('browserBlock')">
-          <div class="bar-icon">
-            <div class="btn-minimize" style="pointer-events:none;">
-    <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
-    <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
-</div>
-          </div>
-        </div>
+        <!-- MOBILE: minimized-bar удалён -->
         <div class="block-body" id="browserBody">
           <div class="inner-tabs">
             <button class="inner-tab active" data-inner="materials">
@@ -1378,16 +1540,17 @@
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
               <span>Прогресс</span>
             </button>
-            <button class="btn-minimize" onclick="toggleBrowserSearch()" style="margin-left:auto;margin-right:8px;">
+            <!-- MOBILE: Кнопки поиска и minimize справа -->
+            <button class="chat-search-btn" onclick="toggleBrowserSearch()" style="margin-left:auto;margin-right:8px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
             <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')">
-    <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
-    <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
-</button>
+              <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
+              <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
+            </button>
           </div>
           <div id="browserSearchWrap" class="chat-search-wrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
             <input type="text" id="browserSearchInput" class="chat-search-input" placeholder="Поиск по всем вкладкам...">
@@ -1396,502 +1559,450 @@
         </div>
       </div>
 
-      <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND OTHER BLOCKS -->
-      <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 0; left: 80px; right: 80px; z-index: -1; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease; background: transparent; border: none;">
-        <div class="block-body" style="display: flex; align-items: center; justify-content: center; gap: 20px; padding: 0; position: relative; height: var(--block-height); overflow: visible;">
+      <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
+      <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
+        
+        <!-- CLICKABLE OVERLAYS - catch clicks before they reach content -->
+        <div id="clickOverlayLeft" style="position: absolute; left: 0; top: 0; width: 40%; height: 100%; z-index: 998;"></div>
+        <div id="clickOverlayRight" style="position: absolute; right: 0; top: 0; width: 40%; height: 100%; z-index: 998;"></div>
+        
+        <div class="block-body" id="monitorScrollContainer" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scrollbar-width: none; -ms-overflow-style: none;">
           
-          <!-- КОНТЕЙНЕР ДЛЯ РАСТЯЖЕНИЯ НА ВСЮ ОБЛАСТЬ -->
-          <div class="monitor-full-container" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; transform: scale(1.05); transform-origin: center center; overflow: visible;">
-          
-          <!-- Левые блоки (растянуты до высоты резюме) -->
-          <div class="monitor-left-elements" style="position: absolute; left: calc(31% - 90px); top: 2.5%; transform: none; width: 160px; height: 95%; pointer-events: none;">
-            <!-- Блок 1 - верх головы -->
-            <div style="position: absolute; top: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_brain.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Здоровье ЦНС</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 2 - грудь -->
-            <div style="position: absolute; top: calc(65px + (100% - 390px) / 5 * 1); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_lungs.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Функция лёгких</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">6</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 3 - новый блок -->
-            <div style="position: absolute; top: calc(130px + (100% - 390px) / 5 * 2); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_immunity.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Иммунитет</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">7</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 4 - живот -->
-            <div style="position: absolute; top: calc(195px + (100% - 390px) / 5 * 3); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_energy.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Энергообмен</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">9</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 5 - бедра -->
-            <div style="position: absolute; top: calc(260px + (100% - 390px) / 5 * 4); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_flexibility.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Адаптивность</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">4</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 6 - ноги -->
-            <div style="position: absolute; bottom: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_power.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Сила мышц</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Большой блок "ПРИЗНАКИ ЖИЗНИ" (слева) -->
-          <div class="monitor-cardiogram-block" style="position: absolute; left: calc(31% - 340px); top: 2.5%; width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
-              <span>ПРИЗНАКИ ЖИЗНИ</span>
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f285999bcbd5f331bffb4244373e3aecc5695eb6/rate.svg" alt="" style="width: 14px; height: 14px;">
-            </div>
+          <!-- Широкий контейнер с тремя аватарами -->
+          <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%; width: 300%; position: relative;">
             
-            <!-- Анимированная кардиограмма с Lottie -->
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-              <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
-                <!-- Фоновая сетка растянутая по горизонтали и вертикали на весь блок -->
-                <svg width="100%" height="100%" viewBox="0 0 150 120" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
-                  <defs>
-                    <pattern id="ecgGrid" width="5" height="5" patternUnits="userSpaceOnUse">
-                      <path d="M 5 0 L 0 0 0 5" fill="none" stroke="rgba(153,153,153,0.15)" stroke-width="0.3"/>
-                    </pattern>
-                    <pattern id="ecgGridMajor" width="25" height="25" patternUnits="userSpaceOnUse">
-                      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="rgba(153,153,153,0.25)" stroke-width="0.5"/>
-                    </pattern>
-                  </defs>
-                  <!-- Мелкая сетка -->
-                  <rect width="100%" height="100%" fill="url(#ecgGrid)" />
-                  <!-- Крупная сетка -->
-                  <rect width="100%" height="100%" fill="url(#ecgGridMajor)" />
-                </svg>
+            <!-- ЛЕВЫЙ БЛОК -->
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 5px 20px 5px; gap: 8px; flex-shrink: 0;">
+              
+              <!-- Признаки жизни и Весы (СНАЧАЛА) -->
+              <div style="width: 260px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Признаки жизни -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column;">
+                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                    <span>ПРИЗНАКИ ЖИЗНИ</span>
+                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f285999bcbd5f331bffb4244373e3aecc5695eb6/rate.svg" alt="" style="width: 12px; height: 12px;">
+                  </div>
+                  <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; margin-bottom: 8px; overflow: hidden;">
+                    <!-- Фоновая сетка -->
+                    <svg width="100%" height="100%" viewBox="0 0 150 120" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
+                      <defs>
+                        <pattern id="ecgGridMobile" width="5" height="5" patternUnits="userSpaceOnUse">
+                          <path d="M 5 0 L 0 0 0 5" fill="none" stroke="rgba(153,153,153,0.15)" stroke-width="0.3"/>
+                        </pattern>
+                        <pattern id="ecgGridMajorMobile" width="25" height="25" patternUnits="userSpaceOnUse">
+                          <path d="M 25 0 L 0 0 0 25" fill="none" stroke="rgba(153,153,153,0.25)" stroke-width="0.5"/>
+                        </pattern>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(#ecgGridMobile)" />
+                      <rect width="100%" height="100%" fill="url(#ecgGridMajorMobile)" />
+                    </svg>
+                    <!-- Canvas для ЭКГ -->
+                    <canvas id="ecgCanvasMobile" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; transform: scaleX(-1) scaleY(-1);"></canvas>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-secondary);">
+                    <div style="text-align: center;"><span style="opacity: 0.7;">Пульс </span><span id="pulseValueMobile">72</span></div>
+                    <div style="text-align: center;"><span style="opacity: 0.7;">ЧСС </span><span id="hrrValueMobile">68</span></div>
+                    <div style="text-align: center;"><span style="opacity: 0.7;">O₂ </span><span id="oxygenValueMobile">98</span><span style="opacity: 0.7;">%</span></div>
+                  </div>
+                </div>
                 
-                <!-- Интерактивный canvas с градиентом поверх сетки -->
-                <canvas id="ecgCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; transform: scaleX(-1) scaleY(-1);"></canvas>
+                <!-- Весы -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column;">
+                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                    <span>ВЕСЫ</span>
+                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9de8a26dbc1469309e975cc1be78720e41b1aa55/scale.svg" alt="" style="width: 12px; height: 12px;">
+                  </div>
+                  <div style="flex: 1; position: relative; overflow: visible;">
+                    <!-- График веса -->
+                    <svg width="100%" height="100%" viewBox="0 0 120 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.1); transform-origin: center center; overflow: visible;">
+                      <defs>
+                        <linearGradient id="gridGradientMobile" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="lineGradientMobile" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" style="stop-color:rgba(153,153,153,0.6);stop-opacity:1" />
+                          <stop offset="50%" style="stop-color:rgba(153,153,153,1);stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:rgba(153,153,153,0.8);stop-opacity:1" />
+                        </linearGradient>
+                      </defs>
+                      <!-- Сетка -->
+                      <line x1="20" y1="10" x2="95" y2="10" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                      <line x1="20" y1="30" x2="95" y2="30" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                      <line x1="20" y1="50" x2="95" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                      <line x1="20" y1="70" x2="95" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+                      <line x1="30" y1="10" x2="30" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <line x1="45" y1="10" x2="45" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <line x1="60" y1="10" x2="60" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <line x1="75" y1="10" x2="75" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <line x1="90" y1="10" x2="90" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <!-- Оси -->
+                      <line x1="20" y1="10" x2="20" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                      <line x1="20" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                      <!-- Подписи -->
+                      <text x="16" y="13" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">85</text>
+                      <text x="16" y="33" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">80</text>
+                      <text x="16" y="53" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">75</text>
+                      <text x="16" y="73" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">70</text>
+                      <!-- График -->
+                      <path d="M20,70 L25,65 L35,68 L45,62 L55,60 L65,58 L75,55 L85,52 L95,50 L95,75 L20,75 Z" fill="url(#gridGradientMobile)" opacity="0.3"/>
+                      <polyline points="20,70 25,65 35,68 45,62 55,60 65,58 75,55 85,52 95,50" fill="none" stroke="url(#lineGradientMobile)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="20" cy="70" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                      <circle cx="35" cy="68" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                      <circle cx="55" cy="60" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                      <circle cx="75" cy="55" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                      <circle cx="95" cy="50" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
               
-              <!-- Показатели -->
-              <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 10px; color: var(--text-secondary);">
-                <div style="text-align: center; flex: 1; min-width: 0;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <span style="opacity: 0.7;">Пульс </span><span id="pulseValue">72</span>
+              <!-- Левая колонка статов (ПОТОМ) -->
+              <div style="width: 285px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Здоровье ЦНС -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 20px 14px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_brain.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Здоровье ЦНС</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">8</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
                   </div>
                 </div>
-                <div style="text-align: center; flex: 1; min-width: 0;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <span style="opacity: 0.7;">ЧСС </span><span id="hrrValue">68</span>
+                
+                <!-- Функция лёгких -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_lungs.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Функция лёгких</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">6</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
                   </div>
                 </div>
-                <div style="text-align: center; flex: 1; min-width: 0;">
-                  <div style="font-weight: 600; color: rgba(153,153,153,0.9); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <span style="opacity: 0.7;">O₂ </span><span id="oxygenValue">98</span><span style="opacity: 0.7;">%</span>
+                
+                <!-- Иммунитет -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_immunity.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Иммунитет</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">7</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Энергообмен -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_energy.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Энергообмен</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">9</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Адаптивность -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_flexibility.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Адаптивность</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">4</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Сила мышц -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats_power.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Сила мышц</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">8</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            
+            <!-- ЦЕНТРАЛЬНЫЙ АВАТАР (оригинальный) -->
+            <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px; flex-shrink: 0; scroll-snap-align: start;">
+              <!-- Центральное видео (аватар) -->
+              <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
+                <video id="monitorHumanVideo" 
+                       autoplay 
+                       loop 
+                       muted 
+                       playsinline
+                       style="width: 115%; height: auto; max-height: 115%; opacity: 0.7; object-fit: contain;
+                              filter: grayscale(1);
+                              animation: colorFadeIn 2s ease-out forwards;">
+                  <source id="monitorVideoSource" src="" type="video/webm">
+                </video>
+              </div>
+              
+              <!-- Плашка с номером звена -->
+              <div style="display: flex; align-items: flex-end; justify-content: center; width: 100%;">
+                <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="width: 200px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px 12px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: pointer; transition: all 0.2s ease;">
+                  <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- ПРАВЫЙ БЛОК -->
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 5px 20px 5px; gap: 10px; flex-shrink: 0; scroll-snap-align: start;">
+              
+              <!-- Правая колонка статов -->
+              <div style="width: 257px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Когнитивность -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 20px 14px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_nerve.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Когнитивность</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">7</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Сердце -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-heart.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Сердце</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">9</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Кровообращение -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-blood.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Кровообращение</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">8</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Пищеварение -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-stomach.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Пищеварение</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Гормоны -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-hormone.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Гормоны</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">3</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+                
+                <!-- Выносливость -->
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-Endurance.svg" alt="" style="width: 12px; height: 12px;">
+                      <span style="font-weight: 600; line-height: 1.1;">Выносливость</span>
+                    </div>
+                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">8</span>
+                  </div>
+                  <div style="display: flex; gap: 1px;">
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Биологический профиль -->
+              <div style="width: 270px; height: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column;">
+                <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <span style="white-space: nowrap;">ПРОФИЛЬ</span>
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px; flex-shrink: 0;">
+                </div>
+                <div style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto;">
+                  <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
+                  <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
+                  <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
+                  <div style="margin-bottom: 8px;"><strong>Вес:</strong> Стабильный</div>
+                  <div style="margin-bottom: 8px;"><strong>Энергия:</strong> Высокий уровень</div>
+                  <div style="margin-bottom: 6px;"><strong>Рекомендации:</strong></div>
+                  <div style="font-size: 8px; color: var(--text-tertiary);">
+                    • Поддерживать режим тренировок<br>
+                    • Увеличить потребление воды<br>
+                    • Контролировать стресс<br>
+                    • Регулярный сон 7-8 часов
                   </div>
                 </div>
               </div>
             </div>
+            
           </div>
-          
-          <!-- Большой блок "Весы" (слева внизу) -->
-          <div class="monitor-weight-block" style="position: absolute; left: calc(31% - 340px); top: calc(50% + 6px); width: 210px; height: calc(47.5% - 6px); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
-              <span>ВЕСЫ</span>
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9de8a26dbc1469309e975cc1be78720e41b1aa55/scale.svg" alt="" style="width: 14px; height: 14px;">
-            </div>
-            <div style="flex: 1; position: relative; overflow: visible;">
-              <!-- Профессиональный график веса с сеткой и шкалами -->
-              <svg width="100%" height="100%" viewBox="0 0 120 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.2); transform-origin: center center; overflow: visible;">
-                <!-- Определяем градиенты -->
-                <defs>
-                  <linearGradient id="gridGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
-                  </linearGradient>
-                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:rgba(153,153,153,0.6);stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:rgba(153,153,153,1);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:rgba(153,153,153,0.8);stop-opacity:1" />
-                  </linearGradient>
-                </defs>
-                
-                <!-- Фоновая сетка (горизонтальные линии) -->
-                <line x1="20" y1="10" x2="95" y2="10" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="20" x2="95" y2="20" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="30" x2="95" y2="30" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="40" x2="95" y2="40" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="50" x2="95" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="60" x2="95" y2="60" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                <line x1="20" y1="70" x2="95" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                
-                <!-- Вертикальные линии сетки -->
-                <line x1="30" y1="10" x2="30" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="45" y1="10" x2="45" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="60" y1="10" x2="60" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="75" y1="10" x2="75" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                <line x1="90" y1="10" x2="90" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                
-                <!-- Основные оси -->
-                <line x1="20" y1="10" x2="20" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                <line x1="20" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                
-                <!-- Засечки на Y-оси (вес) -->
-                <line x1="17" y1="10" x2="20" y2="10" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="17" y1="20" x2="20" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="17" y1="30" x2="20" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="17" y1="40" x2="20" y2="40" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="17" y1="50" x2="20" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="17" y1="60" x2="20" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="17" y1="70" x2="20" y2="70" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                
-                <!-- Засечки на X-оси (время) -->
-                <line x1="20" y1="75" x2="20" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="30" y1="75" x2="30" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="45" y1="75" x2="45" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="60" y1="75" x2="60" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="75" y1="75" x2="75" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <line x1="90" y1="75" x2="90" y2="77" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
-                <line x1="95" y1="75" x2="95" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                
-                <!-- Подписи Y-оси (вес в кг) - сдвинуты левее для предотвращения обрезания -->
-                <text x="16" y="13" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">85</text>
-                <text x="16" y="33" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">80</text>
-                <text x="16" y="53" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">75</text>
-                <text x="16" y="73" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">70</text>
-                
-                <!-- Подписи X-оси (время) -->
-                <text x="20" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Янв</text>
-                <text x="45" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Мар</text>
-                <text x="75" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Май</text>
-                <text x="95" y="85" font-size="3.5" fill="rgba(255,255,255,0.5)" text-anchor="middle">Июл</text>
-                
-                <!-- Область под графиком (градиент) -->
-                <path d="M20,70 L25,65 L35,68 L45,62 L55,60 L65,58 L75,55 L85,52 L95,50 L95,75 L20,75 Z" 
-                      fill="url(#gridGradient)" opacity="0.3"/>
-                
-                <!-- Основная линия графика -->
-                <polyline points="20,70 25,65 35,68 45,62 55,60 65,58 75,55 85,52 95,50" 
-                          fill="none" 
-                          stroke="url(#lineGradient)" 
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"/>
-                
-                <!-- Точки данных -->
-                <circle cx="20" cy="70" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="35" cy="68" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="55" cy="60" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="75" cy="55" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                <circle cx="95" cy="50" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-              </svg>
-            </div>
-          </div>
-          
-          <!-- Центральная картинка (человек - точно в центре) -->
-          <div class="monitor-center-image" style="position: absolute; left: 50%; top: 43%; transform: translate(-50%, -50%); width: 450px; height: 660px; display: flex; align-items: center; justify-content: center; z-index: 1; overflow: visible; padding: 20px;">
-            <video id="monitorHumanVideo" 
-                   autoplay 
-                   loop 
-                   muted 
-                   playsinline
-                   style="width: 100%; height: 100%; opacity: 0.7; object-fit: contain; cursor: pointer;
-                          filter: grayscale(1);
-                          animation: colorFadeIn 2s ease-out forwards;">
-              <source id="monitorVideoSource" src="" type="video/webm">
-              <!-- Fallback to SVG if video doesn't load -->
-              <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/5ec8acac0d97faf61ecd4b56746d3ab429bb6a25/human_male.svg" 
-                   alt="Human Monitor" 
-                   style="width: 100%; height: 100%; opacity: 0.7; filter: invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%);">
-            </video>
-          </div>
-          
-          <!-- Плашка с номером звена (выровнена по нижней границе) -->
-          <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); width: 160px; height: 60px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 11px; pointer-events: all; cursor: pointer; transition: all 0.2s ease;">
-            <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
-          </div>
-          
-          <!-- Правые блоки (растянуты до высоты резюме) -->
-          <div class="monitor-right-elements" style="position: absolute; right: calc(31% - 90px); top: 2.5%; transform: none; width: 160px; height: 95%; pointer-events: none;">
-            <!-- Блок 6 - верх головы -->
-            <div style="position: absolute; top: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_nerve.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Когнитивность</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">7</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 7 - грудь -->
-            <div style="position: absolute; top: calc(65px + (100% - 390px) / 5 * 1); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-heart.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Сердце</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">9</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 8 - новый блок -->
-            <div style="position: absolute; top: calc(130px + (100% - 390px) / 5 * 2); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-blood.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Кровообращение</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 9 - живот -->
-            <div style="position: absolute; top: calc(195px + (100% - 390px) / 5 * 3); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-stomach.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Пищеварение</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">5</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 10 - бедра -->
-            <div style="position: absolute; top: calc(260px + (100% - 390px) / 5 * 4); background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-hormone.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Гормоны</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">3</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-            <!-- Блок 11 - ноги -->
-            <div style="position: absolute; bottom: 0px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; color: var(--text-secondary); font-size: 11px; width: 100%; height: 65px; pointer-events: all;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-Endurance.svg" alt="" style="width: 14px; height: 14px;">
-                  <span style="font-weight: 600; line-height: 1.1;">Выносливость</span>
-                </div>
-                <span style="font-weight: 600; font-size: 12px; color: rgba(153,153,153,0.9);">8</span>
-              </div>
-              <div style="display: flex; gap: 1px; width: 100%;">
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-                <div style="flex: 1; height: 7px; background: rgba(255,255,255,.1); border-radius: 2px;"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Большой блок "Биологический профиль" (справа) -->
-          <div class="monitor-resume-block" style="position: absolute; right: calc(31% - 340px); top: 2.5%; width: 210px; height: 95%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; pointer-events: all;">
-            <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 14px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px; white-space: nowrap;">
-              <span>БИОЛОГИЧЕСКИЙ ПРОФИЛЬ</span>
-              <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px;">
-            </div>
-            <div style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto;">
-              <div style="margin-bottom: 10px;">
-                <strong>Общее состояние:</strong> Удовлетворительное
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>ЧСС:</strong> 72 уд/мин (норма)
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Давление:</strong> 120/80 мм рт.ст.
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Вес:</strong> Стабильный, в пределах нормы
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Энергетический баланс:</strong> Высокий уровень
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Рекомендации:</strong>
-              </div>
-              <div style="font-size: 10px; color: var(--text-tertiary);">
-                • Поддерживать текущий режим тренировок<br>
-                • Увеличить потребление воды<br>
-                • Контролировать уровень стресса<br>
-                • Регулярный сон 7-8 часов
-              </div>
-            </div>
-          </div>
-          
-          </div> <!-- Закрытие monitor-full-container -->
           
         </div>
       </div>
+          
+
+      <!-- MOBILE: Spacer для разнесения блоков когда оба свернуты -->
+      <div class="block-spacer" id="blockSpacer"></div>
 
       <!-- RIGHT BLOCK -->
       <div class="content-block" id="chatBlock">
-       <div class="minimized-bar" id="chatMinBar" onclick="toggleMinimize('chatBlock')">
-  <div class="bar-icon">
-    <div class="btn-minimize" style="pointer-events:none;">
-      <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
-      <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/3bcfa3f01b7a0cbaa8bbe8c35458c43f0ac67399/expand.svg" alt="">
-    </div>
-  </div>
-</div>
+        <!-- MOBILE: minimized-bar удалён -->
         <div class="block-body" id="chatBody">
           <div class="chat-top-bar">
            <button class="chat-new-btn" onclick="addChatTab()">
@@ -1905,38 +2016,40 @@
               </div>
             </div>
             <div class="chat-right-controls">
+              <!-- MOBILE: Кнопки поиска и minimize справа -->
               <button class="chat-search-btn" onclick="toggleChatSearch()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
-            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('chatBlock')" style="margin-left:auto;">
-    <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
-    <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
-</button>
+              <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('chatBlock')" style="margin-left:8px;">
+                <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
+                <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
+              </button>
             </div>
-            <div class="chat-search-wrap" id="chatSearchWrap">
-              <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск чатов…">
-            </div>
+          </div>
+          <div class="chat-search-wrap" id="chatSearchWrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
+            <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск чатов…">
           </div>
           <div class="chat-container">
             <div class="chat-messages" id="chat-messages"></div>
-      <div style="display:flex;flex-direction:column;flex-shrink:0;">
-  <div style="position:relative;display:flex;flex-direction:column;">
-    <div class="chat-file-preview" id="chat-file-preview"></div>
-    <div class="chat-input-wrapper">
-      <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
-      <button class="chat-attach" id="chat-attach">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="">
-        <input type="file" id="chat-file-input" multiple accept="*/*">
-      </button>
-      <button class="chat-send" id="chat-send">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
-      </button>
-    </div>
-  </div>
-</div>
+          </div>
+          <div class="chat-input-area">
+            <div style="position:relative;display:flex;flex-direction:column;">
+              <div class="chat-file-preview" id="chat-file-preview"></div>
+              <div class="chat-input-wrapper">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
+                <button class="chat-attach" id="chat-attach">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="">
+                  <input type="file" id="chat-file-input" multiple accept="*/*">
+                </button>
+                <button class="chat-send" id="chat-send">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2304,149 +2417,367 @@ function toggleMonitorSkin(event) {
     return;
 }
 
-function toggleMonitorMode() {
+// MOBILE: Navigate monitor screens (left/right)
+function navigateMonitor(direction) {
+    console.log(`[MONITOR] Navigate ${direction} - будет реализовано позже`);
+    // TODO: Implement horizontal scroll/swipe navigation
+}
+
+// MOBILE: Флаг для предотвращения двойного вызова
+let isTogglingMonitor = false;
+let lastToggleTime = 0;
+const TOGGLE_DEBOUNCE = 1000; // 1 секунда
+let toggleCallId = 0; // Уникальный ID для каждого вызова
+
+function toggleMonitorMode(event) {
+    const callId = ++toggleCallId;
+    const startTime = performance.now();
+    console.log(`[${startTime.toFixed(2)}ms] [MSE #${callId}] toggleMonitorMode called`);
+    
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    // MOBILE: Debounce - игнорируем клики в течение 1 секунды
+    const now = Date.now();
+    if (now - lastToggleTime < TOGGLE_DEBOUNCE) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Debounce - ignoring (${now - lastToggleTime}ms since last)`);
+        return;
+    }
+    lastToggleTime = now;
+    
+    // MOBILE: Защита от двойного вызова
+    if (isTogglingMonitor) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Already toggling, ignoring`);
+        return;
+    }
+    
+    isTogglingMonitor = true;
     closeAllMenus();
     
-    // Если оба блока уже свернуты - разворачиваем их
+    // MOBILE: Если оба блока уже свернуты - разворачиваем их
     if (blockState.browserBlock && blockState.chatBlock) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Both collapsed, expanding...`);
         expandBlock('browserBlock');
         expandBlock('chatBlock');
+        
+        setTimeout(() => {
+            isTogglingMonitor = false;
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Toggle complete (expand)`);
+        }, RESIZE_DURATION);
     } else {
-        // Иначе сворачиваем оба блока для показа монитора
-        if (!blockState.browserBlock) {
-            collapseBlock('browserBlock');
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing both blocks...`);
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Before - browser:${blockState.browserBlock} chat:${blockState.chatBlock}`);
+        
+        // MOBILE: Сначала обновляем состояния обоих блоков
+        blockState.browserBlock = true;
+        blockState.chatBlock = true;
+        
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] After - browser:${blockState.browserBlock} chat:${blockState.chatBlock}`);
+        
+        // MOBILE: Обновляем grid state СРАЗУ (до анимации)
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Calling updateGridState...`);
+        updateGridState();
+        console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] updateGridState done`);
+        
+        // MOBILE: Используем collapseBlock для каждого блока (с skipGridUpdate=true)
+        const browserBlock = document.getElementById('browserBlock');
+        const chatBlock = document.getElementById('chatBlock');
+        
+        if (browserBlock && !browserBlock.classList.contains('collapsed')) {
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing browserBlock`);
+            const browserContent = browserBlock.querySelector('.content-body');
+            if (browserContent) {
+                // MOBILE: Blur и fade
+                browserContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+                browserContent.style.filter = 'blur(8px)';
+                browserContent.style.opacity = '0';
+            }
+            browserBlock.classList.add('collapsed');
+            
+            setTimeout(() => {
+                browserBlock.classList.add('minimized');
+            }, RESIZE_DURATION / 2);
         }
-        if (!blockState.chatBlock) {
-            collapseBlock('chatBlock');
+        
+        if (chatBlock && !chatBlock.classList.contains('collapsed')) {
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Collapsing chatBlock`);
+            const chatContent = chatBlock.querySelector('.chat-container');
+            if (chatContent) {
+                // MOBILE: Blur и fade
+                chatContent.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+                chatContent.style.filter = 'blur(8px)';
+                chatContent.style.opacity = '0';
+            }
+            chatBlock.classList.add('collapsed');
+            
+            setTimeout(() => {
+                chatBlock.classList.add('minimized');
+            }, RESIZE_DURATION / 2);
         }
+        
+        setTimeout(() => {
+            isTogglingMonitor = false;
+            console.log(`[${performance.now().toFixed(2)}ms] [MSE #${callId}] Toggle complete (collapse)`);
+        }, RESIZE_DURATION);
     }
 }
 
 function toggleMinimize(id) {
+    console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] toggleMinimize(${id}) called`);
     closeAllMenus();
-    if (blockState[id]) {
+    
+    // MOBILE: Если оба блока свернуты и мы разворачиваем один
+    if (blockState.browserBlock && blockState.chatBlock) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] Both collapsed, expanding ${id}`);
+        // Просто разворачиваем нужный блок, он заполнит свободное место
+        expandBlock(id);
+    } else if (blockState[id]) {
+        console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] ${id} is collapsed, expanding`);
+        // Если блок свернут, разворачиваем его
         expandBlock(id);
     } else {
+        console.log(`[${performance.now().toFixed(2)}ms] [MINIMIZE] ${id} is expanded, collapsing`);
+        // Если блок развернут, сворачиваем его
         collapseBlock(id);
     }
 }
 
 function updateGridState() {
+    const t = performance.now();
     const grid = document.getElementById('contentGrid');
-    const hiddenModule = document.getElementById('hiddenModule');
     const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
+    
+    console.log(`[${t.toFixed(2)}ms] [GRID] updateGridState - bothCollapsed:${bothCollapsed}`);
     
     if (bothCollapsed) {
         grid.classList.add('both-collapsed');
-        // Показываем скрытый модуль с небольшой задержкой (300мс)
-        setTimeout(() => {
-            hiddenModule.style.opacity = '1';
-            hiddenModule.style.filter = 'blur(0px)';
+        console.log(`[${performance.now().toFixed(2)}ms] [GRID] Added both-collapsed class`);
+        
+        // MOBILE: Обновляем видео монитора при появлении
+        console.log(`[${performance.now().toFixed(2)}ms] [GRID] Calling updateMonitorVideo...`);
+        if (currentUser && currentUser.gender) {
+            updateMonitorVideo(currentUser.gender);
+        } else {
+            updateMonitorVideo(null); // Random video for non-logged in
+        }
+        
+        const monitor = document.getElementById('hiddenModule');
+        
+        if (monitor) {
+            // MOBILE: Логируем начальную позицию из HTML
+            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Initial position from HTML - top:${monitor.style.top}, computed top:${getComputedStyle(monitor).top}`);
             
-            // Update video when opening monitor
-            if (currentUser && currentUser.gender) {
-                updateMonitorVideo(currentUser.gender);
-            } else {
-                updateMonitorVideo(null); // Random video for non-logged in
-            }
+            // MOBILE: Скрываем монитор через blur
+            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Setting blur state - opacity:0, filter:blur(8px)`);
+            monitor.style.opacity = '0';
+            monitor.style.filter = 'blur(8px)';
             
-            // Запускаем анимацию перехода от grayscale к цветному
-            const video = document.getElementById('monitorHumanVideo');
-            if (video) {
-                video.style.animation = 'none';
-                void video.offsetWidth; // Trigger reflow
-                video.style.animation = 'colorFadeIn 2s ease-out forwards';
-            }
-        }, 300);
+            // MOBILE: Вычисляем и устанавливаем позицию после завершения анимации, затем сразу разблюриваем
+            setTimeout(() => {
+                const browserBlock = document.getElementById('browserBlock');
+                const chatBlock = document.getElementById('chatBlock');
+                
+                if (browserBlock && chatBlock) {
+                    const browserRect = browserBlock.getBoundingClientRect();
+                    const chatRect = chatBlock.getBoundingClientRect();
+                    const gridRect = grid.getBoundingClientRect();
+                    
+                    const topOffset = browserRect.bottom - gridRect.top + 8;
+                    const monitorHeight = chatRect.top - browserRect.bottom - 16;
+                    
+                    console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Setting position - top:${topOffset}px, height:${monitorHeight}px`);
+                    console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Browser bottom:${browserRect.bottom}, Chat top:${chatRect.top}, Grid top:${gridRect.top}`);
+                    console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Current opacity before unblur:${monitor.style.opacity}`);
+                    
+                    // Устанавливаем позицию
+                    monitor.style.top = `${topOffset}px`;
+                    monitor.style.height = `${monitorHeight}px`;
+                    monitor.style.bottom = 'auto';
+                    
+                    // Сразу разблюриваем (без дополнительной задержки)
+                    requestAnimationFrame(() => {
+                        console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Unblur started - opacity:1, filter:blur(0px)`);
+                        monitor.style.opacity = '1';
+                        monitor.style.filter = 'blur(0px)';
+                        
+                        // Scroll to center block (33.333% of total width)
+                        const blockBody = monitor.querySelector('.block-body');
+                        if (blockBody) {
+                            const scrollToCenter = blockBody.clientWidth; // Скроллим на одну ширину = центральный блок
+                            blockBody.scrollLeft = scrollToCenter;
+                            
+                            // Set current section for navigation
+                            if (typeof window.monitorCurrentSection !== 'undefined') {
+                                window.monitorCurrentSection = 1; // Center section
+                            }
+                            
+                            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Scrolled to center:`, scrollToCenter);
+                        }
+                    });
+                }
+            }, 850);
+        }
     } else {
         grid.classList.remove('both-collapsed');
-        // При разворачивании не трогаем скрытый модуль - это делает expandBlock
+        console.log(`[${performance.now().toFixed(2)}ms] [GRID] Removed both-collapsed class`);
+        
+        // MOBILE: Скрываем монитор через blur и fade
+        const monitor = document.getElementById('hiddenModule');
+        if (monitor) {
+            console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Hiding monitor - opacity:0, filter:blur(8px)`);
+            monitor.style.opacity = '0';
+            monitor.style.filter = 'blur(8px)';
+        }
     }
 }
 
-function collapseBlock(id) {
+// Navigate between monitor blocks
+function navigateMonitor(direction) {
+    console.log('navigateMonitor called with direction:', direction);
+    const hiddenModule = document.getElementById('hiddenModule');
+    const blockBody = hiddenModule ? hiddenModule.querySelector('.block-body') : null;
+    
+    if (!blockBody) {
+        console.log('blockBody not found!');
+        return;
+    }
+    
+    // Скроллим на ширину контейнера (один блок = 33.333% от 300% = 100% видимой области)
+    const scrollAmount = blockBody.clientWidth;
+    console.log('Scrolling by:', scrollAmount, 'px');
+    console.log('Current scrollLeft:', blockBody.scrollLeft);
+    
+    if (direction === 'left') {
+        blockBody.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else if (direction === 'right') {
+        blockBody.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+    
+    setTimeout(() => {
+        console.log('After scroll - scrollLeft:', blockBody.scrollLeft);
+    }, 500);
+}
+
+function collapseBlock(id, skipGridUpdate = false) {
+    console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] collapseBlock(${id}, skipGridUpdate:${skipGridUpdate})`);
     blockState[id] = true;
     const block = document.getElementById(id);
     const body = block.querySelector('.block-body');
-    const bar = block.querySelector('.minimized-bar');
+    const contentBody = block.querySelector('.content-body');
+    const chatContainer = block.querySelector('.chat-container');
+    const content = contentBody || chatContainer;
 
-   // НЕ добавляем класс сразу - добавим в середине анимации
+    if (!skipGridUpdate) {
+        updateGridState();
+    }
     
-    // ОБНОВЛЯЕМ СОСТОЯНИЕ ДО АНИМАЦИИ при сворачивании
-    updateGridState();
+    // MOBILE: Применяем blur и fade к контенту
+    if (content) {
+        content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+        content.style.filter = 'blur(8px)';
+        content.style.opacity = '0';
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - blur and fade animation started`);
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - content element:`, content.className);
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - content height before:`, content.offsetHeight);
+    }
     
-    // ШАГ 1: Blur и fade-out контента одновременно со сворачиванием
-    body.style.filter = 'blur(8px)';
-    body.style.opacity = '0';
+    // MOBILE: Логируем chat-input-area если это chatBlock
+    if (id === 'chatBlock') {
+        const chatInputArea = block.querySelector('.chat-input-area');
+        if (chatInputArea) {
+            console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] chatBlock - chat-input-area found, height:`, chatInputArea.offsetHeight);
+            console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] chatBlock - chat-input-area parent:`, chatInputArea.parentElement.className);
+        } else {
+            console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] chatBlock - chat-input-area NOT FOUND`);
+        }
+    }
     
-    // Запускаем одновременное сворачивание блока и расширение соседнего
-    block.classList.add('collapsed');
-       setTimeout(() => {
-        block.classList.add('minimized');
-    }, RESIZE_DURATION / 2);
-    
-    // ШАГ 2: После завершения видимой части анимации показываем bar
+    // MOBILE: Добавляем collapsed класс с небольшой задержкой
     setTimeout(() => {
-        body.style.display = 'none';
-        bar.style.width = COLLAPSED_WIDTH;
+        block.classList.add('collapsed');
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - collapsed class added`);
+    }, 50);
+    
+    setTimeout(() => {
+        block.classList.add('minimized');
+        console.log(`[${performance.now().toFixed(2)}ms] [COLLAPSE] ${id} - minimized class added`);
     }, RESIZE_DURATION / 2);
 }
 
 function expandBlock(id) {
+    console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] expandBlock(${id}) called`);
     const block = document.getElementById(id);
     const body = block.querySelector('.block-body');
-    const bar = block.querySelector('.minimized-bar');
-    const hiddenModule = document.getElementById('hiddenModule');
+    const contentBody = block.querySelector('.content-body');
+    const chatContainer = block.querySelector('.chat-container');
+    const content = contentBody || chatContainer;
     
-    // Проверяем, были ли оба блока свёрнуты ДО изменения состояния
+    // MOBILE: Проверяем, были ли оба блока свёрнуты ДО изменения состояния
     const bothWereCollapsed = blockState.browserBlock && blockState.chatBlock;
+    console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - bothWereCollapsed:${bothWereCollapsed}`);
     
-    // Изменяем состояние
+    // MOBILE: Изменяем состояние (но НЕ вызываем updateGridState сразу)
     blockState[id] = false;
-
+    console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - state changed to false`);
+    
+    // MOBILE: Если оба были свернуты, обновляем grid state СРАЗУ
     if (bothWereCollapsed) {
-        // Если оба были свёрнуты - запускаем обратную анимацию видео
-        const video = document.getElementById('monitorHumanVideo');
-        if (video) {
-            video.style.animation = 'colorFadeOut 1s ease-out forwards';
-        }
-        
-        // Скрываем модуль одновременно с разворачиванием
-        hiddenModule.style.opacity = '0';
-        hiddenModule.style.filter = 'blur(8px)';
-        // Сразу начинаем разворачивание (без задержки)
-        startExpansion();
-    } else {
-        // Если только один был свёрнут - сразу разворачиваем
-        startExpansion();
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - calling updateGridState() immediately (both were collapsed)`);
+        updateGridState();
+    }
+    
+    // MOBILE: Если оба были свернуты, обновляем grid state СРАЗУ
+    if (bothWereCollapsed) {
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - calling updateGridState() immediately (both were collapsed)`);
+        updateGridState();
     }
 
+    // MOBILE: Сразу начинаем разворачивание
+    startExpansion();
+
+    // MOBILE: Сразу начинаем разворачивание
+    startExpansion();
+
     function startExpansion() {
-        // ШАГ 1: Скрываем bar
-        bar.style.width = '0px';
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - startExpansion()`);
         
-        // ШАГ 2: Показываем контент с blur и opacity=0 (готовим для разблюривания)
-        body.style.display = 'flex';
-        body.style.filter = 'blur(8px)';
-        body.style.opacity = '0';
+        // MOBILE: ШАГ 1: Устанавливаем transition для контента ПЕРЕД разворачиванием
+        if (content) {
+            content.style.transition = 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease';
+            // Устанавливаем начальное состояние (блюр и прозрачный)
+            content.style.filter = 'blur(8px)';
+            content.style.opacity = '0';
+            console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - content transition setup`);
+        }
         
-        // ШАГ 3: Запускаем расширение (соседний блок автоматически сжимается)
+        // MOBILE: ШАГ 2: Разворачиваем блок (убираем collapsed класс)
         block.classList.remove('collapsed');
-        // Меняем иконку в середине анимации (когда она скрыта)
+        console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - collapsed class removed`);
+        
+        // MOBILE: ШАГ 3: Меняем иконку в середине анимации
         setTimeout(() => {
             block.classList.remove('minimized');
+            console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - minimized class removed`);
         }, RESIZE_DURATION / 2);
         
-        // ШАГ 4: Одновременно с расширением разблюриваем и проявляем контент
-        setTimeout(() => {
-            body.style.filter = 'blur(0px)';
-            body.style.opacity = '1';
-        }, 50);
+        // MOBILE: ШАГ 4: Разблюриваем и проявляем контент одновременно с разворачиванием
+        if (content) {
+            setTimeout(() => {
+                content.style.filter = 'blur(0px)';
+                content.style.opacity = '1';
+                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - blur and fade animation started`);
+            }, 50);
+        }
         
-        // ШАГ 5: Обновляем grid state ПОСЛЕ завершения анимации
-        setTimeout(() => {
-            updateGridState();
-        }, RESIZE_DURATION);
+        // MOBILE: ШАГ 5: Обновляем grid state ПОСЛЕ завершения анимации (только если оба НЕ были свернуты)
+        if (!bothWereCollapsed) {
+            setTimeout(() => {
+                console.log(`[${performance.now().toFixed(2)}ms] [EXPAND] ${id} - calling updateGridState()`);
+                updateGridState();
+            }, RESIZE_DURATION);
+        }
     }
 }
  
@@ -3122,6 +3453,7 @@ function confirmLogout() {
         // Close monitor mode if it's open
         const hiddenModule = document.getElementById('hiddenModule');
         if (hiddenModule && hiddenModule.style.opacity === '1') {
+            console.log(`[${performance.now().toFixed(2)}ms] [AUTO-CALL-3] Closing monitor from hiddenModule check`);
             toggleMonitorMode(); // Close the monitor
         }
         
@@ -4546,7 +4878,7 @@ function renderProgress(){
     // Если пользователь не залогинен - показываем приглашение
     if (!currentUser) {
         const html = `<div class="empty-state">
-            <div class="empty-state-icon" id="lottie-progress" style="width:234px;height:234px;margin:0 auto;"></div>
+            <div class="empty-state-icon" id="lottie-progress" style="width:120px;height:120px;margin:0 auto;"></div>
             <h3>Прогресс и достижения</h3>
             <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. <strong style="font-weight:600;white-space:nowrap;"><a href="#" onclick="document.getElementById('headerLoginBtn').click();return false;" style="color:var(--text-primary);text-decoration:none;cursor:pointer;">Пройдите синхронизацию, чтобы узнать больше.</a></strong></p>
         </div>`;
@@ -4727,6 +5059,12 @@ function initUI() {
     const mainContent=document.getElementById('main-content');
     mainContent.innerHTML=getTabHTML('materials');
     setTimeout(()=>attachMaterialClickHandlers('materials'), 0);
+    
+    // MOBILE: Вызываем градиент сразу после рендера материалов
+    setTimeout(() => {
+        console.log('[INIT] Calling updateBrowserFadeGradient after materials render');
+        updateBrowserFadeGradient();
+    }, 100);
 
     innerTabs.forEach(tab=>{
         tab.addEventListener('click',()=>{
@@ -5368,8 +5706,25 @@ document.getElementById('chatTabs').addEventListener('scroll', () => {
 
 function toggleChatSearch(){
     const wrap = document.getElementById('chatSearchWrap');
-    wrap.classList.toggle('open');
-    if (wrap.classList.contains('open')) document.getElementById('chatSearchInput').focus();
+    const input = document.getElementById('chatSearchInput');
+    const searchBtn = document.querySelector('.chat-search-btn[onclick*="toggleChatSearch"]');
+    
+    if (wrap && wrap.style.display !== 'none') {
+        // Close search
+        wrap.style.display = 'none';
+        input.value = '';
+        if (searchBtn) searchBtn.style.background = 'transparent';
+        
+        // Show all tabs
+        document.querySelectorAll('.chat-tab').forEach(tab => {
+            tab.style.display = 'flex';
+        });
+    } else {
+        // Open search
+        wrap.style.display = 'block';
+        if (searchBtn) searchBtn.style.background = 'rgba(255,255,255,.08)';
+        setTimeout(() => input.focus(), 50);
+    }
 }
 
 document.getElementById('chatSearchInput').addEventListener('input', function(){
@@ -5389,11 +5744,23 @@ document.addEventListener('click', (e) => {
         closeAllMenus();
     }
     
-    // Закрытие поиска (оставь как есть)
+    // Закрытие поиска чата при клике вне его области
     const wrap = document.getElementById('chatSearchWrap');
-    const btn  = document.querySelector('.chat-search-btn');
-    if (!wrap.contains(e.target) && !btn.contains(e.target)) {
-        wrap.classList.remove('open');
+    const input = document.getElementById('chatSearchInput');
+    const btn = document.querySelector('.chat-search-btn[onclick*="toggleChatSearch"]');
+    
+    if (wrap && wrap.style.display !== 'none') {
+        // Check if click is outside search input and search button
+        if (!wrap.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+            wrap.style.display = 'none';
+            input.value = '';
+            if (btn) btn.style.background = 'transparent';
+            
+            // Show all tabs
+            document.querySelectorAll('.chat-tab').forEach(tab => {
+                tab.style.display = 'flex';
+            });
+        }
     }
 });
 
@@ -5512,7 +5879,7 @@ function renderChatMessages(){
     // Приветствие только для Sofia
     if (messages.length === 0 && activeChatTab === 'sofia') {
         container.innerHTML = `<div class="chat-empty-state">
-            <div class="sofia-icon" id="lottie-chat-sofia" style="width:90px;height:90px;margin:0 auto;"></div>
+            <div class="sofia-icon" id="lottie-chat-sofia" style="width:60px;height:60px;margin:0 auto;"></div>
             <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
         </div>`;
         
@@ -5980,6 +6347,7 @@ function sendMessage(){
                     
                     // Через еще 1 секунду активируем режим "Монитор"
                     setTimeout(() => {
+                        console.log(`[${performance.now().toFixed(2)}ms] [AUTO-CALL-1] Chat logic calling toggleMonitorMode()`);
                         toggleMonitorMode();
                     }, 1000);
                 }, thinkingTime);
@@ -6879,6 +7247,20 @@ let currentHeartRate = 72; // Global variable for heart rate
 
 function initECGCanvas() {
     const canvas = document.getElementById('ecgCanvas');
+    const canvasMobile = document.getElementById('ecgCanvasMobile');
+    
+    // Initialize desktop canvas
+    if (canvas) {
+        initSingleECGCanvas(canvas);
+    }
+    
+    // Initialize mobile canvas
+    if (canvasMobile) {
+        initSingleECGCanvas(canvasMobile);
+    }
+}
+
+function initSingleECGCanvas(canvas) {
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
@@ -7125,7 +7507,7 @@ function updateHeartRate(newRate) {
     
     // If Monitor mode is not active, activate it first
     if (!isMonitorActive) {
-        console.log('Activating Monitor mode first...');
+        console.log(`[${performance.now().toFixed(2)}ms] [AUTO-CALL-2] Activating Monitor mode first...`);
         toggleMonitorMode();
         
         // Wait for Monitor mode to activate, then update values
@@ -7189,6 +7571,238 @@ if (document.readyState === 'loading') {
     initECGCanvas();
     initVitalSignsAnimation();
 }
+
+// ============================================================
+// MONITOR SCROLL HANDLERS (Keyboard & Mouse Wheel)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const hiddenModule = document.getElementById('hiddenModule');
+    const blockBody = hiddenModule ? hiddenModule.querySelector('.block-body') : null;
+    
+    if (blockBody) {
+        // Keyboard arrows for horizontal scroll
+        document.addEventListener('keydown', (e) => {
+            // Only scroll if monitor is visible (check if both blocks are collapsed)
+            const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
+            if (bothCollapsed) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    console.log('Arrow Left pressed - navigating left');
+                    navigateMonitor('left');
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    console.log('Arrow Right pressed - navigating right');
+                    navigateMonitor('right');
+                }
+            }
+        });
+        
+        // Mouse wheel for horizontal scroll (convert vertical to horizontal)
+        blockBody.addEventListener('wheel', (e) => {
+            // Only if monitor is visible
+            const bothCollapsed = blockState.browserBlock && blockState.chatBlock;
+            if (bothCollapsed) {
+                e.preventDefault();
+                console.log('Wheel scroll detected:', e.deltaY);
+                blockBody.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+        
+        // ============================================================
+        // MOTION BLUR EFFECT ON SCROLL (HORIZONTAL ONLY)
+        // ============================================================
+        
+        // Create SVG filter for directional blur
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("style", "position: absolute; width: 0; height: 0;");
+        svg.innerHTML = `
+            <defs>
+                <filter id="motionBlurLeft">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="0,0" />
+                    <feComponentTransfer>
+                        <feFuncA type="linear" slope="1"/>
+                    </feComponentTransfer>
+                </filter>
+                <filter id="motionBlurRight">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="0,0" />
+                    <feComponentTransfer>
+                        <feFuncA type="linear" slope="1"/>
+                    </feComponentTransfer>
+                </filter>
+            </defs>
+        `;
+        document.body.appendChild(svg);
+        
+        let scrollTimeout;
+        let lastScrollLeft = blockBody.scrollLeft;
+        let scrollVelocity = 0;
+        
+        blockBody.addEventListener('scroll', () => {
+            const currentScrollLeft = blockBody.scrollLeft;
+            const delta = currentScrollLeft - lastScrollLeft;
+            scrollVelocity = Math.abs(delta);
+            
+            // Determine direction: positive = right, negative = left
+            const direction = delta > 0 ? 'right' : 'left';
+            
+            // Calculate blur amount based on velocity (max 6px horizontal)
+            const blurAmount = Math.min(scrollVelocity * 0.4, 6);
+            
+            // Apply horizontal motion blur
+            if (blurAmount > 0.5) {
+                const container = blockBody.querySelector('div[style*="width: 300%"]');
+                if (container) {
+                    // Update SVG filter
+                    const filter = direction === 'right' ? 
+                        document.querySelector('#motionBlurRight feGaussianBlur') :
+                        document.querySelector('#motionBlurLeft feGaussianBlur');
+                    
+                    if (filter) {
+                        // stdDeviation: "x,y" - only blur horizontally
+                        filter.setAttribute('stdDeviation', `${blurAmount},0`);
+                    }
+                    
+                    // Apply filter
+                    container.style.filter = `url(#motionBlur${direction === 'right' ? 'Right' : 'Left'})`;
+                }
+            }
+            
+            // Clear previous timeout
+            clearTimeout(scrollTimeout);
+            
+            // Remove blur after scrolling stops
+            scrollTimeout = setTimeout(() => {
+                const container = blockBody.querySelector('div[style*="width: 300%"]');
+                if (container) {
+                    container.style.filter = 'none';
+                }
+                scrollVelocity = 0;
+            }, 100);
+            
+            lastScrollLeft = currentScrollLeft;
+        });
+        
+        console.log('Monitor scroll handlers initialized');
+        
+        // ============================================================
+        // CLICK & SWIPE NAVIGATION (LIKE INSTAGRAM STORIES)
+        // ============================================================
+        window.monitorCurrentSection = 1; // 0 = left, 1 = center, 2 = right (global variable)
+        let touchStartX = 0;
+        let touchStartTime = 0;
+        let isNavigating = false; // Flag to prevent scroll handler interference
+        
+        const snapToSection = (section) => {
+            isNavigating = true; // Disable scroll handler
+            const containerWidth = blockBody.clientWidth;
+            const scrollPosition = containerWidth * section;
+            blockBody.scrollTo({
+                left: scrollPosition,
+                behavior: 'smooth'
+            });
+            window.monitorCurrentSection = section;
+            console.log(`[SNAP] Snapped to section ${section}`);
+            
+            // Re-enable scroll handler after animation completes
+            setTimeout(() => {
+                isNavigating = false;
+            }, 500);
+        };
+        
+        // Overlay click handlers - these catch clicks before content
+        const clickOverlayLeft = document.getElementById('clickOverlayLeft');
+        const clickOverlayRight = document.getElementById('clickOverlayRight');
+        
+        if (clickOverlayLeft) {
+            clickOverlayLeft.addEventListener('click', (e) => {
+                console.log(`[OVERLAY-LEFT] Click detected, Current section: ${window.monitorCurrentSection}`);
+                if (window.monitorCurrentSection > 0) {
+                    console.log(`[OVERLAY-LEFT] Going to previous section`);
+                    snapToSection(window.monitorCurrentSection - 1);
+                }
+            });
+        }
+        
+        if (clickOverlayRight) {
+            clickOverlayRight.addEventListener('click', (e) => {
+                console.log(`[OVERLAY-RIGHT] Click detected, Current section: ${window.monitorCurrentSection}`);
+                if (window.monitorCurrentSection < 2) {
+                    console.log(`[OVERLAY-RIGHT] Going to next section`);
+                    snapToSection(window.monitorCurrentSection + 1);
+                }
+            });
+        }
+        
+        // Click navigation on blockBody (backup for areas without overlay)
+        blockBody.addEventListener('click', (e) => {
+            const rect = blockBody.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const containerWidth = rect.width;
+            const clickPosition = clickX / containerWidth;
+            
+            console.log(`[CLICK] Position: ${(clickPosition * 100).toFixed(1)}%, Current section: ${window.monitorCurrentSection}`);
+            
+            // Left 40% = previous section
+            if (clickPosition < 0.40 && window.monitorCurrentSection > 0) {
+                console.log(`[CLICK] Going to previous section`);
+                snapToSection(window.monitorCurrentSection - 1);
+            }
+            // Right 40% = next section
+            else if (clickPosition > 0.60 && window.monitorCurrentSection < 2) {
+                console.log(`[CLICK] Going to next section`);
+                snapToSection(window.monitorCurrentSection + 1);
+            }
+            // Middle 20% = do nothing
+            else {
+                console.log(`[CLICK] Middle area (20%) or boundary - no action`);
+            }
+        });
+        
+        // Touch/swipe navigation
+        blockBody.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartTime = Date.now();
+        }, { passive: true });
+        
+        blockBody.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchDuration = Date.now() - touchStartTime;
+            const swipeDistance = touchStartX - touchEndX;
+            
+            // Only trigger if it's a quick swipe (< 300ms) and significant distance (> 50px)
+            if (touchDuration < 300 && Math.abs(swipeDistance) > 50) {
+                if (swipeDistance > 0 && window.monitorCurrentSection < 2) {
+                    // Swipe left = next section
+                    snapToSection(window.monitorCurrentSection + 1);
+                } else if (swipeDistance < 0 && window.monitorCurrentSection > 0) {
+                    // Swipe right = previous section
+                    snapToSection(window.monitorCurrentSection - 1);
+                }
+            }
+        }, { passive: true });
+        
+        // Track current section on scroll end (only if not navigating programmatically)
+        let scrollEndTimeout;
+        blockBody.addEventListener('scroll', () => {
+            if (isNavigating) {
+                console.log(`[SCROLL] Ignoring - programmatic navigation in progress`);
+                return; // Skip if we're navigating programmatically
+            }
+            
+            clearTimeout(scrollEndTimeout);
+            scrollEndTimeout = setTimeout(() => {
+                const containerWidth = blockBody.clientWidth;
+                const scrollLeft = blockBody.scrollLeft;
+                const nearestSection = Math.round(scrollLeft / containerWidth);
+                window.monitorCurrentSection = nearestSection;
+                console.log(`[SCROLL] Current section: ${window.monitorCurrentSection}`);
+            }, 150);
+        });
+        
+        console.log('Click & swipe navigation initialized');
+    }
+});
 
 // ============================================================
 // BROWSER SEARCH FUNCTIONALITY
@@ -7283,7 +7897,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', function(e) {
         const wrap = document.getElementById('browserSearchWrap');
         const input = document.getElementById('browserSearchInput');
-        const searchBtn = document.querySelector('.btn-minimize[onclick*="toggleBrowserSearch"]');
+        const searchBtn = document.querySelector('.chat-search-btn[onclick*="toggleBrowserSearch"]');
         
         if (wrap && wrap.style.display !== 'none') {
             // Check if click is outside search input and search button
@@ -7536,26 +8150,39 @@ function updateChatFadeGradient() {
 
 // Update browser fade gradient based on scroll position
 function updateBrowserFadeGradient() {
+    console.log('[BROWSER GRADIENT] updateBrowserFadeGradient called');
     const container = document.querySelector('.materials-list');
-    if (!container) return;
+    
+    if (!container) {
+        console.log('[BROWSER GRADIENT] Container not found');
+        return;
+    }
+    
+    console.log('[BROWSER GRADIENT] Container found, scrollTop:', container.scrollTop, 'clientHeight:', container.clientHeight, 'scrollHeight:', container.scrollHeight);
     
     const atTop = container.scrollTop <= 5;
     const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
     
+    console.log('[BROWSER GRADIENT] atTop:', atTop, 'atBottom:', atBottom);
+    
     if (atTop && atBottom) {
         // No scroll needed - no gradient
+        console.log('[BROWSER GRADIENT] No scroll needed - removing gradient');
         container.style.maskImage = 'none';
         container.style.webkitMaskImage = 'none';
     } else if (atTop) {
         // At top - only bottom gradient
+        console.log('[BROWSER GRADIENT] At top - applying bottom gradient');
         container.style.maskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
         container.style.webkitMaskImage = 'linear-gradient(to bottom, black 0%, black 92%, transparent 100%)';
     } else if (atBottom) {
         // At bottom - only top gradient
+        console.log('[BROWSER GRADIENT] At bottom - applying top gradient');
         container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
         container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 100%)';
     } else {
         // In middle - both gradients
+        console.log('[BROWSER GRADIENT] In middle - applying both gradients');
         container.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
         container.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)';
     }
@@ -7570,12 +8197,24 @@ renderChatMessages = function() {
 
 // Observer for materials-list (since it's dynamically created)
 const browserObserver = new MutationObserver(() => {
+    console.log('[BROWSER OBSERVER] Mutation detected');
     const materialsList = document.querySelector('.materials-list');
+    console.log('[BROWSER OBSERVER] materialsList found:', !!materialsList);
+    
     if (materialsList && !materialsList.hasScrollListener) {
+        console.log('[BROWSER OBSERVER] Adding scroll listener to materialsList');
         materialsList.addEventListener('scroll', updateBrowserFadeGradient);
         materialsList.hasScrollListener = true;
-        // Initial check
-        setTimeout(updateBrowserFadeGradient, 100);
+        
+        // Initial check - вызываем сразу без задержки
+        console.log('[BROWSER OBSERVER] Calling updateBrowserFadeGradient immediately');
+        updateBrowserFadeGradient();
+        
+        // Дополнительная проверка через небольшую задержку на случай если контент ещё загружается
+        setTimeout(() => {
+            console.log('[BROWSER OBSERVER] Calling updateBrowserFadeGradient after 50ms delay');
+            updateBrowserFadeGradient();
+        }, 50);
     }
 });
 
