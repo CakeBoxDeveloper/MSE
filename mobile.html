@@ -1561,13 +1561,18 @@
 
       <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
       <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
-        <div class="block-body" id="monitorScrollContainer" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none;">
+        
+        <!-- CLICKABLE OVERLAYS - catch clicks before they reach content -->
+        <div id="clickOverlayLeft" style="position: absolute; left: 0; top: 0; width: 40%; height: 100%; z-index: 998;"></div>
+        <div id="clickOverlayRight" style="position: absolute; right: 0; top: 0; width: 40%; height: 100%; z-index: 998;"></div>
+        
+        <div class="block-body" id="monitorScrollContainer" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scrollbar-width: none; -ms-overflow-style: none;">
           
           <!-- Широкий контейнер с тремя аватарами -->
           <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%; width: 300%; position: relative;">
             
             <!-- ЛЕВЫЙ БЛОК -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 5px 20px 5px; gap: 8px; flex-shrink: 0; scroll-snap-align: start;">
+            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px 5px 20px 5px; gap: 8px; flex-shrink: 0;">
               
               <!-- Признаки жизни и Весы (СНАЧАЛА) -->
               <div style="width: 260px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
@@ -2602,6 +2607,12 @@ function updateGridState() {
                         if (blockBody) {
                             const scrollToCenter = blockBody.clientWidth; // Скроллим на одну ширину = центральный блок
                             blockBody.scrollLeft = scrollToCenter;
+                            
+                            // Set current section for navigation
+                            if (typeof window.monitorCurrentSection !== 'undefined') {
+                                window.monitorCurrentSection = 1; // Center section
+                            }
+                            
                             console.log(`[${performance.now().toFixed(2)}ms] [MONITOR] Scrolled to center:`, scrollToCenter);
                         }
                     });
@@ -7675,53 +7686,121 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Monitor scroll handlers initialized');
         
         // ============================================================
-        // CLICK NAVIGATION (LIKE INSTAGRAM STORIES)
+        // CLICK & SWIPE NAVIGATION (LIKE INSTAGRAM STORIES)
         // ============================================================
-        let currentSection = 1; // 0 = left, 1 = center, 2 = right
+        window.monitorCurrentSection = 1; // 0 = left, 1 = center, 2 = right (global variable)
+        let touchStartX = 0;
+        let touchStartTime = 0;
+        let isNavigating = false; // Flag to prevent scroll handler interference
         
         const snapToSection = (section) => {
+            isNavigating = true; // Disable scroll handler
             const containerWidth = blockBody.clientWidth;
             const scrollPosition = containerWidth * section;
             blockBody.scrollTo({
                 left: scrollPosition,
                 behavior: 'smooth'
             });
-            currentSection = section;
+            window.monitorCurrentSection = section;
             console.log(`[SNAP] Snapped to section ${section}`);
+            
+            // Re-enable scroll handler after animation completes
+            setTimeout(() => {
+                isNavigating = false;
+            }, 500);
         };
         
-        // Click navigation - left side = previous, right side = next
+        // Overlay click handlers - these catch clicks before content
+        const clickOverlayLeft = document.getElementById('clickOverlayLeft');
+        const clickOverlayRight = document.getElementById('clickOverlayRight');
+        
+        if (clickOverlayLeft) {
+            clickOverlayLeft.addEventListener('click', (e) => {
+                console.log(`[OVERLAY-LEFT] Click detected, Current section: ${window.monitorCurrentSection}`);
+                if (window.monitorCurrentSection > 0) {
+                    console.log(`[OVERLAY-LEFT] Going to previous section`);
+                    snapToSection(window.monitorCurrentSection - 1);
+                }
+            });
+        }
+        
+        if (clickOverlayRight) {
+            clickOverlayRight.addEventListener('click', (e) => {
+                console.log(`[OVERLAY-RIGHT] Click detected, Current section: ${window.monitorCurrentSection}`);
+                if (window.monitorCurrentSection < 2) {
+                    console.log(`[OVERLAY-RIGHT] Going to next section`);
+                    snapToSection(window.monitorCurrentSection + 1);
+                }
+            });
+        }
+        
+        // Click navigation on blockBody (backup for areas without overlay)
         blockBody.addEventListener('click', (e) => {
             const rect = blockBody.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const containerWidth = rect.width;
             const clickPosition = clickX / containerWidth;
             
-            // Left third = previous section
-            if (clickPosition < 0.33 && currentSection > 0) {
-                snapToSection(currentSection - 1);
+            console.log(`[CLICK] Position: ${(clickPosition * 100).toFixed(1)}%, Current section: ${window.monitorCurrentSection}`);
+            
+            // Left 40% = previous section
+            if (clickPosition < 0.40 && window.monitorCurrentSection > 0) {
+                console.log(`[CLICK] Going to previous section`);
+                snapToSection(window.monitorCurrentSection - 1);
             }
-            // Right third = next section
-            else if (clickPosition > 0.66 && currentSection < 2) {
-                snapToSection(currentSection + 1);
+            // Right 40% = next section
+            else if (clickPosition > 0.60 && window.monitorCurrentSection < 2) {
+                console.log(`[CLICK] Going to next section`);
+                snapToSection(window.monitorCurrentSection + 1);
             }
-            // Middle third = do nothing (or could toggle something)
+            // Middle 20% = do nothing
+            else {
+                console.log(`[CLICK] Middle area (20%) or boundary - no action`);
+            }
         });
         
-        // Track current section on scroll end
+        // Touch/swipe navigation
+        blockBody.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartTime = Date.now();
+        }, { passive: true });
+        
+        blockBody.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchDuration = Date.now() - touchStartTime;
+            const swipeDistance = touchStartX - touchEndX;
+            
+            // Only trigger if it's a quick swipe (< 300ms) and significant distance (> 50px)
+            if (touchDuration < 300 && Math.abs(swipeDistance) > 50) {
+                if (swipeDistance > 0 && window.monitorCurrentSection < 2) {
+                    // Swipe left = next section
+                    snapToSection(window.monitorCurrentSection + 1);
+                } else if (swipeDistance < 0 && window.monitorCurrentSection > 0) {
+                    // Swipe right = previous section
+                    snapToSection(window.monitorCurrentSection - 1);
+                }
+            }
+        }, { passive: true });
+        
+        // Track current section on scroll end (only if not navigating programmatically)
         let scrollEndTimeout;
         blockBody.addEventListener('scroll', () => {
+            if (isNavigating) {
+                console.log(`[SCROLL] Ignoring - programmatic navigation in progress`);
+                return; // Skip if we're navigating programmatically
+            }
+            
             clearTimeout(scrollEndTimeout);
             scrollEndTimeout = setTimeout(() => {
                 const containerWidth = blockBody.clientWidth;
                 const scrollLeft = blockBody.scrollLeft;
                 const nearestSection = Math.round(scrollLeft / containerWidth);
-                currentSection = nearestSection;
-                console.log(`[SCROLL] Current section: ${currentSection}`);
+                window.monitorCurrentSection = nearestSection;
+                console.log(`[SCROLL] Current section: ${window.monitorCurrentSection}`);
             }, 150);
         });
         
-        console.log('Click navigation initialized');
+        console.log('Click & swipe navigation initialized');
     }
 });
 
