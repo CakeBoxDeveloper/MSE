@@ -7705,29 +7705,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const snapToSection = (section) => {
             isNavigating = true; // Disable scroll handler
             const containerWidth = blockBody.clientWidth;
-            const scrollPosition = containerWidth * section;
+            const targetPosition = containerWidth * section;
             
-            // Use instant scroll on mobile for faster response
+            // Use faster animation on mobile
             const isMobile = 'ontouchstart' in window;
+            const duration = isMobile ? 200 : 400; // 200ms on mobile, 400ms on desktop
             
-            if (isMobile) {
-                // Instant scroll on mobile
-                blockBody.scrollLeft = scrollPosition;
-            } else {
-                // Smooth scroll on desktop
-                blockBody.scrollTo({
-                    left: scrollPosition,
-                    behavior: 'smooth'
-                });
+            // Smooth animation using requestAnimationFrame
+            const startPosition = blockBody.scrollLeft;
+            const distance = targetPosition - startPosition;
+            const startTime = performance.now();
+            
+            function animateScroll(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Ease-out function for smooth deceleration
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                
+                blockBody.scrollLeft = startPosition + (distance * easeOut);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateScroll);
+                } else {
+                    isNavigating = false;
+                }
             }
             
-            window.monitorCurrentSection = section;
-            console.log(`[SNAP] Snapped to section ${section} (${isMobile ? 'instant' : 'smooth'})`);
+            requestAnimationFrame(animateScroll);
             
-            // Re-enable scroll handler after animation completes (shorter timeout for instant scroll)
-            setTimeout(() => {
-                isNavigating = false;
-            }, isMobile ? 100 : 300);
+            window.monitorCurrentSection = section;
+            console.log(`[SNAP] Snapped to section ${section} (${duration}ms animation)`);
         };
         
         // Overlay click handlers - these catch clicks before content
