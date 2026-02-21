@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <!-- Firebase SDK (v10 modular) -->
     <script type="module">
@@ -2647,6 +2648,82 @@ function toggleProfileLayer() {
         
         profileLayerActive = 1;
     }
+}
+
+// Функция для создания скриншота модуля монитора
+async function captureMonitorSnapshot() {
+    console.log('captureMonitorSnapshot called');
+    const monitorBlock = document.getElementById('hiddenModule');
+    const scrollContainer = document.getElementById('monitorScrollContainer');
+    
+    console.log('Monitor block:', monitorBlock);
+    console.log('Scroll container:', scrollContainer);
+    
+    if (!monitorBlock || !scrollContainer) {
+        console.error('Monitor block not found');
+        return null;
+    }
+    
+    try {
+        // Временно делаем блок видимым для скриншота
+        const originalOpacity = monitorBlock.style.opacity;
+        const originalFilter = monitorBlock.style.filter;
+        const originalZIndex = monitorBlock.style.zIndex;
+        
+        console.log('Original styles:', { originalOpacity, originalFilter, originalZIndex });
+        
+        monitorBlock.style.opacity = '1';
+        monitorBlock.style.filter = 'blur(0px)';
+        monitorBlock.style.zIndex = '9999';
+        
+        console.log('Styles updated for capture');
+        
+        // Небольшая задержка чтобы стили применились
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log('Starting html2canvas...');
+        
+        // Создаем canvas всего широкого контейнера (300% ширины)
+        const canvas = await html2canvas(scrollContainer, {
+            backgroundColor: '#0a0a0a',
+            scale: 2, // Высокое качество
+            logging: true,
+            useCORS: true,
+            allowTaint: true,
+            width: scrollContainer.scrollWidth,
+            height: scrollContainer.scrollHeight
+        });
+        
+        console.log('Canvas created:', canvas.width, 'x', canvas.height);
+        
+        // Возвращаем блок в исходное состояние
+        monitorBlock.style.opacity = originalOpacity;
+        monitorBlock.style.filter = originalFilter;
+        monitorBlock.style.zIndex = originalZIndex;
+        
+        console.log('Styles restored');
+        
+        // Конвертируем canvas в blob
+        return new Promise(resolve => {
+            canvas.toBlob(blob => {
+                console.log('Blob created:', blob);
+                resolve(blob);
+            }, 'image/png');
+        });
+    } catch (error) {
+        console.error('Error capturing monitor snapshot:', error);
+        return null;
+    }
+}
+
+// Функция для скачивания снимка
+function downloadSnapshot(url, filename) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Выбор сегмента диаграммы состава тела - УДАЛЕНО (теперь просто график)
@@ -6122,6 +6199,18 @@ function renderChatMessages(){
             } else if (m.type === 'file') {
                 // Файл — если сообщение содержит только файл (нет текста), убираем верхнюю разделительную полосу
                 const noSepClass = (typeof m.text === 'undefined' || m.text === null || m.text === '') ? ' no-sep' : '';
+                
+                // Если это изображение со снимком (есть url), показываем превью
+                if (m.extension === 'png' && m.url) {
+                    return `<div class="chat-message ${m.role} ${newMessageClass}">
+                        <img class="chat-message-image" src="${m.url}" alt="${m.name}" onclick="openImageModal('${m.url.replace(/'/g, "\\'")}')" style="max-width: 100%; border-radius: 8px; cursor: pointer;">
+                        <div class="chat-message-attachment${noSepClass}" onclick="downloadSnapshot('${m.url}', '${m.name}')" style="cursor: pointer; margin-top: 8px;">
+                            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
+                            <span>${m.name} (${(m.size / 1024 / 1024).toFixed(2)} МБ) - Нажмите для скачивания</span>
+                        </div>
+                    </div>`;
+                }
+                
                 return `<div class="chat-message ${m.role} ${newMessageClass}">
                     <div class="chat-message-attachment${noSepClass}">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
@@ -6502,6 +6591,89 @@ function sendMessage(){
                     
                     // Обновляем показатели пульса
                     updateHeartRate(newHeartRate);
+                }, thinkingTime);
+            }, 800); // Wait for blur animation (600ms) + small delay (200ms)
+        }, 150); // Small initial delay
+        
+        return;
+    }
+    
+    // Проверяем команду "Снимок профиля" для создания скриншота монитора
+    if (text.toLowerCase().includes('снимок профиля') || text.toLowerCase().includes('снимок')) {
+        // Добавляем сообщение пользователя в чат
+        if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+        chatStore[targetChatTab].push({role:'user', text: text});
+        
+        chatInput.value = '';
+        
+        // Step 1: Small delay before showing user message
+        setTimeout(() => {
+            safeRenderChatMessages();
+            
+            // Step 2: Wait for blur animation + small delay
+            setTimeout(async () => {
+                // Добавляем "София думает..."
+                const thinkingId = addThinkingMessage();
+                safeRenderChatMessages();
+                
+                const responseText = 'Создаю снимок модуля монитора. Захватываю все три экрана...';
+                const thinkingTime = calculateThinkingTime(responseText);
+                
+                // Через calculated time заменяем на ответ
+                setTimeout(async () => {
+                    // Удаляем сообщение "думает"
+                    chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                    
+                    chatStore[targetChatTab].push({
+                        role:'ai', 
+                        text: 'Создаю снимок модуля монитора. Захватываю все три экрана...'
+                    });
+                    
+                    safeRenderChatMessages();
+                    
+                    // Небольшая задержка перед созданием скриншота
+                    setTimeout(async () => {
+                        try {
+                            console.log('Starting snapshot capture...');
+                            const snapshotBlob = await captureMonitorSnapshot();
+                            console.log('Snapshot blob:', snapshotBlob);
+                            
+                            if (snapshotBlob) {
+                                // Добавляем скриншот как файл в чат
+                                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+                                const fileName = `Monitor_Snapshot_${timestamp}.png`;
+                                
+                                console.log('Creating file message with blob size:', snapshotBlob.size);
+                                
+                                chatStore[targetChatTab].push({
+                                    role: 'ai',
+                                    type: 'file',
+                                    name: fileName,
+                                    extension: 'png',
+                                    size: snapshotBlob.size,
+                                    blob: snapshotBlob,
+                                    url: URL.createObjectURL(snapshotBlob)
+                                });
+                                
+                                console.log('File message added to chat store');
+                                safeRenderChatMessages();
+                            } else {
+                                console.error('Snapshot blob is null');
+                                chatStore[targetChatTab].push({
+                                    role:'ai', 
+                                    text: 'Произошла ошибка при создании снимка. Попробуйте еще раз.'
+                                });
+                                safeRenderChatMessages();
+                            }
+                        } catch (error) {
+                            console.error('Error in snapshot process:', error);
+                            chatStore[targetChatTab].push({
+                                role:'ai', 
+                                text: 'Произошла ошибка при создании снимка: ' + error.message
+                            });
+                            safeRenderChatMessages();
+                        }
+                    }, 500);
                 }, thinkingTime);
             }, 800); // Wait for blur animation (600ms) + small delay (200ms)
         }, 150); // Small initial delay
