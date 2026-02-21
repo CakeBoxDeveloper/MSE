@@ -1619,34 +1619,40 @@
                 </div>
                 
                 <!-- Весы -->
-                <div style="flex: 0.9; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column;">
-                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; cursor: pointer;">
+                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
                     <span>ВЕСЫ</span>
                     <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9de8a26dbc1469309e975cc1be78720e41b1aa55/scale.svg" alt="" style="width: 12px; height: 12px;">
                   </div>
-                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; position: relative; z-index: 1000;">
-                    <!-- Круглая диаграмма в Ч/Б -->
-                    <div id="chartContainer" style="position: relative; width: 100px; height: 100px; cursor: pointer; z-index: 1000 !important;">
-                      <svg id="bodyCompositionChart" viewBox="0 0 100 100" style="transform: rotate(-90deg); width: 100%; height: 100%; pointer-events: all;">
-                        <!-- Мышцы (45%) - светло-серый -->
-                        <circle id="segment-muscle" cx="50" cy="50" r="40" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="20" 
-                                stroke-dasharray="113 282" stroke-dashoffset="0" 
-                                style="transition: all 0.2s ease; cursor: pointer; pointer-events: all;" />
-                        <!-- Жир (25%) - темно-серый -->
-                        <circle id="segment-fat" cx="50" cy="50" r="40" fill="none" stroke="rgba(100, 100, 100, 0.7)" stroke-width="20" 
-                                stroke-dasharray="70.5 282" stroke-dashoffset="-113"
-                                style="transition: all 0.2s ease; cursor: pointer; pointer-events: all;" />
-                        <!-- Вода (30%) - средне-серый -->
-                        <circle id="segment-water" cx="50" cy="50" r="40" fill="none" stroke="rgba(180, 180, 180, 0.7)" stroke-width="20" 
-                                stroke-dasharray="84.6 282" stroke-dashoffset="-183.5"
-                                style="transition: all 0.2s ease; cursor: pointer; pointer-events: all;" />
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 8px;">
+                    <!-- Квадратная диаграмма - сегменты по периметру -->
+                    <div id="chartContainer" style="position: relative; width: 100%; flex: 1;">
+                      <svg id="bodyCompositionChart" viewBox="0 0 240 240" style="width: 100%; height: 100%;">
+                        <!-- Квадрат 220x220, периметр = 880 -->
+                        <!-- Мышцы 45% = 396 единиц -->
+                        <path id="segment-muscle" 
+                              d="M 120,10 L 230,10 L 230,230 L 167,230" 
+                              fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="10"
+                              style="transition: all 0.2s ease;" />
+                        <!-- Жир 25% = 220 единиц -->
+                        <path id="segment-fat" 
+                              d="M 164,230 L 10,230 L 10,167" 
+                              fill="none" stroke="rgba(100, 100, 100, 0.7)" stroke-width="10"
+                              style="transition: all 0.2s ease;" />
+                        <!-- Вода 30% = 264 единицы -->
+                        <path id="segment-water" 
+                              d="M 10,164 L 10,10 L 117,10" 
+                              fill="none" stroke="rgba(180, 180, 180, 0.7)" stroke-width="10"
+                              style="transition: all 0.2s ease;" />
                       </svg>
                       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                        <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">72.5</div>
+                        <div style="font-size: 23px; font-weight: 600; color: var(--text-primary);">72.5</div>
                       </div>
                     </div>
-                    <!-- Область аннотации без рамки -->
-                    <div id="segmentLabel" style="font-size: 9px; color: var(--text-secondary); text-align: center; min-height: 20px; opacity: 0; transition: opacity 0.2s ease;"></div>
+                  </div>
+                  <!-- Область аннотации (аналог строки с данными в "Признаки жизни") -->
+                  <div style="display: flex; justify-content: center; font-size: 11px; color: var(--text-secondary); min-height: 14px;">
+                    <div id="segmentLabel" style="text-align: center; opacity: 0; transition: opacity 0.2s ease;"></div>
                   </div>
                 </div>
               </div>
@@ -2598,10 +2604,11 @@ function selectBodySegment(segmentId) {
     const label = document.getElementById('segmentLabel');
     const data = segmentData[segmentId];
     
+    if (!segment || !label || !data) return;
+    
     // Если кликнули на уже выбранный сегмент - deselect
     if (selectedSegment === segmentId) {
-        segment.style.transform = 'scale(1)';
-        segment.style.transformOrigin = 'center';
+        segment.style.transform = '';
         label.style.opacity = '0';
         label.textContent = '';
         selectedSegment = null;
@@ -2611,12 +2618,11 @@ function selectBodySegment(segmentId) {
     // Сбрасываем предыдущий выбор
     if (selectedSegment) {
         const prevSegment = document.getElementById(`segment-${selectedSegment}`);
-        prevSegment.style.transform = 'scale(1)';
-        prevSegment.style.transformOrigin = 'center';
+        if (prevSegment) prevSegment.style.transform = '';
     }
     
-    // Выделяем новый сегмент через масштаб
-    segment.style.transform = 'scale(1.1)';
+    // Небольшое увеличение сегмента
+    segment.style.transform = 'scale(1.03)';
     segment.style.transformOrigin = 'center';
     
     // Показываем надпись
@@ -7723,33 +7729,29 @@ if (document.readyState === 'loading') {
         initECGCanvas();
         initVitalSignsAnimation();
         
-        // Initialize body composition chart clicks
+        // Initialize body composition chart clicks - SQUARE VERSION
         const chartContainer = document.getElementById('chartContainer');
-        console.log('[CHART-LOADING] chartContainer found:', chartContainer);
         
         if (chartContainer) {
             chartContainer.addEventListener('click', (e) => {
-                console.log('[CHART-LOADING] Click detected!');
                 const rect = chartContainer.getBoundingClientRect();
-                const x = e.clientX - rect.left - 50;
-                const y = e.clientY - rect.top - 50;
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const width = rect.width;
+                const height = rect.height;
                 
-                console.log('[CHART-LOADING] Click coordinates:', { x, y });
-                
-                let angle = Math.atan2(y, x) * 180 / Math.PI;
-                angle = (angle + 90 + 360) % 360;
-                
-                console.log('[CHART-LOADING] Calculated angle:', angle);
-                
-                if (angle >= 0 && angle < 162) {
-                    console.log('[CHART-LOADING] Selected: muscle');
-                    selectBodySegment('muscle');
-                } else if (angle >= 162 && angle < 252) {
-                    console.log('[CHART-LOADING] Selected: fat');
-                    selectBodySegment('fat');
-                } else {
-                    console.log('[CHART-LOADING] Selected: water');
+                // Определяем сегмент по позиции клика в квадрате
+                // Левая сторона (15% ширины слева)
+                if (x < width * 0.15) {
                     selectBodySegment('water');
+                }
+                // Нижняя сторона (15% высоты снизу)
+                else if (y > height * 0.85) {
+                    selectBodySegment('fat');
+                }
+                // Верх и правая сторона (остальное)
+                else {
+                    selectBodySegment('muscle');
                 }
             });
         }
@@ -7758,33 +7760,29 @@ if (document.readyState === 'loading') {
     initECGCanvas();
     initVitalSignsAnimation();
     
-    // Initialize body composition chart clicks
+    // Initialize body composition chart clicks - SQUARE VERSION
     const chartContainer = document.getElementById('chartContainer');
-    console.log('[CHART-ELSE] chartContainer found:', chartContainer);
     
     if (chartContainer) {
         chartContainer.addEventListener('click', (e) => {
-            console.log('[CHART-ELSE] Click detected!');
             const rect = chartContainer.getBoundingClientRect();
-            const x = e.clientX - rect.left - 50;
-            const y = e.clientY - rect.top - 50;
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const width = rect.width;
+            const height = rect.height;
             
-            console.log('[CHART-ELSE] Click coordinates:', { x, y });
-            
-            let angle = Math.atan2(y, x) * 180 / Math.PI;
-            angle = (angle + 90 + 360) % 360;
-            
-            console.log('[CHART-ELSE] Calculated angle:', angle);
-            
-            if (angle >= 0 && angle < 162) {
-                console.log('[CHART-ELSE] Selected: muscle');
-                selectBodySegment('muscle');
-            } else if (angle >= 162 && angle < 252) {
-                console.log('[CHART-ELSE] Selected: fat');
-                selectBodySegment('fat');
-            } else {
-                console.log('[CHART-ELSE] Selected: water');
+            // Определяем сегмент по позиции клика в квадрате
+            // Левая сторона (15% ширины слева)
+            if (x < width * 0.15) {
                 selectBodySegment('water');
+            }
+            // Нижняя сторона (15% высоты снизу)
+            else if (y > height * 0.85) {
+                selectBodySegment('fat');
+            }
+            // Верх и правая сторона (остальное)
+            else {
+                selectBodySegment('muscle');
             }
         });
     }
