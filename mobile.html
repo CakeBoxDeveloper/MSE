@@ -1603,7 +1603,7 @@
                   </div>
                   <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; margin-bottom: 8px; overflow: hidden; border: 1px solid rgba(153,153,153,0.3);">
                     <!-- Фоновая сетка -->
-                    <svg width="100%" height="100%" viewBox="0 0 150 120" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
+                    <svg width="100%" height="100%" viewBox="-30 -30 210 180" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
                       <defs>
                         <pattern id="ecgGridMobile" width="5" height="5" patternUnits="userSpaceOnUse">
                           <path d="M 5 0 L 0 0 0 5" fill="none" stroke="rgba(153,153,153,0.15)" stroke-width="0.3"/>
@@ -1612,8 +1612,8 @@
                           <path d="M 25 0 L 0 0 0 25" fill="none" stroke="rgba(153,153,153,0.25)" stroke-width="0.5"/>
                         </pattern>
                       </defs>
-                      <rect width="100%" height="100%" fill="url(#ecgGridMobile)" />
-                      <rect width="100%" height="100%" fill="url(#ecgGridMajorMobile)" />
+                      <rect x="-30" y="-30" width="210" height="180" fill="url(#ecgGridMobile)" />
+                      <rect x="-30" y="-30" width="210" height="180" fill="url(#ecgGridMajorMobile)" />
                     </svg>
                     <!-- Canvas для ЭКГ -->
                     <canvas id="ecgCanvasMobile" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; transform: scaleX(-1) scaleY(-1);"></canvas>
@@ -1633,18 +1633,18 @@
                   </div>
                   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
                     <!-- Круговая диаграмма -->
-                    <div id="chartContainer" style="position: relative; width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; pointer-events: none; padding: 0;">
-                      <svg id="bodyCompositionChart" viewBox="0 0 200 200" style="width: 100%; height: 100%; max-width: 110px; max-height: 110px; transform: rotate(-90deg);">
-                        <!-- Круговая диаграмма с тремя сегментами -->
-                        <!-- Мышцы 45% = 162° -->
-                        <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="18"
-                                stroke-dasharray="197.92 439.82" stroke-dashoffset="0" />
+                    <div id="chartContainer" style="position: relative; width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: none; padding: 0;">
+                      <svg id="bodyCompositionChart" viewBox="0 0 200 200" style="width: 100%; height: auto; max-width: 110px;">
+                        <!-- Круговая диаграмма с тремя разделёнными сегментами -->
+                        <!-- Мышцы 45% = 162° (начало сверху, по часовой) -->
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255, 255, 255, 1)" stroke-width="18"
+                                stroke-dasharray="197.92 439.82" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
                         <!-- Жир 25% = 90° -->
-                        <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(100, 100, 100, 0.7)" stroke-width="18"
-                                stroke-dasharray="109.96 439.82" stroke-dashoffset="-197.92" />
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(100, 100, 100, 1)" stroke-width="18"
+                                stroke-dasharray="109.96 439.82" stroke-dashoffset="-197.92" transform="rotate(-90 100 100)" />
                         <!-- Вода 30% = 108° -->
-                        <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(180, 180, 180, 0.7)" stroke-width="18"
-                                stroke-dasharray="131.95 439.82" stroke-dashoffset="-307.88" />
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(180, 180, 180, 1)" stroke-width="18"
+                                stroke-dasharray="131.95 439.82" stroke-dashoffset="-307.88" transform="rotate(-90 100 100)" />
                       </svg>
                       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
                         <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">72.5</div>
@@ -1992,12 +1992,12 @@
               <!-- Биологический профиль -->
               <div id="profileBlock" style="width: 270px; height: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; position: relative; overflow: hidden; cursor: pointer;" onclick="toggleProfileLayer()">
                 <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                  <span style="white-space: nowrap;">ПРОФИЛЬ</span>
+                  <span style="white-space: nowrap;">ОБЩИЙ ПРОФИЛЬ</span>
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px; flex-shrink: 0;">
                 </div>
                 
-                <!-- Слой 1: Текстовая информация -->
-                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; transition: opacity 0.3s ease;">
+                <!-- Слой 1: Текстовая информация (по умолчанию) -->
+                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; transition: opacity 0.6s ease, filter 0.6s ease;">
                   <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
                   <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
                   <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
@@ -2013,7 +2013,7 @@
                 </div>
                 
                 <!-- Слой 2: Прогрессбар с жидкостью -->
-                <div id="profileLayer2" style="position: absolute; top: 48px; left: 16px; right: 16px; bottom: 16px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+                <div id="profileLayer2" style="position: absolute; top: 48px; left: 16px; right: 16px; bottom: 16px; opacity: 0; pointer-events: none; transition: opacity 0.6s ease, filter 0.6s ease;">
                   <div style="position: relative; width: 100%; height: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 4px; overflow: hidden;">
                     <!-- Жидкость (заливка снизу вверх) - серая как рамка -->
                     <div id="liquidFill" style="position: absolute; bottom: 0; left: 0; right: 0; height: 67%; background: rgba(25,25,25,1); transition: height 0.5s ease; overflow: visible; z-index: 1;">
@@ -2029,9 +2029,10 @@
                           repeatCount="indefinite" />
                       </path>
                     </svg>
-                    <!-- Только процент -->
+                    <!-- Индекс и подробнее -->
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10000;">
-                      <div style="font-size: 32px; font-weight: 600; color: var(--text-primary);">67%</div>
+                      <div id="indexPercentText" style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 0px; white-space: nowrap;">ИНДЕКС 53%</div>
+                      <div style="font-size: 10px; color: var(--text-secondary); opacity: 0.7;">подробнее</div>
                     </div>
                   </div>
                 </div>
@@ -2602,10 +2603,10 @@ function toggleProfileLayer() {
         // Генерируем рандомный процент от 30% до 90%
         const randomPercent = Math.floor(Math.random() * 61) + 30;
         
-        // Обновляем процент в тексте
-        const percentText = layer2.querySelector('div[style*="font-size: 32px"]');
-        if (percentText) {
-            percentText.textContent = randomPercent + '%';
+        // Обновляем процент в тексте "ИНДЕКС X%"
+        const indexText = document.getElementById('indexPercentText');
+        if (indexText) {
+            indexText.textContent = `ИНДЕКС ${randomPercent}%`;
         }
         
         // Обновляем высоту заливки и волны
@@ -2616,17 +2617,34 @@ function toggleProfileLayer() {
             waveSvg.style.bottom = randomPercent + '%';
         }
         
-        layer1.style.opacity = '0';
-        layer1.style.pointerEvents = 'none';
-        layer2.style.opacity = '1';
-        layer2.style.pointerEvents = 'all';
+        // Blur transition (медленнее в 2 раза)
+        layer1.style.filter = 'blur(10px)';
+        setTimeout(() => {
+            layer1.style.opacity = '0';
+            layer1.style.pointerEvents = 'none';
+            layer2.style.opacity = '1';
+            layer2.style.pointerEvents = 'all';
+            layer2.style.filter = 'blur(10px)';
+            setTimeout(() => {
+                layer2.style.filter = 'blur(0)';
+            }, 100);
+        }, 300);
+        
         profileLayerActive = 2;
     } else {
         // Переключаемся на слой 1 (текст)
-        layer2.style.opacity = '0';
-        layer2.style.pointerEvents = 'none';
-        layer1.style.opacity = '1';
-        layer1.style.pointerEvents = 'all';
+        layer2.style.filter = 'blur(10px)';
+        setTimeout(() => {
+            layer2.style.opacity = '0';
+            layer2.style.pointerEvents = 'none';
+            layer1.style.opacity = '1';
+            layer1.style.pointerEvents = 'all';
+            layer1.style.filter = 'blur(10px)';
+            setTimeout(() => {
+                layer1.style.filter = 'blur(0)';
+            }, 100);
+        }, 300);
+        
         profileLayerActive = 1;
     }
 }
@@ -7388,7 +7406,7 @@ function initSingleECGCanvas(canvas) {
         // Lower heart rate = slower animation and lower amplitude
         const heartRateRatio = currentHeartRate / 72; // 72 BPM as baseline
         const waveSpeed = baseWaveSpeed * heartRateRatio; // Speed scales with heart rate
-        const dynamicAmplitude = amplitude * (0.5 + heartRateRatio * 0.5); // Amplitude: 50% to 150% of base
+        const dynamicAmplitude = amplitude * (0.5 + heartRateRatio * 0.5) * 2.5; // Amplitude: увеличена в 2.5 раза
         
         // Create gradient along the grid boundaries
         const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
