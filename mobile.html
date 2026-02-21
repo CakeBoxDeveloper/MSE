@@ -1648,6 +1648,10 @@
                       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
                         <div style="font-size: 23px; font-weight: 600; color: var(--text-primary);">72.5</div>
                       </div>
+                      <!-- ОТЛАДКА: Красные области кликов -->
+                      <div style="position: absolute; left: 0; top: 0; width: 15%; height: 100%; background: rgba(255,0,0,0.3); pointer-events: none; border: 1px solid red;"></div>
+                      <div style="position: absolute; left: 0; bottom: 0; width: 100%; height: 15%; background: rgba(0,255,0,0.3); pointer-events: none; border: 1px solid green;"></div>
+                      <div style="position: absolute; right: 0; top: 0; width: 85%; height: 85%; background: rgba(0,0,255,0.2); pointer-events: none; border: 1px solid blue;"></div>
                     </div>
                   </div>
                   <!-- Область аннотации (аналог строки с данными в "Признаки жизни") -->
@@ -1995,19 +1999,33 @@
                 <div id="profileLayer2" style="position: absolute; top: 48px; left: 16px; right: 16px; bottom: 16px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
                   <div style="position: relative; width: 100%; height: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 4px; overflow: visible;">
                     <!-- Жидкость (заливка снизу вверх) - серая как рамка -->
-                    <div id="liquidFill" style="position: absolute; bottom: 0; left: 0; right: 0; height: 67%; background: var(--glass-border); transition: height 0.5s ease; overflow: visible;">
-                      <!-- Волна на поверхности жидкости (прилипает к верхней границе) -->
-                      <svg style="position: absolute; top: -80px; left: 0; width: 100%; height: 80px; z-index: 1;" viewBox="0 0 200 80" preserveAspectRatio="none">
-                        <path d="M0,80 Q50,65 100,80 T200,80 L200,80 L0,80 Z" fill="var(--glass-border)">
-                          <animate attributeName="d" dur="2.5s" repeatCount="indefinite" 
-                            values="M0,80 Q50,65 100,80 T200,80 L200,80 L0,80 Z;
-                                    M0,80 Q50,95 100,80 T200,80 L200,80 L0,80 Z;
-                                    M0,80 Q50,65 100,80 T200,80 L200,80 L0,80 Z"/>
-                        </path>
-                      </svg>
+                    <div id="liquidFill" style="position: absolute; bottom: 0; left: 0; right: 0; height: 67%; background: var(--glass-border); transition: height 0.5s ease; overflow: visible; z-index: 1;">
                     </div>
+                    <!-- Волна на поверхности жидкости - КРАСНАЯ ПЛАВНАЯ СИНУСОИДА -->
+                    <svg style="position: absolute; bottom: 67%; left: 0; width: 100%; height: 100px; z-index: 9999; transform: translateY(-50px);" viewBox="0 0 200 100" preserveAspectRatio="none">
+                      <path d="M0,100 Q25,85 50,100 Q75,85 100,100 Q125,85 150,100 Q175,85 200,100 L200,100 L0,100 Z" fill="red">
+                        <animateTransform
+                          attributeName="transform"
+                          attributeType="XML"
+                          type="translate"
+                          from="0 0"
+                          to="50 0"
+                          dur="2s"
+                          repeatCount="indefinite"/>
+                      </path>
+                      <path d="M-50,100 Q-25,85 0,100 Q25,85 50,100 Q75,85 100,100 Q125,85 150,100 L150,100 L-50,100 Z" fill="red">
+                        <animateTransform
+                          attributeName="transform"
+                          attributeType="XML"
+                          type="translate"
+                          from="0 0"
+                          to="50 0"
+                          dur="2s"
+                          repeatCount="indefinite"/>
+                      </path>
+                    </svg>
                     <!-- Только процент -->
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10000;">
                       <div style="font-size: 32px; font-weight: 600; color: var(--text-primary);">67%</div>
                     </div>
                   </div>
@@ -7942,6 +7960,7 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(animateScroll);
             
             window.monitorCurrentSection = section;
+            updateOverlayVisibility(); // Обновляем видимость overlays
             console.log(`[SNAP] Snapped to section ${section} (${duration}ms animation)`);
         };
         
@@ -7949,12 +7968,43 @@ document.addEventListener('DOMContentLoaded', () => {
         const clickOverlayLeft = document.getElementById('clickOverlayLeft');
         const clickOverlayRight = document.getElementById('clickOverlayRight');
         
+        // Функция для обновления видимости overlays в зависимости от текущей секции
+        function updateOverlayVisibility() {
+            const currentSection = window.monitorCurrentSection || 0;
+            
+            // Левый overlay: скрыть на первом слайде (section 0)
+            if (clickOverlayLeft) {
+                if (currentSection === 0) {
+                    clickOverlayLeft.style.pointerEvents = 'none';
+                    clickOverlayLeft.style.opacity = '0';
+                } else {
+                    clickOverlayLeft.style.pointerEvents = 'auto';
+                    clickOverlayLeft.style.opacity = '1';
+                }
+            }
+            
+            // Правый overlay: скрыть на последнем слайде (section 2)
+            if (clickOverlayRight) {
+                if (currentSection === 2) {
+                    clickOverlayRight.style.pointerEvents = 'none';
+                    clickOverlayRight.style.opacity = '0';
+                } else {
+                    clickOverlayRight.style.pointerEvents = 'auto';
+                    clickOverlayRight.style.opacity = '1';
+                }
+            }
+        }
+        
+        // Вызываем при инициализации
+        updateOverlayVisibility();
+        
         if (clickOverlayLeft) {
             clickOverlayLeft.addEventListener('click', (e) => {
                 console.log(`[OVERLAY-LEFT] Click detected, Current section: ${window.monitorCurrentSection}`);
                 if (window.monitorCurrentSection > 0) {
                     console.log(`[OVERLAY-LEFT] Going to previous section`);
                     snapToSection(window.monitorCurrentSection - 1);
+                    setTimeout(updateOverlayVisibility, 100);
                 }
             });
         }
@@ -7965,6 +8015,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.monitorCurrentSection < 2) {
                     console.log(`[OVERLAY-RIGHT] Going to next section`);
                     snapToSection(window.monitorCurrentSection + 1);
+                    setTimeout(updateOverlayVisibility, 100);
                 }
             });
         }
@@ -8031,6 +8082,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const scrollLeft = blockBody.scrollLeft;
                 const nearestSection = Math.round(scrollLeft / containerWidth);
                 window.monitorCurrentSection = nearestSection;
+                updateOverlayVisibility(); // Обновляем видимость overlays
                 console.log(`[SCROLL] Current section: ${window.monitorCurrentSection}`);
             }, 150);
         });
