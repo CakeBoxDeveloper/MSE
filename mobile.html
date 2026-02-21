@@ -7709,7 +7709,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Use faster animation on mobile
             const isMobile = 'ontouchstart' in window;
-            const duration = isMobile ? 200 : 400; // 200ms on mobile, 400ms on desktop
+            const duration = isMobile ? 300 : 450; // 300ms on mobile, 450ms on desktop
             
             // Smooth animation using requestAnimationFrame
             const startPosition = blockBody.scrollLeft;
@@ -7720,8 +7720,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // Ease-out function for smooth deceleration
-                const easeOut = 1 - Math.pow(1 - progress, 3);
+                // Smoother ease-out function (ease-out-quart)
+                const easeOut = 1 - Math.pow(1 - progress, 4);
                 
                 blockBody.scrollLeft = startPosition + (distance * easeOut);
                 
