@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Mixed Sport Elements - Mobile</title>
     <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
@@ -243,7 +243,7 @@
         /* ─── INNER TABS ─── */
         .inner-tabs { 
             display: flex;
-            gap: 4px; /* MOBILE: еще меньше gap */
+            gap: 8px; /* MOBILE: gap как в header */
             margin-bottom: 12px; /* MOBILE: меньше отступ */
             flex-shrink: 0;
             align-items: center;
@@ -1550,15 +1550,15 @@
               <span>Прогресс</span>
             </button>
             <!-- MOBILE: Кнопки поиска и minimize справа -->
-            <button class="chat-search-btn" onclick="toggleBrowserSearch()" style="margin-left:auto;margin-right:8px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <button class="chat-search-btn" onclick="toggleBrowserSearch()" style="margin-left:auto;width:32px;height:32px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')">
-              <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
-              <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
+            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')" style="width:32px;height:32px;">
+              <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="" style="width:12px;height:12px;">
+              <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="" style="width:12px;height:12px;">
             </button>
           </div>
           <div id="browserSearchWrap" class="chat-search-wrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
@@ -2026,15 +2026,15 @@
             </div>
             <div class="chat-right-controls">
               <!-- MOBILE: Кнопки поиска и minimize справа -->
-              <button class="chat-search-btn" onclick="toggleChatSearch()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <button class="chat-search-btn" onclick="toggleChatSearch()" style="width:32px;height:32px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
-              <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('chatBlock')" style="margin-left:8px;">
-                <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="">
-                <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="">
+              <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('chatBlock')" style="width:32px;height:32px;">
+                <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="" style="width:12px;height:12px;">
+                <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="" style="width:12px;height:12px;">
               </button>
             </div>
           </div>
@@ -2048,13 +2048,13 @@
             <div style="position:relative;display:flex;flex-direction:column;">
               <div class="chat-file-preview" id="chat-file-preview"></div>
               <div class="chat-input-wrapper">
-                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии...">
-                <button class="chat-attach" id="chat-attach">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии..." style="height:32px;padding:6px 12px;">
+                <button class="chat-attach" id="chat-attach" style="width:32px;height:32px;">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="" style="width:12px;height:12px;">
                   <input type="file" id="chat-file-input" multiple accept="*/*">
                 </button>
-                <button class="chat-send" id="chat-send">
-                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
+                <button class="chat-send" id="chat-send" style="width:32px;height:32px;">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="" style="width:12px;height:12px;">
                 </button>
               </div>
             </div>
@@ -7720,10 +7720,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // Smoother ease-out function (ease-out-quart)
-                const easeOut = 1 - Math.pow(1 - progress, 4);
+                // Smoother ease-in-out function (no bounce/jerk)
+                const easeInOut = progress < 0.5 
+                    ? 2 * progress * progress 
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
                 
-                blockBody.scrollLeft = startPosition + (distance * easeOut);
+                blockBody.scrollLeft = startPosition + (distance * easeInOut);
                 
                 if (progress < 1) {
                     requestAnimationFrame(animateScroll);
