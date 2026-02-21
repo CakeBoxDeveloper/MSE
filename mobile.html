@@ -1594,7 +1594,7 @@
                     <span>ПРИЗНАКИ ЖИЗНИ</span>
                     <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f285999bcbd5f331bffb4244373e3aecc5695eb6/rate.svg" alt="" style="width: 12px; height: 12px;">
                   </div>
-                  <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; margin-bottom: 8px; overflow: hidden;">
+                  <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; margin-bottom: 8px; overflow: hidden; border: 1px solid rgba(153,153,153,0.3);">
                     <!-- Фоновая сетка -->
                     <svg width="100%" height="100%" viewBox="0 0 150 120" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
                       <defs>
@@ -1619,52 +1619,34 @@
                 </div>
                 
                 <!-- Весы -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column;">
-                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                <div style="flex: 0.9; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column;">
+                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
                     <span>ВЕСЫ</span>
                     <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9de8a26dbc1469309e975cc1be78720e41b1aa55/scale.svg" alt="" style="width: 12px; height: 12px;">
                   </div>
-                  <div style="flex: 1; position: relative; overflow: visible;">
-                    <!-- График веса -->
-                    <svg width="100%" height="100%" viewBox="0 0 120 100" style="background: rgba(0,0,0,0.1); border-radius: 4px; transform: scale(1.1); transform-origin: center center; overflow: visible;">
-                      <defs>
-                        <linearGradient id="gridGradientMobile" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
-                          <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
-                        </linearGradient>
-                        <linearGradient id="lineGradientMobile" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" style="stop-color:rgba(153,153,153,0.6);stop-opacity:1" />
-                          <stop offset="50%" style="stop-color:rgba(153,153,153,1);stop-opacity:1" />
-                          <stop offset="100%" style="stop-color:rgba(153,153,153,0.8);stop-opacity:1" />
-                        </linearGradient>
-                      </defs>
-                      <!-- Сетка -->
-                      <line x1="20" y1="10" x2="95" y2="10" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                      <line x1="20" y1="30" x2="95" y2="30" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                      <line x1="20" y1="50" x2="95" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                      <line x1="20" y1="70" x2="95" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-                      <line x1="30" y1="10" x2="30" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                      <line x1="45" y1="10" x2="45" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                      <line x1="60" y1="10" x2="60" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                      <line x1="75" y1="10" x2="75" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                      <line x1="90" y1="10" x2="90" y2="75" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-                      <!-- Оси -->
-                      <line x1="20" y1="10" x2="20" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                      <line x1="20" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                      <!-- Подписи -->
-                      <text x="16" y="13" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">85</text>
-                      <text x="16" y="33" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">80</text>
-                      <text x="16" y="53" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">75</text>
-                      <text x="16" y="73" font-size="4" fill="rgba(255,255,255,0.6)" text-anchor="end">70</text>
-                      <!-- График -->
-                      <path d="M20,70 L25,65 L35,68 L45,62 L55,60 L65,58 L75,55 L85,52 L95,50 L95,75 L20,75 Z" fill="url(#gridGradientMobile)" opacity="0.3"/>
-                      <polyline points="20,70 25,65 35,68 45,62 55,60 65,58 75,55 85,52 95,50" fill="none" stroke="url(#lineGradientMobile)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      <circle cx="20" cy="70" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                      <circle cx="35" cy="68" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                      <circle cx="55" cy="60" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                      <circle cx="75" cy="55" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                      <circle cx="95" cy="50" r="1.5" fill="rgba(153,153,153,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-                    </svg>
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; position: relative; z-index: 1000;">
+                    <!-- Круглая диаграмма в Ч/Б -->
+                    <div id="chartContainer" style="position: relative; width: 100px; height: 100px; cursor: pointer; z-index: 1000 !important;">
+                      <svg id="bodyCompositionChart" viewBox="0 0 100 100" style="transform: rotate(-90deg); width: 100%; height: 100%; pointer-events: all;">
+                        <!-- Мышцы (45%) - светло-серый -->
+                        <circle id="segment-muscle" cx="50" cy="50" r="40" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="20" 
+                                stroke-dasharray="113 282" stroke-dashoffset="0" 
+                                style="transition: all 0.2s ease; cursor: pointer; pointer-events: all;" />
+                        <!-- Жир (25%) - темно-серый -->
+                        <circle id="segment-fat" cx="50" cy="50" r="40" fill="none" stroke="rgba(100, 100, 100, 0.7)" stroke-width="20" 
+                                stroke-dasharray="70.5 282" stroke-dashoffset="-113"
+                                style="transition: all 0.2s ease; cursor: pointer; pointer-events: all;" />
+                        <!-- Вода (30%) - средне-серый -->
+                        <circle id="segment-water" cx="50" cy="50" r="40" fill="none" stroke="rgba(180, 180, 180, 0.7)" stroke-width="20" 
+                                stroke-dasharray="84.6 282" stroke-dashoffset="-183.5"
+                                style="transition: all 0.2s ease; cursor: pointer; pointer-events: all;" />
+                      </svg>
+                      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+                        <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">72.5</div>
+                      </div>
+                    </div>
+                    <!-- Область аннотации без рамки -->
+                    <div id="segmentLabel" style="font-size: 9px; color: var(--text-secondary); text-align: center; min-height: 20px; opacity: 0; transition: opacity 0.2s ease;"></div>
                   </div>
                 </div>
               </div>
@@ -1981,12 +1963,14 @@
               </div>
               
               <!-- Биологический профиль -->
-              <div style="width: 270px; height: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column;">
+              <div id="profileBlock" style="width: 270px; height: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; position: relative; overflow: hidden; cursor: pointer;" onclick="toggleProfileLayer()">
                 <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                   <span style="white-space: nowrap;">ПРОФИЛЬ</span>
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px; flex-shrink: 0;">
                 </div>
-                <div style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto;">
+                
+                <!-- Слой 1: Текстовая информация -->
+                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; transition: opacity 0.3s ease;">
                   <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
                   <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
                   <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
@@ -1998,6 +1982,28 @@
                     • Увеличить потребление воды<br>
                     • Контролировать стресс<br>
                     • Регулярный сон 7-8 часов
+                  </div>
+                </div>
+                
+                <!-- Слой 2: Прогрессбар с жидкостью -->
+                <div id="profileLayer2" style="position: absolute; top: 48px; left: 16px; right: 16px; bottom: 16px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+                  <div style="position: relative; width: 100%; height: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 4px; overflow: visible;">
+                    <!-- Жидкость (заливка снизу вверх) - серая как рамка -->
+                    <div id="liquidFill" style="position: absolute; bottom: 0; left: 0; right: 0; height: 67%; background: var(--glass-border); transition: height 0.5s ease; overflow: visible;">
+                      <!-- Волна на поверхности жидкости (прилипает к верхней границе) -->
+                      <svg style="position: absolute; top: -80px; left: 0; width: 100%; height: 80px; z-index: 1;" viewBox="0 0 200 80" preserveAspectRatio="none">
+                        <path d="M0,80 Q50,65 100,80 T200,80 L200,80 L0,80 Z" fill="var(--glass-border)">
+                          <animate attributeName="d" dur="2.5s" repeatCount="indefinite" 
+                            values="M0,80 Q50,65 100,80 T200,80 L200,80 L0,80 Z;
+                                    M0,80 Q50,95 100,80 T200,80 L200,80 L0,80 Z;
+                                    M0,80 Q50,65 100,80 T200,80 L200,80 L0,80 Z"/>
+                        </path>
+                      </svg>
+                    </div>
+                    <!-- Только процент -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
+                      <div style="font-size: 32px; font-weight: 600; color: var(--text-primary);">67%</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2554,6 +2560,70 @@ function toggleMinimize(id) {
         // Если блок развернут, сворачиваем его
         collapseBlock(id);
     }
+}
+
+// Переключение слоев профиля
+let profileLayerActive = 1; // 1 = текст, 2 = жидкость
+function toggleProfileLayer() {
+    const layer1 = document.getElementById('profileLayer1');
+    const layer2 = document.getElementById('profileLayer2');
+    
+    if (profileLayerActive === 1) {
+        // Переключаемся на слой 2 (жидкость)
+        layer1.style.opacity = '0';
+        layer1.style.pointerEvents = 'none';
+        layer2.style.opacity = '1';
+        layer2.style.pointerEvents = 'all';
+        profileLayerActive = 2;
+    } else {
+        // Переключаемся на слой 1 (текст)
+        layer2.style.opacity = '0';
+        layer2.style.pointerEvents = 'none';
+        layer1.style.opacity = '1';
+        layer1.style.pointerEvents = 'all';
+        profileLayerActive = 1;
+    }
+}
+
+// Выбор сегмента диаграммы состава тела
+let selectedSegment = null;
+const segmentData = {
+    muscle: { name: 'Мышцы', percent: 45, kg: 32.6 },
+    fat: { name: 'Жир', percent: 25, kg: 18.1 },
+    water: { name: 'Вода', percent: 30, kg: 21.8 }
+};
+
+function selectBodySegment(segmentId) {
+    const segment = document.getElementById(`segment-${segmentId}`);
+    const label = document.getElementById('segmentLabel');
+    const data = segmentData[segmentId];
+    
+    // Если кликнули на уже выбранный сегмент - deselect
+    if (selectedSegment === segmentId) {
+        segment.style.transform = 'scale(1)';
+        segment.style.transformOrigin = 'center';
+        label.style.opacity = '0';
+        label.textContent = '';
+        selectedSegment = null;
+        return;
+    }
+    
+    // Сбрасываем предыдущий выбор
+    if (selectedSegment) {
+        const prevSegment = document.getElementById(`segment-${selectedSegment}`);
+        prevSegment.style.transform = 'scale(1)';
+        prevSegment.style.transformOrigin = 'center';
+    }
+    
+    // Выделяем новый сегмент через масштаб
+    segment.style.transform = 'scale(1.1)';
+    segment.style.transformOrigin = 'center';
+    
+    // Показываем надпись
+    label.textContent = `${data.name} — ${data.percent}% (${data.kg} кг)`;
+    label.style.opacity = '1';
+    
+    selectedSegment = segmentId;
 }
 
 function updateGridState() {
@@ -7571,6 +7641,80 @@ function updateHeartRateValues() {
 document.addEventListener('DOMContentLoaded', () => {
     initECGCanvas();
     initVitalSignsAnimation();
+    
+    // Global click listener for debugging
+    document.addEventListener('click', (e) => {
+        console.log('[GLOBAL] Click on:', e.target.id, e.target.className);
+        if (e.target.id === 'chartContainer' || e.target.closest('#chartContainer')) {
+            console.log('[GLOBAL] Click on chartContainer detected!');
+        }
+    });
+    
+    // Initialize body composition chart clicks with multiple attempts
+    const initChartClicks = () => {
+        const chartContainer = document.getElementById('chartContainer');
+        console.log('[CHART-INIT] Attempting to find chartContainer...');
+        console.log('[CHART-INIT] chartContainer found:', chartContainer);
+        
+        if (chartContainer) {
+            console.log('[CHART-INIT] chartContainer display:', getComputedStyle(chartContainer).display);
+            console.log('[CHART-INIT] chartContainer visibility:', getComputedStyle(chartContainer).visibility);
+            console.log('[CHART-INIT] chartContainer z-index:', getComputedStyle(chartContainer).zIndex);
+            console.log('[CHART-INIT] chartContainer position:', getComputedStyle(chartContainer).position);
+            
+            // Remove old listener if exists
+            const newContainer = chartContainer.cloneNode(true);
+            chartContainer.parentNode.replaceChild(newContainer, chartContainer);
+            
+            newContainer.addEventListener('click', (e) => {
+                console.log('[CHART] ===== CLICK DETECTED! =====');
+                e.stopPropagation();
+                
+                const rect = newContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left - 50;
+                const y = e.clientY - rect.top - 50;
+                
+                console.log('[CHART] Click coordinates:', { x, y });
+                
+                let angle = Math.atan2(y, x) * 180 / Math.PI;
+                angle = (angle + 90 + 360) % 360;
+                
+                console.log('[CHART] Calculated angle:', angle);
+                
+                if (angle >= 0 && angle < 162) {
+                    console.log('[CHART] Selected: muscle');
+                    selectBodySegment('muscle');
+                } else if (angle >= 162 && angle < 252) {
+                    console.log('[CHART] Selected: fat');
+                    selectBodySegment('fat');
+                } else {
+                    console.log('[CHART] Selected: water');
+                    selectBodySegment('water');
+                }
+            });
+            console.log('[CHART-INIT] Click listener attached successfully');
+            return true;
+        } else {
+            console.log('[CHART-INIT] chartContainer NOT found, will retry...');
+            return false;
+        }
+    };
+    
+    // Try immediately
+    if (!initChartClicks()) {
+        // Try after 500ms
+        setTimeout(() => {
+            if (!initChartClicks()) {
+                // Try after 1500ms
+                setTimeout(() => {
+                    if (!initChartClicks()) {
+                        // Try after 3000ms
+                        setTimeout(initChartClicks, 3000);
+                    }
+                }, 1500);
+            }
+        }, 500);
+    }
 });
 
 // Also initialize if DOM is already loaded
@@ -7578,10 +7722,72 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initECGCanvas();
         initVitalSignsAnimation();
+        
+        // Initialize body composition chart clicks
+        const chartContainer = document.getElementById('chartContainer');
+        console.log('[CHART-LOADING] chartContainer found:', chartContainer);
+        
+        if (chartContainer) {
+            chartContainer.addEventListener('click', (e) => {
+                console.log('[CHART-LOADING] Click detected!');
+                const rect = chartContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left - 50;
+                const y = e.clientY - rect.top - 50;
+                
+                console.log('[CHART-LOADING] Click coordinates:', { x, y });
+                
+                let angle = Math.atan2(y, x) * 180 / Math.PI;
+                angle = (angle + 90 + 360) % 360;
+                
+                console.log('[CHART-LOADING] Calculated angle:', angle);
+                
+                if (angle >= 0 && angle < 162) {
+                    console.log('[CHART-LOADING] Selected: muscle');
+                    selectBodySegment('muscle');
+                } else if (angle >= 162 && angle < 252) {
+                    console.log('[CHART-LOADING] Selected: fat');
+                    selectBodySegment('fat');
+                } else {
+                    console.log('[CHART-LOADING] Selected: water');
+                    selectBodySegment('water');
+                }
+            });
+        }
     });
 } else {
     initECGCanvas();
     initVitalSignsAnimation();
+    
+    // Initialize body composition chart clicks
+    const chartContainer = document.getElementById('chartContainer');
+    console.log('[CHART-ELSE] chartContainer found:', chartContainer);
+    
+    if (chartContainer) {
+        chartContainer.addEventListener('click', (e) => {
+            console.log('[CHART-ELSE] Click detected!');
+            const rect = chartContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left - 50;
+            const y = e.clientY - rect.top - 50;
+            
+            console.log('[CHART-ELSE] Click coordinates:', { x, y });
+            
+            let angle = Math.atan2(y, x) * 180 / Math.PI;
+            angle = (angle + 90 + 360) % 360;
+            
+            console.log('[CHART-ELSE] Calculated angle:', angle);
+            
+            if (angle >= 0 && angle < 162) {
+                console.log('[CHART-ELSE] Selected: muscle');
+                selectBodySegment('muscle');
+            } else if (angle >= 162 && angle < 252) {
+                console.log('[CHART-ELSE] Selected: fat');
+                selectBodySegment('fat');
+            } else {
+                console.log('[CHART-ELSE] Selected: water');
+                selectBodySegment('water');
+            }
+        });
+    }
 }
 
 // ============================================================
