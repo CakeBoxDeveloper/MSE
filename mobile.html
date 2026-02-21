@@ -280,6 +280,9 @@
         .inner-tab.active { background: var(--text-secondary); color: var(--bg-primary); border-color: var(--text-secondary); }
         .inner-tab.active .inner-tab-icon { filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
         .inner-tab:hover:not(.active) { border-color: rgba(255,255,255,.3); }
+        
+        /* MOBILE: Кнопки справа в inner-tabs */
+        .inner-tabs .chat-search-btn { margin-left: auto; }
 
         /* ─── GRID ─── */
         .main-wrapper { 
@@ -1550,7 +1553,7 @@
               <span>Прогресс</span>
             </button>
             <!-- MOBILE: Кнопки поиска и minimize справа -->
-            <button class="chat-search-btn" onclick="toggleBrowserSearch()" style="margin-left:auto;width:32px;height:32px;">
+            <button class="chat-search-btn" onclick="toggleBrowserSearch()" style="width:32px;height:32px;">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -7720,12 +7723,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // Smoother ease-in-out function (no bounce/jerk)
-                const easeInOut = progress < 0.5 
-                    ? 2 * progress * progress 
-                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                // Simple ease-out cubic (smooth deceleration, no jerk)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
                 
-                blockBody.scrollLeft = startPosition + (distance * easeInOut);
+                blockBody.scrollLeft = startPosition + (distance * easeOut);
                 
                 if (progress < 1) {
                     requestAnimationFrame(animateScroll);
