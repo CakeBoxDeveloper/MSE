@@ -1211,17 +1211,25 @@
         .auth-overlay.active { opacity:1;pointer-events:all; }
 
         .auth-modal {
-            background:rgba(28,28,28,1);border:1px solid var(--glass-border);border-radius:5px;padding:24px;
-            width:320px; /* Фиксированная начальная ширина */
+            background:rgba(28,28,28,1);border:1px solid var(--glass-border);border-radius:5px;padding:12px 24px 8px 24px;
+            width:380px; /* Фиксированная ширина для всех окон */
+            height:280px; /* Компактная высота */
             max-width:calc(100% - 40px);
             /* ПЛАВНОЕ изменение размера */
-            transition:transform .3s ease, width .8s cubic-bezier(0.4,0,0.2,1);
+            transition:transform .3s ease, height .3s ease;
             transform:scale(.9);
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+        }
+        .auth-modal.logout-size {
+            height:140px; /* Logout window is half height */
+            padding:8px 24px 6px 24px; /* Reduced vertical padding for logout */
         }
         .auth-overlay.active .auth-modal { transform:scale(1); }
 
         .auth-form { display:flex;flex-direction:column;gap:12px;width:100%; }
-        .form-group { display:flex;flex-direction:column;gap:6px;width:100%; }
+        .form-group { display:flex;flex-direction:column;gap:8px;width:100%; }
         .form-input {
             padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:14px;
@@ -1259,8 +1267,8 @@
 
         .pin-input-container { display:flex;gap:0;justify-content:space-between;margin:0;width:100%; }
         .pin-digit {
-            width:60px;height:60px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
-            border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:24px;
+            width:55px;height:55px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
+            border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:22px;
             font-weight:600;text-align:center;transition:all .2s ease;flex-shrink:0;
         }
         .pin-digit.error { border-color:rgba(255,80,80,.5) !important; }
@@ -1280,26 +1288,26 @@
         .auth-btn.primary { background:rgba(255,255,255,.15); }
         .auth-btn.primary:hover { background:rgba(255,255,255,.22); }
         .auth-btn:disabled { opacity:.5;cursor:not-allowed; }
-        .auth-switch { margin-top:12px;text-align:center;font-size:12px;color:var(--text-secondary); }
-        .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:12px; }
+        .auth-switch { margin-top:6px;text-align:center;font-size:15px;color:var(--text-secondary); }
+        .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:15px; }
 
         /* Register form */
-        .register-form-content { display:flex;flex-direction:column;align-items:stretch;width:100%;gap:20px; }
+        .register-form-content { display:flex;flex-direction:column;align-items:stretch;width:100%;gap:8px;height:100%; }
         .register-form-content .auth-header { font-size:18px;font-weight:600;letter-spacing:-.3px;text-align:center;width:100%; }
         .user-id-display {
-            padding:16px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
+            padding:12px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
             border-radius:5px;display:flex;align-items:center;justify-content:center;
-            flex-wrap:wrap;gap:8px;width:100%;
+            gap:8px;width:100%;white-space:nowrap;
         }
-        .user-id-label { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
-        .user-id-number { font-size:14px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600; }
-        .register-form-content .auth-form { width:100%;display:flex;flex-direction:column;gap:20px; }
+        .user-id-label { font-size:13px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;white-space:nowrap; }
+        .user-id-number { font-size:13px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;white-space:nowrap; }
+        .register-form-content .auth-form { width:100%;display:flex;flex-direction:column;gap:8px; }
         .register-form-content .form-label-key {
-            text-align:center;font-size:16px;font-weight:600;
+            text-align:center;font-size:14px;font-weight:600;
             display:flex;align-items:center;justify-content:center;gap:8px;
             width:100%;margin:0;
         }
-        .key-icon { width:20px;height:20px; }
+        .key-icon { width:16px;height:16px; }
 
         .checkbox-group { display:flex;align-items:flex-start;gap:8px;width:100%; }
         .checkbox-group input[type="checkbox"] {
@@ -1425,10 +1433,18 @@
         }
         
         .success-text { text-align:center;font-size:14px;color:var(--text-primary);margin-top:12px;font-weight:500; }
-        .fullscreen-loader { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px; }
-        .fullscreen-success { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;text-align:center;padding:20px; }
-        .fullscreen-success .success-text { font-size:15px;line-height:1.6; }
-        .logout-modal { text-align:center; }
+        .fullscreen-loader { display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px; }
+        .fullscreen-loader[style*="display:flex"], .fullscreen-loader[style*="display: flex"] { display:flex !important; }
+        .fullscreen-success { display:none;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:10px 0; }
+        .fullscreen-success[style*="display:flex"], .fullscreen-success[style*="display: flex"] { display:flex !important; }
+        .fullscreen-success .success-text { font-size:15px;line-height:1.6;width:100%; }
+        .logout-modal { text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:4px 0; }
+        .logout-modal h2 { margin-bottom:4px; }
+        .logout-modal p { margin-bottom:6px; }
+        
+        /* Фиксированная высота для всех внутренних контейнеров */
+        #loginForm, #registerForm, #logoutModal { height:100%;display:flex;flex-direction:column; }
+        #loginContent, #registerContent { height:100%;display:flex;flex-direction:column;justify-content:space-between;padding-top:20px; }
 
         /* Product Key Modal */
         .product-key-overlay {
@@ -1604,7 +1620,7 @@
                   </div>
                   <div style="flex: 1; position: relative; background: rgba(0,0,0,0.1); border-radius: 4px; margin-bottom: 8px; overflow: hidden; border: 1px solid rgba(153,153,153,0.3);">
                     <!-- Фоновая сетка -->
-                    <svg width="100%" height="100%" viewBox="-30 -30 210 180" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
+                    <svg width="100%" height="100%" viewBox="-40 -40 230 200" style="position: absolute; top: 0; left: 0; background: rgba(0,0,0,0.2);">
                       <defs>
                         <pattern id="ecgGridMobile" width="5" height="5" patternUnits="userSpaceOnUse">
                           <path d="M 5 0 L 0 0 0 5" fill="none" stroke="rgba(153,153,153,0.15)" stroke-width="0.3"/>
@@ -1613,8 +1629,8 @@
                           <path d="M 25 0 L 0 0 0 25" fill="none" stroke="rgba(153,153,153,0.25)" stroke-width="0.5"/>
                         </pattern>
                       </defs>
-                      <rect x="-30" y="-30" width="210" height="180" fill="url(#ecgGridMobile)" />
-                      <rect x="-30" y="-30" width="210" height="180" fill="url(#ecgGridMajorMobile)" />
+                      <rect x="-40" y="-40" width="230" height="200" fill="url(#ecgGridMobile)" />
+                      <rect x="-40" y="-40" width="230" height="200" fill="url(#ecgGridMajorMobile)" />
                     </svg>
                     <!-- Canvas для ЭКГ -->
                     <canvas id="ecgCanvasMobile" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; transform: scaleX(-1) scaleY(-1);"></canvas>
@@ -1627,12 +1643,12 @@
                 </div>
                 
                 <!-- Весы -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 8px 12px 12px 12px; display: flex; flex-direction: column;">
-                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 8px 12px 12px 12px; display: flex; flex-direction: column; justify-content: space-between;">
+                  <div style="font-weight: 600; font-size: 11px; color: var(--text-secondary); margin-bottom: 0; text-align: center; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
                     <span>ВЕСЫ</span>
                     <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/9de8a26dbc1469309e975cc1be78720e41b1aa55/scale.svg" alt="" style="width: 12px; height: 12px;">
                   </div>
-                  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1;">
                     <!-- Круговая диаграмма -->
                     <div id="chartContainer" style="position: relative; width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: none; padding: 0;">
                       <svg id="bodyCompositionChart" viewBox="0 0 200 200" style="width: 100%; height: auto; max-width: 110px;">
@@ -1997,8 +2013,8 @@
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/81d97c8bba93d72cc8ecc5bca722f914f50b8ad3/BioProfile.svg" alt="" style="width: 14px; height: 14px; flex-shrink: 0;">
                 </div>
                 
-                <!-- Слой 1: Текстовая информация (по умолчанию) -->
-                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; transition: opacity 0.6s ease, filter 0.6s ease;">
+                <!-- Слой 1: Текстовая информация (по умолчанию ВИДИМЫЙ) -->
+                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease;">
                   <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
                   <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
                   <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
@@ -2013,7 +2029,7 @@
                   </div>
                 </div>
                 
-                <!-- Слой 2: Прогрессбар с жидкостью -->
+                <!-- Слой 2: Прогрессбар с жидкостью (по умолчанию СКРЫТЫЙ) -->
                 <div id="profileLayer2" style="position: absolute; top: 48px; left: 16px; right: 16px; bottom: 16px; opacity: 0; pointer-events: none; transition: opacity 0.6s ease, filter 0.6s ease;">
                   <div style="position: relative; width: 100%; height: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 4px; overflow: hidden;">
                     <!-- Жидкость (заливка снизу вверх) - серая как рамка -->
@@ -2032,8 +2048,8 @@
                     </svg>
                     <!-- Индекс и подробнее -->
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10000;">
-                      <div id="indexPercentText" style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 0px; white-space: nowrap;">ИНДЕКС 53%</div>
-                      <div style="font-size: 10px; color: var(--text-secondary); opacity: 0.7;">подробнее</div>
+                      <div id="indexPercentText" style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: -2px; white-space: nowrap;">B-ИНДЕКС 53%</div>
+                      <div style="font-size: 11px; color: var(--text-secondary); opacity: 0.7;">подробнее</div>
                     </div>
                   </div>
                 </div>
@@ -2110,35 +2126,37 @@
   <div class="auth-modal" id="authModal">
     <!-- LOGIN -->
     <div id="loginForm">
-      <div id="loginContent">
-        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px;text-align:center;">Синхронизация с сетью MSE</h2>
-        <form class="auth-form" onsubmit="return false;">
-          <div class="form-group" id="stepId">
-            <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off">
-          </div>
-          <div id="loginTransitionLoader" style="display:none;"><div id="lottie-login-transition" style="width:120px;height:120px;margin:0 auto;filter:grayscale(1) brightness(0.6);"></div></div>
-          <div class="form-group" id="stepPin" style="display:none;">
-            <div class="pin-input-container">
-              <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
-              <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
-              <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
-              <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
+      <div id="loginContent" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;padding-top:24px;">
+        <div>
+          <h2 class="auth-header" style="font-size:22px;font-weight:600;margin-bottom:18px;letter-spacing:-.3px;text-align:center;line-height:1.2;">Синхронизация с сетью MSE</h2>
+          <form class="auth-form" onsubmit="return false;">
+            <div class="form-group" id="stepId" style="margin-bottom:14px;">
+              <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off" style="font-size:28px;">
             </div>
-          </div>
-          <div class="auth-buttons" id="loginButtons">
-            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-          </div>
-        </form>
-        <div class="auth-switch" style="display:flex;align-items:center;justify-content:center;gap:6px;">
-          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width:14px;height:14px;">
-          <span>Нет аккаунта? <button onclick="showRegister()">Присоединиться к MSE</button></span>
+            <div id="loginTransitionLoader" style="display:none;"><div id="lottie-login-transition" style="width:120px;height:120px;margin:0 auto;filter:grayscale(1) brightness(0.6);"></div></div>
+            <div class="form-group" id="stepPin" style="display:none;margin-bottom:14px;">
+              <div class="pin-input-container">
+                <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
+                <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
+                <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
+                <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
+              </div>
+            </div>
+            <div class="auth-buttons" id="loginButtons">
+              <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+            </div>
+          </form>
+        </div>
+        <div class="auth-switch" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;">
+          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width:16px;height:16px;">
+          <span style="font-size:15px;">Нет аккаунта? <button onclick="showRegister()" style="font-size:15px;">Присоединиться к MSE</button></span>
         </div>
       </div>
       <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;"><div id="lottie-login-to-register" style="width:240px;height:240px;filter:grayscale(1) brightness(0.6);"></div></div>
       <div id="loginLoader" class="fullscreen-loader" style="display:none;"><div id="lottie-login-loader" style="width:240px;height:240px;filter:grayscale(1) brightness(0.6);"></div></div>
-      <div id="loginSuccess" class="fullscreen-success" style="display:none;">
-        <div id="lottie-login-chain" style="width:96px;height:96px;margin:0 auto 12px;"></div>
-        <div class="success-text">Синхронизация выполнена</div>
+      <div id="loginSuccess" class="fullscreen-success" style="display:none;padding-top:30px;">
+        <div id="lottie-login-chain" style="width:96px;height:96px;margin:0 auto 16px;"></div>
+        <div class="success-text" style="font-size:18px;line-height:1.3;">Синхронизация выполнена</div>
       </div>
     </div>
     <!-- REGISTER -->
@@ -2146,20 +2164,23 @@
       <div id="registerContent">
         <!-- STEP 1: PIN CODE -->
         <div class="register-form-content" id="registerStep1">
-          <div class="user-id-display">
-            <span class="user-id-label">Вы станете звеном под номером:</span>
-            <span class="user-id-number" id="newUserId">----</span>
+          <div class="user-id-display" style="padding:12px;margin-bottom:12px;">
+            <span class="user-id-label" style="font-size:13px;">ВЫ СТАНЕТЕ ЗВЕНОМ ПОД НОМЕРОМ:</span>
+            <span class="user-id-number" id="newUserId" style="font-size:13px;">----</span>
           </div>
-          <form class="auth-form" onsubmit="return false;" style="margin-top: 24px;">
-            <div class="form-label-key">
+          <form class="auth-form" onsubmit="return false;" style="margin-top: 12px;">
+            <div class="form-label-key" style="margin-bottom:12px;">
               <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="">
-              <span>Создайте уникальный ключ доступа</span>
+              <span style="font-size:16px;">Создайте уникальный ключ доступа</span>
             </div>
-            <div class="pin-input-container">
+            <div class="pin-input-container" style="margin-bottom:10px;">
               <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
+            </div>
+            <div style="font-size:11px;color:var(--text-tertiary);text-align:center;line-height:1.4;margin-top:0;">
+              Внимание! Ключ доступа не восстанавливается. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
             </div>
           </form>
         </div>
@@ -2199,8 +2220,10 @@
     <!-- LOGOUT -->
     <div id="logoutModal" style="display:none;">
       <div class="logout-modal">
-        <h2 class="auth-header" style="font-size:18px;font-weight:600;margin-bottom:12px;letter-spacing:-.3px;text-align:center;">Отключиться от сети MSE</h2>
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.5;text-align:center;">Вы уверены, что хотите прекратить синхронизацию?</p>
+        <div>
+          <h2 class="auth-header" style="font-size:16px;font-weight:600;letter-spacing:-.3px;text-align:center;">Отключиться от сети MSE</h2>
+          <p style="font-size:12px;color:var(--text-secondary);line-height:1.4;text-align:center;">Вы уверены, что хотите прекратить синхронизацию?</p>
+        </div>
         <div class="auth-buttons">
           <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
           <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
@@ -2475,7 +2498,7 @@ function navigateMonitor(direction) {
 // MOBILE: Флаг для предотвращения двойного вызова
 let isTogglingMonitor = false;
 let lastToggleTime = 0;
-const TOGGLE_DEBOUNCE = 1000; // 1 секунда
+const TOGGLE_DEBOUNCE = 600; // 0.6 секунды (быстрее для лучшего UX)
 let toggleCallId = 0; // Уникальный ID для каждого вызова
 
 function toggleMonitorMode(event) {
@@ -2604,10 +2627,10 @@ function toggleProfileLayer() {
         // Генерируем рандомный процент от 30% до 90%
         const randomPercent = Math.floor(Math.random() * 61) + 30;
         
-        // Обновляем процент в тексте "ИНДЕКС X%"
+        // Обновляем процент в тексте "B-ИНДЕКС X%"
         const indexText = document.getElementById('indexPercentText');
         if (indexText) {
-            indexText.textContent = `ИНДЕКС ${randomPercent}%`;
+            indexText.textContent = `B-ИНДЕКС ${randomPercent}%`;
         }
         
         // Обновляем высоту заливки и волны
@@ -2703,13 +2726,21 @@ async function captureMonitorSnapshot() {
         
         console.log('Styles restored');
         
-        // Конвертируем canvas в blob
-        return new Promise(resolve => {
-            canvas.toBlob(blob => {
-                console.log('Blob created:', blob);
-                resolve(blob);
-            }, 'image/png');
-        });
+        // Конвертируем canvas в blob через dataURL (обходим tainted canvas)
+        try {
+            const dataURL = canvas.toDataURL('image/png');
+            console.log('DataURL created, length:', dataURL.length);
+            
+            // Конвертируем dataURL в blob
+            const response = await fetch(dataURL);
+            const blob = await response.blob();
+            console.log('Blob created from dataURL:', blob);
+            return blob;
+        } catch (blobError) {
+            console.error('Error converting to blob:', blobError);
+            // Если и это не работает, возвращаем dataURL напрямую
+            return canvas.toDataURL('image/png');
+        }
     } catch (error) {
         console.error('Error capturing monitor snapshot:', error);
         return null;
@@ -2721,9 +2752,11 @@ function downloadSnapshot(url, filename) {
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    console.log('Download initiated for:', filename);
 }
 
 // Выбор сегмента диаграммы состава тела - УДАЛЕНО (теперь просто график)
@@ -3096,18 +3129,23 @@ document.getElementById('headerLoginBtn').addEventListener('click', () => {
     currentUser ? showLogout() : showLogin();
 });
 
-const LOGIN_WIDTH = '320px';
+const LOGIN_WIDTH = '380px'; // Все окна одинакового размера
 const REG_WIDTH = '380px';
-const SUCCESS_WIDTH = '340px'; // Оптимальная ширина для сообщения об успехе
+const SUCCESS_WIDTH = '380px';
+const MODAL_HEIGHT = '280px';
+const LOGOUT_HEIGHT = '140px'; // Logout window is half height
 
 function setModalWidth(w) {
     const m = document.getElementById('authModal');
     m.style.width = w;
+    m.style.height = MODAL_HEIGHT; // Всегда устанавливаем фиксированную высоту
 }
 
 function showLogin() {
     const modal = document.getElementById('authModal');
     modal.style.width = LOGIN_WIDTH; // Устанавливаем сразу без анимации
+    modal.style.height = MODAL_HEIGHT; // Устанавливаем фиксированную высоту
+    modal.classList.remove('logout-size'); // Remove logout-specific styling
     
     // Clear animation loaded flags
     const animationContainers = [
@@ -3182,6 +3220,8 @@ async function showRegister() {
     const modal = document.getElementById('authModal');
     modal.style.transition = 'transform 0.3s ease'; // Убираем transition для width
     modal.style.width = REG_WIDTH;
+    modal.style.height = MODAL_HEIGHT; // Устанавливаем фиксированную высоту
+    modal.classList.remove('logout-size'); // Remove logout-specific styling
     
     // Find next available ID by checking both local and Firebase
     let newId = 1001; // Start from 1001
@@ -3194,14 +3234,21 @@ async function showRegister() {
         newId = Math.max(...localIds) + 1;
     }
     
-    // Check Firebase to make sure this ID doesn't exist there either
+    // Check Firebase to make sure this ID doesn't exist there either (with timeout)
     let idExists = true;
     let attempts = 0;
-    const maxAttempts = 100; // Prevent infinite loop
+    const maxAttempts = 10; // Reduced from 100 to 10 for faster response
     
     while (idExists && attempts < maxAttempts) {
         try {
-            const firebaseData = await loadUserFromFirebase(newId);
+            // Add timeout to Firebase check
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Timeout')), 2000) // 2 second timeout
+            );
+            
+            const firebasePromise = loadUserFromFirebase(newId);
+            const firebaseData = await Promise.race([firebasePromise, timeoutPromise]);
+            
             if (!firebaseData) {
                 idExists = false; // ID is free
                 console.log(`[REGISTER] Found available ID: ${newId}`);
@@ -3210,17 +3257,15 @@ async function showRegister() {
                 newId++; // Try next ID
             }
         } catch (error) {
-            console.error(`[REGISTER] Error checking ID ${newId}:`, error);
-            newId++; // Try next ID on error
+            console.log(`[REGISTER] Error/timeout checking ID ${newId}, assuming it's free:`, error.message);
+            idExists = false; // Assume ID is free on error/timeout
         }
         attempts++;
     }
     
     if (attempts >= maxAttempts) {
-        console.error('[REGISTER] Could not find available ID after 100 attempts');
-        showAlert('Ошибка: не удалось найти свободный номер звена. Попробуйте позже.', 'Ошибка регистрации');
-        closeAuth();
-        return;
+        console.warn('[REGISTER] Could not verify ID availability, using local max + 1');
+        // Don't show error, just use the ID we have
     }
     
     setTimeout(()=>{
@@ -3266,7 +3311,10 @@ async function showRegister() {
 }
 
 function showLogout() {
-    setModalWidth('320px');
+    const modal = document.getElementById('authModal');
+    modal.style.width = '380px';
+    modal.style.height = LOGOUT_HEIGHT; // Logout window is half height
+    modal.classList.add('logout-size'); // Add logout-specific styling
     document.getElementById('loginForm').style.display='none';
     document.getElementById('registerForm').style.display='none';
     document.getElementById('logoutModal').style.display='block';
@@ -4137,8 +4185,10 @@ function register(){
         
         // ПЛАВНЫЙ переход: анимируем изменение размера окна
         const modal = document.getElementById('authModal');
-        modal.style.transition = 'transform 0.3s ease, width 0.8s cubic-bezier(0.4,0,0.2,1)';
+        modal.style.transition = 'transform 0.3s ease';
         modal.style.width = SUCCESS_WIDTH;
+        modal.style.height = MODAL_HEIGHT; // Устанавливаем фиксированную высоту
+        modal.classList.remove('logout-size'); // Remove logout-specific styling
     }, 300);
     
     setTimeout(async ()=>{
@@ -4180,20 +4230,14 @@ function register(){
             successEl.style.opacity = '0';
             
             successEl.querySelector('.success-text').innerHTML=
-                `<div id="lottie-register-sofia" style="width:96px;height:96px;margin:0 auto 16px;filter:grayscale(1) brightness(0.6);opacity:0.5;"></div>
-                <div style="font-size:18px;line-height:1.4;margin-bottom:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;width:100%;text-align:center;">Добро пожаловать</div>
-                <div style="width:100%;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;margin-bottom:20px;display:flex;flex-direction:column;gap:6px;">
-                  <div style="font-size:13px;line-height:1.5;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;width:100%;">
-                    <span>Звено #${userId.toString().padStart(4,'0')} было успешно</span>
-                  </div>
-                  <div style="font-size:13px;line-height:1.5;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;width:100%;">
-                    <span>подключено к ядру MSE.</span>
-                  </div>
-                  <div style="font-size:13px;line-height:1.5;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;width:100%;">
-                    <span>Синхронизация выполнена</span>
+                `<div id="lottie-register-sofia" style="width:70px;height:70px;margin:0 auto 10px;filter:grayscale(1) brightness(0.6);opacity:0.5;"></div>
+                <div style="font-size:15px;line-height:1.3;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;width:100%;text-align:center;">Добро пожаловать</div>
+                <div style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;margin-bottom:10px;display:flex;flex-direction:column;gap:4px;">
+                  <div style="font-size:12px;line-height:1.3;color:var(--text-secondary);width:100%;text-align:center;">
+                    <span>Звено #${userId.toString().padStart(4,'0')} было успешно подключено к ядру MSE. Синхронизация выполнена</span>
                   </div>
                 </div>
-                <button onclick="completeRegistration(${userId})" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.15)'" style="width:100%;padding:12px 16px;background:rgba(255,255,255,.15);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;cursor:pointer;transition:all .2s ease;font-size:13px;">перейти в свою ячейку</button>`;
+                <button onclick="completeRegistration(${userId})" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.15)'" style="width:100%;padding:9px 16px;background:rgba(255,255,255,.15);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;cursor:pointer;transition:all .2s ease;font-size:13px;">перейти в свою ячейку</button>`;
             
             // Load Sofia eye lottie animation
             setTimeout(() => {
@@ -6635,30 +6679,43 @@ function sendMessage(){
                     setTimeout(async () => {
                         try {
                             console.log('Starting snapshot capture...');
-                            const snapshotBlob = await captureMonitorSnapshot();
-                            console.log('Snapshot blob:', snapshotBlob);
+                            const snapshotData = await captureMonitorSnapshot();
+                            console.log('Snapshot data:', snapshotData);
                             
-                            if (snapshotBlob) {
+                            if (snapshotData) {
                                 // Добавляем скриншот как файл в чат
                                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
                                 const fileName = `Monitor_Snapshot_${timestamp}.png`;
                                 
-                                console.log('Creating file message with blob size:', snapshotBlob.size);
+                                // Проверяем, это blob или dataURL
+                                let url, size, blob;
+                                if (typeof snapshotData === 'string') {
+                                    // Это dataURL
+                                    url = snapshotData;
+                                    size = Math.round(snapshotData.length * 0.75); // Примерный размер
+                                    console.log('Using dataURL, estimated size:', size);
+                                } else {
+                                    // Это blob
+                                    blob = snapshotData;
+                                    url = URL.createObjectURL(snapshotData);
+                                    size = snapshotData.size;
+                                    console.log('Using blob, size:', size);
+                                }
                                 
                                 chatStore[targetChatTab].push({
                                     role: 'ai',
                                     type: 'file',
                                     name: fileName,
                                     extension: 'png',
-                                    size: snapshotBlob.size,
-                                    blob: snapshotBlob,
-                                    url: URL.createObjectURL(snapshotBlob)
+                                    size: size,
+                                    blob: blob,
+                                    url: url
                                 });
                                 
                                 console.log('File message added to chat store');
                                 safeRenderChatMessages();
                             } else {
-                                console.error('Snapshot blob is null');
+                                console.error('Snapshot data is null');
                                 chatStore[targetChatTab].push({
                                     role:'ai', 
                                     text: 'Произошла ошибка при создании снимка. Попробуйте еще раз.'
@@ -7558,7 +7615,7 @@ function initSingleECGCanvas(canvas) {
     // Animation variables
     let time = 0;
     const baseWaveSpeed = 0.015;
-    const amplitude = canvas.height * 0.12;
+    const amplitude = canvas.height * 0.10;
     const baselineY = canvas.height * 0.5;
     
     // Gradient colors (freedom grain style)
