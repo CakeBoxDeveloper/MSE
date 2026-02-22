@@ -369,9 +369,6 @@
 .content-grid.both-collapsed .hidden-module {
     /* opacity и filter управляются через JS */
 }
-}
-
-
 
 /* ДОБАВИТЬ новый код */
 .chat-tabs-wrapper {
@@ -476,7 +473,6 @@
     padding: 0;
     transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s ease, opacity 0.8s ease;
 }
-}
 
 /* MOBILE: Скрываем поиск при сворачивании */
 .content-block.collapsed #browserSearchWrap,
@@ -536,6 +532,21 @@
             }
         }
         
+        @keyframes moveLine {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(50%);
+            }
+        }
+        
+        /* Stop line animations by default */
+        #pipelineLine1 > div,
+        #pipelineLine2 > div {
+            animation-play-state: paused;
+        }
+        
         .material-item.shimmer::after {
             content: '';
             position: absolute;
@@ -548,6 +559,26 @@
                 rgba(153, 153, 153, 0.3) 50%, 
                 transparent 100%);
             animation: shimmer 1s ease-in-out;
+        }
+        
+        /* Shimmer for login PIN step */
+        #stepPin.shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        #stepPin.shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(153, 153, 153, 0.3) 50%, 
+                transparent 100%);
+            animation: shimmer 1s ease-in-out;
+            pointer-events: none;
         }
         .material-item:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
         .material-icon {
@@ -1271,6 +1302,7 @@
             border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:22px;
             font-weight:600;text-align:center;transition:all .2s ease;flex-shrink:0;
         }
+        .pin-digit::placeholder { color:rgba(255,255,255,.125); }
         .pin-digit.error { border-color:rgba(255,80,80,.5) !important; }
         .pin-digit:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3); }
         .pin-digit.error:focus { border-color:rgba(255,80,80,.5) !important; }
@@ -2126,29 +2158,52 @@
   <div class="auth-modal" id="authModal">
     <!-- LOGIN -->
     <div id="loginForm">
-      <div id="loginContent" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;padding-top:24px;">
+      <div id="loginContent" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;padding-top:5px;">
         <div>
-          <h2 class="auth-header" style="font-size:20px;font-weight:600;margin-bottom:18px;letter-spacing:-.5px;text-align:center;line-height:1.2;white-space:nowrap;width:100%;">Синхронизация с сетью MSE</h2>
-          <form class="auth-form" onsubmit="return false;">
+          <div style="text-align:center;color:#999;font-size:13px;margin-bottom:1px;">Запрос на подключение к сети MSE</div>
+          <!-- Pipeline with 3 icons -->
+          <div class="login-pipeline" style="display:flex;align-items:center;justify-content:center;margin-bottom:1px;gap:0;position:relative;height:90px;">
+            <!-- Icon 1: Computer -->
+            <div class="pipeline-icon" id="pipelineIcon1" style="width:45px;height:45px;position:relative;z-index:2;">
+              <div id="lottie-pipeline-computer" style="width:45px;height:45px;"></div>
+            </div>
+            <!-- Line 1 (static) -->
+            <div class="pipeline-line" style="flex:1;height:2px;background:#999;position:relative;margin:0 12px;"></div>
+            <!-- Icon 2: Fingerprint (30% bigger than 70px = 91px) -->
+            <div class="pipeline-icon" id="pipelineIcon2" style="width:91px;height:91px;position:relative;z-index:2;">
+              <div id="lottie-pipeline-fingerprint" style="width:91px;height:91px;"></div>
+            </div>
+            <!-- Line 2 (static) -->
+            <div class="pipeline-line" style="flex:1;height:2px;background:#999;position:relative;margin:0 12px;"></div>
+            <!-- Icon 3: Sofia Eye -->
+            <div class="pipeline-icon" id="pipelineIcon3" style="width:45px;height:45px;position:relative;z-index:2;">
+              <div id="lottie-pipeline-sofia" style="width:45px;height:45px;"></div>
+            </div>
+          </div>
+          <form class="auth-form" onsubmit="return false;" style="margin-top:2px;">
+            <div id="stepInstruction" style="text-align:center;color:rgba(153,153,153,.6);font-size:13px;margin-bottom:4px;">Введите номер звена</div>
             <div class="form-group" id="stepId" style="margin-bottom:14px;">
-              <input type="number" class="form-input" id="loginId" placeholder="Введите номер..." autocomplete="off" style="font-size:18px;">
+              <div class="pin-input-container">
+                <input type="number" class="pin-digit" id="loginId1" maxlength="1" autocomplete="off">
+                <input type="number" class="pin-digit" id="loginId2" maxlength="1" autocomplete="off">
+                <input type="number" class="pin-digit" id="loginId3" maxlength="1" autocomplete="off">
+                <input type="number" class="pin-digit" id="loginId4" maxlength="1" autocomplete="off">
+              </div>
             </div>
             <div id="loginTransitionLoader" style="display:none;"><div id="lottie-login-transition" style="width:120px;height:120px;margin:0 auto;filter:grayscale(1) brightness(0.6);"></div></div>
             <div class="form-group" id="stepPin" style="display:none;margin-bottom:14px;">
-              <div class="pin-input-container">
+              <div class="pin-input-container" id="pinContainer">
                 <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
                 <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
                 <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
                 <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
               </div>
             </div>
-            <div class="auth-buttons" id="loginButtons">
-              <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-            </div>
+            <!-- Success text will appear here -->
+            <div id="pipelineSuccessText" style="display:none;font-size:16px;text-align:center;line-height:1.3;padding:12px 0;"></div>
           </form>
         </div>
-        <div class="auth-switch" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;width:100%;">
-          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width:16px;height:16px;">
+        <div class="auth-switch" id="authSwitchText" style="display:flex;align-items:center;justify-content:center;margin-bottom:8px;margin-top:auto;width:100%;">
           <span style="font-size:13px;white-space:nowrap;width:100%;text-align:center;">Нет аккаунта? <button onclick="showRegister()" style="font-size:13px;">Присоединиться к MSE</button></span>
         </div>
       </div>
@@ -3125,8 +3180,14 @@ async function loadChatsFromFirebase(userId) {
     }
 }
 
-document.getElementById('headerLoginBtn').addEventListener('click', () => {
-    currentUser ? showLogout() : showLogin();
+// Wait for DOM to be ready before adding event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const headerLoginBtn = document.getElementById('headerLoginBtn');
+    if (headerLoginBtn) {
+        headerLoginBtn.addEventListener('click', () => {
+            currentUser ? showLogout() : showLogin();
+        });
+    }
 });
 
 const LOGIN_WIDTH = '380px'; // Все окна одинакового размера
@@ -3152,7 +3213,10 @@ function showLogin() {
         'lottie-login-to-register',
         'lottie-login-loader',
         'lottie-login-chain',
-        'lottie-login-transition'
+        'lottie-login-transition',
+        'lottie-pipeline-computer',
+        'lottie-pipeline-fingerprint',
+        'lottie-pipeline-sofia'
     ];
     
     animationContainers.forEach(containerId => {
@@ -3168,6 +3232,17 @@ function showLogin() {
     document.getElementById('logoutModal').style.display='none';
     document.getElementById('loginContent').style.display='block';
     
+    // Show "No account?" text
+    const authSwitchText = document.getElementById('authSwitchText');
+    if (authSwitchText) authSwitchText.style.display = 'flex';
+    
+    // Reset instruction text
+    const stepInstruction = document.getElementById('stepInstruction');
+    if (stepInstruction) {
+        stepInstruction.textContent = 'Введите номер звена';
+        stepInstruction.style.display = 'block';
+    }
+    
     // Reset step visibility and styles
     const stepId = document.getElementById('stepId');
     const stepPin = document.getElementById('stepPin');
@@ -3180,21 +3255,70 @@ function showLogin() {
     stepPin.style.opacity='1';
     stepPin.style.transition='';
     
+    // Reset success text
+    const successText = document.getElementById('pipelineSuccessText');
+    if (successText) successText.style.display = 'none';
+    
+    // Clear ID input fields
+    loginIdInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = '';
+            input.classList.remove('error');
+        }
+    });
+    
+    // Clear PIN input fields and placeholders
+    loginPinInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = '';
+            input.placeholder = '';
+            input.classList.remove('error');
+        }
+    });
+    
+    // Reset login state
+    loginIdChecked = false;
+    enteredLoginId = '';
+    
     document.getElementById('loginTransitionLoader').style.display='none';
+    
+    // Load pipeline animations
+    loadPipelineComputerAnimation('lottie-pipeline-computer').then(anim => {
+        pipelineAnimations.computer = anim;
+        if (anim) {
+            anim.play(); // Start computer animation on step 1
+        }
+    });
+    loadPipelineFingerprintAnimation('lottie-pipeline-fingerprint').then(anim => {
+        pipelineAnimations.fingerprint = anim;
+        if (anim) {
+            // Set speed to 2x
+            anim.setSpeed(2);
+            // Go to middle frame and pause (not stop)
+            const totalFrames = anim.totalFrames;
+            const middleFrame = totalFrames / 2;
+            anim.goToAndPlay(middleFrame, true);
+            // Pause immediately after going to frame
+            setTimeout(() => {
+                if (anim) anim.pause();
+            }, 50);
+        }
+    });
+    loadSofiaAnimation('lottie-pipeline-sofia').then(anim => {
+        pipelineAnimations.sofia = anim;
+        // Don't play yet, will play on success
+    });
     document.getElementById('loginToRegisterLoader').style.display='none';
     document.getElementById('loginLoader').style.display='none';
     document.getElementById('loginSuccess').style.display='none';
-    document.getElementById('loginButtons').style.display='flex';
-    document.getElementById('loginId').value='';
-    document.getElementById('loginId').classList.remove('error');
     
     // Remove shimmer from container
     stepId.classList.remove('shimmer');
     
-    ['loginPin1','loginPin2','loginPin3','loginPin4'].forEach(id=>document.getElementById(id).value='');
-    loginIdChecked=false;
     document.getElementById('authOverlay').classList.add('active');
-    setTimeout(()=>document.getElementById('loginId').focus(),300);
+    setTimeout(()=>document.getElementById('loginId1').focus(),300);
 }
 
 async function showRegister() {
@@ -3351,6 +3475,21 @@ function closeAuth() {
         }
     });
 }
+
+// Close auth modal when clicking outside
+document.addEventListener('DOMContentLoaded', () => {
+    const authOverlay = document.getElementById('authOverlay');
+    const authModal = document.getElementById('authModal');
+    
+    if (authOverlay && authModal) {
+        authOverlay.addEventListener('click', (e) => {
+            // Close only if clicking on overlay, not on modal itself
+            if (e.target === authOverlay) {
+                closeAuth();
+            }
+        });
+    }
+});
 
 // Product Key Modal Functions
 let currentLockedItem = null;
@@ -3568,15 +3707,20 @@ async function loadSofiaAnimation(containerId, speed = 0.5) {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
+        let data = await response.json();
         
         console.log(`[SOFIA] Animation data loaded successfully`);
+        
+        // Convert to grayscale for pipeline
+        if (containerId === 'lottie-pipeline-sofia') {
+            data = convertLottieToGrayscale(data);
+        }
         
         const animation = lottie.loadAnimation({
             container: container,
             renderer: 'svg',
             loop: true,
-            autoplay: true,
+            autoplay: containerId !== 'lottie-pipeline-sofia', // Don't autoplay in pipeline
             animationData: data
         });
         
@@ -3648,6 +3792,204 @@ async function loadChainAnimation(containerId, speed = 1) {
         return null;
     }
 }
+
+// Pipeline animation loaders for login flow
+async function loadPipelineComputerAnimation(containerId) {
+    console.log(`[PIPELINE-COMPUTER] Loading animation for: ${containerId}`);
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`[PIPELINE-COMPUTER] Container ${containerId} not found`);
+        return null;
+    }
+    
+    if (container.dataset.animationLoaded === 'true') {
+        console.log(`[PIPELINE-COMPUTER] Animation already loaded, skipping...`);
+        return null;
+    }
+    
+    container.innerHTML = '';
+    
+    try {
+        // Using the correct GitHub URL
+        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/wNcrVcQABQ.json');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        let data = await response.json();
+        
+        // Convert to grayscale
+        data = convertLottieToGrayscale(data);
+        
+        const animation = lottie.loadAnimation({
+            container: container,
+            renderer: 'svg',
+            loop: true,
+            autoplay: false,
+            animationData: data
+        });
+        
+        container.dataset.animationLoaded = 'true';
+        console.log(`[PIPELINE-COMPUTER] Animation loaded successfully`);
+        return animation;
+    } catch(e) {
+        console.error(`[PIPELINE-COMPUTER] Error loading animation:`, e);
+        // Fallback: try alternative URL or show emoji
+        container.innerHTML = '<div style="width:45px;height:45px;display:flex;align-items:center;justify-content:center;font-size:24px;filter:grayscale(1) brightness(0.6);">💻</div>';
+        return null;
+    }
+}
+
+async function loadPipelineFingerprintAnimation(containerId) {
+    console.log(`[PIPELINE-FINGERPRINT] Loading animation for: ${containerId}`);
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`[PIPELINE-FINGERPRINT] Container ${containerId} not found`);
+        return null;
+    }
+    
+    if (container.dataset.animationLoaded === 'true') {
+        console.log(`[PIPELINE-FINGERPRINT] Animation already loaded, skipping...`);
+        return null;
+    }
+    
+    container.innerHTML = '';
+    
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Fingerprint%20Scan.json');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        let data = await response.json();
+        
+        // Convert to grayscale
+        data = convertLottieToGrayscale(data);
+        
+        const animation = lottie.loadAnimation({
+            container: container,
+            renderer: 'svg',
+            loop: true,
+            autoplay: false,
+            animationData: data
+        });
+        
+        container.dataset.animationLoaded = 'true';
+        console.log(`[PIPELINE-FINGERPRINT] Animation loaded successfully`);
+        return animation;
+    } catch(e) {
+        console.error(`[PIPELINE-FINGERPRINT] Error loading animation:`, e);
+        container.innerHTML = '<div style="width:91px;height:91px;display:flex;align-items:center;justify-content:center;font-size:50px;filter:grayscale(1) brightness(0.6);">👆</div>';
+        return null;
+    }
+}
+
+// Function to convert Lottie colors to light gray (#999)
+function convertLottieToGrayscale(data) {
+    const lightGray = 153 / 255; // #999999 in 0-1 range
+    
+    const convertColor = (color) => {
+        if (!Array.isArray(color) || color.length < 3) return color;
+        // Set all colors to light gray
+        return [lightGray, lightGray, lightGray, color[3] !== undefined ? color[3] : 1];
+    };
+    
+    const convertKeyframe = (keyframe) => {
+        if (keyframe.s && Array.isArray(keyframe.s)) keyframe.s = convertColor(keyframe.s);
+        if (keyframe.e && Array.isArray(keyframe.e)) keyframe.e = convertColor(keyframe.e);
+    };
+    
+    const processColorProperty = (prop) => {
+        if (!prop) return;
+        
+        if (prop.k) {
+            if (Array.isArray(prop.k)) {
+                // Static color
+                if (typeof prop.k[0] === 'number') {
+                    prop.k = convertColor(prop.k);
+                } else {
+                    // Array of keyframes
+                    prop.k.forEach(convertKeyframe);
+                }
+            } else if (typeof prop.k === 'object' && prop.k.k) {
+                // Nested k property
+                if (Array.isArray(prop.k.k)) {
+                    if (typeof prop.k.k[0] === 'number') {
+                        prop.k.k = convertColor(prop.k.k);
+                    } else {
+                        prop.k.k.forEach(convertKeyframe);
+                    }
+                }
+            }
+        }
+    };
+    
+    const processLayer = (layer) => {
+        // Process solid color layers
+        if (layer.ty === 1 && layer.sc) {
+            // Solid color layer
+            const hex = layer.sc;
+            if (typeof hex === 'string') {
+                layer.sc = '#999999';
+            }
+        }
+        
+        // Process shapes
+        if (layer.shapes) {
+            layer.shapes.forEach(shape => {
+                if (shape.it) {
+                    shape.it.forEach(item => {
+                        // Fill color
+                        if (item.ty === 'fl' && item.c) {
+                            processColorProperty(item.c);
+                        }
+                        // Stroke color
+                        if (item.ty === 'st' && item.c) {
+                            processColorProperty(item.c);
+                        }
+                        // Gradient fill
+                        if (item.ty === 'gf' && item.g && item.g.k && item.g.k.k) {
+                            for (let i = 0; i < item.g.k.k.length; i += 4) {
+                                item.g.k.k[i + 1] = lightGray;
+                                item.g.k.k[i + 2] = lightGray;
+                                item.g.k.k[i + 3] = lightGray;
+                            }
+                        }
+                        // Gradient stroke
+                        if (item.ty === 'gs' && item.g && item.g.k && item.g.k.k) {
+                            for (let i = 0; i < item.g.k.k.length; i += 4) {
+                                item.g.k.k[i + 1] = lightGray;
+                                item.g.k.k[i + 2] = lightGray;
+                                item.g.k.k[i + 3] = lightGray;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Process nested layers
+        if (layer.layers) {
+            layer.layers.forEach(processLayer);
+        }
+    };
+    
+    if (data.layers) {
+        data.layers.forEach(processLayer);
+    }
+    
+    // Process assets
+    if (data.assets) {
+        data.assets.forEach(asset => {
+            if (asset.layers) {
+                asset.layers.forEach(processLayer);
+            }
+        });
+    }
+    
+    return data;
+}
+
+// Global variables to store pipeline animations
+let pipelineAnimations = {
+    computer: null,
+    fingerprint: null,
+    sofia: null
+};
 
 function showProductKeyModal(itemTitle, itemIndex, tabType, itemIcon, itemDesc) {
     currentLockedItem = { title: itemTitle, index: itemIndex, tabType: tabType };
@@ -3871,77 +4213,116 @@ function confirmLogout() {
 
 // ── Login ID check ──
 let loginIdChecked=false;
-async function checkLoginId() {
-    const input=document.getElementById('loginId');
-    const stepId=document.getElementById('stepId');
-    
-    if(input.value.length>4) input.value=input.value.slice(0,4);
-    const val=input.value.trim();
-    
-    if(val===''){
-        input.classList.remove('error');
-        stepId.classList.remove('shimmer');
-        return;
-    }
-    
-    input.classList.remove('error');
-    
-    if(val.length===4&&!loginIdChecked){
-        const id=parseInt(val);
+let enteredLoginId='';
+
+// ── Login ID (4 separate inputs) ──
+const loginIdInputs=['loginId1','loginId2','loginId3','loginId4'];
+loginIdInputs.forEach((id,index)=>{
+    const input=document.getElementById(id);
+    input.addEventListener('input',async function(){
+        // Remove error styling from all ID inputs
+        loginIdInputs.forEach(p=>document.getElementById(p).classList.remove('error'));
         
-        // Add shimmer animation to container immediately when 4th digit is entered
-        stepId.classList.add('shimmer');
+        // Limit to 1 digit
+        if(this.value.length>1)this.value=this.value.slice(0,1);
         
-        // Check in local users first
-        let exists=users.find(u=>u.id===id);
+        // Auto-focus next input
+        if(this.value.length===1&&index<loginIdInputs.length-1)
+            document.getElementById(loginIdInputs[index+1]).focus();
         
-        // If not found locally, check Firebase
-        if (!exists) {
-            const firebaseData = await loadUserFromFirebase(id);
-            if (firebaseData) {
-                // User exists in Firebase, add to local array
-                exists = { id: id, pin: firebaseData.pin || '0000' };
-                users.push(exists);
+        // Check if all 4 digits are filled
+        const allFilled=loginIdInputs.every(p=>document.getElementById(p).value.length===1);
+        if(allFilled&&!loginIdChecked){
+            const idStr=loginIdInputs.map(p=>document.getElementById(p).value).join('');
+            const id=parseInt(idStr);
+            enteredLoginId=idStr;
+            
+            const stepId=document.getElementById('stepId');
+            
+            // Add shimmer animation to container immediately when 4th digit is entered
+            stepId.classList.add('shimmer');
+            
+            // Check in local users first
+            let exists=users.find(u=>u.id===id);
+            
+            // If not found locally, check Firebase
+            if (!exists) {
+                const firebaseData = await loadUserFromFirebase(id);
+                if (firebaseData) {
+                    // User exists in Firebase, add to local array
+                    exists = { id: id, pin: firebaseData.pin || '0000' };
+                    users.push(exists);
+                }
+            }
+            
+            // Remove shimmer animation from container
+            stepId.classList.remove('shimmer');
+            
+            if(exists){
+                loginIdChecked=true;
+                
+                // Stop computer animation
+                if (pipelineAnimations.computer) pipelineAnimations.computer.stop();
+                
+                // Start fingerprint animation
+                if (pipelineAnimations.fingerprint) pipelineAnimations.fingerprint.play();
+                
+                // Hide "No account?" text
+                const authSwitchText = document.getElementById('authSwitchText');
+                if (authSwitchText) authSwitchText.style.display = 'none';
+                
+                // Update instruction text to "Введите PIN-код"
+                const stepInstruction = document.getElementById('stepInstruction');
+                if (stepInstruction) stepInstruction.textContent = 'Введите PIN-код';
+                
+                // Set placeholder for PIN inputs - one digit per field
+                loginPinInputs.forEach((pinId, index) => {
+                    const pinInput = document.getElementById(pinId);
+                    if (pinInput && enteredLoginId[index]) {
+                        pinInput.placeholder = enteredLoginId[index];
+                    }
+                });
+                
+                // Blur transition without loader
+                stepId.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                stepId.style.filter = 'blur(8px)';
+                stepId.style.opacity = '0';
+                
+                setTimeout(()=>{
+                    stepId.style.display='none';
+                    const stepPin = document.getElementById('stepPin');
+                    stepPin.style.display='flex';
+                    stepPin.style.filter = 'blur(8px)';
+                    stepPin.style.opacity = '0';
+                    
+                    // Fade in PIN step
+                    setTimeout(() => {
+                        stepPin.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                        stepPin.style.filter = 'blur(0px)';
+                        stepPin.style.opacity = '1';
+                        setTimeout(()=>document.getElementById('loginPin1').focus(),100);
+                    }, 50);
+                }, 300);
+            } else { 
+                // Show error on all ID inputs
+                loginIdInputs.forEach(p=>document.getElementById(p).classList.add('error'));
             }
         }
-        
-        // Remove shimmer animation from container
-        stepId.classList.remove('shimmer');
-        
-        if(exists){
-            loginIdChecked=true;
-            
-            // Blur transition without loader
-            stepId.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-            stepId.style.filter = 'blur(8px)';
-            stepId.style.opacity = '0';
-            
-            setTimeout(()=>{
-                stepId.style.display='none';
-                const stepPin = document.getElementById('stepPin');
-                stepPin.style.display='flex';
-                stepPin.style.filter = 'blur(8px)';
-                stepPin.style.opacity = '0';
-                
-                // Fade in PIN step
-                setTimeout(() => {
-                    stepPin.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-                    stepPin.style.filter = 'blur(0px)';
-                    stepPin.style.opacity = '1';
-                    setTimeout(()=>document.getElementById('loginPin1').focus(),100);
-                }, 50);
-            }, 300);
-        } else { 
-            input.classList.add('error'); 
+    });
+    
+    // Handle backspace to move to previous input
+    input.addEventListener('keydown',function(e){
+        if(e.key==='Backspace'&&this.value===''&&index>0){
+            document.getElementById(loginIdInputs[index-1]).focus();
         }
-    }
-}
-(function(){
-    const el=document.getElementById('loginId');
-    el.addEventListener('input',checkLoginId);
-    el.addEventListener('keyup',checkLoginId);
-    el.addEventListener('input',function(){if(this.value.trim().length<4)loginIdChecked=false;});
-})();
+    });
+    
+    // Reset loginIdChecked when user starts editing
+    input.addEventListener('input',function(){
+        const anyEmpty=loginIdInputs.some(p=>document.getElementById(p).value.length===0);
+        if(anyEmpty)loginIdChecked=false;
+    });
+});
 
 // ── Login PIN ──
 const loginPinInputs=['loginPin1','loginPin2','loginPin3','loginPin4'];
@@ -3955,82 +4336,101 @@ loginPinInputs.forEach((id,index)=>{
         const allFilled=loginPinInputs.every(p=>document.getElementById(p).value.length===1);
         if(allFilled){
             const pin=loginPinInputs.map(p=>document.getElementById(p).value).join('');
-            const uid=parseInt(document.getElementById('loginId').value);
+            const uid=parseInt(enteredLoginId);
             const user=users.find(u=>u.id===uid&&u.pin===pin);
             if(user){
-                document.getElementById('loginContent').style.display='none';
-                document.getElementById('loginLoader').style.display='flex';
-                window.currentLoginLoaderStop = startGrainLoader('grainLoaderLogin');
+                // Keep fingerprint on current frame (save frame before pausing)
+                if (pipelineAnimations.fingerprint) {
+                    const currentFrame = pipelineAnimations.fingerprint.currentFrame;
+                    pipelineAnimations.fingerprint.goToAndStop(currentFrame, true);
+                }
+                
+                // Add shimmer to PIN step
+                const stepPin = document.getElementById('stepPin');
+                stepPin.classList.add('shimmer');
+                
                 setTimeout(()=>{
-                    if (window.currentLoginLoaderStop) {
-                        window.currentLoginLoaderStop();
-                    }
+                    // Remove shimmer
+                    stepPin.classList.remove('shimmer');
+                    
+                    // Start Sofia animation
+                    if (pipelineAnimations.sofia) pipelineAnimations.sofia.play();
+                    
+                    // Hide instruction text
+                    const stepInstruction = document.getElementById('stepInstruction');
+                    if (stepInstruction) stepInstruction.style.display = 'none';
+                    
+                    // Hide PIN step, show success message in same window
+                    stepPin.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                    stepPin.style.filter = 'blur(8px)';
+                    stepPin.style.opacity = '0';
+                    
                     setTimeout(() => {
-                        document.getElementById('loginLoader').style.display='none';
-                    }, 850); // Wait for blur+opacity transition
-                    document.getElementById('loginSuccess').style.display='flex';
-                    
-                    // Load Green Chain lottie animation for login success
-                    loadChainAnimation('lottie-login-chain');
-                    
-                    setTimeout(async ()=>{
-                        try {
-                            console.log('[LOGIN] Starting login process...');
-                            currentUser=user;
-                            loginDate = new Date();
-                            
-                            console.log('[LOGIN] Starting lifecycle manager...');
-                            // Start lifecycle manager
-                            lifecycleManager.start();
-                            
-                            console.log('[LOGIN] Loading user data from Firebase...');
-                            // Load user data from Firebase
-                            const firebaseData = await loadUserFromFirebase(user.id);
-                            console.log('[LOGIN] Firebase data loaded:', firebaseData);
-                            
-                            if (firebaseData) {
-                                console.log('[LOGIN] Processing Firebase data...');
+                        stepPin.style.display = 'none';
+                        
+                        // Show success text in place of form
+                        const successText = document.getElementById('pipelineSuccessText');
+                        successText.textContent = 'Синхронизация выполнена';
+                        successText.style.display = 'block';
+                        
+                        setTimeout(async ()=>{
+                            try {
+                                console.log('[LOGIN] Starting login process...');
+                                currentUser=user;
+                                loginDate = new Date();
                                 
-                                // Clear old chats BEFORE loading from Firebase
-                                console.log('[LOGIN] Clearing old chats...');
-                                chatStore = { sofia: [] };
-                                activeChatTab = 'sofia';
-                                renderedMessageCounts = {};
+                                console.log('[LOGIN] Starting lifecycle manager...');
+                                // Start lifecycle manager
+                                lifecycleManager.start();
                                 
-                                // Load gender and age
-                                if (firebaseData.gender) {
-                                    currentUser.gender = firebaseData.gender;
-                                    console.log('[LOGIN] Gender loaded:', currentUser.gender);
-                                } else {
-                                    console.log('[LOGIN] No gender in Firebase data, setting default');
-                                    currentUser.gender = 'male'; // Default gender
-                                    // Save default gender to Firebase
-                                    await saveUserToFirebase(user.id, {
-                                        ...firebaseData,
-                                        gender: currentUser.gender
-                                    });
-                                }
-                                if (firebaseData.age) {
-                                    currentUser.age = firebaseData.age;
-                                    console.log('[LOGIN] Age loaded:', currentUser.age);
-                                } else {
-                                    currentUser.age = 18; // Default age
-                                }
-                                // Load achievements
-                                if (firebaseData.achievements) {
-                                    userAchievements = firebaseData.achievements;
-                                }
-                                // Load notes
-                                if (firebaseData.notes) {
-                                    userNotes = firebaseData.notes;
-                                }
-                                // Load monitor stats
-                                if (firebaseData.monitorStats) {
-                                    // Apply monitor stats if needed
-                                    console.log('Monitor stats loaded:', firebaseData.monitorStats);
-                                }
-                                // Load chats
-                                if (firebaseData.chats) {
+                                console.log('[LOGIN] Loading user data from Firebase...');
+                                // Load user data from Firebase
+                                const firebaseData = await loadUserFromFirebase(user.id);
+                                console.log('[LOGIN] Firebase data loaded:', firebaseData);
+                                
+                                if (firebaseData) {
+                                    console.log('[LOGIN] Processing Firebase data...');
+                                    
+                                    // Clear old chats BEFORE loading from Firebase
+                                    console.log('[LOGIN] Clearing old chats...');
+                                    chatStore = { sofia: [] };
+                                    activeChatTab = 'sofia';
+                                        renderedMessageCounts = {};
+                                    
+                                    // Load gender and age
+                                    if (firebaseData.gender) {
+                                        currentUser.gender = firebaseData.gender;
+                                        console.log('[LOGIN] Gender loaded:', currentUser.gender);
+                                    } else {
+                                        console.log('[LOGIN] No gender in Firebase data, setting default');
+                                        currentUser.gender = 'male'; // Default gender
+                                        // Save default gender to Firebase
+                                        await saveUserToFirebase(user.id, {
+                                            ...firebaseData,
+                                            gender: currentUser.gender
+                                        });
+                                    }
+                                    if (firebaseData.age) {
+                                        currentUser.age = firebaseData.age;
+                                        console.log('[LOGIN] Age loaded:', currentUser.age);
+                                    } else {
+                                        currentUser.age = 18; // Default age
+                                    }
+                                    // Load achievements
+                                    if (firebaseData.achievements) {
+                                        userAchievements = firebaseData.achievements;
+                                    }
+                                    // Load notes
+                                    if (firebaseData.notes) {
+                                        userNotes = firebaseData.notes;
+                                    }
+                                    // Load monitor stats
+                                    if (firebaseData.monitorStats) {
+                                        // Apply monitor stats if needed
+                                        console.log('Monitor stats loaded:', firebaseData.monitorStats);
+                                    }
+                                    // Load chats
+                                    if (firebaseData.chats) {
                                     console.log('[LOGIN] Loading chats from Firebase...');
                                     console.log('[LOGIN] Firebase chats data:', firebaseData.chats);
                                     console.log('[LOGIN] Sofia chat messages:', firebaseData.chats.sofia);
@@ -4133,6 +4533,12 @@ loginPinInputs.forEach((id,index)=>{
                             
                             console.log('[LOGIN] Hiding success screen and closing auth...');
                             // Hide success screen and reset login form
+                            const successText = document.getElementById('pipelineSuccessText');
+                            if (successText) {
+                                successText.style.display = 'none';
+                                successText.textContent = '';
+                            }
+                            
                             document.getElementById('loginSuccess').style.display='none';
                             document.getElementById('loginContent').style.display='block';
                             
@@ -4191,6 +4597,12 @@ loginPinInputs.forEach((id,index)=>{
                         } catch (error) {
                             console.error('[LOGIN] Error during login process:', error);
                             // Even if there's an error, close the modal
+                            const successText = document.getElementById('pipelineSuccessText');
+                            if (successText) {
+                                successText.style.display = 'none';
+                                successText.textContent = '';
+                            }
+                            
                             document.getElementById('loginSuccess').style.display='none';
                             document.getElementById('loginContent').style.display='block';
                             loginPinInputs.forEach(p=>{
@@ -4199,8 +4611,9 @@ loginPinInputs.forEach((id,index)=>{
                             });
                             closeAuth();
                         }
-                    },1000);
-                },2000);
+                    },1500); // Reduced from 1000 to 1500 for better UX
+                }, 1500); // Reduced from 2000 to 1500 - shimmer duration
+                }, 1500); // Closes first setTimeout - shimmer
             } else {
                 document.getElementById('loginPin1').focus();
                 requestAnimationFrame(()=>{loginPinInputs.forEach(p=>document.getElementById(p).classList.add('error'));});
