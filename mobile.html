@@ -1288,19 +1288,19 @@
         .auth-btn.primary { background:rgba(255,255,255,.15); }
         .auth-btn.primary:hover { background:rgba(255,255,255,.22); }
         .auth-btn:disabled { opacity:.5;cursor:not-allowed; }
-        .auth-switch { margin-top:6px;text-align:center;font-size:15px;color:var(--text-secondary); }
-        .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:15px; }
+        .auth-switch { margin-top:6px;text-align:center;font-size:13px;color:var(--text-secondary); }
+        .auth-switch button { background:none;border:none;color:var(--text-primary);cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;font-size:13px; }
 
         /* Register form */
         .register-form-content { display:flex;flex-direction:column;align-items:stretch;width:100%;gap:8px;height:100%; }
         .register-form-content .auth-header { font-size:18px;font-weight:600;letter-spacing:-.3px;text-align:center;width:100%; }
         .user-id-display {
-            padding:12px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
+            padding:10px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
             border-radius:5px;display:flex;align-items:center;justify-content:center;
             gap:8px;width:100%;white-space:nowrap;
         }
-        .user-id-label { font-size:13px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;white-space:nowrap; }
-        .user-id-number { font-size:13px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;white-space:nowrap; }
+        .user-id-label { font-size:11px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;white-space:nowrap; }
+        .user-id-number { font-size:11px;color:var(--text-secondary);letter-spacing:-.2px;font-weight:600;white-space:nowrap; }
         .register-form-content .auth-form { width:100%;display:flex;flex-direction:column;gap:8px; }
         .register-form-content .form-label-key {
             text-align:center;font-size:14px;font-weight:600;
@@ -2128,10 +2128,10 @@
     <div id="loginForm">
       <div id="loginContent" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;padding-top:24px;">
         <div>
-          <h2 class="auth-header" style="font-size:22px;font-weight:600;margin-bottom:18px;letter-spacing:-.3px;text-align:center;line-height:1.2;">Синхронизация с сетью MSE</h2>
+          <h2 class="auth-header" style="font-size:20px;font-weight:600;margin-bottom:18px;letter-spacing:-.3px;text-align:center;line-height:1.2;white-space:nowrap;">Синхронизация с сетью MSE</h2>
           <form class="auth-form" onsubmit="return false;">
             <div class="form-group" id="stepId" style="margin-bottom:14px;">
-              <input type="number" class="form-input" id="loginId" placeholder="Введите номер звена" autocomplete="off" style="font-size:28px;">
+              <input type="number" class="form-input" id="loginId" placeholder="Введите номер..." autocomplete="off" style="font-size:18px;">
             </div>
             <div id="loginTransitionLoader" style="display:none;"><div id="lottie-login-transition" style="width:120px;height:120px;margin:0 auto;filter:grayscale(1) brightness(0.6);"></div></div>
             <div class="form-group" id="stepPin" style="display:none;margin-bottom:14px;">
@@ -2149,7 +2149,7 @@
         </div>
         <div class="auth-switch" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;">
           <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/8e7c454664cbf26d3a86b667ca03be110f258e8c/chain.svg" alt="" style="width:16px;height:16px;">
-          <span style="font-size:15px;">Нет аккаунта? <button onclick="showRegister()" style="font-size:15px;">Присоединиться к MSE</button></span>
+          <span style="font-size:13px;white-space:nowrap;">Нет аккаунта? <button onclick="showRegister()" style="font-size:13px;">Присоединиться к MSE</button></span>
         </div>
       </div>
       <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;"><div id="lottie-login-to-register" style="width:240px;height:240px;filter:grayscale(1) brightness(0.6);"></div></div>
@@ -2164,14 +2164,14 @@
       <div id="registerContent">
         <!-- STEP 1: PIN CODE -->
         <div class="register-form-content" id="registerStep1">
-          <div class="user-id-display" style="padding:12px;margin-bottom:12px;">
-            <span class="user-id-label" style="font-size:13px;">ВЫ СТАНЕТЕ ЗВЕНОМ ПОД НОМЕРОМ:</span>
-            <span class="user-id-number" id="newUserId" style="font-size:13px;">----</span>
+          <div class="user-id-display" style="padding:10px;margin-bottom:12px;">
+            <span class="user-id-label" style="font-size:11px;">ВЫ СТАНЕТЕ ЗВЕНОМ ПОД НОМЕРОМ:</span>
+            <span class="user-id-number" id="newUserId" style="font-size:11px;">----</span>
           </div>
           <form class="auth-form" onsubmit="return false;" style="margin-top: 12px;">
             <div class="form-label-key" style="margin-bottom:12px;">
               <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="">
-              <span style="font-size:16px;">Создайте уникальный ключ доступа</span>
+              <span style="font-size:14px;white-space:nowrap;">Создайте уникальный ключ доступа</span>
             </div>
             <div class="pin-input-container" style="margin-bottom:10px;">
               <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
@@ -2179,7 +2179,7 @@
               <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
               <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
             </div>
-            <div style="font-size:11px;color:var(--text-tertiary);text-align:center;line-height:1.4;margin-top:0;">
+            <div style="font-size:11px;color:var(--text-tertiary);text-align:justify;line-height:1.4;margin-top:0;width:100%;">
               Внимание! Ключ доступа не восстанавливается. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
             </div>
           </form>
@@ -2189,7 +2189,7 @@
         <div class="register-form-content" id="registerStep2" style="display:none;">
           <form class="auth-form" onsubmit="return false;">
             <div class="age-slider-container">
-              <div class="age-display">
+              <div class="age-display" style="margin-bottom:18px;">
                 <div class="age-label">Возраст</div>
                 <div class="age-value" id="ageValue">18</div>
               </div>
