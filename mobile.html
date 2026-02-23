@@ -2373,16 +2373,13 @@
 <div class="auth-overlay" id="inviteWelcomeOverlay" style="display:none;">
   <div class="auth-modal" id="inviteWelcomeModal" style="width:380px;height:auto;">
     <div style="padding:24px;text-align:center;">
-      <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px;">Приглашение в MSE</div>
-      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">Вас приглашает</div>
-      <div id="inviterInfo" style="font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:20px;text-transform:uppercase;letter-spacing:0.5px;"></div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:24px;">Хотите присоединиться к сети MSE?</div>
+      <div id="inviterInfo" style="font-size:14px;color:var(--text-secondary);margin-bottom:24px;line-height:1.5;"></div>
       <div style="display:flex;gap:12px;">
-        <button onclick="acceptInvite()" style="flex:1;background:var(--text-secondary);color:var(--bg-primary);border:none;border-radius:6px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s ease;">
-          Да, присоединиться
-        </button>
         <button onclick="closeInviteWelcome()" style="flex:1;background:rgba(255,255,255,.05);color:var(--text-secondary);border:1px solid var(--glass-border);border-radius:6px;padding:12px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s ease;">
           Нет
+        </button>
+        <button onclick="acceptInvite()" style="flex:1;background:var(--text-secondary);color:var(--bg-primary);border:none;border-radius:6px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s ease;">
+          Да
         </button>
       </div>
     </div>
@@ -9671,7 +9668,9 @@ function closeInviteWelcome() {
 }
 
 function acceptInvite() {
+    console.log('[INVITE] Accept button clicked');
     closeInviteWelcome();
+    console.log('[INVITE] Calling showRegister...');
     showRegister();
 }
 
@@ -9687,7 +9686,7 @@ function checkInviteParam() {
             console.log('[INVITE] Invite from user:', inviterId);
             
             // Show welcome modal
-            document.getElementById('inviterInfo').textContent = `Звено ${inviterId.toString().padStart(4, '0')}`;
+            document.getElementById('inviterInfo').textContent = `Звено ${inviterId.toString().padStart(4, '0')} предлагает вам присоединиться к ядру MSE`;
             const welcomeOverlay = document.getElementById('inviteWelcomeOverlay');
             welcomeOverlay.style.display = 'flex';
             welcomeOverlay.classList.add('active');
