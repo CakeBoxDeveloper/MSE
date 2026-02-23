@@ -2074,7 +2074,7 @@
                 </div>
                 
                 <!-- Слой 1: Текстовая информация (по умолчанию ВИДИМЫЙ) -->
-                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease; display: flex; flex-direction: column; justify-content: space-between;">
+                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease; display: flex; flex-direction: column; justify-content: space-between;">
                   <div>
                     <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
                     <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
@@ -2194,7 +2194,7 @@
         <div>
           <div style="text-align:center;color:#999;font-size:13px;margin-bottom:1px;">Запрос на подключение к сети MSE</div>
           <!-- Pipeline with 3 icons -->
-          <div class="login-pipeline" style="display:flex;align-items:center;justify-content:center;margin-bottom:1px;gap:0;position:relative;height:90px;">
+          <div class="login-pipeline" style="display:flex;align-items:center;justify-content:center;margin-bottom:0;gap:0;position:relative;height:90px;">
             <!-- Icon 1: Computer -->
             <div class="pipeline-icon" id="pipelineIcon1" style="width:45px;height:45px;position:relative;z-index:2;">
               <div id="lottie-pipeline-computer" style="width:45px;height:45px;"></div>
@@ -2212,8 +2212,8 @@
               <div id="lottie-pipeline-sofia" style="width:45px;height:45px;"></div>
             </div>
           </div>
-          <form class="auth-form" onsubmit="return false;" style="margin-top:2px;">
-            <div id="stepInstruction" style="text-align:center;color:rgba(153,153,153,.6);font-size:13px;margin-bottom:2px;">Введите номер звена</div>
+          <form class="auth-form" onsubmit="return false;" style="margin-top:0;">
+            <div id="stepInstruction" style="text-align:center;color:rgba(153,153,153,.6);font-size:13px;margin-bottom:1px;margin-top:-10px;">Введите номер звена</div>
             <div class="form-group" id="stepId" style="margin-bottom:14px;">
               <div class="pin-input-container">
                 <input type="number" class="pin-digit" id="loginId1" maxlength="1" autocomplete="off">
