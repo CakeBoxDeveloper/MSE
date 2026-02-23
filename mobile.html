@@ -1914,11 +1914,14 @@
                 </video>
               </div>
               
-              <!-- Плашка с номером звена -->
-              <div style="display: flex; align-items: flex-end; justify-content: center; width: 100%;">
-                <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="width: 200px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 16px 12px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: pointer; transition: all 0.2s ease;">
+              <!-- Плашка с номером звена и кнопка инвайта -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div id="monitorUserPlate" style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 0 12px; height: 33px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: not-allowed; opacity: 0.5; transition: all 0.2s ease;">
                   <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
                 </div>
+                <button id="inviteButton" onclick="showInviteModal()" style="display: none; width: 33px; height: 33px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-secondary); font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; padding: 0; align-items: center; justify-content: center;">
+                  +
+                </button>
               </div>
             </div>
             
@@ -2352,6 +2355,40 @@
   </div>
 </div>
 
+<!-- INVITE MODAL -->
+<div class="auth-overlay" id="inviteOverlay" style="display:none;">
+  <div class="auth-modal" id="inviteModal" style="width:380px;height:auto;">
+    <div style="padding:24px;text-align:center;">
+      <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;letter-spacing:0.5px;">Присоединить новое звено?</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.3;">Скопируйте ссылку, чтобы подключить новое звено к ядру</div>
+      <div id="inviteLink" style="background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;padding:12px;font-size:11px;color:var(--text-primary);word-break:break-all;margin-bottom:16px;font-family:monospace;"></div>
+      <button onclick="copyInviteLink(event)" style="width:100%;background:var(--text-secondary);color:var(--bg-primary);border:none;border-radius:6px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s ease;">
+        Скопировать ссылку
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- INVITE WELCOME MODAL -->
+<div class="auth-overlay" id="inviteWelcomeOverlay" style="display:none;">
+  <div class="auth-modal" id="inviteWelcomeModal" style="width:380px;height:auto;">
+    <div style="padding:24px;text-align:center;">
+      <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px;">Приглашение в MSE</div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">Вас приглашает</div>
+      <div id="inviterInfo" style="font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:20px;text-transform:uppercase;letter-spacing:0.5px;"></div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:24px;">Хотите присоединиться к сети MSE?</div>
+      <div style="display:flex;gap:12px;">
+        <button onclick="acceptInvite()" style="flex:1;background:var(--text-secondary);color:var(--bg-primary);border:none;border-radius:6px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s ease;">
+          Да, присоединиться
+        </button>
+        <button onclick="closeInviteWelcome()" style="flex:1;background:rgba(255,255,255,.05);color:var(--text-secondary);border:1px solid var(--glass-border);border-radius:6px;padding:12px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s ease;">
+          Нет
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PDF Modal -->
 <div class="pdf-modal-overlay" id="pdfModalOverlay">
     <div class="pdf-modal-content" onclick="event.stopPropagation();">
@@ -2570,10 +2607,39 @@ function updateMonitorVideo(gender) {
 }
 
 // Toggle between heat and xray skins (DISABLED - now using random selection)
+// Toggle between heat and xray skins
 function toggleMonitorSkin(event) {
     if (event) event.stopPropagation();
-    console.log('[SKIN] Skin toggle disabled - using random selection on monitor open/close');
-    return;
+    
+    // Check if user is logged in
+    if (!currentUser || !currentUser.gender) {
+        console.log('[SKIN] No user logged in, cannot toggle skin');
+        return;
+    }
+    
+    const gender = currentUser.gender;
+    console.log('[SKIN] Toggling skin for gender:', gender);
+    
+    // Cycle through skins: heat -> xray -> grid -> heat
+    const skins = ['heat', 'xray', 'grid'];
+    const currentIndex = skins.indexOf(currentSkin);
+    const nextIndex = (currentIndex + 1) % skins.length;
+    currentSkin = skins[nextIndex];
+    
+    console.log('[SKIN] Switching to skin:', currentSkin);
+    
+    // Get the new video URL
+    const newVideoUrl = videoSkins[gender][currentSkin];
+    lastVideoUrl = newVideoUrl;
+    
+    // Update video source
+    const video = document.getElementById('monitorHumanVideo');
+    if (video) {
+        video.src = newVideoUrl + '?t=' + Date.now();
+        video.load();
+        video.play().catch(e => console.log('[SKIN] Video play prevented:', e));
+        console.log('[SKIN] Video updated to:', newVideoUrl);
+    }
 }
 
 // MOBILE: Navigate monitor screens (left/right)
@@ -4209,6 +4275,12 @@ function confirmLogout() {
             `;
         }
         
+        // Hide invite button
+        const inviteBtn = document.getElementById('inviteButton');
+        if (inviteBtn) {
+            inviteBtn.style.display = 'none';
+        }
+        
         // Close monitor mode if it's open
         const hiddenModule = document.getElementById('hiddenModule');
         if (hiddenModule && hiddenModule.style.opacity === '1') {
@@ -4636,6 +4708,13 @@ loginPinInputs.forEach((id,index)=>{
                                 console.error('[LOGIN] Header button not found!');
                             }
                             
+                            // Show invite button
+                            const inviteBtn = document.getElementById('inviteButton');
+                            if (inviteBtn) {
+                                inviteBtn.style.display = 'flex';
+                                console.log('[LOGIN] Invite button shown');
+                            }
+                            
                             // Обновляем плашку в мониторе
                             const monitorPlate = document.getElementById('monitorUserPlate');
                             console.log('[LOGIN] Monitor plate element:', monitorPlate);
@@ -4649,6 +4728,15 @@ loginPinInputs.forEach((id,index)=>{
                                 const plateHTML = `<span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>`;
                                 console.log('[LOGIN] Monitor plate HTML:', plateHTML);
                                 monitorPlate.innerHTML = plateHTML;
+                                // Activate plate (make it clickable)
+                                monitorPlate.style.cursor = 'pointer';
+                                monitorPlate.style.opacity = '1';
+                                monitorPlate.onclick = function(e) {
+                                    console.log('[PLATE] Plate clicked!');
+                                    showInviteModal();
+                                };
+                                console.log('[LOGIN] Monitor plate activated');
+                                console.log('[LOGIN] Monitor plate onclick:', monitorPlate.onclick);
                                 console.log('[LOGIN] Monitor plate innerHTML after update:', monitorPlate.innerHTML);
                             } else {
                                 console.error('[LOGIN] Monitor plate not found!');
@@ -6054,9 +6142,25 @@ function restoreSession() {
                     const plateHTML = `<span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>`;
                     console.log('[SESSION] Setting monitor plate HTML:', plateHTML);
                     monitorPlate.innerHTML = plateHTML;
+                    // Activate plate (make it clickable)
+                    monitorPlate.style.cursor = 'pointer';
+                    monitorPlate.style.opacity = '1';
+                    monitorPlate.onclick = function(e) {
+                        console.log('[PLATE] Plate clicked!');
+                        showInviteModal();
+                    };
                     console.log('[SESSION] Monitor plate innerHTML after update:', monitorPlate.innerHTML);
+                    console.log('[SESSION] Monitor plate activated');
+                    console.log('[SESSION] Monitor plate onclick:', monitorPlate.onclick);
                 } else {
                     console.error('[SESSION] Monitor plate not found!');
+                }
+                
+                // Show invite button
+                const inviteBtn = document.getElementById('inviteButton');
+                if (inviteBtn) {
+                    inviteBtn.style.display = 'flex';
+                    console.log('[SESSION] Invite button shown');
                 }
             }, 100);
             
@@ -9483,6 +9587,129 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('[VIDEO] Click handler attached to video');
     }
 });
+
+// ============================================================
+// INVITE SYSTEM
+// ============================================================
+
+function showInviteModal() {
+    console.log('[INVITE] showInviteModal called, currentUser:', currentUser);
+    
+    if (!currentUser) {
+        console.log('[INVITE] User not logged in - button should be disabled');
+        return;
+    }
+    
+    // Generate invite link with user ID encoded
+    const inviteCode = btoa(currentUser.id.toString()); // Base64 encode
+    const inviteUrl = `${window.location.origin}${window.location.pathname}?invite=${inviteCode}`;
+    
+    console.log('[INVITE] Opening modal with URL:', inviteUrl);
+    
+    const inviteLinkElement = document.getElementById('inviteLink');
+    const inviteOverlayElement = document.getElementById('inviteOverlay');
+    
+    console.log('[INVITE] inviteLink element:', inviteLinkElement);
+    console.log('[INVITE] inviteOverlay element:', inviteOverlayElement);
+    
+    if (!inviteLinkElement) {
+        console.error('[INVITE] inviteLink element not found!');
+        return;
+    }
+    
+    if (!inviteOverlayElement) {
+        console.error('[INVITE] inviteOverlay element not found!');
+        return;
+    }
+    
+    inviteLinkElement.textContent = inviteUrl;
+    inviteOverlayElement.style.display = 'flex';
+    inviteOverlayElement.classList.add('active');
+    
+    console.log('[INVITE] Modal should be visible now');
+    
+    // Close on overlay click
+    inviteOverlayElement.onclick = (e) => {
+        if (e.target.id === 'inviteOverlay') {
+            inviteOverlayElement.classList.remove('active');
+            setTimeout(() => {
+                inviteOverlayElement.style.display = 'none';
+            }, 300);
+        }
+    };
+}
+
+function copyInviteLink(event) {
+    const linkText = document.getElementById('inviteLink').textContent;
+    navigator.clipboard.writeText(linkText).then(() => {
+        // Show feedback
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Скопировано!';
+        btn.style.background = 'rgba(255,255,255,0.25)';
+        
+        // Close modal after short delay
+        setTimeout(() => {
+            const overlay = document.getElementById('inviteOverlay');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Reset button
+                btn.textContent = originalText;
+                btn.style.background = 'var(--text-secondary)';
+            }, 300);
+        }, 800);
+    });
+}
+
+function closeInviteWelcome() {
+    const overlay = document.getElementById('inviteWelcomeOverlay');
+    overlay.classList.remove('active');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 300);
+}
+
+function acceptInvite() {
+    closeInviteWelcome();
+    showRegister();
+}
+
+// Check for invite parameter on page load
+function checkInviteParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviteCode = urlParams.get('invite');
+    
+    if (inviteCode && !currentUser) {
+        try {
+            // Decode invite code
+            const inviterId = parseInt(atob(inviteCode));
+            console.log('[INVITE] Invite from user:', inviterId);
+            
+            // Show welcome modal
+            document.getElementById('inviterInfo').textContent = `Звено ${inviterId.toString().padStart(4, '0')}`;
+            const welcomeOverlay = document.getElementById('inviteWelcomeOverlay');
+            welcomeOverlay.style.display = 'flex';
+            welcomeOverlay.classList.add('active');
+            
+            // Close on overlay click
+            document.getElementById('inviteWelcomeOverlay').onclick = (e) => {
+                if (e.target.id === 'inviteWelcomeOverlay') {
+                    closeInviteWelcome();
+                }
+            };
+        } catch (e) {
+            console.error('[INVITE] Invalid invite code:', e);
+        }
+    }
+}
+
+// Check invite on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkInviteParam);
+} else {
+    checkInviteParam();
+}
 
 </script>
 <script src="video-random-fix.js"></script>
