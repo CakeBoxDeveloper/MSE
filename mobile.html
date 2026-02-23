@@ -9711,29 +9711,59 @@ function closeInviteWelcome() {
 function acceptInvite() {
     console.log('[INVITE] Accept button clicked');
     closeInviteWelcome();
-    console.log('[INVITE] Calling showRegister...');
-    showRegister();
+    
+    // Wait for invite modal to close, then show registration
+    setTimeout(() => {
+        console.log('[INVITE] Opening registration modal...');
+        
+        // First ensure auth overlay is visible
+        const authOverlay = document.getElementById('authOverlay');
+        if (authOverlay) {
+            authOverlay.style.display = 'flex';
+            setTimeout(() => {
+                authOverlay.classList.add('active');
+            }, 10);
+        }
+        
+        // Then show register form
+        showRegister();
+        console.log('[INVITE] showRegister called');
+    }, 350);
 }
 
 // Check for invite parameter on page load
 function checkInviteParam() {
+    console.log('[INVITE] checkInviteParam called');
     const urlParams = new URLSearchParams(window.location.search);
+    console.log('[INVITE] URL params:', window.location.search);
     const inviteCode = urlParams.get('invite');
+    console.log('[INVITE] Invite code:', inviteCode);
+    console.log('[INVITE] Current user:', currentUser);
     
     if (inviteCode && !currentUser) {
         try {
             // Decode invite code
             const inviterId = parseInt(atob(inviteCode));
-            console.log('[INVITE] Invite from user:', inviterId);
+            console.log('[INVITE] Decoded inviter ID:', inviterId);
             
             // Show welcome modal
-            document.getElementById('inviterInfo').textContent = `Звено ${inviterId.toString().padStart(4, '0')} предлагает вам присоединиться к ядру MSE`;
+            const inviterInfo = document.getElementById('inviterInfo');
+            console.log('[INVITE] inviterInfo element:', inviterInfo);
+            inviterInfo.textContent = `Звено ${inviterId.toString().padStart(4, '0')} предлагает вам присоединиться к ядру MSE`;
+            
             const welcomeOverlay = document.getElementById('inviteWelcomeOverlay');
+            console.log('[INVITE] welcomeOverlay element:', welcomeOverlay);
             welcomeOverlay.style.display = 'flex';
-            welcomeOverlay.classList.add('active');
+            console.log('[INVITE] Set display to flex');
+            
+            // Use setTimeout to ensure display is applied before adding active class
+            setTimeout(() => {
+                welcomeOverlay.classList.add('active');
+                console.log('[INVITE] Added active class, modal should be visible now');
+            }, 10);
             
             // Close on overlay click
-            document.getElementById('inviteWelcomeOverlay').onclick = (e) => {
+            welcomeOverlay.onclick = (e) => {
                 if (e.target.id === 'inviteWelcomeOverlay') {
                     closeInviteWelcome();
                 }
@@ -9741,6 +9771,8 @@ function checkInviteParam() {
         } catch (e) {
             console.error('[INVITE] Invalid invite code:', e);
         }
+    } else {
+        console.log('[INVITE] Not showing modal - inviteCode:', inviteCode, 'currentUser:', currentUser);
     }
 }
 
