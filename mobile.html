@@ -2192,7 +2192,7 @@
     <div id="loginForm">
       <div id="loginContent" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;padding-top:5px;">
         <div>
-          <div style="text-align:center;color:#999;font-size:13px;margin-bottom:1px;">Запрос на подключение к сети MSE</div>
+          <div style="text-align:center;color:#999;font-size:11px;margin-bottom:1px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;padding:4px 8px;">Запрос на подключение к сети MSE</div>
           <!-- Pipeline with 3 icons -->
           <div class="login-pipeline" style="display:flex;align-items:center;justify-content:center;margin-bottom:0;gap:0;position:relative;height:90px;">
             <!-- Icon 1: Computer -->
@@ -2213,7 +2213,7 @@
             </div>
           </div>
           <form class="auth-form" onsubmit="return false;" style="margin-top:0;">
-            <div id="stepInstruction" style="text-align:center;color:rgba(153,153,153,.6);font-size:13px;margin-bottom:1px;margin-top:-10px;">Введите номер звена</div>
+            <div id="stepInstruction" style="text-align:center;color:rgba(153,153,153,.6);font-size:11px;margin-bottom:0.5px;margin-top:-5px;">Введите номер звена</div>
             <div class="form-group" id="stepId" style="margin-bottom:14px;">
               <div class="pin-input-container">
                 <input type="number" class="pin-digit" id="loginId1" maxlength="1" autocomplete="off">
@@ -2232,7 +2232,7 @@
               </div>
             </div>
             <!-- Success text will appear here -->
-            <div id="pipelineSuccessText" style="display:none;font-size:16px;text-align:center;line-height:1.3;padding:12px 0;"></div>
+            <div id="pipelineSuccessText" style="display:none;font-size:10px;text-align:center;line-height:1.5;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;padding:12px;color:var(--text-secondary);margin-top:8px;"></div>
           </form>
         </div>
         <div class="auth-switch" id="authSwitchText" style="display:flex;align-items:center;justify-content:center;margin-bottom:8px;margin-top:auto;width:100%;">
@@ -4158,6 +4158,14 @@ function confirmLogout() {
     
     // Phase 2: Update content after blur animation
     setTimeout(() => {
+        // Clear session from localStorage
+        try {
+            localStorage.removeItem('mse_user_session');
+            console.log('[LOGOUT] Session cleared from localStorage');
+        } catch (e) {
+            console.error('[LOGOUT] Failed to clear session:', e);
+        }
+        
         // Clear all user data
         currentUser=null;
         loginDate=null;
@@ -4369,12 +4377,13 @@ loginPinInputs.forEach((id,index)=>{
         if(allFilled){
             const pin=loginPinInputs.map(p=>document.getElementById(p).value).join('');
             const uid=parseInt(enteredLoginId);
-            const user=users.find(u=>u.id===uid&&u.pin===pin);
+            let user=users.find(u=>u.id===uid&&u.pin===pin);
             if(user){
-                // Keep fingerprint on current frame (save frame before pausing)
+                // Keep fingerprint on current frame (freeze it on middle frame)
                 if (pipelineAnimations.fingerprint) {
-                    const currentFrame = pipelineAnimations.fingerprint.currentFrame;
-                    pipelineAnimations.fingerprint.goToAndStop(currentFrame, true);
+                    const totalFrames = pipelineAnimations.fingerprint.totalFrames;
+                    const middleFrame = Math.floor(totalFrames / 2);
+                    pipelineAnimations.fingerprint.goToAndStop(middleFrame, true);
                 }
                 
                 // Add shimmer to PIN step
@@ -4402,7 +4411,11 @@ loginPinInputs.forEach((id,index)=>{
                         
                         // Show success text in place of form
                         const successText = document.getElementById('pipelineSuccessText');
-                        successText.textContent = 'Синхронизация выполнена';
+                        // Generate random rayID
+                        const rayID = Array.from({length: 16}, () => 
+                            '0123456789abcdef'[Math.floor(Math.random() * 16)]
+                        ).join('').match(/.{1,4}/g).join('-');
+                        successText.innerHTML = `<strong>Синхронизация выполнена</strong><br><br>Ответ синхронизатора: звено успешно подключено к ядру MSE.<br><br><span style="opacity:0.7;font-size:9px;">${rayID}</span>`;
                         successText.style.display = 'block';
                         
                         setTimeout(async ()=>{
@@ -4582,6 +4595,25 @@ loginPinInputs.forEach((id,index)=>{
                             
                             closeAuth();
                             
+                            // Save session to localStorage
+                            try {
+                                const sessionToSave = {
+                                    id: currentUser.id,
+                                    pin: user.pin,
+                                    gender: currentUser.gender,
+                                    age: currentUser.age,
+                                    loginDate: loginDate.toISOString()
+                                };
+                                console.log('[LOGIN] Saving session to localStorage:', sessionToSave);
+                                localStorage.setItem('mse_user_session', JSON.stringify(sessionToSave));
+                                console.log('[LOGIN] Session saved successfully');
+                                // Verify it was saved
+                                const savedSession = localStorage.getItem('mse_user_session');
+                                console.log('[LOGIN] Verified saved session:', savedSession);
+                            } catch (e) {
+                                console.error('[LOGIN] Failed to save session:', e);
+                            }
+                            
                             console.log('[LOGIN] Activating Sofia tab...');
                             // Activate Sofia tab visually
                             const sofiaTabElement = document.querySelector('.chat-tab[data-base="true"]');
@@ -4595,7 +4627,14 @@ loginPinInputs.forEach((id,index)=>{
                             console.log('[LOGIN] Current user gender:', currentUser.gender);
                             console.log('[LOGIN] Current user object:', currentUser);
                             
-                            document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
+                            const headerBtn = document.getElementById('headerLoginBtn');
+                            console.log('[LOGIN] Header button element:', headerBtn);
+                            if (headerBtn) {
+                                headerBtn.innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
+                                console.log('[LOGIN] Header button updated with ID:', currentUser.id);
+                            } else {
+                                console.error('[LOGIN] Header button not found!');
+                            }
                             
                             // Обновляем плашку в мониторе
                             const monitorPlate = document.getElementById('monitorUserPlate');
@@ -4607,11 +4646,12 @@ loginPinInputs.forEach((id,index)=>{
                                     year: 'numeric'
                                 });
                                 console.log('[LOGIN] Updating monitor plate with user ID:', currentUser.id);
-                                monitorPlate.innerHTML = `
-                                    <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>
-                            `;
+                                const plateHTML = `<span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>`;
+                                console.log('[LOGIN] Monitor plate HTML:', plateHTML);
+                                monitorPlate.innerHTML = plateHTML;
+                                console.log('[LOGIN] Monitor plate innerHTML after update:', monitorPlate.innerHTML);
                             } else {
-                                console.log('[LOGIN] Monitor plate not found!');
+                                console.error('[LOGIN] Monitor plate not found!');
                             }
                             
                             // Update monitor video based on user gender
@@ -5959,9 +5999,103 @@ function animateVitalSigns() {
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initUI);
+    document.addEventListener('DOMContentLoaded', () => {
+        restoreSession();
+        initUI();
+    });
 } else {
+    restoreSession();
     initUI();
+}
+
+// Restore user session from localStorage
+function restoreSession() {
+    console.log('[SESSION] Starting session restore...');
+    try {
+        const sessionData = localStorage.getItem('mse_user_session');
+        console.log('[SESSION] Session data from localStorage:', sessionData);
+        if (sessionData) {
+            const session = JSON.parse(sessionData);
+            console.log('[SESSION] Parsed session:', session);
+            
+            // Restore currentUser
+            currentUser = {
+                id: session.id,
+                pin: session.pin,
+                gender: session.gender || 'male',
+                age: session.age || 18
+            };
+            console.log('[SESSION] currentUser restored:', currentUser);
+            
+            // Restore loginDate
+            loginDate = new Date(session.loginDate);
+            console.log('[SESSION] loginDate restored:', loginDate);
+            
+            // Update UI after DOM is ready
+            setTimeout(() => {
+                console.log('[SESSION] Updating UI elements...');
+                
+                // Update header button
+                const headerBtn = document.getElementById('headerLoginBtn');
+                console.log('[SESSION] Header button element:', headerBtn);
+                if (headerBtn) {
+                    const headerHTML = `<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено ${currentUser.id.toString().padStart(4,'0')}" title="Звено ${currentUser.id.toString().padStart(4,'0')}">`;
+                    console.log('[SESSION] Setting header HTML:', headerHTML);
+                    headerBtn.innerHTML = headerHTML;
+                    console.log('[SESSION] Header button updated');
+                } else {
+                    console.error('[SESSION] Header button not found!');
+                }
+                
+                // Update monitor plate
+                const monitorPlate = document.getElementById('monitorUserPlate');
+                console.log('[SESSION] Monitor plate element:', monitorPlate);
+                if (monitorPlate) {
+                    const plateHTML = `<span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>`;
+                    console.log('[SESSION] Setting monitor plate HTML:', plateHTML);
+                    monitorPlate.innerHTML = plateHTML;
+                    console.log('[SESSION] Monitor plate innerHTML after update:', monitorPlate.innerHTML);
+                } else {
+                    console.error('[SESSION] Monitor plate not found!');
+                }
+            }, 100);
+            
+            // Start lifecycle manager
+            console.log('[SESSION] Starting lifecycle manager...');
+            lifecycleManager.start();
+            
+            // Load user data from Firebase
+            console.log('[SESSION] Loading user data from Firebase...');
+            loadUserFromFirebase(currentUser.id).then(firebaseData => {
+                console.log('[SESSION] Firebase data loaded:', firebaseData);
+                if (firebaseData) {
+                    if (firebaseData.gender) currentUser.gender = firebaseData.gender;
+                    if (firebaseData.age) currentUser.age = firebaseData.age;
+                    if (firebaseData.chats) chatStore = firebaseData.chats;
+                    
+                    console.log('[SESSION] Updated currentUser with Firebase data:', currentUser);
+                    
+                    // Update monitor video
+                    if (currentUser.gender) {
+                        console.log('[SESSION] Updating monitor video with gender:', currentUser.gender);
+                        updateMonitorVideo(currentUser.gender);
+                    }
+                    
+                    // Render chat
+                    console.log('[SESSION] Rendering chat messages...');
+                    renderChatMessages();
+                }
+            }).catch(err => {
+                console.error('[SESSION] Error loading Firebase data:', err);
+            });
+            
+            console.log('[SESSION] Session restored successfully');
+        } else {
+            console.log('[SESSION] No saved session found');
+        }
+    } catch (e) {
+        console.error('[SESSION] Failed to restore session:', e);
+    }
 }
 
 // ============================================================
@@ -6631,7 +6765,7 @@ document.addEventListener('click', (e) => {
 });
 
 // Track rendered message count per chat to detect new messages
-const renderedMessageCounts = {};
+let renderedMessageCounts = {};
 
 // Simple Markdown to HTML converter for chat messages
 function parseMarkdown(text) {
