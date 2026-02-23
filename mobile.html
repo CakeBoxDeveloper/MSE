@@ -254,7 +254,6 @@
         }
         .inner-tabs::-webkit-scrollbar { display: none; }
         .inner-tab {
-            padding: 6px 8px; /* MOBILE: еще меньше padding */
             background: transparent;
             border: 1px solid var(--text-secondary);
             border-radius: 6px;
@@ -263,22 +262,42 @@
             font-family: 'Inter', sans-serif;
             font-size: 10px; /* MOBILE: еще меньше шрифт */
             font-weight: 500;
-            transition: all .2s ease;
+            transition: all .3s ease; /* Плавная анимация */
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 4px; /* MOBILE: меньше gap между иконкой и текстом */
             height: 32px; /* MOBILE: меньше высота */
             white-space: nowrap;
-            flex-shrink: 1; /* MOBILE: позволяем сжиматься */
-            min-width: 0; /* MOBILE: позволяем сжиматься */
+            flex-shrink: 0;
+            width: 32px; /* Неактивные вкладки - только иконка */
+            padding: 0;
+            overflow: hidden;
+        }
+        .inner-tab.active {
+            background: var(--text-secondary);
+            color: var(--bg-primary);
+            border-color: var(--text-secondary);
+            width: auto; /* Активная вкладка - полная ширина */
+            padding: 0 12px;
+            justify-content: flex-start;
         }
         .inner-tab span {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: none; /* Скрываем текст в неактивных */
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+        .inner-tab.active span {
+            display: inline; /* Показываем текст в активной */
+            opacity: 1;
         }
         .inner-tab-icon { width: 12px; height: 12px; flex-shrink: 0; } /* MOBILE: меньше иконки, не сжимаются */
-        .inner-tab.active { background: var(--text-secondary); color: var(--bg-primary); border-color: var(--text-secondary); }
+        .inner-tab.active .inner-tab-icon { filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
+        .inner-tab:hover:not(.active) { border-color: rgba(255,255,255,.3); }
+        .inner-tab-icon { width: 12px; height: 12px; flex-shrink: 0; } /* MOBILE: меньше иконки, не сжимаются */
         .inner-tab.active .inner-tab-icon { filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
         .inner-tab:hover:not(.active) { border-color: rgba(255,255,255,.3); }
         
@@ -1400,6 +1419,13 @@
             }
         }
         
+        @keyframes vitalFluctuation {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-1px); }
+            50% { transform: translateX(1px); }
+            75% { transform: translateX(-0.5px); }
+        }
+        
         /* Monitor video animations */
         @keyframes colorFadeIn {
             0% {
@@ -1720,7 +1746,9 @@
                       <span>Вода</span>
                       <div style="display: flex; align-items: center; gap: 6px;">
                         <span>30% (21.8 кг)</span>
-                        <span id="water-indicator" style="display: inline-block; width: 6px; height: 6px; background: var(--text-secondary); border-radius: 50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+                        <span id="water-indicator" style="display: flex; align-items: center; justify-content: center; width: 6px; height: 6px; position: relative;">
+                          <span style="display: block; width: 6px; height: 6px; background: var(--text-secondary); border-radius: 50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -2046,18 +2074,22 @@
                 </div>
                 
                 <!-- Слой 1: Текстовая информация (по умолчанию ВИДИМЫЙ) -->
-                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease;">
-                  <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
-                  <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
-                  <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
-                  <div style="margin-bottom: 8px;"><strong>Вес:</strong> Стабильный</div>
-                  <div style="margin-bottom: 8px;"><strong>Энергия:</strong> Высокий уровень</div>
-                  <div style="margin-bottom: 6px;"><strong>Рекомендации:</strong></div>
-                  <div style="font-size: 8px; color: var(--text-tertiary);">
-                    • Поддерживать режим тренировок<br>
-                    • Увеличить потребление воды<br>
-                    • Контролировать стресс<br>
-                    • Регулярный сон 7-8 часов
+                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease; display: flex; flex-direction: column; justify-content: space-between;">
+                  <div>
+                    <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
+                    <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
+                    <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
+                    <div style="margin-bottom: 8px;"><strong>Вес:</strong> Стабильный</div>
+                    <div style="margin-bottom: 8px;"><strong>Энергия:</strong> Высокий уровень</div>
+                  </div>
+                  <div>
+                    <div style="margin-bottom: 6px;"><strong>Рекомендации:</strong></div>
+                    <div>
+                      • Поддерживать режим тренировок<br>
+                      • Увеличить потребление воды<br>
+                      • Контролировать стресс<br>
+                      • Регулярный сон 7-8 часов
+                    </div>
                   </div>
                 </div>
                 
@@ -5887,6 +5919,43 @@ function initUI() {
             }, 300); // Увеличено время fade-out в 2 раза
         });
     });
+    
+    // Анимация показателей жизни (пульс, ЧСС, O2)
+    animateVitalSigns();
+}
+
+// Функция для анимации показателей жизни
+function animateVitalSigns() {
+    const pulseEl = document.getElementById('pulseValueMobile');
+    const hrrEl = document.getElementById('hrrValueMobile');
+    const oxygenEl = document.getElementById('oxygenValueMobile');
+    
+    if (!pulseEl || !hrrEl || !oxygenEl) return;
+    
+    // Базовые значения и диапазоны
+    const vitals = {
+        pulse: { element: pulseEl, base: 72, range: 3, current: 72 },
+        hrr: { element: hrrEl, base: 68, range: 2, current: 68 },
+        oxygen: { element: oxygenEl, base: 98, range: 1, current: 98 }
+    };
+    
+    // Функция для плавного изменения значения
+    function updateVital(vital) {
+        // Случайное изменение в пределах диапазона
+        const change = Math.random() < 0.5 ? -1 : 1;
+        const newValue = vital.current + change;
+        
+        // Ограничиваем диапазон
+        if (newValue >= vital.base - vital.range && newValue <= vital.base + vital.range) {
+            vital.current = newValue;
+            vital.element.textContent = vital.current;
+        }
+    }
+    
+    // Обновляем каждый показатель с разной частотой
+    setInterval(() => updateVital(vitals.pulse), 2000 + Math.random() * 1000);
+    setInterval(() => updateVital(vitals.hrr), 2500 + Math.random() * 1000);
+    setInterval(() => updateVital(vitals.oxygen), 3000 + Math.random() * 1000);
 }
 
 if (document.readyState === 'loading') {
