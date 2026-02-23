@@ -1307,12 +1307,17 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent 0%, 
-                rgba(255,255,255,0.2) 50%, 
+                rgba(153, 153, 153, 0.3) 50%, 
                 transparent 100%
             );
-            animation: shimmer 1.5s infinite;
+            animation: shimmer 1s ease-in-out;
             pointer-events: none;
             z-index: 10;
+        }
+        
+        @keyframes shimmerSweep {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .pin-input-container { display:flex;gap:0;justify-content:space-between;margin:0;width:100%; }
@@ -1320,6 +1325,24 @@
             width:55px;height:55px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:8px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:22px;
             font-weight:600;text-align:center;transition:all .2s ease;flex-shrink:0;
+            position:relative;
+        }
+        .pin-digit.shimmer {
+            animation: shimmerPulse 0.56s ease-in-out;
+        }
+        @keyframes shimmerPulse {
+            0% {
+                background: rgba(255,255,255,.05);
+                box-shadow: 0 0 0 rgba(153, 153, 153, 0);
+            }
+            50% {
+                background: rgba(153, 153, 153, 0.25);
+                box-shadow: 0 0 20px rgba(153, 153, 153, 0.4);
+            }
+            100% {
+                background: rgba(255,255,255,.05);
+                box-shadow: 0 0 0 rgba(153, 153, 153, 0);
+            }
         }
         .pin-digit::placeholder { color:rgba(255,255,255,.125); }
         .pin-digit.error { border-color:rgba(255,80,80,.5) !important; }
@@ -1413,8 +1436,8 @@
         @keyframes spin { to{transform:rotate(360deg);} }
         
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
         
         @keyframes ping {
@@ -1604,6 +1627,10 @@
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:13px;
             transition:all .2s ease;letter-spacing:1.5px;text-align:center;text-transform:uppercase;
             min-width:0;
+            position:relative;
+        }
+        .product-key-block.shimmer {
+            animation: shimmerPulse 0.56s ease-in-out;
         }
         .product-key-block::placeholder { color:var(--text-tertiary);letter-spacing:1px;font-size:12px; }
         .product-key-block:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
@@ -2361,7 +2388,7 @@
     </div>
     
     <div style="display:flex;gap:6px;margin-bottom:16px;width:100%;position:relative;">
-      <div id="shimmerOverlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);background-size:200% 100%;background-position:200% 0;animation:shimmer 4s;display:none;border-radius:6px;pointer-events:none;z-index:10;"></div>
+      <div id="shimmerOverlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);background-size:200% 100%;background-position:200% 0;animation:shimmer 8s;display:none;border-radius:6px;pointer-events:none;z-index:10;"></div>
       <input type="text" class="product-key-block" id="keyBlock1" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock2" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock3" placeholder="XXXX" maxlength="4">
@@ -4185,13 +4212,13 @@ function validateProductKey() {
                 // Check if all blocks are filled
                 const allFilled = keyBlocks.every(id => document.getElementById(id).value.length === 4);
                 if (allFilled) {
-                    // Show shimmer and validate after delay
-                    const shimmer = document.getElementById('shimmerOverlay');
-                    shimmer.style.display = 'block';
+                    // Animate shimmer through each key block
+                    animateShimmerThroughCells(keyBlocks);
+                    
+                    // Validate after shimmer animation
                     setTimeout(() => {
-                        shimmer.style.display = 'none';
                         validateProductKey();
-                    }, 4000);
+                    }, 3900); // Shimmer duration (4 cells * 400ms + 800ms animation + 1500ms extra)
                 }
             }
         });
@@ -4355,6 +4382,108 @@ function confirmLogout() {
 let loginIdChecked=false;
 let enteredLoginId='';
 
+// Function to close auth modal after successful login
+function closeAuthAfterSuccess() {
+    const authOverlay = document.getElementById('authOverlay');
+    const successText = document.getElementById('pipelineSuccessText');
+    
+    // Hide success text
+    if (successText) {
+        successText.style.transition = 'opacity 0.3s ease';
+        successText.style.opacity = '0';
+    }
+    
+    // Close modal
+    if (authOverlay) {
+        authOverlay.classList.remove('active');
+        setTimeout(() => {
+            authOverlay.style.display = 'none';
+            
+            // Clear success text after modal is hidden
+            if (successText) {
+                successText.style.display = 'none';
+                successText.textContent = '';
+                successText.style.opacity = '1'; // Reset for next time
+            }
+        }, 300);
+    }
+    
+    // Remove event listener if exists
+    if (window.successModalCloseHandler) {
+        authOverlay.removeEventListener('click', window.successModalCloseHandler);
+        window.successModalCloseHandler = null;
+    }
+}
+
+// Function to animate shimmer through each input cell
+function animateShimmerThroughCells(inputIds, keepShimmer = true) {
+    console.log('[SHIMMER] Starting shimmer animation for:', inputIds, 'keepShimmer:', keepShimmer);
+    
+    if (!keepShimmer) {
+        // Single wave animation
+        inputIds.forEach((id, index) => {
+            setTimeout(() => {
+                const input = document.getElementById(id);
+                console.log('[SHIMMER] Animating cell:', id, 'element:', input);
+                if (input) {
+                    input.classList.add('shimmer');
+                    console.log('[SHIMMER] Added shimmer class to:', id);
+                    setTimeout(() => {
+                        input.classList.remove('shimmer');
+                        console.log('[SHIMMER] Removed shimmer class from:', id);
+                    }, 560); // Duration of shimmer animation (0.56s)
+                }
+            }, index * 280); // Delay between each cell (280ms)
+        });
+    } else {
+        // Looping wave animation
+        let waveInterval;
+        const animateWave = () => {
+            inputIds.forEach((id, index) => {
+                setTimeout(() => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.classList.add('shimmer');
+                        setTimeout(() => {
+                            input.classList.remove('shimmer');
+                        }, 560);
+                    }
+                }, index * 280);
+            });
+        };
+        
+        // Start first wave immediately
+        animateWave();
+        
+        // Repeat wave every (cells * delay + animation duration)
+        const waveDelay = inputIds.length * 280 + 560;
+        waveInterval = setInterval(animateWave, waveDelay);
+        
+        // Store interval ID so we can clear it later
+        if (!window.shimmerIntervals) window.shimmerIntervals = [];
+        window.shimmerIntervals.push(waveInterval);
+    }
+}
+
+// Function to remove shimmer from all cells
+function removeShimmerFromCells(inputIds) {
+    console.log('[SHIMMER] Removing shimmer from all cells:', inputIds);
+    
+    // Clear all shimmer intervals
+    if (window.shimmerIntervals) {
+        window.shimmerIntervals.forEach(interval => clearInterval(interval));
+        window.shimmerIntervals = [];
+    }
+    
+    // Remove shimmer class from all inputs
+    inputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.classList.remove('shimmer');
+        }
+    });
+}
+
 // ── Login ID (4 separate inputs) ──
 const loginIdInputs=['loginId1','loginId2','loginId3','loginId4'];
 loginIdInputs.forEach((id,index)=>{
@@ -4372,81 +4501,81 @@ loginIdInputs.forEach((id,index)=>{
         
         // Check if all 4 digits are filled
         const allFilled=loginIdInputs.every(p=>document.getElementById(p).value.length===1);
+        console.log('[LOGIN ID] All filled:', allFilled, 'loginIdChecked:', loginIdChecked);
         if(allFilled&&!loginIdChecked){
+            console.log('[LOGIN ID] Starting validation...');
             const idStr=loginIdInputs.map(p=>document.getElementById(p).value).join('');
             const id=parseInt(idStr);
             enteredLoginId=idStr;
             
-            const stepId=document.getElementById('stepId');
+            // Animate shimmer through each cell
+            animateShimmerThroughCells(loginIdInputs);
             
-            // Add shimmer animation to container immediately when 4th digit is entered
-            stepId.classList.add('shimmer');
-            
-            // Check in local users first
-            let exists=users.find(u=>u.id===id);
-            
-            // If not found locally, check Firebase
-            if (!exists) {
-                const firebaseData = await loadUserFromFirebase(id);
-                if (firebaseData) {
-                    // User exists in Firebase, add to local array
-                    exists = { id: id, pin: firebaseData.pin || '0000' };
-                    users.push(exists);
-                }
-            }
-            
-            // Remove shimmer animation from container
-            stepId.classList.remove('shimmer');
-            
-            if(exists){
-                loginIdChecked=true;
+            // Delay to show shimmer animation (4 cells * 300ms delay + 500ms last animation)
+            setTimeout(async () => {
+                // Check in local users first
+                let exists=users.find(u=>u.id===id);
                 
-                // Stop computer animation
-                if (pipelineAnimations.computer) pipelineAnimations.computer.stop();
-                
-                // Start fingerprint animation
-                if (pipelineAnimations.fingerprint) pipelineAnimations.fingerprint.play();
-                
-                // Hide "No account?" text
-                const authSwitchText = document.getElementById('authSwitchText');
-                if (authSwitchText) authSwitchText.style.display = 'none';
-                
-                // Update instruction text to "Введите PIN-код"
-                const stepInstruction = document.getElementById('stepInstruction');
-                if (stepInstruction) stepInstruction.textContent = 'Введите PIN-код';
-                
-                // Set placeholder for PIN inputs - one digit per field
-                loginPinInputs.forEach((pinId, index) => {
-                    const pinInput = document.getElementById(pinId);
-                    if (pinInput && enteredLoginId[index]) {
-                        pinInput.placeholder = enteredLoginId[index];
+                // If not found locally, check Firebase
+                if (!exists) {
+                    const firebaseData = await loadUserFromFirebase(id);
+                    if (firebaseData) {
+                        // User exists in Firebase, add to local array
+                        exists = { id: id, pin: firebaseData.pin || '0000' };
+                        users.push(exists);
                     }
-                });
+                }
                 
-                // Blur transition without loader
-                stepId.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-                stepId.style.filter = 'blur(8px)';
-                stepId.style.opacity = '0';
-                
-                setTimeout(()=>{
-                    stepId.style.display='none';
-                    const stepPin = document.getElementById('stepPin');
-                    stepPin.style.display='flex';
-                    stepPin.style.filter = 'blur(8px)';
-                    stepPin.style.opacity = '0';
+                if(exists){
+                    loginIdChecked=true;
                     
-                    // Fade in PIN step
-                    setTimeout(() => {
-                        stepPin.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-                        stepPin.style.filter = 'blur(0px)';
-                        stepPin.style.opacity = '1';
-                        setTimeout(()=>document.getElementById('loginPin1').focus(),100);
-                    }, 50);
-                }, 300);
-            } else { 
-                // Show error on all ID inputs
-                loginIdInputs.forEach(p=>document.getElementById(p).classList.add('error'));
-            }
+                    // Stop computer animation
+                    if (pipelineAnimations.computer) pipelineAnimations.computer.stop();
+                    
+                    // Start fingerprint animation
+                    if (pipelineAnimations.fingerprint) pipelineAnimations.fingerprint.play();
+                    
+                    // Hide "No account?" text
+                    const authSwitchText = document.getElementById('authSwitchText');
+                    if (authSwitchText) authSwitchText.style.display = 'none';
+                    
+                    // Update instruction text to "Введите PIN-код"
+                    const stepInstruction = document.getElementById('stepInstruction');
+                    if (stepInstruction) stepInstruction.textContent = 'Введите PIN-код';
+                    
+                    // Set placeholder for PIN inputs - one digit per field
+                    loginPinInputs.forEach((pinId, index) => {
+                        const pinInput = document.getElementById(pinId);
+                        if (pinInput && enteredLoginId[index]) {
+                            pinInput.placeholder = enteredLoginId[index];
+                        }
+                    });
+                    
+                    // Blur transition without loader
+                    stepId.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                    stepId.style.filter = 'blur(8px)';
+                    stepId.style.opacity = '0';
+                    
+                    setTimeout(()=>{
+                        stepId.style.display='none';
+                        const stepPin = document.getElementById('stepPin');
+                        stepPin.style.display='flex';
+                        stepPin.style.filter = 'blur(8px)';
+                        stepPin.style.opacity = '0';
+                        
+                        // Fade in PIN step
+                        setTimeout(() => {
+                            stepPin.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                            stepPin.style.filter = 'blur(0px)';
+                            stepPin.style.opacity = '1';
+                            setTimeout(()=>document.getElementById('loginPin1').focus(),100);
+                        }, 50);
+                    }, 300);
+                } else { 
+                    // Show error on all ID inputs
+                    loginIdInputs.forEach(p=>document.getElementById(p).classList.add('error'));
+                }
+            }, 3900); // Shimmer duration (4 cells * 400ms + 800ms animation + 1500ms extra)
         }
     });
     
@@ -4486,33 +4615,28 @@ loginPinInputs.forEach((id,index)=>{
                     pipelineAnimations.fingerprint.goToAndStop(middleFrame, true);
                 }
                 
-                // Add shimmer to PIN step
-                const stepPin = document.getElementById('stepPin');
-                stepPin.classList.add('shimmer');
+                // Animate shimmer through each PIN cell and keep it looping
+                animateShimmerThroughCells(loginPinInputs, true);
                 
                 setTimeout(()=>{
-                    // Remove shimmer
-                    stepPin.classList.remove('shimmer');
-                    
                     // Start Sofia animation
                     if (pipelineAnimations.sofia) pipelineAnimations.sofia.play();
                     
                     // Hide instruction text
                     const stepInstruction = document.getElementById('stepInstruction');
-                    if (stepInstruction) stepInstruction.style.display = 'none';
+                    if (stepInstruction) {
+                        stepInstruction.style.transition = 'opacity 0.3s ease';
+                        stepInstruction.style.opacity = '0';
+                        setTimeout(() => {
+                            stepInstruction.style.display = 'none';
+                        }, 300);
+                    }
                     
-                    // Hide PIN step, show success message in same window
-                    stepPin.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
-                    stepPin.style.filter = 'blur(8px)';
-                    stepPin.style.opacity = '0';
-                    
-                    setTimeout(() => {
-                        stepPin.style.display = 'none';
-                        
-                        // Show success text in place of form
-                        const successText = document.getElementById('pipelineSuccessText');
-                        // Generate random rayID (48 chars to fill the block width)
-                        const rayID = Array.from({length: 48}, () => 
+                    // Keep PIN visible with shimmer, don't hide it yet
+                    // Show success text in place of form
+                    const successText = document.getElementById('pipelineSuccessText');
+                        // Generate random rayID (64 chars to fill the block width)
+                        const rayID = Array.from({length: 64}, () => 
                             '0123456789abcdef'[Math.floor(Math.random() * 16)]
                         ).join('').match(/.{1,4}/g).join('-');
                         // Get current date and time
@@ -4527,15 +4651,57 @@ loginPinInputs.forEach((id,index)=>{
                             minute: '2-digit'
                         });
                         successText.innerHTML = `
-                            <strong style="font-size:16px;display:block;margin-bottom:10px;font-weight:600;">Синхронизация завершена</strong>
                             <div style="display:flex;justify-content:space-between;font-size:9px;opacity:0.6;margin-bottom:8px;">
                                 <span>${dateStr}</span>
                                 <span>${timeStr}</span>
                             </div>
-                            <div style="font-size:11px;line-height:1.5;margin-bottom:10px;width:100%;">Ответ синхронизатора: звено ${user.id.toString().padStart(4,'0')} успешно подключено к ядру MSE</div>
-                            <div style="opacity:0.5;font-size:7px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${rayID}</div>
+                            <div style="font-size:11px;line-height:1.5;margin-bottom:10px;width:100%;">Синхронизация завершена. Ответ синхронизатора: звено ${user.id.toString().padStart(4,'0')} успешно подключено к ядру MSE</div>
+                            <div style="opacity:0.5;font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${rayID}</div>
                         `;
-                        successText.style.display = 'block';
+                        
+                        // Remove shimmer from PIN cells
+                        removeShimmerFromCells(loginPinInputs);
+                        
+                        // Hide PIN step with blur
+                        stepPin.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                        stepPin.style.filter = 'blur(8px)';
+                        stepPin.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            stepPin.style.display = 'none';
+                            
+                            // Show success text
+                            successText.style.opacity = '0';
+                            successText.style.display = 'block';
+                            
+                            // Fade in success text
+                            setTimeout(() => {
+                                successText.style.transition = 'opacity 0.5s ease';
+                                successText.style.opacity = '1';
+                                
+                                // Auto-close after 5 seconds
+                                const autoCloseTimeout = setTimeout(() => {
+                                    console.log('[LOGIN] Auto-closing success modal after 5 seconds');
+                                    closeAuthAfterSuccess();
+                                }, 5000);
+                                
+                                // Close on overlay click
+                                const authOverlay = document.getElementById('authOverlay');
+                                const closeHandler = (e) => {
+                                    if (e.target === authOverlay) {
+                                        console.log('[LOGIN] Closing success modal on overlay click');
+                                        clearTimeout(autoCloseTimeout);
+                                        closeAuthAfterSuccess();
+                                        authOverlay.removeEventListener('click', closeHandler);
+                                    }
+                                };
+                                authOverlay.addEventListener('click', closeHandler);
+                                
+                                // Store handler to remove it later
+                                window.successModalCloseHandler = closeHandler;
+                            }, 50);
+                        }, 300);
+                        
                         console.log('[LOGIN] Success text set:', successText.innerHTML);
                         
                         setTimeout(async ()=>{
@@ -4697,12 +4863,7 @@ loginPinInputs.forEach((id,index)=>{
                             }
                             
                             console.log('[LOGIN] Hiding success screen and closing auth...');
-                            // Hide success screen and reset login form
-                            const successText = document.getElementById('pipelineSuccessText');
-                            if (successText) {
-                                successText.style.display = 'none';
-                                successText.textContent = '';
-                            }
+                            // Don't hide success text here - it will be hidden when modal closes
                             
                             document.getElementById('loginSuccess').style.display='none';
                             document.getElementById('loginContent').style.display='block';
@@ -4713,7 +4874,7 @@ loginPinInputs.forEach((id,index)=>{
                                 inp.value='';
                             });
                             
-                            closeAuth();
+                            // Don't close auth here - it will be closed by auto-close or user click
                             
                             // Save session to localStorage
                             try {
@@ -4799,12 +4960,7 @@ loginPinInputs.forEach((id,index)=>{
                             console.log('[LOGIN] Login process completed successfully!');
                         } catch (error) {
                             console.error('[LOGIN] Error during login process:', error);
-                            // Even if there's an error, close the modal
-                            const successText = document.getElementById('pipelineSuccessText');
-                            if (successText) {
-                                successText.style.display = 'none';
-                                successText.textContent = '';
-                            }
+                            // Even if there's an error, don't hide success text - modal will close automatically
                             
                             document.getElementById('loginSuccess').style.display='none';
                             document.getElementById('loginContent').style.display='block';
@@ -4812,11 +4968,10 @@ loginPinInputs.forEach((id,index)=>{
                                 const inp=document.getElementById(p);
                                 inp.value='';
                             });
-                            closeAuth();
+                            // Don't close auth here - it will be closed by auto-close or user click
                         }
                     },2500); // Increased from 1500 to 2500 for better UX
-                }, 2500); // Increased from 1500 to 2500 - shimmer duration
-                }, 2500); // Closes first setTimeout - shimmer
+                }, 3900); // Shimmer duration (4 cells * 400ms + 800ms animation + 1500ms extra)
             } else {
                 document.getElementById('loginPin1').focus();
                 requestAnimationFrame(()=>{loginPinInputs.forEach(p=>document.getElementById(p).classList.add('error'));});
@@ -4893,7 +5048,13 @@ pinInputs.forEach((id,index)=>{
                 // All 4 digits entered - transition to step 2
                 const allFilled = pinInputs.every(id=>document.getElementById(id).value.length===1);
                 if (allFilled) {
-                    transitionToStep2();
+                    // Animate shimmer through each PIN cell
+                    animateShimmerThroughCells(pinInputs);
+                    
+                    // Delay transition to show shimmer animation
+                    setTimeout(() => {
+                        transitionToStep2();
+                    }, 3900); // Shimmer duration (4 cells * 400ms + 800ms animation + 1500ms extra)
                 }
             }
         }
