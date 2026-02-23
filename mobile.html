@@ -1412,6 +1412,11 @@
         }
         @keyframes spin { to{transform:rotate(360deg);} }
         
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
         @keyframes ping {
             75%, 100% {
                 transform: scale(1.7);
@@ -2355,15 +2360,12 @@
       </div>
     </div>
     
-    <div style="display:flex;gap:6px;margin-bottom:16px;width:100%;">
+    <div style="display:flex;gap:6px;margin-bottom:16px;width:100%;position:relative;">
+      <div id="shimmerOverlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);background-size:200% 100%;background-position:200% 0;animation:shimmer 4s;display:none;border-radius:6px;pointer-events:none;z-index:10;"></div>
       <input type="text" class="product-key-block" id="keyBlock1" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock2" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock3" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock4" placeholder="XXXX" maxlength="4">
-    </div>
-    <div class="auth-buttons">
-      <button type="button" class="auth-btn" onclick="closeProductKeyModal()">Отмена</button>
-      <button type="button" class="auth-btn primary" onclick="validateProductKey()">Активировать</button>
     </div>
   </div>
 </div>
@@ -4177,6 +4179,21 @@ function validateProductKey() {
             if (this.value.length === 4 && index < keyBlocks.length - 1) {
                 document.getElementById(keyBlocks[index + 1]).focus();
             }
+            
+            // Auto-validate when all blocks are filled
+            if (this.value.length === 4 && index === keyBlocks.length - 1) {
+                // Check if all blocks are filled
+                const allFilled = keyBlocks.every(id => document.getElementById(id).value.length === 4);
+                if (allFilled) {
+                    // Show shimmer and validate after delay
+                    const shimmer = document.getElementById('shimmerOverlay');
+                    shimmer.style.display = 'block';
+                    setTimeout(() => {
+                        shimmer.style.display = 'none';
+                        validateProductKey();
+                    }, 4000);
+                }
+            }
         });
         
         // Handle backspace to go to previous block
@@ -4500,14 +4517,24 @@ loginPinInputs.forEach((id,index)=>{
                         ).join('').match(/.{1,4}/g).join('-');
                         // Get current date and time
                         const now = new Date();
-                        const dateTime = now.toLocaleString('ru-RU', {
+                        const dateStr = now.toLocaleDateString('ru-RU', {
                             day: '2-digit',
                             month: '2-digit',
-                            year: 'numeric',
+                            year: 'numeric'
+                        });
+                        const timeStr = now.toLocaleTimeString('ru-RU', {
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        successText.innerHTML = `<strong>Синхронизация завершена</strong><br><br>Ответ синхронизатора: звено ${user.id.toString().padStart(4,'0')} успешно подключено к ядру MSE ${dateTime}<br><br><span style="opacity:0.7;font-size:9px;">${rayID}</span>`;
+                        successText.innerHTML = `
+                            <strong style="font-size:16px;display:block;margin-bottom:10px;font-weight:600;">Синхронизация завершена</strong>
+                            <div style="display:flex;justify-content:space-between;font-size:9px;opacity:0.6;margin-bottom:8px;">
+                                <span>${dateStr}</span>
+                                <span>${timeStr}</span>
+                            </div>
+                            <div style="font-size:11px;line-height:1.5;margin-bottom:10px;width:100%;">Ответ синхронизатора: звено ${user.id.toString().padStart(4,'0')} успешно подключено к ядру MSE</div>
+                            <div style="opacity:0.5;font-size:7px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${rayID}</div>
+                        `;
                         successText.style.display = 'block';
                         console.log('[LOGIN] Success text set:', successText.innerHTML);
                         
