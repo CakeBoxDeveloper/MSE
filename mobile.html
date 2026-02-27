@@ -1409,8 +1409,8 @@
 
         /* Weight trend indicators */
         .weight-trend { margin-left: 4px; font-size: 11px; }
-        .weight-trend.up { color: #4ade80; }
-        .weight-trend.down { color: #f87171; }
+        .weight-trend.up { color: #999; }
+        .weight-trend.down { color: #999; }
         .weight-trend.ping { 
             display: inline-flex; 
             align-items: center; 
@@ -2887,21 +2887,28 @@ function toggleProfileLayer() {
             profileBlock.style.setProperty('--bottom-gradient-opacity', '0');
         }
         
-        // Генерируем рандомный процент от 30% до 90%
-        const randomPercent = Math.floor(Math.random() * 61) + 30;
+        // Определяем процент B-индекса
+        let bIndexPercent;
+        if (currentUser) {
+            // Залогиненный пользователь - пересчитываем на основе статов
+            bIndexPercent = calculateBIndex();
+        } else {
+            // Незалогиненный - рандомное значение от 30% до 90%
+            bIndexPercent = Math.floor(Math.random() * 61) + 30;
+        }
         
         // Обновляем процент в тексте "B-ИНДЕКС X%"
         const indexText = document.getElementById('indexPercentText');
         if (indexText) {
-            indexText.textContent = `B-ИНДЕКС ${randomPercent}%`;
+            indexText.textContent = `B-ИНДЕКС ${bIndexPercent}%`;
         }
         
         // Обновляем высоту заливки и волны
         const liquidFill = document.getElementById('liquidFill');
         const waveSvg = layer2.querySelector('svg');
         if (liquidFill && waveSvg) {
-            liquidFill.style.height = randomPercent + '%';
-            waveSvg.style.bottom = randomPercent + '%';
+            liquidFill.style.height = bIndexPercent + '%';
+            waveSvg.style.bottom = bIndexPercent + '%';
         }
         
         // Blur transition (медленнее в 2 раза)
@@ -3582,20 +3589,60 @@ function updateAllStatsDisplays() {
     updateStatDisplay('endurance', statsData.endurance.current, statsData.endurance.previous);
 }
 
+// Randomize all stats (команда "рандом")
+function randomizeAllStats() {
+    console.log('[RANDOM] Randomizing all stats...');
+    
+    // Сохраняем текущие значения как previous
+    Object.keys(statsData).forEach(statName => {
+        statsData[statName].previous = statsData[statName].current;
+    });
+    
+    // Генерируем новые рандомные значения (0-10)
+    statsData.cns.current = Math.floor(Math.random() * 11);
+    statsData.lungs.current = Math.floor(Math.random() * 11);
+    statsData.immunity.current = Math.floor(Math.random() * 11);
+    statsData.energy.current = Math.floor(Math.random() * 11);
+    statsData.adaptability.current = Math.floor(Math.random() * 11);
+    statsData.strength.current = Math.floor(Math.random() * 11);
+    statsData.cognitive.current = Math.floor(Math.random() * 11);
+    statsData.heart.current = Math.floor(Math.random() * 11);
+    statsData.circulation.current = Math.floor(Math.random() * 11);
+    statsData.digestion.current = Math.floor(Math.random() * 11);
+    statsData.hormones.current = Math.floor(Math.random() * 11);
+    statsData.endurance.current = Math.floor(Math.random() * 11);
+    
+    console.log('[RANDOM] New stats:', statsData);
+    
+    // Обновляем отображение всех статов
+    updateAllStatsDisplays();
+    
+    // Пересчитываем и обновляем B-индекс
+    updateBioProfile();
+    
+    console.log('[RANDOM] Stats randomized successfully!');
+}
+
 // ============================================================
 // BIOLOGICAL PROFILE FUNCTIONS
 // ============================================================
 
 // Calculate B-index based on weight and stats
 function calculateBIndex() {
-    // Get all stat values
+    // Get all 12 stat values
     const statValues = [
         statsData.cns.current,
         statsData.lungs.current,
         statsData.immunity.current,
         statsData.energy.current,
         statsData.adaptability.current,
-        statsData.strength.current
+        statsData.strength.current,
+        statsData.cognitive.current,
+        statsData.heart.current,
+        statsData.circulation.current,
+        statsData.digestion.current,
+        statsData.hormones.current,
+        statsData.endurance.current
     ];
     
     // Average of stats (0-10 scale)
@@ -8141,6 +8188,13 @@ function sendMessage(){
     
     if (!text && !hasFiles) {
         console.log('No text and no files, returning'); // DEBUG
+        return;
+    }
+    
+    // Команда "рандом" - рандомизация всех статов
+    if (text.toLowerCase() === 'рандом' || text.toLowerCase() === 'random') {
+        randomizeAllStats();
+        chatInput.value = '';
         return;
     }
     
