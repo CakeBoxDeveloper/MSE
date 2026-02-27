@@ -97,6 +97,37 @@
             --text-secondary:#888;
             --text-tertiary:#666;
             --block-height:500px;
+            --top-gradient-opacity: 0;
+            --bottom-gradient-opacity: 0;
+        }
+        
+        /* Градиенты для блока профиля - на родителе */
+        #profileBlock::before {
+            content: '';
+            position: absolute;
+            top: 48px;
+            left: 16px;
+            right: 16px;
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(13,13,13,1) 0%, rgba(13,13,13,0.7) 50%, transparent 100%);
+            pointer-events: none;
+            z-index: 100;
+            opacity: var(--top-gradient-opacity);
+            transition: opacity 0.3s ease;
+        }
+        
+        #profileBlock::after {
+            content: '';
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            height: 60px;
+            background: linear-gradient(to top, rgba(13,13,13,1) 0%, rgba(13,13,13,0.7) 50%, transparent 100%);
+            pointer-events: none;
+            z-index: 100;
+            opacity: var(--bottom-gradient-opacity);
+            transition: opacity 0.3s ease;
         }
 
 
@@ -2145,15 +2176,15 @@
                 </div>
                 
                 <!-- Слой 1: Текстовая информация (по умолчанию ВИДИМЫЙ) -->
-                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease; display: flex; flex-direction: column; justify-content: space-between;">
-                  <div>
+                <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+                  <div style="position: relative; z-index: 1;">
                     <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
                     <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
                     <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
                     <div style="margin-bottom: 8px;"><strong>Вес:</strong> Стабильный</div>
                     <div style="margin-bottom: 8px;"><strong>Энергия:</strong> Высокий уровень</div>
                   </div>
-                  <div>
+                  <div style="position: relative; z-index: 1;">
                     <div style="margin-bottom: 6px;"><strong>Рекомендации:</strong></div>
                     <div>
                       • Поддерживать режим тренировок<br>
@@ -2836,9 +2867,16 @@ let profileLayerActive = 1; // 1 = текст, 2 = жидкость
 function toggleProfileLayer() {
     const layer1 = document.getElementById('profileLayer1');
     const layer2 = document.getElementById('profileLayer2');
+    const profileBlock = document.getElementById('profileBlock');
     
     if (profileLayerActive === 1) {
         // Переключаемся на слой 2 (жидкость)
+        // Скрываем градиенты
+        if (profileBlock) {
+            profileBlock.style.setProperty('--top-gradient-opacity', '0');
+            profileBlock.style.setProperty('--bottom-gradient-opacity', '0');
+        }
+        
         // Генерируем рандомный процент от 30% до 90%
         const randomPercent = Math.floor(Math.random() * 61) + 30;
         
@@ -2881,12 +2919,63 @@ function toggleProfileLayer() {
             layer1.style.filter = 'blur(10px)';
             setTimeout(() => {
                 layer1.style.filter = 'blur(0)';
+                // Обновляем градиенты после возврата на слой 1
+                updateProfileScrollGradients();
             }, 100);
         }, 300);
         
         profileLayerActive = 1;
     }
 }
+
+// Функция для управления видимостью градиентов при скролле
+function updateProfileScrollGradients() {
+    const layer1 = document.getElementById('profileLayer1');
+    const profileBlock = document.getElementById('profileBlock');
+    
+    if (!layer1 || !profileBlock) return;
+    
+    const scrollTop = layer1.scrollTop;
+    const scrollHeight = layer1.scrollHeight;
+    const clientHeight = layer1.clientHeight;
+    const scrollBottom = scrollHeight - scrollTop - clientHeight;
+    
+    // Проверяем есть ли вообще скролл
+    const hasScroll = scrollHeight > clientHeight;
+    
+    if (!hasScroll) {
+        // Нет скролла - скрываем оба градиента
+        profileBlock.classList.remove('show-gradients');
+        profileBlock.style.setProperty('--top-gradient-opacity', '0');
+        profileBlock.style.setProperty('--bottom-gradient-opacity', '0');
+        return;
+    }
+    
+    // Есть скролл - показываем градиенты
+    profileBlock.classList.add('show-gradients');
+    
+    // Управляем видимостью каждого градиента отдельно через CSS переменные
+    const topOpacity = scrollTop > 5 ? '1' : '0';
+    const bottomOpacity = scrollBottom > 5 ? '1' : '0';
+    
+    profileBlock.style.setProperty('--top-gradient-opacity', topOpacity);
+    profileBlock.style.setProperty('--bottom-gradient-opacity', bottomOpacity);
+}
+
+// Инициализация градиентов при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    const layer1 = document.getElementById('profileLayer1');
+    if (layer1) {
+        // Проверяем градиенты при загрузке
+        setTimeout(() => updateProfileScrollGradients(), 100);
+        
+        // Обновляем градиенты при скролле
+        layer1.addEventListener('scroll', updateProfileScrollGradients);
+        
+        // Обновляем градиенты при изменении размера окна
+        window.addEventListener('resize', updateProfileScrollGradients);
+    }
+});
 
 // Функция для создания скриншота модуля монитора
 async function captureMonitorSnapshot() {
