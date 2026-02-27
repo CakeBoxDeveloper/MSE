@@ -1858,7 +1858,7 @@
                     </div>
                     <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">6</span>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -1881,7 +1881,7 @@
                     </div>
                     <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">7</span>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -1904,7 +1904,7 @@
                     </div>
                     <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">9</span>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -1927,7 +1927,7 @@
                     </div>
                     <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">4</span>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -1950,7 +1950,7 @@
                     </div>
                     <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">8</span>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -2000,15 +2000,15 @@
               <!-- Правая колонка статов -->
               <div style="width: 257px; height: 100%; display: flex; flex-direction: column; gap: 8px;">
                 <!-- Когнитивность -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 20px 14px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div data-stat="cognitive" style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 20px 14px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat_nerve.svg" alt="" style="width: 12px; height: 12px;">
                       <span style="font-weight: 600; line-height: 1.1;">Когнитивность</span>
                     </div>
-                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">7</span>
+                    <div style="display: flex; align-items: center; gap: 4px;"><span data-stat-value style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span><span data-stat-trend></span></div>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -2023,15 +2023,15 @@
                 </div>
                 
                 <!-- Сердце -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div data-stat="heart" style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-heart.svg" alt="" style="width: 12px; height: 12px;">
                       <span style="font-weight: 600; line-height: 1.1;">Сердце</span>
                     </div>
-                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">9</span>
+                    <div style="display: flex; align-items: center; gap: 4px;"><span data-stat-value style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span><span data-stat-trend></span></div>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -2046,15 +2046,15 @@
                 </div>
                 
                 <!-- Кровообращение -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div data-stat="circulation" style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stats-blood.svg" alt="" style="width: 12px; height: 12px;">
                       <span style="font-weight: 600; line-height: 1.1;">Кровообращение</span>
                     </div>
-                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">8</span>
+                    <div style="display: flex; align-items: center; gap: 4px;"><span data-stat-value style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span><span data-stat-trend></span></div>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -2069,15 +2069,15 @@
                 </div>
                 
                 <!-- Пищеварение -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div data-stat="digestion" style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-stomach.svg" alt="" style="width: 12px; height: 12px;">
                       <span style="font-weight: 600; line-height: 1.1;">Пищеварение</span>
                     </div>
-                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span>
+                    <div style="display: flex; align-items: center; gap: 4px;"><span data-stat-value style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span><span data-stat-trend></span></div>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -2092,15 +2092,15 @@
                 </div>
                 
                 <!-- Гормоны -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div data-stat="hormones" style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-hormone.svg" alt="" style="width: 12px; height: 12px;">
                       <span style="font-weight: 600; line-height: 1.1;">Гормоны</span>
                     </div>
-                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">3</span>
+                    <div style="display: flex; align-items: center; gap: 4px;"><span data-stat-value style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span><span data-stat-trend></span></div>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -2115,15 +2115,15 @@
                 </div>
                 
                 <!-- Выносливость -->
-                <div style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
+                <div data-stat="endurance" style="flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 18px 13px; display: flex; flex-direction: column; color: var(--text-secondary); font-size: 10px;">
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                       <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/b26a37c67a27bbd20d47ae390f3c7ba3a3896ed0/stat-Endurance.svg" alt="" style="width: 12px; height: 12px;">
                       <span style="font-weight: 600; line-height: 1.1;">Выносливость</span>
                     </div>
-                    <span style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">8</span>
+                    <div style="display: flex; align-items: center; gap: 4px;"><span data-stat-value style="font-weight: 600; font-size: 11px; color: rgba(153,153,153,0.9);">5</span><span data-stat-trend></span></div>
                   </div>
-                  <div style="display: flex; gap: 1px;">
+                  <div data-stat-bars style="display: flex; gap: 1px;">
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
                     <div style="flex: 1; height: 6px; background: rgba(153,153,153,0.8); border-radius: 2px;"></div>
@@ -3237,7 +3237,13 @@ let statsData = {
     immunity: { current: 5, previous: 5 }, // Иммунитет
     energy: { current: 5, previous: 5 }, // Энергообмен
     adaptability: { current: 5, previous: 5 }, // Адаптивность
-    strength: { current: 5, previous: 5 } // Сила мышц
+    strength: { current: 5, previous: 5 }, // Сила мышц
+    cognitive: { current: 5, previous: 5 }, // Когнитивность
+    heart: { current: 5, previous: 5 }, // Сердце
+    circulation: { current: 5, previous: 5 }, // Кровообращение
+    digestion: { current: 5, previous: 5 }, // Пищеварение
+    hormones: { current: 5, previous: 5 }, // Гормоны
+    endurance: { current: 5, previous: 5 } // Выносливость
 };
 
 // Biological profile data
@@ -3470,6 +3476,12 @@ function updateAllStatsDisplays() {
     updateStatDisplay('energy', statsData.energy.current, statsData.energy.previous);
     updateStatDisplay('adaptability', statsData.adaptability.current, statsData.adaptability.previous);
     updateStatDisplay('strength', statsData.strength.current, statsData.strength.previous);
+    updateStatDisplay('cognitive', statsData.cognitive.current, statsData.cognitive.previous);
+    updateStatDisplay('heart', statsData.heart.current, statsData.heart.previous);
+    updateStatDisplay('circulation', statsData.circulation.current, statsData.circulation.previous);
+    updateStatDisplay('digestion', statsData.digestion.current, statsData.digestion.previous);
+    updateStatDisplay('hormones', statsData.hormones.current, statsData.hormones.previous);
+    updateStatDisplay('endurance', statsData.endurance.current, statsData.endurance.previous);
 }
 
 // ============================================================
