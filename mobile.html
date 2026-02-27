@@ -139,6 +139,16 @@
         #profileLayer1::-webkit-scrollbar {
             display: none; /* Chrome/Safari/Opera */
         }
+        
+        /* Скрываем скроллбар у textarea экзамена */
+        #examAnswer {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        
+        #examAnswer::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
+        }
 
 
 
@@ -1741,6 +1751,10 @@
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
               <span>Тренировки</span>
             </button>
+            <button class="inner-tab" data-inner="exams">
+              <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f009c86e945f53940e3d875c97c43169fc2aec24/chemistry.svg" alt="">
+              <span>Экзамены</span>
+            </button>
             <button class="inner-tab" data-inner="progress">
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
               <span>Прогресс</span>
@@ -2498,6 +2512,26 @@
         <div class="pdf-modal-viewer" id="pdfModalViewer"></div>
         <div class="pdf-modal-download">
             <button class="pdf-download-btn" onclick="downloadPDF()">Скачать</button>
+        </div>
+    </div>
+</div>
+
+<!-- Exam Modal -->
+<div class="pdf-modal-overlay" id="examModalOverlay" onclick="closeExamModal()" style="background: rgba(0,0,0,0.85);">
+    <div class="pdf-modal-content" onclick="event.stopPropagation()" style="max-width: 380px; width: 85%; max-height: 70vh; padding: 20px; background: rgba(13,13,13,0.98); border: 1px solid var(--glass-border); border-radius: 12px; position: relative; display: flex; flex-direction: column;">
+        <!-- Заголовок и таймер -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h2 id="examTitle" style="color: var(--text-primary); font-size: 14px; font-weight: 600;">Экзамен</h2>
+            <div id="examTimer" style="color: var(--text-primary); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;">00:00</div>
+        </div>
+        
+        <!-- Прогрессбар с сегментами -->
+        <div id="examProgressBar" style="display: flex; gap: 3px; margin-bottom: 18px;">
+            <!-- Сегменты будут здесь -->
+        </div>
+        
+        <div id="examContent" style="flex: 1; display: flex; flex-direction: column; transition: filter 0.2s ease, opacity 0.2s ease; touch-action: pan-y;">
+            <!-- Вопросы будут здесь -->
         </div>
     </div>
 </div>
@@ -6628,6 +6662,9 @@ const tabData={
         {title:'Силовая тренировка — День 1',desc:'Грудь и трицепс · 45 минут',icon:TAB_DEFAULTS.workouts, comingSoon: true},
         {title:'Силовая тренировка — День 2',desc:'Спина и бицепс · 50 минут',icon:TAB_DEFAULTS.workouts, comingSoon: true},
         {title:'День ног',desc:'Квадрицепсы, бицепсы бедра · 60 минут',icon:TAB_DEFAULTS.workouts, comingSoon: true}
+    ],
+    exams:[
+        {title:'Основы фитнеса',desc:'Тест на знание базовых принципов · 10 вопросов',icon:TAB_DEFAULTS.materials, examId: 'fitness-basics'}
     ]
 };
 function renderItemList(items, tabType){
@@ -6639,7 +6676,10 @@ function renderItemList(items, tabType){
         let clickClass = 'clickable-item';
         let clickHandler = '';
         
-        if (item.locked) {
+        if (tabType === 'exams') {
+            // Для экзаменов - открываем модальное окно с тестом
+            clickHandler = `onclick="openExamModal('${item.examId}')"`;
+        } else if (item.locked) {
             // Для материалов - иконка кредитной карты
             statusIcon = '<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/66f6541bcd559bfa3086549e61fa110a9ba5a1ad/credit-card.svg" alt="Заблокировано" style="width:16px;height:16px;opacity:0.5;position:absolute;top:12px;right:12px;">';
             itemOpacity = '0.5';
@@ -6765,6 +6805,320 @@ function renderProgress(){
     html += '</div>';
     return html;
 }
+
+// ============================================================
+// EXAM FUNCTIONS
+// ============================================================
+
+const examQuestions = {
+    'fitness-basics': [
+        {q: 'Что такое кардиотренировка?', correctKeywords: ['сердце', 'выносливость', 'аэробная']},
+        {q: 'Сколько раз в неделю рекомендуется тренироваться?', correctKeywords: ['3', 'три', '4', 'четыре', '5', 'пять']},
+        {q: 'Что такое разминка и зачем она нужна?', correctKeywords: ['подготовка', 'разогрев', 'травм', 'мышц']},
+        {q: 'Что такое белок и почему он важен?', correctKeywords: ['белок', 'мышц', 'рост', 'восстановление']},
+        {q: 'Сколько воды нужно пить в день?', correctKeywords: ['2', 'два', 'литр', 'вод']},
+        {q: 'Что такое калории?', correctKeywords: ['энергия', 'пища', 'еда']},
+        {q: 'Зачем нужна растяжка после тренировки?', correctKeywords: ['гибкость', 'восстановление', 'мышц', 'расслабление']},
+        {q: 'Что такое силовая тренировка?', correctKeywords: ['мышц', 'сила', 'вес', 'нагрузка']},
+        {q: 'Сколько времени нужно отдыхать между тренировками?', correctKeywords: ['день', 'отдых', '24', 'час', 'восстановление']},
+        {q: 'Что такое правильное питание?', correctKeywords: ['баланс', 'здоровье', 'питательн', 'калори']}
+    ]
+};
+
+let currentExam = null;
+let currentQuestionIndex = 0;
+let examAnswers = [];
+let examStartTime = null;
+let examTimerInterval = null;
+let examTouchStartX = 0;
+let examTouchEndX = 0;
+
+function openExamModal(examId) {
+    currentExam = examId;
+    currentQuestionIndex = 0;
+    examAnswers = [];
+    examStartTime = Date.now();
+    
+    const modal = document.getElementById('examModalOverlay');
+    const title = document.getElementById('examTitle');
+    const content = document.getElementById('examContent');
+    
+    // Добавляем transition для плавности
+    content.style.transition = 'filter 0.2s ease, opacity 0.2s ease';
+    
+    if (examId === 'fitness-basics') {
+        title.textContent = 'Основы фитнеса';
+    }
+    
+    // Создаём прогрессбар
+    createProgressBar();
+    
+    // Запускаем таймер
+    startExamTimer();
+    
+    // Добавляем обработчики свайпов
+    setupExamSwipe();
+    
+    showExamQuestion();
+    modal.classList.add('show');
+}
+
+function setupExamSwipe() {
+    const content = document.getElementById('examContent');
+    
+    content.addEventListener('touchstart', (e) => {
+        examTouchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    content.addEventListener('touchend', (e) => {
+        examTouchEndX = e.changedTouches[0].screenX;
+        handleExamSwipe();
+    }, { passive: true });
+}
+
+function handleExamSwipe() {
+    const swipeThreshold = 50;
+    const diff = examTouchStartX - examTouchEndX;
+    
+    if (Math.abs(diff) < swipeThreshold) return;
+    
+    const questions = examQuestions[currentExam];
+    
+    if (diff > 0) {
+        // Свайп влево - следующий вопрос
+        if (currentQuestionIndex < questions.length - 1) {
+            // Сохраняем текущий ответ
+            const currentAnswer = document.getElementById('examAnswer');
+            if (currentAnswer) {
+                examAnswers[currentQuestionIndex] = currentAnswer.value.trim();
+            }
+            currentQuestionIndex++;
+            showExamQuestion();
+        } else {
+            // Последний вопрос - завершаем тест
+            const currentAnswer = document.getElementById('examAnswer');
+            if (currentAnswer && currentAnswer.value.trim()) {
+                examAnswers[currentQuestionIndex] = currentAnswer.value.trim();
+                checkExamAnswers();
+            }
+        }
+    } else {
+        // Свайп вправо - предыдущий вопрос
+        if (currentQuestionIndex > 0) {
+            // Сохраняем текущий ответ
+            const currentAnswer = document.getElementById('examAnswer');
+            if (currentAnswer) {
+                examAnswers[currentQuestionIndex] = currentAnswer.value.trim();
+            }
+            currentQuestionIndex--;
+            showExamQuestion();
+        }
+    }
+}
+
+function closeExamModal() {
+    const modal = document.getElementById('examModalOverlay');
+    modal.classList.remove('show');
+    
+    // Останавливаем таймер
+    if (examTimerInterval) {
+        clearInterval(examTimerInterval);
+        examTimerInterval = null;
+    }
+    
+    currentExam = null;
+    currentQuestionIndex = 0;
+    examAnswers = [];
+    examStartTime = null;
+}
+
+function startExamTimer() {
+    const timerEl = document.getElementById('examTimer');
+    
+    examTimerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - examStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, 1000);
+}
+
+function createProgressBar() {
+    const progressBar = document.getElementById('examProgressBar');
+    const questions = examQuestions[currentExam];
+    
+    progressBar.innerHTML = questions.map((_, index) => {
+        return `<div class="exam-segment" data-question="${index}" onclick="goToQuestion(${index})" style="flex: 1; height: 6px; background: rgba(255,255,255,.1); border-radius: 3px; cursor: pointer; transition: background 0.2s ease;"></div>`;
+    }).join('');
+    
+    updateProgressBar();
+}
+
+function updateProgressBar() {
+    const segments = document.querySelectorAll('.exam-segment');
+    segments.forEach((segment, index) => {
+        if (index === currentQuestionIndex) {
+            segment.style.background = 'rgba(153,153,153,0.8)';
+        } else if (examAnswers[index]) {
+            segment.style.background = 'rgba(153,153,153,0.4)';
+        } else {
+            segment.style.background = 'rgba(255,255,255,.1)';
+        }
+    });
+}
+
+function goToQuestion(index) {
+    // Сохраняем текущий ответ перед переходом
+    const currentAnswer = document.getElementById('examAnswer');
+    if (currentAnswer) {
+        examAnswers[currentQuestionIndex] = currentAnswer.value.trim();
+    }
+    
+    currentQuestionIndex = index;
+    showExamQuestion();
+}
+
+function showExamQuestion() {
+    const questions = examQuestions[currentExam];
+    const question = questions[currentQuestionIndex];
+    const content = document.getElementById('examContent');
+    
+    // Обновляем прогрессбар
+    updateProgressBar();
+    
+    // Blur transition
+    content.style.filter = 'blur(10px)';
+    content.style.opacity = '0.5';
+    
+    setTimeout(() => {
+        content.innerHTML = `
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <p style="color: var(--text-primary); font-size: 13px; margin-bottom: 14px; line-height: 1.5;">${question.q}</p>
+                <textarea id="examAnswer" 
+                          placeholder="Введите ваш ответ..." 
+                          onkeydown="handleExamKeydown(event)"
+                          style="width: 100%; height: 120px; padding: 10px; background: rgba(255,255,255,.03); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 12px; resize: none; line-height: 1.4; scrollbar-width: none; -ms-overflow-style: none;"
+                ></textarea>
+                <div style="margin-top: 10px; text-align: center;">
+                    <span style="color: var(--text-secondary); font-size: 10px;">Свайп влево/вправо или Enter</span>
+                </div>
+            </div>
+        `;
+        
+        // Восстанавливаем предыдущий ответ если есть
+        const answerField = document.getElementById('examAnswer');
+        if (examAnswers[currentQuestionIndex]) {
+            answerField.value = examAnswers[currentQuestionIndex];
+        }
+        
+        // Фокус на поле ввода
+        answerField.focus();
+        
+        // Убираем blur
+        setTimeout(() => {
+            content.style.filter = 'blur(0)';
+            content.style.opacity = '1';
+        }, 50);
+    }, 200);
+}
+
+function handleExamKeydown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        nextExamQuestion();
+    }
+}
+
+function nextExamQuestion() {
+    const answer = document.getElementById('examAnswer')?.value.trim();
+    
+    if (!answer) {
+        return; // Просто не переходим если нет ответа
+    }
+    
+    // Сохраняем ответ
+    examAnswers[currentQuestionIndex] = answer;
+    
+    const questions = examQuestions[currentExam];
+    
+    if (currentQuestionIndex < questions.length - 1) {
+        // Переходим к следующему вопросу
+        currentQuestionIndex++;
+        showExamQuestion();
+    } else {
+        // Завершаем тест и проверяем ответы
+        checkExamAnswers();
+    }
+}
+
+function checkExamAnswers() {
+    // Останавливаем таймер
+    if (examTimerInterval) {
+        clearInterval(examTimerInterval);
+        examTimerInterval = null;
+    }
+    
+    const totalTime = Math.floor((Date.now() - examStartTime) / 1000);
+    const minutes = Math.floor(totalTime / 60);
+    const seconds = totalTime % 60;
+    const timeStr = `${minutes}:${String(seconds).padStart(2, '0')}`;
+    
+    const questions = examQuestions[currentExam];
+    let correctCount = 0;
+    
+    // Простая проверка по ключевым словам (заглушка вместо нейросети)
+    examAnswers.forEach((answer, index) => {
+        const question = questions[index];
+        const answerLower = answer.toLowerCase();
+        
+        // Проверяем есть ли хотя бы одно ключевое слово
+        const hasKeyword = question.correctKeywords.some(keyword => 
+            answerLower.includes(keyword.toLowerCase())
+        );
+        
+        if (hasKeyword) {
+            correctCount++;
+        }
+    });
+    
+    const percentage = Math.round((correctCount / questions.length) * 100);
+    const passed = percentage >= 70;
+    
+    // Показываем результат с blur переходом
+    const content = document.getElementById('examContent');
+    
+    content.style.filter = 'blur(10px)';
+    content.style.opacity = '0.5';
+    
+    setTimeout(() => {
+        content.innerHTML = `
+            <div style="text-align: center; padding: 20px 10px;">
+                <div style="font-size: 40px; margin-bottom: 12px;">${passed ? '✅' : '❌'}</div>
+                <h3 style="color: var(--text-primary); font-size: 16px; margin-bottom: 6px; font-weight: 600;">
+                    ${passed ? 'Поздравляем!' : 'Не сдано'}
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 6px;">
+                    Правильных ответов: ${correctCount} из ${questions.length} (${percentage}%)
+                </p>
+                <p style="color: var(--text-secondary); font-size: 11px; margin-bottom: 12px;">
+                    Время: ${timeStr}
+                </p>
+                <p style="color: var(--text-secondary); font-size: 11px; line-height: 1.5; margin-bottom: 16px;">
+                    ${passed ? 'Вы успешно прошли тест!' : 'Для прохождения теста нужно набрать минимум 70%. Попробуйте ещё раз!'}
+                </p>
+                <button onclick="closeExamModal()" style="padding: 8px 20px; background: rgba(255,255,255,.08); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif;">
+                    Закрыть
+                </button>
+            </div>
+        `;
+        
+        setTimeout(() => {
+            content.style.filter = 'blur(0)';
+            content.style.opacity = '1';
+        }, 50);
+    }, 200);
+}
+
 function renderProgress_OLD(){
     const html = `<div class="empty-state">
         <div class="empty-state-icon" id="lottie-progress" style="width:234px;height:234px;margin:0 auto;"></div>
@@ -6834,6 +7188,15 @@ function attachMaterialClickHandlers(tabType) {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            
+            // Проверяем тип элемента
+            const itemType = item.dataset.itemType;
+            
+            if (itemType === 'exams') {
+                // Для экзаменов - не открываем PDF, обработчик уже в onclick
+                return;
+            }
+            
             const pdfType = tabType === 'materials' ? 'materials' : 'workouts';
             const pdfUrl = PDF_URLS[pdfType];
             const win = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
