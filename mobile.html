@@ -105,7 +105,7 @@
         #profileBlock::before {
             content: '';
             position: absolute;
-            top: 48px;
+            top: 40px;
             left: 16px;
             right: 16px;
             height: 60px;
@@ -640,9 +640,11 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent 0%, 
-                rgba(153, 153, 153, 0.3) 50%, 
+                rgba(153, 153, 153, 0.6) 50%, 
                 transparent 100%);
             animation: shimmer 1s ease-in-out;
+            z-index: 10;
+            pointer-events: none;
         }
         
         /* Shimmer for login PIN step */
@@ -5110,9 +5112,17 @@ function removeShimmerFromCells(inputIds) {
 
 // ── Login ID (4 separate inputs) ──
 const loginIdInputs=['loginId1','loginId2','loginId3','loginId4'];
+let isIdChecking = false; // Флаг проверки ID
+
 loginIdInputs.forEach((id,index)=>{
     const input=document.getElementById(id);
     input.addEventListener('input',async function(){
+        // Блокируем ввод во время проверки
+        if (isIdChecking) {
+            this.value = '';
+            return;
+        }
+        
         // Remove error styling from all ID inputs
         loginIdInputs.forEach(p=>document.getElementById(p).classList.remove('error'));
         
@@ -5127,6 +5137,7 @@ loginIdInputs.forEach((id,index)=>{
         const allFilled=loginIdInputs.every(p=>document.getElementById(p).value.length===1);
         console.log('[LOGIN ID] All filled:', allFilled, 'loginIdChecked:', loginIdChecked);
         if(allFilled&&!loginIdChecked){
+            isIdChecking = true; // Начинаем проверку
             console.log('[LOGIN ID] Starting validation...');
             const idStr=loginIdInputs.map(p=>document.getElementById(p).value).join('');
             const id=parseInt(idStr);
@@ -5196,8 +5207,11 @@ loginIdInputs.forEach((id,index)=>{
                         }, 50);
                     }, 300);
                 } else { 
-                    // Show error on all ID inputs
-                    loginIdInputs.forEach(p=>document.getElementById(p).classList.add('error'));
+                    // Неправильный ID - показываем ошибку после задержки
+                    setTimeout(() => {
+                        loginIdInputs.forEach(p=>document.getElementById(p).classList.add('error'));
+                        isIdChecking = false; // Разблокируем ввод
+                    }, 1600); // Задержка для имитации проверки
                 }
             }, 3900); // Shimmer duration (4 cells * 400ms + 800ms animation + 1500ms extra)
         }
@@ -5205,6 +5219,12 @@ loginIdInputs.forEach((id,index)=>{
     
     // Handle backspace to move to previous input
     input.addEventListener('keydown',function(e){
+        // Блокируем backspace во время проверки
+        if (isIdChecking && e.key === 'Backspace') {
+            e.preventDefault();
+            return;
+        }
+        
         if(e.key==='Backspace'&&this.value===''&&index>0){
             document.getElementById(loginIdInputs[index-1]).focus();
         }
@@ -5219,15 +5239,25 @@ loginIdInputs.forEach((id,index)=>{
 
 // ── Login PIN ──
 const loginPinInputs=['loginPin1','loginPin2','loginPin3','loginPin4'];
+let isPinChecking = false; // Флаг проверки PIN
+
 loginPinInputs.forEach((id,index)=>{
     const input=document.getElementById(id);
     input.addEventListener('input',function(){
+        // Блокируем ввод во время проверки
+        if (isPinChecking) {
+            this.value = '';
+            return;
+        }
+        
         loginPinInputs.forEach(p=>document.getElementById(p).classList.remove('error'));
         if(this.value.length>1)this.value=this.value.slice(0,1);
         if(this.value.length===1&&index<loginPinInputs.length-1)
             document.getElementById(loginPinInputs[index+1]).focus();
         const allFilled=loginPinInputs.every(p=>document.getElementById(p).value.length===1);
         if(allFilled){
+            isPinChecking = true; // Начинаем проверку
+            
             const pin=loginPinInputs.map(p=>document.getElementById(p).value).join('');
             const uid=parseInt(enteredLoginId);
             let user=users.find(u=>u.id===uid&&u.pin===pin);
@@ -5622,18 +5652,33 @@ loginPinInputs.forEach((id,index)=>{
                     },2500); // Increased from 1500 to 2500 for better UX
                 }, 3900); // Shimmer duration (4 cells * 400ms + 800ms animation + 1500ms extra)
             } else {
-                document.getElementById('loginPin1').focus();
-                requestAnimationFrame(()=>{loginPinInputs.forEach(p=>document.getElementById(p).classList.add('error'));});
-                setTimeout(()=>{
-                    loginPinInputs.forEach(p=>{
-                        const inp=document.getElementById(p);inp.classList.remove('error');inp.value='';
-                    });
+                // Неправильный PIN - добавляем задержку перед показом ошибки
+                // Сначала показываем shimmer как будто проверяем
+                animateShimmerThroughCells(loginPinInputs, false);
+                
+                setTimeout(() => {
+                    // Показываем ошибку после анимации
                     document.getElementById('loginPin1').focus();
-                },500);
+                    requestAnimationFrame(()=>{loginPinInputs.forEach(p=>document.getElementById(p).classList.add('error'));});
+                    
+                    setTimeout(()=>{
+                        loginPinInputs.forEach(p=>{
+                            const inp=document.getElementById(p);inp.classList.remove('error');inp.value='';
+                        });
+                        document.getElementById('loginPin1').focus();
+                        isPinChecking = false; // Разблокируем ввод
+                    },500);
+                }, 1600); // Задержка для имитации проверки (4 cells * 400ms)
             }
         }
     });
     input.addEventListener('keydown',function(e){
+        // Блокируем backspace во время проверки
+        if (isPinChecking && e.key === 'Backspace') {
+            e.preventDefault();
+            return;
+        }
+        
         if(e.key==='Backspace'&&this.value===''&&index>0)
             document.getElementById(loginPinInputs[index-1]).focus();
     });
@@ -7189,6 +7234,12 @@ function attachMaterialClickHandlers(tabType) {
             e.preventDefault();
             e.stopPropagation();
             
+            // Добавляем шиммер эффект при клике
+            item.classList.add('shimmer');
+            setTimeout(() => {
+                item.classList.remove('shimmer');
+            }, 1000);
+            
             // Проверяем тип элемента
             const itemType = item.dataset.itemType;
             
@@ -7286,11 +7337,32 @@ function animateVitalSigns() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         restoreSession();
+        initializeDefaultData();
         initUI();
     });
 } else {
     restoreSession();
+    initializeDefaultData();
     initUI();
+}
+
+// Initialize default data for weight and stats
+function initializeDefaultData() {
+    // Инициализация веса по умолчанию
+    if (!weightData.current) {
+        const defaults = getDefaultWeightData(currentUser?.gender || 'male');
+        weightData.current = {
+            ...defaults,
+            date: Date.now()
+        };
+        weightData.previous = { ...weightData.current };
+    }
+    
+    // Обновляем отображение веса
+    updateWeightDisplay();
+    
+    // Обновляем отображение всех статов (они уже инициализированы значением 5)
+    updateAllStatsDisplays();
 }
 
 // Restore user session from localStorage
@@ -8309,6 +8381,20 @@ function renderChatMessages(){
                         </div>
                     </div>
                 </div>`;
+            } else if (m.type === 'material-recommendation') {
+                // Рекомендация материала от Софии
+                const clickHandler = `highlightInBrowser('${m.itemType}', ${m.itemIndex})`;
+                return `<div class="chat-message ${m.role} ${newMessageClass}" onclick="event.preventDefault();${clickHandler};return false;" style="cursor:pointer;">
+                    <div class="material-item" style="margin:0;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);">
+                        <div class="material-icon">
+                            <img class="icon-gray" src="${m.icon}" alt="">
+                        </div>
+                        <div class="material-info">
+                            <h3>${m.title}</h3>
+                            <p>${m.desc}</p>
+                        </div>
+                    </div>
+                </div>`;
             } else if (m.type === 'image') {
                 // Single image - check new format (Firebase Storage) or old format (base64)
                 const src = BentoGridRenderer.getImageSource(m);
@@ -8554,29 +8640,6 @@ function sendMessage(){
         return;
     }
     
-    // Команда "рандом" - рандомизация всех статов
-    if (text.toLowerCase() === 'рандом' || text.toLowerCase() === 'random') {
-        randomizeAllStats();
-        chatInput.value = '';
-        return;
-    }
-    
-    // Parse weight data from message if user is logged in and chatting with Sofia
-    if (currentUser && activeChatTab === 'sofia' && text) {
-        const weightInfo = parseWeightData(text);
-        if (weightInfo) {
-            console.log('[WEIGHT] Parsed weight data:', weightInfo);
-            saveWeightMeasurement(weightInfo);
-        }
-    }
-    
-    // Check if Sofia is already thinking - block sending
-    const isThinking = chatStore[activeChatTab]?.some(m => m.type === 'thinking');
-    if (isThinking) {
-        console.log('Sofia is thinking, please wait...');
-        return;
-    }
-    
     // ВАЖНО: Запоминаем активный чат в момент отправки
     const targetChatTab = activeChatTab;
     
@@ -8607,6 +8670,112 @@ function sendMessage(){
         const thinkingTime = Math.min(maxTime, baseTime + (charCount * 9));
         return thinkingTime;
     };
+    
+    // Команда "рандом" - рандомизация всех статов
+    if (text.toLowerCase() === 'рандом' || text.toLowerCase() === 'random') {
+        randomizeAllStats();
+        chatInput.value = '';
+        return;
+    }
+    
+    // Проверка на запрос материалов/тренировок от Софии
+    const materialKeywords = ['материал', 'статья', 'почитать', 'изучить', 'узнать', 'информация', 'гайд', 'мануал', 'руководство', 'кардио', 'питание', 'упражнение', 'анатомия'];
+    const workoutKeywords = ['тренировка', 'упражнение', 'workout', 'тренинг', 'программа', 'hiit', 'силовая'];
+    const examKeywords = ['тест', 'экзамен', 'проверка', 'знания', 'проверить'];
+    
+    const lowerText = text.toLowerCase();
+    const hasMaterialRequest = materialKeywords.some(keyword => lowerText.includes(keyword));
+    const hasWorkoutRequest = workoutKeywords.some(keyword => lowerText.includes(keyword));
+    const hasExamRequest = examKeywords.some(keyword => lowerText.includes(keyword));
+    
+    if (currentUser && activeChatTab === 'sofia' && (hasMaterialRequest || hasWorkoutRequest || hasExamRequest)) {
+        // Добавляем сообщение пользователя
+        if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
+        chatStore[targetChatTab].push({role:'user', text: text});
+        chatInput.value = '';
+        
+        setTimeout(() => {
+            safeRenderChatMessages();
+            
+            setTimeout(() => {
+                const thinkingId = addThinkingMessage();
+                safeRenderChatMessages();
+                
+                setTimeout(() => {
+                    chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
+                    
+                    // Определяем что рекомендовать
+                    let recommendations = [];
+                    let responseText = '';
+                    let itemType = '';
+                    
+                    if (hasMaterialRequest) {
+                        responseText = 'Вот материалы которые могут быть полезны:';
+                        recommendations = tabData.materials.filter(item => !item.locked);
+                        itemType = 'materials';
+                        
+                        // Умный поиск по ключевым словам
+                        if (lowerText.includes('кардио')) {
+                            recommendations = recommendations.filter(item => item.title.toLowerCase().includes('кардио'));
+                        } else if (lowerText.includes('питан')) {
+                            recommendations = recommendations.filter(item => item.title.toLowerCase().includes('питан'));
+                        } else if (lowerText.includes('упражн') || lowerText.includes('техник')) {
+                            recommendations = recommendations.filter(item => item.title.toLowerCase().includes('упражн') || item.title.toLowerCase().includes('техник'));
+                        }
+                        
+                        recommendations = recommendations.slice(0, 2);
+                    } else if (hasWorkoutRequest) {
+                        responseText = 'Рекомендую эти тренировки:';
+                        recommendations = tabData.workouts.filter(item => !item.comingSoon).slice(0, 2);
+                        itemType = 'workouts';
+                    } else if (hasExamRequest) {
+                        responseText = 'Можешь пройти эти тесты:';
+                        recommendations = tabData.exams.slice(0, 2);
+                        itemType = 'exams';
+                    }
+                    
+                    chatStore[targetChatTab].push({
+                        role:'ai', 
+                        text: responseText
+                    });
+                    
+                    // Добавляем рекомендации как отдельные сообщения
+                    recommendations.forEach((item, index) => {
+                        chatStore[targetChatTab].push({
+                            role: 'ai',
+                            type: 'material-recommendation',
+                            title: item.title,
+                            desc: item.desc,
+                            icon: item.icon,
+                            examId: item.examId,
+                            itemType: itemType,
+                            itemIndex: tabData[itemType].indexOf(item)
+                        });
+                    });
+                    
+                    safeRenderChatMessages();
+                }, 1500);
+            }, 800);
+        }, 150);
+        
+        return;
+    }
+    
+    // Parse weight data from message if user is logged in and chatting with Sofia
+    if (currentUser && activeChatTab === 'sofia' && text) {
+        const weightInfo = parseWeightData(text);
+        if (weightInfo) {
+            console.log('[WEIGHT] Parsed weight data:', weightInfo);
+            saveWeightMeasurement(weightInfo);
+        }
+    }
+    
+    // Check if Sofia is already thinking - block sending
+    const isThinking = chatStore[activeChatTab]?.some(m => m.type === 'thinking');
+    if (isThinking) {
+        console.log('Sofia is thinking, please wait...');
+        return;
+    }
     
     // ============================================================
     // CHECK IF USER IS LOGGED IN - BLOCK CHAT IF NOT
@@ -10529,33 +10698,11 @@ function attachSearchResultHandlers() {
                     }
                 }, 400);
             } else {
-                // For materials and workouts, switch to tab and highlight
-                switchToTab(type);
-                setTimeout(() => {
-                    highlightMaterialItem(type, parseInt(index));
-                }, 400);
+                // For materials, workouts, exams - use highlightInBrowser
+                highlightInBrowser(type, parseInt(index));
             }
         });
     });
-}
-
-function highlightMaterialItem(tabType, itemIndex) {
-    // Find the item by its index in the current tab
-    const items = document.querySelectorAll('.material-item');
-    const element = items[itemIndex];
-    
-    if (element) {
-        // Scroll to element
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Add shimmer effect
-        element.classList.add('shimmer');
-        
-        // Remove shimmer class after animation completes
-        setTimeout(() => {
-            element.classList.remove('shimmer');
-        }, 1000);
-    }
 }
 
 function switchToTab(tabName) {
@@ -10568,11 +10715,22 @@ function switchToTab(tabName) {
 // ============================================================
 // HIGHLIGHT IN BROWSER FUNCTIONALITY
 // ============================================================
+function openBrowserTab() {
+    // Открываем блок браузера если он закрыт
+    const browserBlock = document.getElementById('browserBlock');
+    if (browserBlock && browserBlock.classList.contains('collapsed')) {
+        toggleBlock('browserBlock');
+    }
+}
+
 function highlightInBrowser(type, id) {
+    console.log('[HIGHLIGHT] highlightInBrowser called with type:', type, 'id:', id);
     setTimeout(() => {
         // Check if browser is minimized and expand it first
         const browserBlock = document.getElementById('browserBlock');
         const isMinimized = browserBlock && browserBlock.classList.contains('collapsed');
+        
+        console.log('[HIGHLIGHT] Browser is minimized:', isMinimized);
         
         if (isMinimized) {
             toggleMinimize('browserBlock');
@@ -10587,13 +10745,27 @@ function highlightInBrowser(type, id) {
 }
 
 function switchAndHighlight(type, id) {
-    // Switch to progress tab if not already there
-    if (activeInnerTab !== 'progress') {
-        switchToTab('progress');
+    console.log('[HIGHLIGHT] switchAndHighlight called with type:', type, 'id:', id);
+    console.log('[HIGHLIGHT] Current activeInnerTab:', activeInnerTab);
+    
+    // Определяем нужную вкладку
+    let targetTab = 'progress';
+    
+    if (type === 'materials' || type === 'workouts' || type === 'exams') {
+        targetTab = type;
+    }
+    
+    console.log('[HIGHLIGHT] Target tab:', targetTab);
+    
+    // Switch to target tab if not already there
+    if (activeInnerTab !== targetTab) {
+        console.log('[HIGHLIGHT] Switching to tab:', targetTab);
+        switchToTab(targetTab);
         setTimeout(() => {
             highlightElement(type, id);
         }, 400);
     } else {
+        console.log('[HIGHLIGHT] Already on target tab, highlighting immediately');
         highlightElement(type, id);
     }
 }
@@ -10604,20 +10776,54 @@ function highlightElement(type, id) {
         selector = `.material-item[data-achievement-id="${id}"]`;
     } else if (type === 'note') {
         selector = `.material-item[data-note-id="${id}"]`;
+    } else if (type === 'materials' || type === 'workouts' || type === 'exams') {
+        // Для материалов/тренировок/экзаменов используем индекс
+        selector = `.material-item[data-item-type="${type}"][data-item-index="${id}"]`;
     }
     
+    console.log('[HIGHLIGHT] Looking for element with selector:', selector);
     const element = document.querySelector(selector);
+    console.log('[HIGHLIGHT] Found element:', element);
+    
     if (element) {
         // Scroll to element
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
-        // Add shimmer effect
-        element.classList.add('shimmer');
+        // Создаём shimmer элемент
+        const shimmer = document.createElement('div');
+        shimmer.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(153, 153, 153, 0.6) 50%, 
+                transparent 100%);
+            pointer-events: none;
+            z-index: 10;
+        `;
         
-        // Remove shimmer class after animation completes
+        element.appendChild(shimmer);
+        
+        // Анимируем shimmer
+        shimmer.animate([
+            { left: '-100%' },
+            { left: '100%' }
+        ], {
+            duration: 1000,
+            easing: 'ease-in-out'
+        });
+        
+        // Удаляем shimmer после анимации
         setTimeout(() => {
-            element.classList.remove('shimmer');
+            shimmer.remove();
         }, 1000);
+        
+        console.log('[HIGHLIGHT] Shimmer animation started');
+    } else {
+        console.error('[HIGHLIGHT] Element not found for selector:', selector);
     }
 }
 
