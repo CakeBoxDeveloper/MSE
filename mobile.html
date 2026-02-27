@@ -2535,6 +2535,11 @@
         <div id="examContent" style="flex: 1; display: flex; flex-direction: column; transition: filter 0.2s ease, opacity 0.2s ease; touch-action: pan-y;">
             <!-- Вопросы будут здесь -->
         </div>
+        
+        <!-- Подсказка о свайпах -->
+        <div style="margin-top: 10px; text-align: center; color: var(--text-secondary); font-size: 10px;">
+            Свайп влево/вправо для переключения вопросов
+        </div>
     </div>
 </div>
 
@@ -7042,11 +7047,8 @@ function showExamQuestion() {
                 <textarea id="examAnswer" 
                           placeholder="Введите ваш ответ..." 
                           onkeydown="handleExamKeydown(event)"
-                          style="width: 100%; height: 120px; padding: 10px; background: rgba(255,255,255,.03); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 12px; resize: none; line-height: 1.4; scrollbar-width: none; -ms-overflow-style: none;"
+                          style="width: 100%; flex: 1; padding: 10px; background: rgba(255,255,255,.03); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 12px; resize: none; line-height: 1.4; outline: none;"
                 ></textarea>
-                <div style="margin-top: 10px; text-align: center;">
-                    <span style="color: var(--text-secondary); font-size: 10px;">Свайп влево/вправо или Enter</span>
-                </div>
             </div>
         `;
         
@@ -7111,7 +7113,9 @@ function checkExamAnswers() {
     const questions = examQuestions[currentExam];
     let correctCount = 0;
     
-    // Простая проверка по ключевым словам (заглушка вместо нейросети)
+    // ВАЖНО: Сейчас используется простая проверка по ключевым словам (заглушка).
+    // Для реальной проверки нужно интегрировать нейросеть (например, OpenAI API),
+    // которая будет анализировать смысл ответов, а не просто искать ключевые слова.
     examAnswers.forEach((answer, index) => {
         const question = questions[index];
         const answerLower = answer.toLowerCase();
@@ -7129,39 +7133,126 @@ function checkExamAnswers() {
     const percentage = Math.round((correctCount / questions.length) * 100);
     const passed = percentage >= 70;
     
-    // Показываем результат с blur переходом
+    // Скрываем контент и прогрессбар
     const content = document.getElementById('examContent');
+    const progressBar = document.getElementById('examProgressBar');
+    const examTitle = document.getElementById('examTitle');
+    const examTimer = document.getElementById('examTimer');
     
     content.style.filter = 'blur(10px)';
-    content.style.opacity = '0.5';
+    content.style.opacity = '0';
+    progressBar.style.opacity = '0';
+    examTitle.style.opacity = '0';
+    examTimer.style.opacity = '0';
     
     setTimeout(() => {
-        content.innerHTML = `
-            <div style="text-align: center; padding: 20px 10px;">
-                <div style="font-size: 40px; margin-bottom: 12px;">${passed ? '✅' : '❌'}</div>
-                <h3 style="color: var(--text-primary); font-size: 16px; margin-bottom: 6px; font-weight: 600;">
-                    ${passed ? 'Поздравляем!' : 'Не сдано'}
-                </h3>
-                <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 6px;">
-                    Правильных ответов: ${correctCount} из ${questions.length} (${percentage}%)
-                </p>
-                <p style="color: var(--text-secondary); font-size: 11px; margin-bottom: 12px;">
-                    Время: ${timeStr}
-                </p>
-                <p style="color: var(--text-secondary); font-size: 11px; line-height: 1.5; margin-bottom: 16px;">
-                    ${passed ? 'Вы успешно прошли тест!' : 'Для прохождения теста нужно набрать минимум 70%. Попробуйте ещё раз!'}
-                </p>
-                <button onclick="closeExamModal()" style="padding: 8px 20px; background: rgba(255,255,255,.08); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif;">
-                    Закрыть
-                </button>
+        // Скрываем всё
+        content.style.display = 'none';
+        progressBar.style.display = 'none';
+        examTitle.style.display = 'none';
+        examTimer.style.display = 'none';
+        
+        // Показываем grainy gradient loader на весь экран
+        const modal = document.querySelector('#examModalOverlay .pdf-modal-content');
+        modal.innerHTML = `
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 0; margin: 0; overflow: hidden;">
+                <canvas id="grainLoaderExam" width="600" height="400" style="display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: blur(20px); transition: opacity 0.8s ease, filter 0.8s ease;"></canvas>
             </div>
         `;
         
+        // Запускаем grainy gradient loader
         setTimeout(() => {
-            content.style.filter = 'blur(0)';
-            content.style.opacity = '1';
-        }, 50);
-    }, 200);
+            startGrainLoader('grainLoaderExam');
+            // Плавно показываем canvas
+            const canvas = document.getElementById('grainLoaderExam');
+            if (canvas) {
+                setTimeout(() => {
+                    canvas.style.opacity = '1';
+                    canvas.style.filter = 'blur(0px)';
+                }, 50);
+            }
+        }, 100);
+        
+        // Через 6-7 секунд показываем результат (София думает)
+        setTimeout(() => {
+            // Генерируем развёрнутый комментарий Софии
+            let sofiaComment = '';
+            if (percentage >= 90) {
+                sofiaComment = 'Впечатляющий результат! Вы продемонстрировали отличное знание материала и глубокое понимание основ фитнеса. Ваши ответы показывают, что вы не просто запомнили информацию, но и осмыслили её. Продолжайте в том же духе — с таким подходом вы достигнете любых целей!';
+            } else if (percentage >= 70) {
+                sofiaComment = 'Хороший результат! У вас есть базовое понимание темы, и это отличная основа для дальнейшего развития. Рекомендую обратить внимание на вопросы, в которых допустили ошибки, и проработать эти моменты. Небольшая практика — и вы будете на высоте!';
+            } else if (percentage >= 50) {
+                sofiaComment = 'Неплохая попытка, но есть над чем поработать. Похоже, некоторые темы требуют дополнительного изучения. Советую вернуться к материалам, уделить время практике и попробовать пройти тест снова. Не переживайте — с каждой попыткой вы становитесь лучше!';
+            } else {
+                sofiaComment = 'Результат показывает, что материал пока усвоен недостаточно. Рекомендую не торопиться и уделить больше времени изучению основ фитнеса. Начните с базовых концепций, разберите примеры, и только потом возвращайтесь к тесту. Помните: качество важнее скорости!';
+            }
+            
+            modal.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 30px 20px; text-align: center;">
+                    <div id="lottie-exam-result-sofia" style="width: 80px; height: 80px; margin-bottom: 20px;"></div>
+                    <h3 style="color: var(--text-primary); font-size: 16px; margin-bottom: 12px; font-weight: 600;">
+                        ${passed ? 'Тест пройден' : 'Тест не пройден'}
+                    </h3>
+                    <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 8px;">
+                        Правильных ответов: ${correctCount} из ${questions.length} (${percentage}%)
+                    </p>
+                    <p style="color: var(--text-secondary); font-size: 11px; margin-bottom: 16px;">
+                        Время: ${timeStr}
+                    </p>
+                    <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.6; margin-bottom: 20px; max-width: 320px; text-align: left;">
+                        ${sofiaComment}
+                    </p>
+                    <button onclick="closeExamModal()" style="padding: 8px 20px; background: rgba(255,255,255,.08); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif;">
+                        Закрыть
+                    </button>
+                </div>
+            `;
+            
+            // Загружаем анимацию Софии для результата
+            setTimeout(async () => {
+                const lottieContainer = document.getElementById('lottie-exam-result-sofia');
+                if (lottieContainer) {
+                    try {
+                        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                        let data = await response.json();
+                        
+                        const replaceColors = (obj) => {
+                            if (Array.isArray(obj)) {
+                                return obj.map((item) => {
+                                    if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
+                                        if ((item[0] > 0.8 && item[1] > 0.8 && item[2] > 0.8) ||
+                                            (item[0] === 1 && item[1] === 1 && item[2] === 1)) {
+                                            return [0.474, 0.474, 0.474, item[3]];
+                                        }
+                                    }
+                                    return replaceColors(item);
+                                });
+                            } else if (obj !== null && typeof obj === 'object') {
+                                const result = {};
+                                for (let key in obj) {
+                                    result[key] = replaceColors(obj[key]);
+                                }
+                                return result;
+                            }
+                            return obj;
+                        };
+                        
+                        data = replaceColors(data);
+                        
+                        lottie.loadAnimation({
+                            container: lottieContainer,
+                            renderer: 'svg',
+                            loop: true,
+                            autoplay: true,
+                            animationData: data
+                        }).setSpeed(0.5);
+                    } catch(e) {
+                        console.error('Error loading Sofia animation:', e);
+                    }
+                }
+            }, 100);
+        }, 6500); // 6.5 секунд на "размышление" Софии
+    }, 300);
 }
 
 function renderProgress_OLD(){
@@ -8754,6 +8845,14 @@ function sendMessage(){
                     });
                     
                     safeRenderChatMessages();
+                    
+                    // Auto-save to Firebase
+                    if (currentUser) {
+                        clearTimeout(window.chatSaveTimeout);
+                        window.chatSaveTimeout = setTimeout(() => {
+                            saveChatsToFirebase(currentUser.id, chatStore);
+                        }, 2000);
+                    }
                 }, 1500);
             }, 800);
         }, 150);
@@ -9024,6 +9123,14 @@ function sendMessage(){
                 }, thinkingTime);
             }, 800); // Wait for blur animation (600ms) + small delay (200ms)
         }, 150); // Small initial delay
+        
+        // Auto-save to Firebase
+        if (currentUser) {
+            clearTimeout(window.chatSaveTimeout);
+            window.chatSaveTimeout = setTimeout(() => {
+                saveChatsToFirebase(currentUser.id, chatStore);
+            }, 2000);
+        }
         
         return;
     }
