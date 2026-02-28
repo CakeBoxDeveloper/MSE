@@ -2537,7 +2537,7 @@
         </div>
         
         <!-- Подсказка о свайпах -->
-        <div style="margin-top: 10px; text-align: center; color: var(--text-secondary); font-size: 10px;">
+        <div id="examSwipeHint" style="margin-top: 10px; text-align: center; color: var(--text-secondary); font-size: 10px;">
             Свайп влево/вправо для переключения вопросов
         </div>
     </div>
@@ -6892,6 +6892,28 @@ function openExamModal(examId) {
     const modal = document.getElementById('examModalOverlay');
     const title = document.getElementById('examTitle');
     const content = document.getElementById('examContent');
+    const progressBar = document.getElementById('examProgressBar');
+    const timer = document.getElementById('examTimer');
+    const swipeHint = document.getElementById('examSwipeHint');
+    
+    // Восстанавливаем видимость всех элементов
+    content.style.display = 'flex';
+    content.style.opacity = '1';
+    content.style.filter = 'blur(0)';
+    if (progressBar) {
+        progressBar.style.display = 'flex';
+        progressBar.style.opacity = '1';
+    }
+    if (timer) {
+        timer.style.display = 'block';
+        timer.style.opacity = '1';
+    }
+    title.style.display = 'block';
+    title.style.opacity = '1';
+    if (swipeHint) {
+        swipeHint.style.display = 'block';
+        swipeHint.style.opacity = '1';
+    }
     
     // Добавляем transition для плавности
     content.style.transition = 'filter 0.2s ease, opacity 0.2s ease';
@@ -6989,65 +7011,194 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
     // Переключаемся на чат с Софией
     switchChatTab('sofia');
     
-    // Открываем чат если он свернут
+    // Разворачиваем чат на полный экран
     const chatBlock = document.getElementById('chatBlock');
+    const browserBlock = document.getElementById('browserBlock');
+    
+    // Если чат свёрнут - разворачиваем
     if (chatBlock.classList.contains('collapsed')) {
-        toggleBlock('chatBlock');
+        expandBlock('chatBlock');
     }
     
-    // Генерируем персонализированные рекомендации от Софии
-    let recommendations = '';
-    if (percentage >= 90) {
-        recommendations = `Отличная работа! Ты показал глубокое понимание материала (${correctCount} из ${totalQuestions} правильных ответов, ${percentage}%). 
-
-Рекомендую:
-• Переходи к более продвинутым темам и практическим кейсам
-• Попробуй применить знания на практике в реальных тренировках
-• Изучи смежные темы для расширения экспертизы`;
-    } else if (percentage >= 70) {
-        recommendations = `Хороший результат! Ты справился с тестом (${correctCount} из ${totalQuestions}, ${percentage}%), но есть куда расти.
-
-Рекомендую:
-• Повтори материалы по темам, где допустил ошибки
-• Обрати внимание на детали и нюансы в вопросах
-• Попробуй пройти тест снова через несколько дней`;
-    } else if (percentage >= 50) {
-        recommendations = `Результат ${percentage}% (${correctCount} из ${totalQuestions}) показывает, что базовое понимание есть, но нужна дополнительная работа.
-
-Рекомендую:
-• Вернись к основным материалам и изучи их внимательнее
-• Разбери примеры и практические кейсы
-• Уделяй больше времени сложным темам
-• Не торопись с повторным прохождением теста`;
-    } else {
-        recommendations = `Результат ${percentage}% (${correctCount} из ${totalQuestions}) говорит о том, что материал требует серьезного изучения.
-
-Рекомендую:
-• Начни с базовых концепций и терминологии
-• Изучай материал постепенно, не пытаясь охватить всё сразу
-• Делай заметки и конспекты по ключевым темам
-• Обращайся ко мне с вопросами по непонятным моментам
-• Возвращайся к тесту только после тщательной подготовки`;
+    // Если браузер развёрнут - сворачиваем его, чтобы чат был на полный экран
+    if (!browserBlock.classList.contains('collapsed')) {
+        collapseBlock('browserBlock');
     }
     
-    // Добавляем сообщение от Софии в чат
+    // Добавляем сообщение "София думает..."
     if (!chatStore['sofia']) chatStore['sofia'] = [];
     
+    const thinkingMessageId = Date.now();
     chatStore['sofia'].push({
         role: 'ai',
-        text: recommendations
+        type: 'thinking',
+        id: thinkingMessageId
     });
     
-    // Рендерим чат
     renderChatMessages();
     
-    // Сохраняем в Firebase
-    if (currentUser) {
-        clearTimeout(window.chatSaveTimeout);
-        window.chatSaveTimeout = setTimeout(() => {
-            saveChatsToFirebase(currentUser.id, chatStore);
-        }, 2000);
-    }
+    // София думает 3-5 секунд (случайное время)
+    const thinkingTime = 3000 + Math.random() * 2000; // 3000-5000ms
+    
+    setTimeout(() => {
+        // Убираем сообщение "думает"
+        chatStore['sofia'] = chatStore['sofia'].filter(m => m.id !== thinkingMessageId);
+        
+        // Генерируем персонализированные и конкретные рекомендации от Софии
+        let recommendations = '';
+        
+        // Определяем название теста для более конкретных советов
+        let examName = '';
+        if (examId === 'fitness-basics') {
+            examName = 'Основы фитнеса';
+        }
+        
+        if (percentage >= 90) {
+            recommendations = `Поздравляю с отличным результатом по тесту "${examName}"! Ты набрал ${correctCount} из ${totalQuestions} правильных ответов (${percentage}%) — это говорит о глубоком понимании материала.
+
+📚 Что делать дальше:
+
+1. Практическое применение
+   • Начни составлять собственные тренировочные программы, применяя полученные знания
+   • Экспериментируй с разными типами нагрузок и отслеживай результаты
+   • Попробуй объяснить основные концепции кому-то из друзей — это закрепит понимание
+
+2. Углубление знаний
+   • Изучи продвинутые темы: периодизация тренировок, спортивная биомеханика
+   • Разберись в нутрициологии: макронутриенты, timing питания, добавки
+   • Почитай научные исследования по интересующим темам
+
+3. Следующие шаги
+   • Переходи к более сложным тестам и материалам
+   • Начни вести тренировочный дневник с анализом прогресса
+   • Подумай о специализации: силовой тренинг, кардио, функциональный фитнес
+
+Если возникнут вопросы по любой из этих тем — обращайся, разберём детально! 💪`;
+    } else if (percentage >= 70) {
+        recommendations = `Хороший результат по тесту "${examName}"! Ты набрал ${correctCount} из ${totalQuestions} правильных ответов (${percentage}%). Базовое понимание есть, но давай проработаем слабые места.
+
+🎯 План улучшения:
+
+1. Анализ ошибок
+   • Ты ответил неправильно на ${totalQuestions - correctCount} вопрос(а/ов)
+   • Вернись к материалам и найди темы, которые вызвали затруднения
+   • Запиши непонятные моменты и разбери их по порядку
+
+2. Конкретные рекомендации для теста "${examName}":
+   • Повтори основные термины: кардио, силовые тренировки, разминка, восстановление
+   • Разберись в принципах построения тренировок: частота, интенсивность, объём
+   • Изучи базовую анатомию: основные группы мышц и их функции
+   • Освежи знания по питанию: белки, углеводы, жиры, калории, водный баланс
+
+3. Практические шаги
+   • Составь конспект по каждой теме, которую не до конца понял
+   • Найди примеры тренировочных программ и разбери их структуру
+   • Через 3-5 дней пройди тест снова — увидишь прогресс
+
+Если нужна помощь с конкретными темами — пиши, разберём подробно! 📖`;
+    } else if (percentage >= 50) {
+        recommendations = `Результат ${percentage}% (${correctCount} из ${totalQuestions}) по тесту "${examName}" показывает, что базовое понимание есть, но материал требует серьёзной проработки.
+
+⚠️ Что нужно сделать:
+
+1. Системный подход к изучению
+   • Не пытайся охватить всё сразу — двигайся последовательно
+   • Начни с самых базовых концепций и постепенно углубляйся
+   • Уделяй каждой теме минимум 2-3 дня для усвоения
+
+2. Ключевые темы для изучения (по приоритету):
+   
+   А) Основы тренировок:
+   • Что такое кардио и силовые тренировки, в чём разница
+   • Зачем нужна разминка и заминка
+   • Как часто нужно тренироваться (частота, восстановление)
+   • Что такое прогрессивная перегрузка
+   
+   Б) Питание и восстановление:
+   • Роль белков, углеводов и жиров в организме
+   • Сколько воды нужно пить и почему
+   • Что такое калории и как они работают
+   • Важность сна для результатов
+   
+   В) Безопасность:
+   • Как избежать травм
+   • Правильная техника выполнения упражнений
+   • Когда нужно отдыхать
+
+3. План действий
+   • Изучай по одной теме в день, делай заметки
+   • После каждой темы задавай себе вопросы: "Что я понял? Что осталось непонятным?"
+   • Обращайся ко мне с вопросами — разберём каждую тему детально
+   • Не торопись с повторным прохождением теста, сначала закрепи материал
+
+Начни с первой темы из списка, и когда будешь готов — напиши, обсудим! 📚`;
+    } else {
+        recommendations = `Результат ${percentage}% (${correctCount} из ${totalQuestions}) по тесту "${examName}" говорит о том, что нужно начать с самых основ. Не переживай — все с чего-то начинают!
+
+🔰 Пошаговый план для новичка:
+
+1. Начни с базовых понятий (неделя 1-2)
+   
+   День 1-2: Что такое фитнес?
+   • Фитнес — это система тренировок для улучшения физической формы
+   • Основные направления: кардио (выносливость) и силовые (мышцы)
+   • Цели: здоровье, сила, выносливость, внешний вид
+   
+   День 3-4: Как работает тело?
+   • Мышцы сокращаются и создают движение
+   • Сердце — это тоже мышца, её нужно тренировать
+   • Организму нужна энергия из еды для работы
+   
+   День 5-7: Основы тренировок
+   • Разминка = подготовка тела к нагрузке (5-10 минут)
+   • Основная часть = сама тренировка
+   • Заминка = успокоение организма после нагрузки
+
+2. Питание — топливо для тела (неделя 3)
+   
+   • Белки = строительный материал для мышц (мясо, рыба, яйца)
+   • Углеводы = энергия для тренировок (каши, хлеб, фрукты)
+   • Жиры = важны для гормонов (орехи, масла, рыба)
+   • Вода = 2-3 литра в день, особенно при тренировках
+   • Калории = единица измерения энергии в еде
+
+3. Первые шаги в тренировках (неделя 4)
+   
+   • Начни с 2-3 тренировок в неделю
+   • Каждая тренировка 30-45 минут
+   • Обязательно отдыхай между тренировками (1-2 дня)
+   • Не гонись за результатом — важна регулярность
+
+4. Как я могу помочь
+   
+   • Объясню любой термин простыми словами
+   • Помогу составить первую программу тренировок
+   • Отвечу на все вопросы по питанию
+   • Подскажу, как избежать ошибок новичков
+
+📝 Твоё домашнее задание:
+Прочитай этот план, выпиши непонятные слова и спроси меня о них. Начнём с самого простого и постепенно дойдём до уверенного понимания!
+
+Готов начать? Напиши "готов" или задай первый вопрос! 💪`;
+        }
+        
+        // Добавляем сообщение от Софии в чат
+        chatStore['sofia'].push({
+            role: 'ai',
+            text: recommendations
+        });
+        
+        // Рендерим чат
+        renderChatMessages();
+        
+        // Сохраняем в Firebase
+        if (currentUser) {
+            clearTimeout(window.chatSaveTimeout);
+            window.chatSaveTimeout = setTimeout(() => {
+                saveChatsToFirebase(currentUser.id, chatStore);
+            }, 2000);
+        }
+    }, thinkingTime); // София думает 3-5 секунд
 }
 
 function startExamTimer() {
@@ -7201,37 +7352,46 @@ function checkExamAnswers() {
     const percentage = Math.round((correctCount / questions.length) * 100);
     const passed = percentage >= 70;
     
-    // Скрываем контент и прогрессбар
+    // Шаг 1: Плавно блюрим контент
     const content = document.getElementById('examContent');
     const progressBar = document.getElementById('examProgressBar');
     const examTitle = document.getElementById('examTitle');
     const examTimer = document.getElementById('examTimer');
+    const swipeHint = document.getElementById('examSwipeHint');
+    
+    // Добавляем transition для плавного блюра
+    content.style.transition = 'filter 0.8s ease, opacity 0.8s ease';
+    progressBar.style.transition = 'opacity 0.8s ease';
+    examTitle.style.transition = 'opacity 0.8s ease';
+    examTimer.style.transition = 'opacity 0.8s ease';
+    if (swipeHint) swipeHint.style.transition = 'opacity 0.8s ease';
     
     content.style.filter = 'blur(10px)';
     content.style.opacity = '0';
     progressBar.style.opacity = '0';
     examTitle.style.opacity = '0';
     examTimer.style.opacity = '0';
+    if (swipeHint) swipeHint.style.opacity = '0';
     
+    // Шаг 2: После блюра показываем лоадер поверх
     setTimeout(() => {
-        // Скрываем всё
-        content.style.display = 'none';
-        progressBar.style.display = 'none';
-        examTitle.style.display = 'none';
-        examTimer.style.display = 'none';
-        
-        // Показываем grainy gradient loader на весь экран
+        // Показываем grainy gradient loader на весь экран ПОВЕРХ контента
         const modal = document.querySelector('#examModalOverlay .pdf-modal-content');
-        modal.innerHTML = `
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 0; margin: 0; overflow: hidden;">
-                <canvas id="grainLoaderExam" width="600" height="400" style="display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: blur(20px); transition: opacity 0.8s ease, filter 0.8s ease;"></canvas>
-            </div>
-        `;
         
-        // Запускаем grainy gradient loader
+        // Создаём лоадер поверх существующего контента
+        const loaderDiv = document.createElement('div');
+        loaderDiv.id = 'examLoaderOverlay';
+        loaderDiv.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 0; margin: 0; overflow: hidden; z-index: 1000;';
+        loaderDiv.innerHTML = `
+            <canvas id="grainLoaderExam" width="600" height="400" style="display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: blur(20px); transition: opacity 0.8s ease, filter 0.8s ease;"></canvas>
+        `;
+        modal.appendChild(loaderDiv);
+        
+        // Запускаем grainy gradient loader с анимацией
         setTimeout(() => {
-            startGrainLoader('grainLoaderExam');
-            // Плавно показываем canvas
+            const stopLoader = startGrainLoader('grainLoaderExam');
+            
+            // Плавно показываем canvas (уже встроено в startGrainLoader, но можно оставить для надёжности)
             const canvas = document.getElementById('grainLoaderExam');
             if (canvas) {
                 setTimeout(() => {
@@ -7239,39 +7399,59 @@ function checkExamAnswers() {
                     canvas.style.filter = 'blur(0px)';
                 }, 50);
             }
+            
+            // Сохраняем функцию остановки для использования позже
+            window.examLoaderStop = stopLoader;
         }, 100);
         
-        // Через 6-7 секунд показываем результат (София думает)
+        // Через 6-7 секунд скрываем лоадер и показываем результат (София думает)
         setTimeout(() => {
-            // Плавно скрываем градиентный лоадер
-            const canvas = document.getElementById('grainLoaderExam');
-            if (canvas) {
-                canvas.style.opacity = '0';
-                canvas.style.filter = 'blur(20px)';
+            // Шаг 3: Плавно скрываем градиентный лоадер
+            if (window.examLoaderStop) {
+                window.examLoaderStop(); // Останавливаем анимацию с плавным исчезновением
             }
             
-            // Ждём завершения анимации исчезания
+            const loaderOverlay = document.getElementById('examLoaderOverlay');
+            
+            // Ждём завершения анимации исчезания лоадера (0.8s)
             setTimeout(() => {
+                // Удаляем лоадер
+                if (loaderOverlay) {
+                    loaderOverlay.remove();
+                }
+                
+                // Очищаем функцию остановки
+                window.examLoaderStop = null;
+                
+                // Скрываем старый контент
+                content.style.display = 'none';
+                progressBar.style.display = 'none';
+                examTitle.style.display = 'none';
+                examTimer.style.display = 'none';
+                if (swipeHint) swipeHint.style.display = 'none';
+                
                 // Генерируем развёрнутый комментарий Софии
                 let sofiaComment = '';
                 if (percentage >= 90) {
                     sofiaComment = 'Впечатляющий результат! Вы продемонстрировали отличное знание материала и глубокое понимание основ фитнеса. Ваши ответы показывают, что вы не просто запомнили информацию, но и осмыслили её. Продолжайте в том же духе — с таким подходом вы достигнете любых целей!';
                 } else if (percentage >= 70) {
-                sofiaComment = 'Хороший результат! У вас есть базовое понимание темы, и это отличная основа для дальнейшего развития. Рекомендую обратить внимание на вопросы, в которых допустили ошибки, и проработать эти моменты. Небольшая практика — и вы будете на высоте!';
-            } else if (percentage >= 50) {
-                sofiaComment = 'Неплохая попытка, но есть над чем поработать. Похоже, некоторые темы требуют дополнительного изучения. Советую вернуться к материалам, уделить время практике и попробовать пройти тест снова. Не переживайте — с каждой попыткой вы становитесь лучше!';
-            } else {
-                sofiaComment = 'Результат показывает, что материал пока усвоен недостаточно. Рекомендую не торопиться и уделить больше времени изучению основ фитнеса. Начните с базовых концепций, разберите примеры, и только потом возвращайтесь к тесту. Помните: качество важнее скорости!';
-            }
-            
-            modal.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: stretch; justify-content: center; height: 100%; padding: 30px 20px;">
-                    <div id="lottie-exam-result-sofia" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"></div>
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="color: var(--text-primary); font-size: 16px; font-weight: 600; margin: 0; text-align: left;">
-                            ${passed ? 'Тест пройден' : 'Тест не пройден'}
-                        </h3>
+                    sofiaComment = 'Хороший результат! У вас есть базовое понимание темы, и это отличная основа для дальнейшего развития. Рекомендую обратить внимание на вопросы, в которых допустили ошибки, и проработать эти моменты. Небольшая практика — и вы будете на высоте!';
+                } else if (percentage >= 50) {
+                    sofiaComment = 'Неплохая попытка, но есть над чем поработать. Похоже, некоторые темы требуют дополнительного изучения. Советую вернуться к материалам, уделить время практике и попробовать пройти тест снова. Не переживайте — с каждой попыткой вы становитесь лучше!';
+                } else {
+                    sofiaComment = 'Результат показывает, что материал пока усвоен недостаточно. Рекомендую не торопиться и уделить больше времени изучению основ фитнеса. Начните с базовых концепций, разберите примеры, и только потом возвращайтесь к тесту. Помните: качество важнее скорости!';
+                }
+                
+                // Шаг 4: Показываем финальный экран с блюром, потом разблюриваем
+                const modal = document.querySelector('#examModalOverlay .pdf-modal-content');
+                modal.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: stretch; justify-content: center; height: 100%; padding: 30px 20px; filter: blur(10px); opacity: 0; transition: filter 0.8s ease, opacity 0.8s ease;">
+                        <div id="lottie-exam-result-sofia" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"></div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="color: var(--text-primary); font-size: 16px; font-weight: 600; margin: 0; text-align: left;">
+                                ${passed ? 'Тест пройден' : 'Тест не пройден'}
+                            </h3>
                         <p style="color: var(--text-secondary); font-size: 16px; margin: 0; text-align: right; font-weight: 600;">
                             ${timeStr}
                         </p>
@@ -7313,10 +7493,19 @@ function checkExamAnswers() {
                         console.error('Error loading Sofia animation:', e);
                     }
                 }
+                
+                // Шаг 5: Разблюриваем финальный экран
+                const resultContainer = modal.querySelector('div');
+                if (resultContainer) {
+                    setTimeout(() => {
+                        resultContainer.style.filter = 'blur(0)';
+                        resultContainer.style.opacity = '1';
+                    }, 50);
+                }
             }, 100);
             }, 800); // Задержка для плавного исчезания лоадера
         }, 6500); // 6.5 секунд на "размышление" Софии
-    }, 300);
+    }, 800); // Задержка для плавного блюра контента
 }
 
 function renderProgress_OLD(){
