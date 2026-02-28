@@ -4953,6 +4953,14 @@ function confirmLogout() {
             mainContent.innerHTML = renderProgress();
         }
         
+        // Update browser tabs to show locked content
+        console.log('[LOGOUT] Updating browser tabs...');
+        const browserMainContent = document.getElementById('main-content');
+        if (browserMainContent && activeInnerTab) {
+            browserMainContent.innerHTML = getTabHTML(activeInnerTab);
+            attachMaterialClickHandlers(activeInnerTab);
+        }
+        
         // Refresh chat messages (will show empty state with lottie)
         renderChatMessages();
         
@@ -5941,6 +5949,15 @@ function completeRegistration(userId) {
     updateAllStatsDisplays();
     updateBioProfile();
     
+    // Update browser tabs to show unlocked content
+    console.log('[REGISTRATION] Updating browser tabs...');
+    if (typeof switchBrowserTab === 'function') {
+        const currentTab = document.querySelector('.inner-tab.active[data-tab]')?.dataset.tab;
+        if (currentTab) {
+            switchBrowserTab(currentTab);
+        }
+    }
+    
     // Обновляем вкладку "Прогресс" если она открыта
     refreshProgressTab();
 }
@@ -6669,6 +6686,18 @@ function updateAllBrowserItems() {
         });
     });
     
+    // Add exams
+    tabData.exams.forEach((item, index) => {
+        allBrowserItems.push({
+            type: 'exams',
+            index: index,
+            title: item.title,
+            desc: item.desc,
+            icon: item.icon,
+            examId: item.examId
+        });
+    });
+    
     // Add notes
     userNotes.forEach(note => {
         allBrowserItems.push({
@@ -6758,10 +6787,15 @@ function renderItemList(items, tabType){
 function renderProgress(){
     // Если пользователь не залогинен - показываем приглашение
     if (!currentUser) {
-        const html = `<div class="empty-state">
-            <div class="empty-state-icon" id="lottie-progress" style="width:120px;height:120px;margin:0 auto;"></div>
-            <h3>Прогресс и достижения</h3>
-            <p>Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках. <strong style="font-weight:600;white-space:nowrap;"><a href="#" onclick="document.getElementById('headerLoginBtn').click();return false;" style="color:var(--text-primary);text-decoration:none;cursor:pointer;">Пройдите синхронизацию, чтобы узнать больше.</a></strong></p>
+        const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
+                <div class="empty-state-icon" id="lottie-progress" style="width:100px;height:100px;margin:0 auto 8px auto;"></div>
+                <h3 style="margin:0 0 6px 0;font-size:14px;">Прогресс и достижения</h3>
+                <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках.</p>
+            </div>
+            <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
+                <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
+            </div>
         </div>`;
         
         setTimeout(async () => {
@@ -7561,7 +7595,187 @@ function renderProgress_OLD(){
     }, 100);
     return html;
 }
-function getTabHTML(key){ return key==='progress'?renderProgress():renderItemList(tabData[key], key); }
+
+// Render locked state for materials tab (not logged in)
+function renderMaterialsLocked() {
+    const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
+            <div class="empty-state-icon" id="lottie-materials-locked" style="width:110px;height:110px;margin:0 auto 8px auto;"></div>
+            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Учебные материалы, мануалы и гайды по фитнесу.</p>
+        </div>
+        <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
+            <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
+        </div>
+    </div>`;
+    
+    setTimeout(async () => {
+        const container = document.getElementById('lottie-materials-locked');
+        if(container && !container.hasAnimation) {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Book%20Loader.json');
+                let data = await response.json();
+                const animation = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                });
+                animation.setSpeed(0.5);
+                container.hasAnimation = true;
+                
+                // Заливаем все видимые слои цветом #6e6e6e
+                animation.addEventListener('DOMLoaded', () => {
+                    const svg = container.querySelector('svg');
+                    if (svg) {
+                        // Заливаем все path, rect, circle, ellipse, polygon, polyline
+                        const allShapes = svg.querySelectorAll('path, rect, circle, ellipse, polygon, polyline, line');
+                        allShapes.forEach((el) => {
+                            const fill = el.getAttribute('fill');
+                            const stroke = el.getAttribute('stroke');
+                            
+                            // Красим fill если он есть и не прозрачный
+                            if (!fill || (fill.toLowerCase() !== 'none' && fill.toLowerCase() !== 'transparent')) {
+                                el.setAttribute('fill', '#6e6e6e');
+                            }
+                            
+                            // Красим stroke если он есть и не прозрачный
+                            if (stroke && stroke.toLowerCase() !== 'none' && stroke.toLowerCase() !== 'transparent') {
+                                el.setAttribute('stroke', '#6e6e6e');
+                            }
+                        });
+                        
+                        console.log('[MATERIALS] All shapes colored with #6e6e6e');
+                    }
+                });
+            } catch(e) {
+                console.error('Error loading materials animation:', e);
+            }
+        }
+    }, 100);
+    return html;
+}
+
+// Render locked state for workouts tab (not logged in)
+function renderWorkoutsLocked() {
+    const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
+            <div class="empty-state-icon" id="lottie-workouts-locked" style="width:110px;height:110px;margin:0 auto 8px auto;filter:grayscale(100%) brightness(5.0) contrast(0.5);"></div>
+            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Готовые программы тренировок для разных целей и уровней подготовки.</p>
+        </div>
+        <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
+            <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
+        </div>
+    </div>`;
+    
+    setTimeout(async () => {
+        const container = document.getElementById('lottie-workouts-locked');
+        if(container && !container.hasAnimation) {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/lf30_xz9lhzhx.json.json');
+                let data = await response.json();
+                
+                const animation = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                });
+                animation.setSpeed(0.81); // на 30% быстрее (0.625 * 1.3 ≈ 0.81)
+                container.hasAnimation = true;
+                
+                // Используем событие DOMLoaded вместо setTimeout
+                animation.addEventListener('DOMLoaded', () => {
+                    const svg = container.querySelector('svg');
+                    if (svg) {
+                        const allRects = svg.querySelectorAll('rect');
+                        allRects.forEach((rect) => {
+                            const width = parseFloat(rect.getAttribute('width') || 0);
+                            const height = parseFloat(rect.getAttribute('height') || 0);
+                            if (width > 100 && height > 100) {
+                                rect.style.opacity = '0';
+                            }
+                        });
+                    }
+                });
+            } catch(e) {
+                console.error('[WORKOUTS] Error loading animation:', e);
+            }
+        }
+    }, 100);
+    return html;
+}
+
+// Render locked state for exams tab (not logged in)
+function renderExamsLocked() {
+    const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
+            <div class="empty-state-icon" id="lottie-exams-locked" style="width:115px;height:115px;margin:0 auto 8px auto;"></div>
+            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Тесты для проверки знаний и отслеживания прогресса в обучении.</p>
+        </div>
+        <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 -8px 0 -8px;padding:0 12px;width:calc(100% + 16px);">
+            <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
+        </div>
+    </div>`;
+    
+    setTimeout(async () => {
+        const container = document.getElementById('lottie-exams-locked');
+        if(container && !container.hasAnimation) {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Wanna%20do%20the%20math_.json');
+                let data = await response.json();
+                data = convertLottieToGrayscale(data);
+                const animation = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                });
+                animation.setSpeed(0.5);
+                container.hasAnimation = true;
+                
+                // Используем событие DOMLoaded вместо setTimeout
+                animation.addEventListener('DOMLoaded', () => {
+                    const svg = container.querySelector('svg');
+                    if (svg) {
+                        const allElements = svg.querySelectorAll('[fill]');
+                        
+                        allElements.forEach((el, index) => {
+                            const originalFill = el.getAttribute('fill');
+                            // Удаляем элемент с индексом 0 (красный)
+                            if (index === 0) {
+                                el.remove();
+                                console.log(`[EXAMS] Removed element ${index} with original fill = ${originalFill}`);
+                            }
+                        });
+                    }
+                });
+            } catch(e) {
+                console.error('Error loading exams animation:', e);
+            }
+        }
+    }, 100);
+    return html;
+}
+
+function getTabHTML(key) {
+    // Для прогресса всегда показываем renderProgress
+    if (key === 'progress') {
+        return renderProgress();
+    }
+    
+    // Для материалов, тренировок и экзаменов проверяем авторизацию
+    if (!currentUser) {
+        if (key === 'materials') return renderMaterialsLocked();
+        if (key === 'workouts') return renderWorkoutsLocked();
+        if (key === 'exams') return renderExamsLocked();
+    }
+    
+    // Если залогинен или другая вкладка - показываем контент
+    return renderItemList(tabData[key], key);
+}
 
 // Initialize UI after DOM is ready
 // Attach click handlers to material items based on tab type
@@ -7833,6 +8047,15 @@ function restoreSession() {
                     // Render chat
                     console.log('[SESSION] Rendering chat messages...');
                     renderChatMessages();
+                    
+                    // Update browser tabs to show unlocked content
+                    console.log('[SESSION] Updating browser tabs...');
+                    if (typeof switchBrowserTab === 'function') {
+                        const currentTab = document.querySelector('.inner-tab.active[data-tab]')?.dataset.tab;
+                        if (currentTab) {
+                            switchBrowserTab(currentTab);
+                        }
+                    }
                 }
             }).catch(err => {
                 console.error('[SESSION] Error loading Firebase data:', err);
