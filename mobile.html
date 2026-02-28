@@ -7624,28 +7624,29 @@ function renderMaterialsLocked() {
                 animation.setSpeed(0.5);
                 container.hasAnimation = true;
                 
-                // Заливаем все видимые слои цветом #6e6e6e
+                // Заливаем все видимые слои цветом #6e6e6e принудительно
                 animation.addEventListener('DOMLoaded', () => {
                     const svg = container.querySelector('svg');
                     if (svg) {
-                        // Заливаем все path, rect, circle, ellipse, polygon, polyline
+                        // Красим ВСЕ SVG элементы принудительно
                         const allShapes = svg.querySelectorAll('path, rect, circle, ellipse, polygon, polyline, line');
                         allShapes.forEach((el) => {
-                            const fill = el.getAttribute('fill');
+                            // Принудительно красим fill
+                            el.setAttribute('fill', '#6e6e6e');
+                            el.style.fill = '#6e6e6e';
+                            
+                            // Принудительно красим stroke если он есть
                             const stroke = el.getAttribute('stroke');
-                            
-                            // Красим fill если он есть и не прозрачный
-                            if (!fill || (fill.toLowerCase() !== 'none' && fill.toLowerCase() !== 'transparent')) {
-                                el.setAttribute('fill', '#6e6e6e');
-                            }
-                            
-                            // Красим stroke если он есть и не прозрачный
-                            if (stroke && stroke.toLowerCase() !== 'none' && stroke.toLowerCase() !== 'transparent') {
+                            if (stroke && stroke !== 'none') {
                                 el.setAttribute('stroke', '#6e6e6e');
+                                el.style.stroke = '#6e6e6e';
                             }
                         });
                         
-                        console.log('[MATERIALS] All shapes colored with #6e6e6e');
+                        // Также применяем CSS filter для надёжности
+                        svg.style.filter = 'grayscale(100%) brightness(0.43)';
+                        
+                        console.log('[MATERIALS] All shapes colored with #6e6e6e + filter applied');
                     }
                 });
             } catch(e) {
@@ -7714,7 +7715,7 @@ function renderExamsLocked() {
             <div class="empty-state-icon" id="lottie-exams-locked" style="width:115px;height:115px;margin:0 auto 8px auto;"></div>
             <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Тесты для проверки знаний и отслеживания прогресса в обучении.</p>
         </div>
-        <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 -8px 0 -8px;padding:0 12px;width:calc(100% + 16px);">
+        <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
         </div>
     </div>`;
