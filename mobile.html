@@ -2452,13 +2452,14 @@
 </div>
 
 <!-- LEADERBOARD MODAL - OUTSIDE CONTAINER -->
-<div id="leaderboardOverlay" class="auth-overlay" style="display:none !important;z-index:100000 !important;position:fixed !important;">
-  <div class="auth-modal" id="leaderboardModal" style="width:320px;height:auto;max-height:400px;display:flex;flex-direction:column;">
-    <div style="padding:16px 20px 12px 20px;border-bottom:1px solid var(--glass-border);">
-      <div style="font-size:14px;font-weight:600;color:var(--text-primary);letter-spacing:0.5px;text-align:center;">Таблица лидеров</div>
+<div id="leaderboardOverlay" class="auth-overlay" onclick="closeLeaderboard()" style="display:none !important;z-index:100000 !important;position:fixed !important;">
+  <div class="auth-modal" id="leaderboardModal" onclick="event.stopPropagation()" style="width:320px;height:400px;display:flex;flex-direction:column;">
+    <div style="padding:16px 20px 12px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-primary);letter-spacing:0.3px;">Всего звеньев</div>
+      <div id="leaderboardCount" style="font-size:12px;font-weight:600;color:var(--text-secondary);">0</div>
     </div>
-    <div style="position:relative;flex:1;overflow:hidden;">
-      <div id="leaderboardContent" style="height:100%;overflow-y:auto;padding:12px 20px;">
+    <div style="position:relative;flex:1;overflow:hidden;min-height:0;">
+      <div id="leaderboardContent" style="height:100%;overflow-y:auto;padding:12px 0;">
         <!-- Leaderboard rows will be inserted here -->
       </div>
       <!-- Fade gradients -->
@@ -3786,8 +3787,14 @@ function showLeaderboard() {
     
     console.log('[LEADERBOARD] Total users:', leaderboardData.length);
     
+    // Update count
+    const countElement = document.getElementById('leaderboardCount');
+    if (countElement) {
+        countElement.textContent = leaderboardData.length;
+    }
+    
     // Generate HTML
-    let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
+    let html = '<div style="display:flex;flex-direction:column;gap:6px;padding:0 20px;">';
     
     leaderboardData.forEach((user, index) => {
         const rank = index + 1;
@@ -3796,9 +3803,9 @@ function showLeaderboard() {
         const borderColor = isCurrentUser ? 'rgba(255,255,255,.2)' : 'var(--glass-border)';
         
         html += `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:${bgColor};border:1px solid ${borderColor};border-radius:6px;transition:all 0.2s ease;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:${bgColor};border:1px solid ${borderColor};border-radius:6px;transition:all 0.2s ease;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                    <div style="width:24px;text-align:center;font-size:13px;font-weight:600;color:var(--text-secondary);">${rank}</div>
+                    <div style="width:20px;text-align:left;font-size:12px;font-weight:600;color:var(--text-secondary);">${rank}</div>
                     <div style="font-size:11px;font-weight:${isCurrentUser ? '600' : '500'};color:var(--text-primary);letter-spacing:0.3px;">Звено ${user.id.toString().padStart(4, '0')}</div>
                 </div>
                 <div style="font-size:12px;font-weight:600;color:var(--text-primary);">${user.bIndex}%</div>
@@ -3817,8 +3824,12 @@ function showLeaderboard() {
     overlay.style.setProperty('z-index', '999999', 'important');
     overlay.style.setProperty('position', 'fixed', 'important');
     
-    // Setup scroll gradients
+    // Setup scroll gradients - call immediately and with delays
     updateLeaderboardGradients();
+    setTimeout(() => updateLeaderboardGradients(), 50);
+    setTimeout(() => updateLeaderboardGradients(), 100);
+    setTimeout(() => updateLeaderboardGradients(), 300);
+    setTimeout(() => updateLeaderboardGradients(), 500);
     content.addEventListener('scroll', updateLeaderboardGradients);
     
     // Then add active class
