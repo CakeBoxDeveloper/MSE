@@ -6808,8 +6808,8 @@ const tabData={
         {title:'День ног',desc:'Квадрицепсы, бицепсы бедра · 60 минут',icon:TAB_DEFAULTS.workouts, comingSoon: true}
     ],
     exams:[
-        {title:'Вступительная анкета',desc:'8 вопросов',icon:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/a276af6343ec75745e1e18f09a0eca4cdd5f42dc/customer-service.svg', examId: 'initial-questionnaire', pinned: true},
-        {title:'Основы фитнеса',desc:'10 вопросов',icon:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/a276af6343ec75745e1e18f09a0eca4cdd5f42dc/customer-service.svg', examId: 'fitness-basics'}
+        {title:'Вступительная анкета',desc:'18 вопросов',icon:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/a276af6343ec75745e1e18f09a0eca4cdd5f42dc/customer-service.svg', examId: 'initial-questionnaire', pinned: true},
+        {title:'Основы фитнеса',desc:'18 вопросов',icon:'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/a276af6343ec75745e1e18f09a0eca4cdd5f42dc/customer-service.svg', examId: 'fitness-basics'}
     ]
 };
 function renderItemList(items, tabType){
@@ -6982,19 +6982,37 @@ const examQuestions = {
         {q: 'Как часто вы занимаетесь спортом сейчас? (раз в неделю)', type: 'number', field: 'activity_frequency'},
         {q: 'Оцените ваш уровень физической подготовки от 1 до 10', type: 'number', field: 'fitness_level'},
         {q: 'Какие виды тренировок вам нравятся? (кардио, силовые, йога, плавание и т.д.)', type: 'text', field: 'preferred_activities'},
-        {q: 'Сколько времени вы готовы уделять тренировкам в день? (в минутах)', type: 'number', field: 'time_available'}
+        {q: 'Сколько времени вы готовы уделять тренировкам в день? (в минутах)', type: 'number', field: 'time_available'},
+        {q: 'Как вы оцениваете качество своего сна? (от 1 до 10)', type: 'number', field: 'sleep_quality'},
+        {q: 'Сколько часов в день вы обычно спите?', type: 'number', field: 'sleep_hours'},
+        {q: 'Как часто вы испытываете стресс? (редко, иногда, часто, постоянно)', type: 'text', field: 'stress_level'},
+        {q: 'Опишите ваш режим питания (сколько раз в день едите, есть ли перекусы)', type: 'text', field: 'eating_habits'},
+        {q: 'Пьёте ли вы достаточно воды? (сколько литров в день)', type: 'number', field: 'water_intake'},
+        {q: 'Есть ли у вас вредные привычки? (курение, алкоголь и т.д.)', type: 'text', field: 'bad_habits'},
+        {q: 'Какая у вас работа? (сидячая, активная, смешанная)', type: 'text', field: 'work_type'},
+        {q: 'Были ли у вас в прошлом успехи в спорте или фитнесе? Опишите', type: 'text', field: 'past_achievements'},
+        {q: 'Что вас мотивирует заниматься спортом?', type: 'text', field: 'motivation'},
+        {q: 'Есть ли у вас любимая музыка для тренировок? Какая?', type: 'text', field: 'workout_music'}
     ],
     'fitness-basics': [
-        {q: 'Что такое кардиотренировка?', correctKeywords: ['сердце', 'выносливость', 'аэробная']},
-        {q: 'Сколько раз в неделю рекомендуется тренироваться?', correctKeywords: ['3', 'три', '4', 'четыре', '5', 'пять']},
-        {q: 'Что такое разминка и зачем она нужна?', correctKeywords: ['подготовка', 'разогрев', 'травм', 'мышц']},
-        {q: 'Что такое белок и почему он важен?', correctKeywords: ['белок', 'мышц', 'рост', 'восстановление']},
-        {q: 'Сколько воды нужно пить в день?', correctKeywords: ['2', 'два', 'литр', 'вод']},
-        {q: 'Что такое калории?', correctKeywords: ['энергия', 'пища', 'еда']},
-        {q: 'Зачем нужна растяжка после тренировки?', correctKeywords: ['гибкость', 'восстановление', 'мышц', 'расслабление']},
-        {q: 'Что такое силовая тренировка?', correctKeywords: ['мышц', 'сила', 'вес', 'нагрузка']},
-        {q: 'Сколько времени нужно отдыхать между тренировками?', correctKeywords: ['день', 'отдых', '24', 'час', 'восстановление']},
-        {q: 'Что такое правильное питание?', correctKeywords: ['баланс', 'здоровье', 'питательн', 'калори']}
+        {q: 'Что такое кардиотренировка и для чего она нужна?', correctKeywords: ['сердце', 'выносливость', 'аэробная', 'кислород', 'пульс']},
+        {q: 'Сколько раз в неделю рекомендуется тренироваться для поддержания формы?', correctKeywords: ['3', 'три', '4', 'четыре', '5', 'пять']},
+        {q: 'Что такое разминка и зачем она нужна перед тренировкой?', correctKeywords: ['подготовка', 'разогрев', 'травм', 'мышц', 'суставы', 'кровь']},
+        {q: 'Что такое белок и почему он важен для спортсменов?', correctKeywords: ['белок', 'мышц', 'рост', 'восстановление', 'протеин', 'аминокислот']},
+        {q: 'Сколько воды нужно пить в день при активных тренировках?', correctKeywords: ['2', 'два', '3', 'три', 'литр', 'вод']},
+        {q: 'Что такое калории и как они связаны с весом?', correctKeywords: ['энергия', 'пища', 'еда', 'вес', 'дефицит', 'профицит']},
+        {q: 'Зачем нужна растяжка после тренировки?', correctKeywords: ['гибкость', 'восстановление', 'мышц', 'расслабление', 'молочн', 'кислот']},
+        {q: 'Что такое силовая тренировка и какие у неё преимущества?', correctKeywords: ['мышц', 'сила', 'вес', 'нагрузка', 'масс', 'тонус']},
+        {q: 'Сколько времени нужно отдыхать между тренировками одной группы мышц?', correctKeywords: ['день', 'отдых', '24', '48', 'час', 'восстановление', 'два']},
+        {q: 'Что такое правильное питание для спортсмена?', correctKeywords: ['баланс', 'здоровье', 'питательн', 'калори', 'белк', 'углевод', 'жир']},
+        {q: 'Что такое ЧСС (частота сердечных сокращений) и зачем её контролировать?', correctKeywords: ['пульс', 'сердц', 'интенсивность', 'зон', 'нагрузк']},
+        {q: 'Что такое базовый обмен веществ (BMR)?', correctKeywords: ['метаболизм', 'энергия', 'покой', 'калори', 'организм', 'жизнедеятельность']},
+        {q: 'Зачем нужны углеводы в рационе спортсмена?', correctKeywords: ['энергия', 'топливо', 'гликоген', 'тренировк', 'выносливость']},
+        {q: 'Что такое перетренированность и как её избежать?', correctKeywords: ['усталость', 'отдых', 'восстановление', 'перегруз', 'сон', 'баланс']},
+        {q: 'Почему важен сон для спортивных результатов?', correctKeywords: ['восстановление', 'мышц', 'гормон', 'рост', 'энергия', 'регенерация']},
+        {q: 'Что такое HIIT-тренировка?', correctKeywords: ['интервал', 'высокоинтенсивн', 'короткие', 'отдых', 'кардио', 'жиросжигание']},
+        {q: 'Зачем нужны жиры в питании?', correctKeywords: ['энергия', 'гормон', 'витамин', 'здоровье', 'омега', 'клетк']},
+        {q: 'Что такое прогрессивная перегрузка в тренировках?', correctKeywords: ['увеличение', 'нагрузк', 'вес', 'прогресс', 'адаптация', 'рост']}
     ]
 };
 
@@ -7865,9 +7883,6 @@ function discussQuestionnaireResults(userData, timeStr) {
     // Обновляем биопрофиль
     updateBioProfile();
     
-    // Формируем сообщение для Софии
-    const message = `Я заполнил вступительную анкету (время: ${timeStr}). Вот мои данные:\n\nВес: ${userData.weight} кг\nРост: ${userData.height} см\nЦель: ${userData.goal}\nЗдоровье: ${userData.health_issues}\nЧастота тренировок: ${userData.activity_frequency} раз/неделю\nУровень подготовки: ${userData.fitness_level}/10\nПредпочтения: ${userData.preferred_activities}\nВремя на тренировки: ${userData.time_available} минут/день\n\nЯ обновил свой профиль здоровья на основе этих данных. Пожалуйста, проанализируй информацию и дай рекомендации.`;
-    
     // Переключаемся на вкладку Чат
     const chatInnerTab = document.querySelector('.inner-tab[data-inner="chat"]');
     if (chatInnerTab && !chatInnerTab.classList.contains('active')) {
@@ -7883,18 +7898,101 @@ function discussQuestionnaireResults(userData, timeStr) {
         }
     }
     
-    // Отправляем сообщение
+    // Добавляем сообщение пользователя
     setTimeout(() => {
-        const chatInput = document.getElementById('chatInput');
-        if (chatInput) {
-            chatInput.value = message;
-            // Вызываем sendMessage
-            const sendBtn = document.getElementById('chatSend');
-            if (sendBtn) {
-                sendBtn.click();
+        const message = `Я заполнил вступительную анкету (время: ${timeStr}). Вот мои данные:\n\nВес: ${userData.weight} кг\nРост: ${userData.height} см\nЦель: ${userData.goal}\nЗдоровье: ${userData.health_issues}\nЧастота тренировок: ${userData.activity_frequency} раз/неделю\nУровень подготовки: ${userData.fitness_level}/10\nПредпочтения: ${userData.preferred_activities}\nВремя на тренировки: ${userData.time_available} минут/день\nКачество сна: ${userData.sleep_quality}/10\nЧасов сна: ${userData.sleep_hours}\nУровень стресса: ${userData.stress_level}\nРежим питания: ${userData.eating_habits}\nВода в день: ${userData.water_intake} л\nВредные привычки: ${userData.bad_habits}\nТип работы: ${userData.work_type}\nПрошлые достижения: ${userData.past_achievements}\nМотивация: ${userData.motivation}\nМузыка для тренировок: ${userData.workout_music}\n\nЯ обновил свой профиль здоровья на основе этих данных. Пожалуйста, проанализируй информацию и дай рекомендации.`;
+        
+        if (!chatStore['sofia']) chatStore['sofia'] = [];
+        
+        // Добавляем сообщение пользователя
+        chatStore['sofia'].push({
+            role: 'user',
+            text: message
+        });
+        
+        renderChatMessages();
+        
+        // София думает 4-6 секунд
+        const thinkingMessageId = Date.now();
+        chatStore['sofia'].push({
+            role: 'ai',
+            type: 'thinking',
+            id: thinkingMessageId
+        });
+        
+        renderChatMessages();
+        
+        const thinkingTime = 4000 + Math.random() * 2000; // 4000-6000ms
+        
+        setTimeout(() => {
+            // Убираем сообщение "думает"
+            chatStore['sofia'] = chatStore['sofia'].filter(m => m.id !== thinkingMessageId);
+            
+            // Генерируем персональный ответ Софии на основе данных
+            let response = `Спасибо за подробную информацию! Я проанализировала ваши данные и обновила профиль здоровья.\n\n`;
+            
+            // Анализ веса и цели
+            if (userData.goal) {
+                response += `📊 **Ваша цель: ${userData.goal}**\n`;
+                if (userData.goal.toLowerCase().includes('похудение')) {
+                    response += `Для достижения этой цели рекомендую сочетать кардио и силовые тренировки, а также следить за дефицитом калорий.\n\n`;
+                } else if (userData.goal.toLowerCase().includes('масс')) {
+                    response += `Для набора массы важны силовые тренировки и профицит калорий с акцентом на белок.\n\n`;
+                } else {
+                    response += `Отличная цель! Сбалансированный подход к тренировкам поможет её достичь.\n\n`;
+                }
             }
-        }
-    }, 800);
+            
+            // Анализ уровня подготовки
+            if (userData.fitness_level) {
+                const level = parseInt(userData.fitness_level);
+                response += `💪 **Уровень подготовки: ${level}/10**\n`;
+                if (level <= 3) {
+                    response += `Начнём с базовых упражнений и постепенно увеличим нагрузку. Главное - регулярность!\n\n`;
+                } else if (level <= 6) {
+                    response += `Хорошая база! Можем добавить более сложные упражнения и увеличить интенсивность.\n\n`;
+                } else {
+                    response += `Отличная форма! Можем работать над специализированными программами и прогрессивной перегрузкой.\n\n`;
+                }
+            }
+            
+            // Анализ сна
+            if (userData.sleep_quality && userData.sleep_hours) {
+                response += `😴 **Сон: ${userData.sleep_hours}ч, качество ${userData.sleep_quality}/10**\n`;
+                if (parseInt(userData.sleep_quality) < 6 || parseInt(userData.sleep_hours) < 7) {
+                    response += `⚠️ Качество сна влияет на восстановление! Рекомендую уделить этому внимание.\n\n`;
+                } else {
+                    response += `Отличный сон - залог хорошего восстановления!\n\n`;
+                }
+            }
+            
+            // Анализ стресса
+            if (userData.stress_level) {
+                response += `🧘 **Уровень стресса: ${userData.stress_level}**\n`;
+                if (userData.stress_level.toLowerCase().includes('часто') || userData.stress_level.toLowerCase().includes('постоянно')) {
+                    response += `Высокий стресс может мешать прогрессу. Добавим йогу, медитацию или лёгкие кардио для снятия напряжения.\n\n`;
+                }
+            }
+            
+            // Рекомендации по воде
+            if (userData.water_intake) {
+                const water = parseFloat(userData.water_intake);
+                if (water < 2) {
+                    response += `💧 **Важно:** Увеличьте потребление воды до 2-3 литров в день, особенно в дни тренировок!\n\n`;
+                }
+            }
+            
+            response += `Я составлю для вас персональный план тренировок с учётом всех этих факторов. Готовы начать? 💪`;
+            
+            // Добавляем ответ Софии
+            chatStore['sofia'].push({
+                role: 'ai',
+                text: response
+            });
+            
+            renderChatMessages();
+        }, thinkingTime);
+    }, 500);
 }
 
 function renderProgress_OLD(){
