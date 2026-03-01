@@ -1830,7 +1830,7 @@
                       <div style="text-align: center;"><span style="opacity: 0.7;">ЧСС </span><span id="hrrValueMobile">68</span></div>
                       <div style="text-align: center;"><span style="opacity: 0.7;">O₂ </span><span id="oxygenValueMobile">98%</span></div>
                     </div>
-                    <div id="vitalSignsDisconnected" style="text-align: center; font-size: 8px; opacity: 0.5;">Нет подключения</div>
+                    <div id="vitalSignsDisconnected" style="text-align: center; font-size: 11px; opacity: 0.7; font-weight: 500;">Нет подключения</div>
                   </div>
                 </div>
                 
@@ -8047,8 +8047,9 @@ function renderProgress_OLD(){
 function renderMaterialsLocked() {
     const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
         <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
-            <div class="empty-state-icon" id="lottie-materials-locked" style="width:110px;height:110px;margin:0 auto 8px auto;"></div>
-            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Обучающие материалы и методики, разработанные и протестированные инструкторами MSE под контролем интеллекта "София".</p>
+            <div class="empty-state-icon" id="lottie-materials-locked" style="width:80px;height:80px;margin:0 auto 12px auto;"></div>
+            <h3 style="margin:0 0 8px 0;font-size:13px;font-weight:600;color:var(--text-secondary);">Материалы</h3>
+            <p style="font-size:10px;line-height:1.3;margin:0;text-align:center;opacity:0.8;">Обучающие материалы и методики, разработанные и протестированные инструкторами MSE под контролем интеллекта "София".</p>
         </div>
         <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -8108,8 +8109,9 @@ function renderMaterialsLocked() {
 function renderWorkoutsLocked() {
     const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
         <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
-            <div class="empty-state-icon" id="lottie-workouts-locked" style="width:110px;height:110px;margin:0 auto 8px auto;filter:grayscale(100%) brightness(5.0) contrast(0.5);"></div>
-            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Одиночные и комплексные планы тренировок разных направлений в спорте и фитнесе.</p>
+            <div class="empty-state-icon" id="lottie-workouts-locked" style="width:80px;height:80px;margin:0 auto 12px auto;filter:grayscale(100%) brightness(5.0) contrast(0.5);"></div>
+            <h3 style="margin:0 0 8px 0;font-size:13px;font-weight:600;color:var(--text-secondary);">Тренировки</h3>
+            <p style="font-size:10px;line-height:1.3;margin:0;text-align:center;opacity:0.8;">Одиночные и комплексные планы тренировок разных направлений в спорте и фитнесе.</p>
         </div>
         <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -8159,8 +8161,9 @@ function renderWorkoutsLocked() {
 function renderExamsLocked() {
     const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
         <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
-            <div class="empty-state-icon" id="lottie-exams-locked" style="width:115px;height:115px;margin:0 auto 8px auto;"></div>
-            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Анкеты, тесты и бланки, разработанные для проверки знаний и разработки плана тренировок.</p>
+            <div class="empty-state-icon" id="lottie-exams-locked" style="width:80px;height:80px;margin:0 auto 12px auto;"></div>
+            <h3 style="margin:0 0 8px 0;font-size:13px;font-weight:600;color:var(--text-secondary);">Экзамены</h3>
+            <p style="font-size:10px;line-height:1.3;margin:0;text-align:center;opacity:0.8;">Анкеты, тесты и бланки, разработанные для проверки знаний и разработки плана тренировок.</p>
         </div>
         <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -8304,6 +8307,25 @@ function initUI() {
     
     // Анимация показателей жизни (пульс, ЧСС, O2)
     animateVitalSigns();
+    
+    // Проверяем flatline для незалогиненных пользователей
+    if (!currentUser) {
+        setTimeout(() => {
+            const ecgCanvas = document.getElementById('ecgCanvasMobile');
+            if (ecgCanvas) {
+                const ctx = ecgCanvas.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, ecgCanvas.width, ecgCanvas.height);
+                    ctx.strokeStyle = 'rgba(153, 153, 153, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(0, ecgCanvas.height / 2);
+                    ctx.lineTo(ecgCanvas.width, ecgCanvas.height / 2);
+                    ctx.stroke();
+                }
+            }
+        }, 100);
+    }
 }
 
 // Функция для анимации показателей жизни
@@ -8383,11 +8405,15 @@ function initializeDefaultData() {
     // Инициализация случайного описания профиля для незалогиненных
     if (!currentUser) {
         const randomDescriptions = [
-            'Средний человек, среднее здоровье. Не мешало бы позаниматься спортом и следить за питанием.',
-            'Типичные показатели для человека без регулярных тренировок. Есть потенциал для улучшения.',
-            'Базовый уровень физической подготовки. Рекомендуется начать с легких упражнений.',
-            'Стандартное состояние здоровья. Небольшие изменения в образе жизни могут дать хороший результат.',
-            'Обычные параметры для малоактивного образа жизни. Стоит добавить больше движения в распорядок дня.'
+            'Средний человек, среднее здоровье. Показатели находятся в пределах нормы, но далеки от оптимальных значений. Сердечно-сосудистая система работает стабильно, однако выносливость оставляет желать лучшего. Мышечный тонус снижен, что говорит о недостатке физической активности. Рекомендуется начать с базовых кардио-упражнений 3 раза в неделю по 30 минут. Обратить внимание на питание: увеличить потребление белка и снизить быстрые углеводы. При регулярных тренировках первые результаты появятся через 4-6 недель.',
+            
+            'Типичный офисный работник с сидячим образом жизни. Метаболизм замедлен, что приводит к накоплению лишнего веса в области живота и бедер. ЦНС испытывает постоянный стресс из-за недостатка движения и свежего воздуха. Гибкость суставов ограничена, особенно в области поясницы и плечевого пояса. Рекомендуется начать с растяжки и легкой йоги для восстановления подвижности. Добавить ежедневные прогулки минимум 10000 шагов. Пересмотреть режим сна - необходимо спать не менее 7-8 часов для восстановления.',
+            
+            'Базовый уровень физической подготовки с потенциалом роста. Кардио-респираторная система функционирует удовлетворительно, но нуждается в развитии. Силовые показатели ниже среднего - мышцы не адаптированы к нагрузкам. Координация движений требует улучшения. Рекомендуется комплексный подход: 2 дня силовых тренировок, 2 дня кардио, 1 день растяжки. Начать с малых весов и постепенно увеличивать нагрузку. Важно следить за техникой выполнения упражнений, чтобы избежать травм. Результаты станут заметны через 2-3 месяца регулярных занятий.',
+            
+            'Стандартное состояние для возрастной группы 25-35 лет без спортивного опыта. Общая выносливость на уровне 40% от потенциала. Мышечная масса в норме, но качество мышечной ткани низкое - преобладают медленные волокна. Жировая прослойка превышает оптимальные значения на 5-7%. ЧСС в покое 75-80 ударов, что указывает на детренированность сердца. Рекомендуется начать с интервальных тренировок средней интенсивности. Скорректировать питание: 5-6 приемов пищи небольшими порциями. Добавить витаминно-минеральный комплекс для поддержки организма.',
+            
+            'Малоактивный образ жизни с признаками начальной детренированности. Мышечный корсет ослаблен, что может привести к проблемам с осанкой и болям в спине. Дыхательная система работает неэффективно - объем легких не используется полностью. Метаболические процессы замедлены, что затрудняет сжигание калорий. Психоэмоциональное состояние нестабильное из-за недостатка эндорфинов. Рекомендуется начать с ежедневной утренней зарядки 15-20 минут. Добавить плавание или велосипед 2 раза в неделю. Пересмотреть рацион: больше овощей, фруктов и чистой воды. При правильном подходе улучшение самочувствия наступит уже через 2 недели.'
         ];
         const randomIndex = Math.floor(Math.random() * randomDescriptions.length);
         const profileText = document.getElementById('generalProfileText');
