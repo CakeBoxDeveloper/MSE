@@ -80,6 +80,8 @@
         }
         
         body {
+            margin: 0;
+            padding: 0;
             overflow: hidden; /* MOBILE: запрет скролла */
             width: 430px; /* MOBILE: фиксированная ширина как у iPhone */
             height: 100vh;
@@ -234,6 +236,8 @@
 .rename-btn:hover { background:rgba(255,255,255,.15); }
         
         body {
+            margin: 0;
+            padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
@@ -1820,10 +1824,13 @@
                     <!-- Canvas для ЭКГ -->
                     <canvas id="ecgCanvasMobile" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; transform: scaleX(-1) scaleY(-1);"></canvas>
                   </div>
-                  <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-secondary);">
-                    <div style="text-align: center;"><span style="opacity: 0.7;">Пульс </span><span id="pulseValueMobile"><span style="font-size: 8px; opacity: 0.5;">нет подключения</span></span></div>
-                    <div style="text-align: center;"><span style="opacity: 0.7;">ЧСС </span><span id="hrrValueMobile"><span style="font-size: 8px; opacity: 0.5;">нет подключения</span></span></div>
-                    <div style="text-align: center;"><span style="opacity: 0.7;">O₂ </span><span id="oxygenValueMobile"><span style="font-size: 8px; opacity: 0.5;">нет подключения</span></span></div>
+                  <div id="vitalSignsRow" style="display: flex; justify-content: center; font-size: 9px; color: var(--text-secondary);">
+                    <div id="vitalSignsConnected" style="display: none; width: 100%; justify-content: space-between;">
+                      <div style="text-align: center;"><span style="opacity: 0.7;">Пульс </span><span id="pulseValueMobile">72</span></div>
+                      <div style="text-align: center;"><span style="opacity: 0.7;">ЧСС </span><span id="hrrValueMobile">68</span></div>
+                      <div style="text-align: center;"><span style="opacity: 0.7;">O₂ </span><span id="oxygenValueMobile">98%</span></div>
+                    </div>
+                    <div id="vitalSignsDisconnected" style="text-align: center; font-size: 8px; opacity: 0.5;">Нет подключения</div>
                   </div>
                 </div>
                 
@@ -2204,20 +2211,7 @@
                 <!-- Слой 1: Текстовая информация (по умолчанию ВИДИМЫЙ) -->
                 <div id="profileLayer1" style="flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.4; overflow-y: auto; opacity: 1; pointer-events: all; transition: opacity 0.6s ease, filter 0.6s ease; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
                   <div style="position: relative; z-index: 1;">
-                    <div style="margin-bottom: 8px;"><strong>Общее состояние:</strong> Удовлетворительное</div>
-                    <div style="margin-bottom: 8px;"><strong>ЧСС:</strong> 72 уд/мин (норма)</div>
-                    <div style="margin-bottom: 8px;"><strong>Давление:</strong> 120/80 мм рт.ст.</div>
-                    <div style="margin-bottom: 8px;"><strong>Вес:</strong> Стабильный</div>
-                    <div style="margin-bottom: 8px;"><strong>Энергия:</strong> Высокий уровень</div>
-                  </div>
-                  <div style="position: relative; z-index: 1;">
-                    <div style="margin-bottom: 6px;"><strong>Рекомендации:</strong></div>
-                    <div>
-                      • Поддерживать режим тренировок<br>
-                      • Увеличить потребление воды<br>
-                      • Контролировать стресс<br>
-                      • Регулярный сон 7-8 часов
-                    </div>
+                    <div style="margin-bottom: 8px;" id="generalProfileText"></div>
                   </div>
                 </div>
                 
@@ -6870,7 +6864,7 @@ function renderProgress(){
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
                 <div class="empty-state-icon" id="lottie-progress" style="width:100px;height:100px;margin:0 auto 8px auto;"></div>
                 <h3 style="margin:0 0 6px 0;font-size:14px;">Прогресс и достижения</h3>
-                <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Здесь София будет добавлять ваши достижения и записи по мере успеха в тренировках.</p>
+                <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">В этом разделе София будет присваивать достижения и создавать записи о тебе в процессе общения.</p>
             </div>
             <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
                 <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -8054,7 +8048,7 @@ function renderMaterialsLocked() {
     const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
         <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
             <div class="empty-state-icon" id="lottie-materials-locked" style="width:110px;height:110px;margin:0 auto 8px auto;"></div>
-            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Учебные материалы, мануалы и гайды по фитнесу.</p>
+            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Обучающие материалы и методики, разработанные и протестированные инструкторами MSE под контролем интеллекта "София".</p>
         </div>
         <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -8115,7 +8109,7 @@ function renderWorkoutsLocked() {
     const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
         <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
             <div class="empty-state-icon" id="lottie-workouts-locked" style="width:110px;height:110px;margin:0 auto 8px auto;filter:grayscale(100%) brightness(5.0) contrast(0.5);"></div>
-            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Готовые программы тренировок для разных целей и уровней подготовки.</p>
+            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Одиночные и комплексные планы тренировок разных направлений в спорте и фитнесе.</p>
         </div>
         <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -8166,7 +8160,7 @@ function renderExamsLocked() {
     const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
         <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
             <div class="empty-state-icon" id="lottie-exams-locked" style="width:115px;height:115px;margin:0 auto 8px auto;"></div>
-            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Тесты для проверки знаний и отслеживания прогресса в обучении.</p>
+            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Анкеты, тесты и бланки, разработанные для проверки знаний и разработки плана тренировок.</p>
         </div>
         <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -8314,6 +8308,22 @@ function initUI() {
 
 // Функция для анимации показателей жизни
 function animateVitalSigns() {
+    // Проверяем, залогинен ли пользователь
+    if (!currentUser) {
+        // Показываем "Нет подключения"
+        const connectedDiv = document.getElementById('vitalSignsConnected');
+        const disconnectedDiv = document.getElementById('vitalSignsDisconnected');
+        if (connectedDiv) connectedDiv.style.display = 'none';
+        if (disconnectedDiv) disconnectedDiv.style.display = 'block';
+        return;
+    }
+    
+    // Показываем показатели
+    const connectedDiv = document.getElementById('vitalSignsConnected');
+    const disconnectedDiv = document.getElementById('vitalSignsDisconnected');
+    if (connectedDiv) connectedDiv.style.display = 'flex';
+    if (disconnectedDiv) disconnectedDiv.style.display = 'none';
+    
     const pulseEl = document.getElementById('pulseValueMobile');
     const hrrEl = document.getElementById('hrrValueMobile');
     const oxygenEl = document.getElementById('oxygenValueMobile');
@@ -8324,7 +8334,7 @@ function animateVitalSigns() {
     const vitals = {
         pulse: { element: pulseEl, base: 72, range: 3, current: 72 },
         hrr: { element: hrrEl, base: 68, range: 2, current: 68 },
-        oxygen: { element: oxygenEl, base: 98, range: 1, current: 98 }
+        oxygen: { element: oxygenEl, base: 98, range: 1, current: 98, suffix: '%' }
     };
     
     // Функция для плавного изменения значения
@@ -8336,7 +8346,7 @@ function animateVitalSigns() {
         // Ограничиваем диапазон
         if (newValue >= vital.base - vital.range && newValue <= vital.base + vital.range) {
             vital.current = newValue;
-            vital.element.textContent = vital.current;
+            vital.element.textContent = vital.suffix ? vital.current + vital.suffix : vital.current;
         }
     }
     
@@ -8368,6 +8378,22 @@ function initializeDefaultData() {
             date: Date.now()
         };
         weightData.previous = { ...weightData.current };
+    }
+    
+    // Инициализация случайного описания профиля для незалогиненных
+    if (!currentUser) {
+        const randomDescriptions = [
+            'Средний человек, среднее здоровье. Не мешало бы позаниматься спортом и следить за питанием.',
+            'Типичные показатели для человека без регулярных тренировок. Есть потенциал для улучшения.',
+            'Базовый уровень физической подготовки. Рекомендуется начать с легких упражнений.',
+            'Стандартное состояние здоровья. Небольшие изменения в образе жизни могут дать хороший результат.',
+            'Обычные параметры для малоактивного образа жизни. Стоит добавить больше движения в распорядок дня.'
+        ];
+        const randomIndex = Math.floor(Math.random() * randomDescriptions.length);
+        const profileText = document.getElementById('generalProfileText');
+        if (profileText) {
+            profileText.textContent = randomDescriptions[randomIndex];
+        }
     }
     
     // Обновляем отображение веса
@@ -9042,15 +9068,8 @@ function togglePinChat(id, tabElement) {
 function addChatTab(){
     // Проверяем, залогинен ли пользователь
     if (!currentUser) {
-        // Показываем уведомление с анимацией
-        showAlert('Пройдите синхронизацию, чтобы продолжить работу', 'Требуется синхронизация', {
-            showAnimation: true,
-            buttonText: 'В СИНХРОНИЗАТОР',
-            buttonAction: () => {
-                closeAlert();
-                document.getElementById('headerLoginBtn').click();
-            }
-        });
+        // Сразу открываем окно логина
+        showLogin();
         return;
     }
     
@@ -9306,7 +9325,7 @@ function renderChatMessages(){
     if (messages.length === 0 && activeChatTab === 'sofia') {
         container.innerHTML = `<div class="chat-empty-state">
             <div class="sofia-icon" id="lottie-chat-sofia" style="width:60px;height:60px;margin:0 auto;"></div>
-            <p>Привет, меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
+            <p>Меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
         </div>`;
         
         // Загружаем Lottie анимацию для Sofia
