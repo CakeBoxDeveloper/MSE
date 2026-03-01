@@ -780,6 +780,11 @@
         }
         .chat-messages::-webkit-scrollbar { display:none; }
         
+        #leaderboardContent {
+            scrollbar-width: none;
+        }
+        #leaderboardContent::-webkit-scrollbar { display: none; }
+        
         .hidden-module .block-body::-webkit-scrollbar {
             display: none;
         }
@@ -2033,7 +2038,7 @@
             <!-- ЦЕНТРАЛЬНЫЙ АВАТАР (оригинальный) -->
             <div style="width: 33.333%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px; flex-shrink: 0; scroll-snap-align: start;">
               <!-- Центральное видео (аватар) -->
-              <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px;">
+              <div onclick="toggleMonitorSkin(event)" style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 345px; cursor: pointer;">
                 <video id="monitorHumanVideo" 
                        autoplay 
                        loop 
@@ -2041,14 +2046,17 @@
                        playsinline
                        style="width: 115%; height: auto; max-height: 115%; opacity: 0.7; object-fit: contain;
                               filter: grayscale(1);
-                              animation: colorFadeIn 2s ease-out forwards;">
+                              animation: colorFadeIn 2s ease-out forwards; pointer-events: none;">
                   <source id="monitorVideoSource" src="" type="video/webm">
                 </video>
               </div>
               
               <!-- Плашка с номером звена и кнопка инвайта -->
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div id="monitorUserPlate" style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 0 12px; height: 33px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: default; opacity: 0.5; transition: all 0.2s ease;">
+                <button id="leaderboardButton" onclick="event.stopPropagation(); showLeaderboard();" style="display: none; width: 33px; height: 33px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; padding: 0; align-items: center; justify-content: center;">
+                  <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/77cddc3e21164b02485dd6e0354afc2dca196efa/chain.svg" alt="Лидеры" style="width: 13.6px; height: 13.6px; pointer-events: none;">
+                </button>
+                <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 0 12px; height: 33px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: pointer; opacity: 0.5; transition: all 0.2s ease;">
                   <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
                 </div>
                 <button id="inviteButton" onclick="event.stopPropagation(); showInviteModal();" style="display: none; width: 33px; height: 33px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-secondary); font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; padding: 0; align-items: center; justify-content: center;">
@@ -2426,7 +2434,8 @@
       <div id="registerLoader" class="fullscreen-loader" style="display:none;padding:0;margin:0;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"><canvas id="grainLoaderRegister" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
       <div id="registerSuccess" class="fullscreen-success" style="display:none;"><div class="success-text"></div></div>
     </div>
-    <!-- LOGOUT -->
+  
+  <!-- LOGOUT -->
     <div id="logoutModal" style="display:none;">
       <div class="logout-modal">
         <div>
@@ -2438,6 +2447,23 @@
           <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD MODAL - OUTSIDE CONTAINER -->
+<div id="leaderboardOverlay" class="auth-overlay" style="display:none !important;z-index:100000 !important;position:fixed !important;">
+  <div class="auth-modal" id="leaderboardModal" style="width:320px;height:auto;max-height:400px;display:flex;flex-direction:column;">
+    <div style="padding:16px 20px 12px 20px;border-bottom:1px solid var(--glass-border);">
+      <div style="font-size:14px;font-weight:600;color:var(--text-primary);letter-spacing:0.5px;text-align:center;">Таблица лидеров</div>
+    </div>
+    <div style="position:relative;flex:1;overflow:hidden;">
+      <div id="leaderboardContent" style="height:100%;overflow-y:auto;padding:12px 20px;">
+        <!-- Leaderboard rows will be inserted here -->
+      </div>
+      <!-- Fade gradients -->
+      <div style="position:absolute;top:0;left:0;right:0;height:20px;background:linear-gradient(to bottom,rgba(28,28,28,1) 0%,rgba(28,28,28,0) 100%);pointer-events:none;opacity:0;transition:opacity 0.3s ease;" id="leaderboardTopGradient"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:20px;background:linear-gradient(to top,rgba(28,28,28,1) 0%,rgba(28,28,28,0) 100%);pointer-events:none;opacity:1;transition:opacity 0.3s ease;" id="leaderboardBottomGradient"></div>
     </div>
   </div>
 </div>
@@ -3018,8 +3044,10 @@ function updateProfileScrollGradients() {
 document.addEventListener('DOMContentLoaded', () => {
     const layer1 = document.getElementById('profileLayer1');
     if (layer1) {
-        // Проверяем градиенты при загрузке
+        // Проверяем градиенты при загрузке - сразу и с задержкой
+        updateProfileScrollGradients();
         setTimeout(() => updateProfileScrollGradients(), 100);
+        setTimeout(() => updateProfileScrollGradients(), 500);
         
         // Обновляем градиенты при скролле
         layer1.addEventListener('scroll', updateProfileScrollGradients);
@@ -3696,6 +3724,145 @@ function calculateBIndex() {
     return Math.max(0, Math.min(100, bIndex));
 }
 
+// ============================================================
+// LEADERBOARD FUNCTIONS
+// ============================================================
+
+function showLeaderboard() {
+    console.log('[LEADERBOARD] showLeaderboard called');
+    const overlay = document.getElementById('leaderboardOverlay');
+    const content = document.getElementById('leaderboardContent');
+    
+    console.log('[LEADERBOARD] overlay:', overlay);
+    console.log('[LEADERBOARD] content:', content);
+    
+    if (!overlay || !content) {
+        console.error('[LEADERBOARD] Missing elements!');
+        return;
+    }
+    
+    // Get all users from Firebase and calculate their B-index
+    const leaderboardData = [];
+    
+    // Add current user
+    if (currentUser) {
+        const bIndex = calculateBIndex();
+        console.log('[LEADERBOARD] Current user B-index:', bIndex);
+        leaderboardData.push({
+            id: currentUser.id,
+            bIndex: bIndex,
+            isCurrent: true
+        });
+    }
+    
+    // Add other users (mock data for now - will be replaced with Firebase data)
+    // In production, this should fetch from Firebase
+    const mockUsers = [
+        { id: 1001, bIndex: 72 },
+        { id: 1002, bIndex: 85 },
+        { id: 1003, bIndex: 68 },
+        { id: 1004, bIndex: 91 },
+        { id: 1005, bIndex: 79 },
+        { id: 1006, bIndex: 65 },
+        { id: 1007, bIndex: 82 },
+        { id: 1008, bIndex: 75 },
+        { id: 1009, bIndex: 88 },
+        { id: 1010, bIndex: 71 }
+    ];
+    
+    // Merge with mock data (exclude current user if already in mock)
+    mockUsers.forEach(user => {
+        if (!currentUser || user.id !== currentUser.id) {
+            leaderboardData.push({
+                id: user.id,
+                bIndex: user.bIndex,
+                isCurrent: false
+            });
+        }
+    });
+    
+    // Sort by B-index descending
+    leaderboardData.sort((a, b) => b.bIndex - a.bIndex);
+    
+    console.log('[LEADERBOARD] Total users:', leaderboardData.length);
+    
+    // Generate HTML
+    let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
+    
+    leaderboardData.forEach((user, index) => {
+        const rank = index + 1;
+        const isCurrentUser = user.isCurrent;
+        const bgColor = isCurrentUser ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.03)';
+        const borderColor = isCurrentUser ? 'rgba(255,255,255,.2)' : 'var(--glass-border)';
+        
+        html += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:${bgColor};border:1px solid ${borderColor};border-radius:6px;transition:all 0.2s ease;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:24px;text-align:center;font-size:13px;font-weight:600;color:var(--text-secondary);">${rank}</div>
+                    <div style="font-size:11px;font-weight:${isCurrentUser ? '600' : '500'};color:var(--text-primary);letter-spacing:0.3px;">Звено ${user.id.toString().padStart(4, '0')}</div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:var(--text-primary);">${user.bIndex}%</div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    content.innerHTML = html;
+    
+    // Set all styles with !important
+    overlay.style.setProperty('display', 'flex', 'important');
+    overlay.style.setProperty('opacity', '1', 'important');
+    overlay.style.setProperty('pointer-events', 'all', 'important');
+    overlay.style.setProperty('z-index', '999999', 'important');
+    overlay.style.setProperty('position', 'fixed', 'important');
+    
+    // Setup scroll gradients
+    updateLeaderboardGradients();
+    content.addEventListener('scroll', updateLeaderboardGradients);
+    
+    // Then add active class
+    setTimeout(() => {
+        overlay.classList.add('active');
+        console.log('[LEADERBOARD] Modal opened - opacity:', window.getComputedStyle(overlay).opacity);
+        console.log('[LEADERBOARD] Modal opened - display:', window.getComputedStyle(overlay).display);
+        console.log('[LEADERBOARD] Modal opened - z-index:', window.getComputedStyle(overlay).zIndex);
+    }, 10);
+}
+
+function updateLeaderboardGradients() {
+    const content = document.getElementById('leaderboardContent');
+    const topGradient = document.getElementById('leaderboardTopGradient');
+    const bottomGradient = document.getElementById('leaderboardBottomGradient');
+    
+    if (!content || !topGradient || !bottomGradient) return;
+    
+    const scrollTop = content.scrollTop;
+    const scrollHeight = content.scrollHeight;
+    const clientHeight = content.clientHeight;
+    const scrollBottom = scrollHeight - scrollTop - clientHeight;
+    
+    // Show/hide gradients based on scroll position
+    topGradient.style.opacity = scrollTop > 5 ? '1' : '0';
+    bottomGradient.style.opacity = scrollBottom > 5 ? '1' : '0';
+}
+
+function closeLeaderboard() {
+    const overlay = document.getElementById('leaderboardOverlay');
+    const content = document.getElementById('leaderboardContent');
+    
+    if (content) {
+        content.removeEventListener('scroll', updateLeaderboardGradients);
+    }
+    
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300); // Wait for fade animation
+    }
+}
+
 // Update biological profile with AI-generated content
 async function updateBioProfile() {
     // Calculate B-index
@@ -4222,6 +4389,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // Close only if clicking on overlay, not on modal itself
             if (e.target === authOverlay) {
                 closeAuth();
+            }
+        });
+    }
+    
+    // Close leaderboard when clicking outside
+    const leaderboardOverlay = document.getElementById('leaderboardOverlay');
+    const leaderboardModal = document.getElementById('leaderboardModal');
+    
+    if (leaderboardOverlay && leaderboardModal) {
+        leaderboardOverlay.addEventListener('click', (e) => {
+            if (e.target === leaderboardOverlay) {
+                closeLeaderboard();
             }
         });
     }
@@ -4971,10 +5150,14 @@ function confirmLogout() {
             `;
         }
         
-        // Hide invite button
+        // Hide invite and leaderboard buttons
         const inviteBtn = document.getElementById('inviteButton');
         if (inviteBtn) {
             inviteBtn.style.display = 'none';
+        }
+        const leaderboardBtn = document.getElementById('leaderboardButton');
+        if (leaderboardBtn) {
+            leaderboardBtn.style.display = 'none';
         }
         
         // Close monitor mode if it's open
@@ -5057,10 +5240,14 @@ function closeAuthAfterSuccess() {
             
             // Initialize UI after login
             if (currentUser) {
-                // Show invite button
+                // Show invite and leaderboard buttons
                 const inviteBtn = document.getElementById('inviteButton');
                 if (inviteBtn) {
                     inviteBtn.style.display = 'flex';
+                }
+                const leaderboardBtn = document.getElementById('leaderboardButton');
+                if (leaderboardBtn) {
+                    leaderboardBtn.style.display = 'flex';
                 }
                 
                 // Update monitor user plate
@@ -5672,11 +5859,16 @@ loginPinInputs.forEach((id,index)=>{
                                 console.error('[LOGIN] Header button not found!');
                             }
                             
-                            // Show invite button
+                            // Show invite and leaderboard buttons
                             const inviteBtn = document.getElementById('inviteButton');
                             if (inviteBtn) {
                                 inviteBtn.style.display = 'flex';
                                 console.log('[LOGIN] Invite button shown');
+                            }
+                            const leaderboardBtn = document.getElementById('leaderboardButton');
+                            if (leaderboardBtn) {
+                                leaderboardBtn.style.display = 'flex';
+                                console.log('[LOGIN] Leaderboard button shown');
                             }
                             
                             // Обновляем плашку в мониторе
@@ -6011,10 +6203,14 @@ function completeRegistration(userId) {
     closeAuth();
     document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
     
-    // Show invite button
+    // Show invite and leaderboard buttons
     const inviteBtn = document.getElementById('inviteButton');
     if (inviteBtn) {
         inviteBtn.style.display = 'flex';
+    }
+    const leaderboardBtn = document.getElementById('leaderboardButton');
+    if (leaderboardBtn) {
+        leaderboardBtn.style.display = 'flex';
     }
     
     // Обновляем плашку в мониторе
@@ -8527,11 +8723,16 @@ function restoreSession() {
                     console.error('[SESSION] Monitor plate not found!');
                 }
                 
-                // Show invite button
+                // Show invite and leaderboard buttons
                 const inviteBtn = document.getElementById('inviteButton');
                 if (inviteBtn) {
                     inviteBtn.style.display = 'flex';
                     console.log('[SESSION] Invite button shown');
+                }
+                const leaderboardBtn = document.getElementById('leaderboardButton');
+                if (leaderboardBtn) {
+                    leaderboardBtn.style.display = 'flex';
+                    console.log('[SESSION] Leaderboard button shown');
                 }
             }, 100);
             
@@ -8574,10 +8775,14 @@ function restoreSession() {
                     
                     console.log('[SESSION] Updated currentUser with Firebase data:', currentUser);
                     
-                    // Show invite button
+                    // Show invite and leaderboard buttons
                     const inviteBtn = document.getElementById('inviteButton');
                     if (inviteBtn) {
                         inviteBtn.style.display = 'flex';
+                    }
+                    const leaderboardBtn = document.getElementById('leaderboardButton');
+                    if (leaderboardBtn) {
+                        leaderboardBtn.style.display = 'flex';
                     }
                     
                     // Update monitor user plate
@@ -12396,6 +12601,7 @@ if (document.readyState === 'loading') {
 }
 
 </script>
-<script src="video-random-fix.js"></script>
+<script src="video-random-fix.js">
+</script>
 </body>
 </html>
