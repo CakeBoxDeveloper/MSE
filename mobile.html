@@ -1353,6 +1353,11 @@
             padding:8px 24px 6px 24px; /* Reduced vertical padding for logout */
         }
         .auth-overlay.active .auth-modal { transform:scale(1); }
+        
+        /* Leaderboard modal without scale animation */
+        #leaderboardModal {
+            transform:scale(1) !important;
+        }
 
         .auth-form { display:flex;flex-direction:column;gap:12px;width:100%; }
         .form-group { display:flex;flex-direction:column;gap:8px;width:100%; }
@@ -2056,7 +2061,7 @@
                 <button id="leaderboardButton" onclick="event.stopPropagation(); showLeaderboard();" style="display: none; width: 33px; height: 33px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; padding: 0; align-items: center; justify-content: center;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/77cddc3e21164b02485dd6e0354afc2dca196efa/chain.svg" alt="Лидеры" style="width: 13.6px; height: 13.6px; pointer-events: none;">
                 </button>
-                <div id="monitorUserPlate" onclick="toggleMonitorSkin(event)" style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 0 12px; height: 33px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: pointer; opacity: 0.5; transition: all 0.2s ease;">
+                <div id="monitorUserPlate" style="background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 0 12px; height: 33px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; cursor: pointer; opacity: 0.5; transition: all 0.2s ease;">
                   <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
                 </div>
                 <button id="inviteButton" onclick="event.stopPropagation(); showInviteModal();" style="display: none; width: 33px; height: 33px; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-secondary); font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; padding: 0; align-items: center; justify-content: center;">
@@ -3056,6 +3061,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Обновляем градиенты при изменении размера окна
         window.addEventListener('resize', updateProfileScrollGradients);
     }
+    
+    // Initialize monitor plate click handler for "ПРОБНОЕ ЗВЕНО"
+    const monitorPlate = document.getElementById('monitorUserPlate');
+    if (monitorPlate && !currentUser) {
+        monitorPlate.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showLeaderboard();
+        });
+    }
 });
 
 // Функция для создания скриншота модуля монитора
@@ -3831,6 +3845,29 @@ function showLeaderboard() {
     setTimeout(() => updateLeaderboardGradients(), 300);
     setTimeout(() => updateLeaderboardGradients(), 500);
     content.addEventListener('scroll', updateLeaderboardGradients);
+    
+    // Auto-scroll to current user position if logged in
+    if (currentUser) {
+        setTimeout(() => {
+            const currentUserIndex = leaderboardData.findIndex(u => u.isCurrent);
+            if (currentUserIndex >= 0) {
+                // Each row is approximately 52px (10px padding + 1px border + 6px gap + content)
+                const rowHeight = 52;
+                const scrollPosition = currentUserIndex * rowHeight;
+                // Center the user's row in the viewport
+                const containerHeight = content.clientHeight;
+                const centeredScroll = scrollPosition - (containerHeight / 2) + (rowHeight / 2);
+                
+                // Smooth scroll animation
+                content.scrollTo({
+                    top: Math.max(0, centeredScroll),
+                    behavior: 'smooth'
+                });
+                
+                console.log('[LEADERBOARD] Auto-scrolled to user position:', currentUserIndex, 'scroll:', centeredScroll);
+            }
+        }, 150);
+    }
     
     // Then add active class
     setTimeout(() => {
@@ -5159,6 +5196,14 @@ function confirmLogout() {
             monitorPlate.innerHTML = `
                 <span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Пробное звено</span>
             `;
+            monitorPlate.style.opacity = '0.5';
+            // Remove old listeners and add new one
+            monitorPlate.replaceWith(monitorPlate.cloneNode(true));
+            const newMonitorPlate = document.getElementById('monitorUserPlate');
+            newMonitorPlate.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showLeaderboard();
+            });
         }
         
         // Hide invite and leaderboard buttons
@@ -5266,6 +5311,17 @@ function closeAuthAfterSuccess() {
                 if (userPlate) {
                     userPlate.innerHTML = `<span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>`;
                     userPlate.style.opacity = '1';
+                    // Remove old listeners and add new one
+                    userPlate.replaceWith(userPlate.cloneNode(true));
+                    const newUserPlate = document.getElementById('monitorUserPlate');
+                    newUserPlate.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (e.shiftKey) {
+                            toggleMonitorSkin(e);
+                        } else {
+                            showLeaderboard();
+                        }
+                    });
                 }
                 
                 // Initialize weight data if not loaded
@@ -8801,6 +8857,17 @@ function restoreSession() {
                     if (userPlate) {
                         userPlate.innerHTML = `<span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>`;
                         userPlate.style.opacity = '1';
+                        // Remove old listeners and add new one
+                        userPlate.replaceWith(userPlate.cloneNode(true));
+                        const newUserPlate = document.getElementById('monitorUserPlate');
+                        newUserPlate.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (e.shiftKey) {
+                                toggleMonitorSkin(e);
+                            } else {
+                                showLeaderboard();
+                            }
+                        });
                     }
                     
                     // Update monitor video
