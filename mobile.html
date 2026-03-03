@@ -1819,19 +1819,19 @@
           <div class="inner-tabs">
             <button class="inner-tab active" data-inner="materials">
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-              <span>Материалы</span>
+              <span>Теория</span>
             </button>
             <button class="inner-tab" data-inner="workouts">
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d48e325735969dad640d1448cc8dcc659fbb6862/tab_workouts.svg" alt="">
-              <span>Тренировки</span>
+              <span>Практика</span>
             </button>
             <button class="inner-tab" data-inner="exams">
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f009c86e945f53940e3d875c97c43169fc2aec24/chemistry.svg" alt="">
-              <span>Экзамены</span>
+              <span>Тесты</span>
             </button>
             <button class="inner-tab" data-inner="calculators">
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/mathematics.svg" alt="">
-              <span>Калькуляторы</span>
+              <span>Счёты</span>
             </button>
             <button class="inner-tab" data-inner="progress">
               <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ffc7247d623b23ad966683313d80a037517dff60/tab_progress.svg" alt="">
@@ -2542,7 +2542,7 @@
 
 <!-- CALCULATOR MODAL -->
 <div id="calculatorOverlay" class="auth-overlay" onclick="closeCalculator()" style="display:none;">
-  <div class="auth-modal" onclick="event.stopPropagation()" style="width:340px;max-width:calc(100% - 40px);height:420px;display:flex;flex-direction:column;position:relative;">
+  <div class="auth-modal" onclick="event.stopPropagation()" style="width:340px;max-width:calc(100% - 40px);height:460px;display:flex;flex-direction:column;position:relative;">
     <div class="calculator-header" style="padding:16px 20px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;">
       <h2 id="calculatorTitle" style="font-size:14px;font-weight:600;color:var(--text-primary);margin:0;">Калькулятор</h2>
       <img id="calculatorIcon" class="calculator-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/calculator.svg" alt="" style="width:24px;height:24px;flex-shrink:0;">
@@ -7474,21 +7474,9 @@ function renderCalculators() {
             icon: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/calculator.svg'
         },
         {
-            id: 'bmi',
-            title: 'Индекс массы тела',
-            description: 'Рассчитайте ваш ИМТ',
-            icon: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/calculator.svg'
-        },
-        {
-            id: 'water',
-            title: 'Норма воды',
-            description: 'Рассчитайте дневную норму воды',
-            icon: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/calculator.svg'
-        },
-        {
-            id: 'protein',
-            title: 'Норма белка',
-            description: 'Рассчитайте суточную норму белка',
+            id: 'nutrients',
+            title: 'Калькулятор нутриентов',
+            description: 'Рассчитайте БЖУ и норму воды',
             icon: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/calculator.svg'
         }
     ];
@@ -7558,65 +7546,23 @@ function openCalculator(calcId) {
                 </div>
             `
         },
-        bmi: {
-            title: 'Индекс массы тела',
-            content: `
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    <div style="display:flex;gap:8px;">
-                        <div class="form-group" style="flex:1;">
-                            <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
-                            <input type="number" id="bmiWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                        </div>
-                        <div class="form-group" style="flex:1;">
-                            <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Рост (см)</label>
-                            <input type="number" id="bmiHeight" class="form-input" placeholder="170" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                        </div>
-                    </div>
-                    <button onclick="calculateBMI()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
-                </div>
-            `
-        },
-        water: {
-            title: 'Норма воды',
+        nutrients: {
+            title: 'Калькулятор нутриентов',
             content: `
                 <div style="display:flex;flex-direction:column;gap:8px;">
                     <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
-                        <input type="number" id="waterWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Калорийность (ккал)</label>
+                        <input type="number" id="nutrientsCalories" class="form-input" placeholder="2000" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
                     </div>
                     <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Физическая или умственная активность</label>
-                        <select id="waterActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                            <option value="1.2">Отсутствует</option>
-                            <option value="1.375">Раз в неделю</option>
-                            <option value="1.55" selected>Через день</option>
-                            <option value="1.725">Каждый день</option>
-                            <option value="1.9">Несколько раз в день</option>
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Цель</label>
+                        <select id="nutrientsGoal" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                            <option value="loss">Похудение</option>
+                            <option value="maintain" selected>Поддержание веса</option>
+                            <option value="gain">Набор массы</option>
                         </select>
                     </div>
-                    <button onclick="calculateWater()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
-                </div>
-            `
-        },
-        protein: {
-            title: 'Норма белка',
-            content: `
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
-                        <input type="number" id="proteinWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Физическая или умственная активность</label>
-                        <select id="proteinActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                            <option value="1.2">Отсутствует</option>
-                            <option value="1.375">Раз в неделю</option>
-                            <option value="1.55" selected>Через день</option>
-                            <option value="1.725">Каждый день</option>
-                            <option value="1.9">Несколько раз в день</option>
-                        </select>
-                    </div>
-                    <button onclick="calculateProtein()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
+                    <button onclick="calculateNutrients()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
                 </div>
             `
         }
@@ -7758,7 +7704,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function startCalculationSequence(calcType, resultValue, unit, inputs) {
+async function startCalculationSequence(calcType, resultValue, unit, inputs, resultForNote = null) {
     const content = document.getElementById('calculatorContent');
     const grainLoaderDiv = document.getElementById('calculatorGrainLoader');
     const grainCanvas = document.getElementById('grainLoaderCalculator');
@@ -7805,7 +7751,7 @@ async function startCalculationSequence(calcType, resultValue, unit, inputs) {
         if (content) {
             content.style.display = 'block';
         }
-        showResultDisplay(calcType, resultValue, unit, inputs);
+        showResultDisplay(calcType, resultValue, unit, inputs, resultForNote);
         
     } catch (error) {
         console.error('[CALCULATOR] Animation sequence failed:', error);
@@ -7813,11 +7759,11 @@ async function startCalculationSequence(calcType, resultValue, unit, inputs) {
         if (grainLoaderDiv) grainLoaderDiv.style.display = 'none';
         if (calculatorHeader) calculatorHeader.style.display = 'flex';
         if (content) content.style.display = 'block';
-        showResultDisplay(calcType, resultValue, unit, inputs);
+        showResultDisplay(calcType, resultValue, unit, inputs, resultForNote);
     }
 }
 
-function showResultDisplay(calcType, resultValue, unit, inputs) {
+function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = null) {
     const content = document.getElementById('calculatorContent');
     
     // Calculate different calorie targets for calories calculator
@@ -7856,13 +7802,39 @@ function showResultDisplay(calcType, resultValue, unit, inputs) {
                 </div>
             </div>
         `;
+    } else if (calcType === 'nutrients') {
+        // Nutrients calculator - display as table (left: nutrient, right: value)
+        const nutrients = resultValue; // Object with protein, fat, carbs, water
+        resultsHTML = `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <div id="calculatorSofiaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
+                <div class="calculator-result" style="padding:16px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:6px;">
+                    <div class="result-label" style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;text-align:center;">Рекомендуемые нутриенты</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Белки</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${nutrients.protein} г</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Жиры</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${nutrients.fat} г</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Углеводы</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${nutrients.carbs} г</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Вода в день</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${nutrients.water} л</span>
+                        </div>
+                    </div>
+                    <button class="result-note-btn auth-btn primary" style="width:100%;height:36px;display:flex;align-items:center;justify-content:center;">Добавить заметку</button>
+                </div>
+            </div>
+        `;
     } else {
         // For other calculators - simple result
-        const labels = {
-            bmi: 'Ваш индекс массы тела',
-            water: 'Ваша дневная норма воды',
-            protein: 'Ваша суточная норма белка'
-        };
+        const labels = {};
         
         const label = labels[calcType] || 'Результат';
         
@@ -7933,7 +7905,8 @@ function showResultDisplay(calcType, resultValue, unit, inputs) {
     const noteButton = content.querySelector('.result-note-btn');
     if (noteButton) {
         noteButton.addEventListener('click', () => {
-            const fullResult = `${resultValue} ${unit}`;
+            // Use resultForNote if provided (for nutrients), otherwise format result
+            const fullResult = resultForNote || `${resultValue} ${unit}`;
             addNoteToSofiaChat(calcType, inputs, fullResult);
         });
     }
@@ -7956,9 +7929,7 @@ function getActivityLabel(activity) {
 function getCalculatorLabel(calcType) {
     const labels = {
         calories: 'Калькулятор калорий',
-        bmi: 'Индекс массы тела',
-        water: 'Норма воды',
-        protein: 'Норма белка'
+        nutrients: 'Калькулятор нутриентов'
     };
     return labels[calcType] || calcType;
 }
@@ -7968,14 +7939,14 @@ function createCalculatorNote(calcType, inputs, result) {
         calories: (inputs, result) => 
             `📊 Калькулятор калорий\n\nВес: ${inputs.weight} кг\nРост: ${inputs.height} см\nВозраст: ${inputs.age} лет\nАктивность: ${getActivityLabel(inputs.activity)}\n\n✅ Суточная норма: ${result}`,
         
-        bmi: (inputs, result) => 
-            `📊 Индекс массы тела\n\nВес: ${inputs.weight} кг\nРост: ${inputs.height} см\n\n✅ ИМТ: ${result}`,
-        
-        water: (inputs, result) => 
-            `📊 Норма воды\n\nВес: ${inputs.weight} кг\nАктивность: ${getActivityLabel(inputs.activity)}\n\n✅ Дневная норма: ${result}`,
-        
-        protein: (inputs, result) => 
-            `📊 Норма белка\n\nВес: ${inputs.weight} кг\nАктивность: ${getActivityLabel(inputs.activity)}\n\n✅ Суточная норма: ${result}`
+        nutrients: (inputs, result) => {
+            const goalLabels = {
+                loss: 'Похудение',
+                maintain: 'Поддержание веса',
+                gain: 'Набор массы'
+            };
+            return `📊 Калькулятор нутриентов\n\nКалорийность: ${inputs.calories} ккал\nЦель: ${goalLabels[inputs.goal] || inputs.goal}\n\n✅ ${result}`;
+        }
     };
     
     const template = noteTemplates[calcType];
@@ -8080,17 +8051,13 @@ async function addNoteToSofiaChat(calcType, inputs, result) {
         
         // 9. Create note labels and descriptions
         const noteLabels = {
-            calories: 'Калорийность',
-            bmi: 'Индекс массы тела',
-            water: 'Норма воды',
-            protein: 'Норма белка'
+            calories: 'Текущая калорийность',
+            nutrients: 'Текущая норма нутриентов'
         };
         
         const noteDescriptions = {
             calories: `Суточная норма: ${result}`,
-            bmi: `ИМТ: ${result}`,
-            water: `Дневная норма: ${result}`,
-            protein: `Суточная норма: ${result}`
+            nutrients: result // Already formatted as "Б 140 Ж 100 У 300, 3 литров воды в день"
         };
         
         const noteLabel = noteLabels[calcType] || 'Данные';
@@ -8176,16 +8143,15 @@ function calculateCalories() {
     startCalculationSequence('calories', tdee, 'ккал', inputs);
 }
 
-function calculateBMI() {
-    const weight = parseFloat(document.getElementById('bmiWeight').value);
-    const height = parseFloat(document.getElementById('bmiHeight').value);
+function calculateNutrients() {
+    const calories = parseFloat(document.getElementById('nutrientsCalories').value);
+    const goal = document.getElementById('nutrientsGoal').value;
     
     // Validate
     const validation = InputValidator.validate(
-        { weight, height },
+        { calories },
         {
-            weight: { required: true, numeric: true, positive: true, label: 'Вес', min: 35, max: 350 },
-            height: { required: true, numeric: true, positive: true, label: 'Рост', min: 100, max: 300 }
+            calories: { required: true, numeric: true, positive: true, label: 'Калорийность', min: 800, max: 6000 }
         }
     );
     
@@ -8194,95 +8160,54 @@ function calculateBMI() {
         return;
     }
     
-    // Calculate: BMI = weight(kg) / (height(m))²
-    const heightInMeters = height / 100;
-    let bmi = weight / (heightInMeters * heightInMeters);
+    // Calculate macros based on goal
+    let proteinPercent, fatPercent, carbPercent;
     
-    // Add 2-3% randomness
+    if (goal === 'loss') {
+        // Похудение: больше белка, меньше углеводов
+        proteinPercent = 0.35; // 35%
+        fatPercent = 0.30;      // 30%
+        carbPercent = 0.35;     // 35%
+    } else if (goal === 'gain') {
+        // Набор массы: больше углеводов и белка
+        proteinPercent = 0.30;  // 30%
+        fatPercent = 0.25;      // 25%
+        carbPercent = 0.45;     // 45%
+    } else {
+        // Поддержание: сбалансированное соотношение
+        proteinPercent = 0.30;  // 30%
+        fatPercent = 0.30;      // 30%
+        carbPercent = 0.40;     // 40%
+    }
+    
+    // Calculate grams (1g protein = 4 kcal, 1g fat = 9 kcal, 1g carbs = 4 kcal)
+    let protein = Math.round((calories * proteinPercent) / 4);
+    let fat = Math.round((calories * fatPercent) / 9);
+    let carbs = Math.round((calories * carbPercent) / 4);
+    
+    // Calculate water intake (30-40ml per kg, estimate from calories)
+    // Rough estimate: 2000 kcal ≈ 70kg person ≈ 2.5L water
+    let waterLiters = (calories / 800).toFixed(1); // Simple formula
+    
+    // Add 2-3% randomness to all values
     const randomFactor = 1 + (Math.random() * 0.01 + 0.02);
-    bmi = bmi * randomFactor;
+    protein = Math.round(protein * randomFactor);
+    fat = Math.round(fat * randomFactor);
+    carbs = Math.round(carbs * randomFactor);
+    waterLiters = (parseFloat(waterLiters) * randomFactor).toFixed(1);
     
-    // Start animation sequence with inputs
-    const inputs = { weight, height };
-    startCalculationSequence('bmi', bmi.toFixed(1), 'кг/м²', inputs);
-}
-
-function calculateWater() {
-    const weight = parseFloat(document.getElementById('waterWeight').value);
-    const activity = parseFloat(document.getElementById('waterActivity').value);
-    
-    // Validate
-    const validation = InputValidator.validate(
-        { weight },
-        {
-            weight: { required: true, numeric: true, positive: true, label: 'Вес', min: 35, max: 350 }
-        }
-    );
-    
-    if (!validation.valid) {
-        showValidationErrors(validation.errors);
-        return;
-    }
-    
-    // Calculate: water(ml) = weight(kg) × multiplier
-    // Multipliers: 1.2=30ml, 1.375=33ml, 1.55=35ml, 1.725=38ml, 1.9=40ml
-    const multiplierMap = {
-        1.2: 30,
-        1.375: 33,
-        1.55: 35,
-        1.725: 38,
-        1.9: 40
+    // Format result for display and note
+    const resultForNote = `Б ${protein} Ж ${fat} У ${carbs}, ${waterLiters} литров воды в день`;
+    const resultForDisplay = {
+        protein: protein,
+        fat: fat,
+        carbs: carbs,
+        water: waterLiters
     };
     
-    const mlPerKg = multiplierMap[activity] || 35;
-    let waterIntake = weight * mlPerKg;
-    
-    // Add 2-3% randomness
-    const randomFactor = 1 + (Math.random() * 0.01 + 0.02);
-    waterIntake = Math.round(waterIntake * randomFactor);
-    
     // Start animation sequence with inputs
-    const inputs = { weight, activity };
-    startCalculationSequence('water', waterIntake, 'мл', inputs);
-}
-
-function calculateProtein() {
-    const weight = parseFloat(document.getElementById('proteinWeight').value);
-    const activity = parseFloat(document.getElementById('proteinActivity').value);
-    
-    // Validate
-    const validation = InputValidator.validate(
-        { weight },
-        {
-            weight: { required: true, numeric: true, positive: true, label: 'Вес', min: 35, max: 350 }
-        }
-    );
-    
-    if (!validation.valid) {
-        showValidationErrors(validation.errors);
-        return;
-    }
-    
-    // Calculate: protein(g) = weight(kg) × multiplier
-    // Multipliers: 1.2=0.8g, 1.375=1.2g, 1.55=1.6g, 1.725=1.8g, 1.9=2.0g
-    const multiplierMap = {
-        1.2: 0.8,
-        1.375: 1.2,
-        1.55: 1.6,
-        1.725: 1.8,
-        1.9: 2.0
-    };
-    
-    const gramsPerKg = multiplierMap[activity] || 1.6;
-    let proteinIntake = weight * gramsPerKg;
-    
-    // Add 2-3% randomness
-    const randomFactor = 1 + (Math.random() * 0.01 + 0.02);
-    proteinIntake = Math.round(proteinIntake * randomFactor);
-    
-    // Start animation sequence with inputs
-    const inputs = { weight, activity };
-    startCalculationSequence('protein', proteinIntake, 'г', inputs);
+    const inputs = { calories, goal };
+    startCalculationSequence('nutrients', resultForDisplay, '', inputs, resultForNote);
 }
 
 
@@ -9929,6 +9854,7 @@ function getSofiaSystemPrompt() {
 - Используешь Markdown для форматирования (списки, таблицы, заголовки)
 - Мотивируешь и поддерживаешь пользователя
 - НИКОГДА не называй себя AI, ИИ или искусственным интеллектом
+- НЕ используй эмодзи в своих ответах (никаких 💪 🏋️ 🔥 и т.д.)
 
 ФОРМАТ ОТВЕТА (СТРОГО JSON):
 {
