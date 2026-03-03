@@ -1394,17 +1394,16 @@
             padding: 8px 12px;
             font-family: 'Inter', sans-serif;
             font-size: 12px;
-            border-radius: 4px;
+            border-radius: 0;
         }
         
-        select.form-input option:hover,
-        select.form-input option:focus {
+        select.form-input option:hover {
             background: #2a2a2a;
             color: #bbb;
         }
         
         select.form-input option:checked {
-            background: #333;
+            background: #2a2a2a !important;
             color: #fff;
         }
         
@@ -1412,6 +1411,25 @@
             outline: none;
             background: rgba(255,255,255,.08);
             border-color: rgba(255,255,255,.2);
+        }
+        
+        /* Remove blue highlight from select dropdown */
+        select.form-input option::selection {
+            background: transparent;
+        }
+        
+        /* Style the dropdown list container */
+        select.form-input::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        select.form-input::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        select.form-input::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
         }
         
         /* Shimmer animation for form-group container */
@@ -7805,14 +7823,15 @@ function showResultDisplay(calcType, resultValue, unit, inputs) {
                 const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
                 let data = await response.json();
                 
-                // Replace white colors with gray (#797979)
+                // Replace white and light colors with gray (#797979 = 0.474, 0.474, 0.474)
                 const replaceColors = (obj) => {
                     if (Array.isArray(obj)) {
                         return obj.map((item) => {
                             if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
-                                if ((item[0] > 0.8 && item[1] > 0.8 && item[2] > 0.8) ||
+                                // Check if color is white or very light (> 0.7 for any channel)
+                                if ((item[0] > 0.7 && item[1] > 0.7 && item[2] > 0.7) ||
                                     (item[0] === 1 && item[1] === 1 && item[2] === 1)) {
-                                    return [0.474, 0.474, 0.474, item[3]];
+                                    return [0.474, 0.474, 0.474, item[3]]; // Gray #797979
                                 }
                             }
                             return replaceColors(item);
@@ -10642,7 +10661,8 @@ function renderChatMessages(){
                 </div>`;
             } else if (m.type === 'calculator-note') {
                 // Заметка калькулятора - кликабельная плашка
-                return `<div class="chat-message ${m.role} ${newMessageClass}" onclick="event.preventDefault();openProgressTab();return false;" style="cursor:pointer;">
+                const clickHandler = `highlightInBrowser('note', ${m.noteId})`;
+                return `<div class="chat-message ${m.role} ${newMessageClass}" onclick="event.preventDefault();${clickHandler};return false;" style="cursor:pointer;">
                     <div class="material-item" style="margin:0;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);">
                         <div class="material-icon">
                             <img class="icon-gray" src="${m.icon}" alt="">
