@@ -579,6 +579,7 @@
             scrollbar-width: none; /* MOBILE: скрываем scrollbar */
             filter: blur(0px);
             opacity: 1;
+            width: 100%; /* Ensure container doesn't expand beyond viewport */
         }
         .content-body::-webkit-scrollbar { display: none; } /* MOBILE: скрываем scrollbar */
 
@@ -592,6 +593,7 @@
             max-height: 100%;
             flex: 1; /* MOBILE: занимает всё доступное пространство */
             scrollbar-width: none;
+            width: 100%; /* Ensure list doesn't expand beyond container */
         }
         .materials-list::-webkit-scrollbar { display: none; }
         .material-item {
@@ -608,6 +610,8 @@
             overflow: hidden;
             min-height: 60px; /* MOBILE: меньше высота */
             flex-shrink: 0; /* MOBILE: не сжимать и не растягивать */
+            width: 100%; /* Ensure item doesn't expand beyond list */
+            box-sizing: border-box; /* Include padding and border in width calculation */
         }
         
         /* Shimmer animation for highlighting */
@@ -1129,8 +1133,15 @@
             flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
             text-align:center;padding:20px 10px;gap:12px;pointer-events:none; /* MOBILE: gap уменьшен с 16px до 12px */
         }
-        .chat-empty-state .sofia-icon { width:60px;height:60px;opacity:.5; } /* MOBILE: уменьшен с 90px до 60px */
-        .chat-empty-state .sofia-icon img { width:100%;height:100%;opacity:.7; }
+        .chat-empty-state .sofia-icon { 
+            width:60px;
+            height:60px;
+            opacity:.5;
+            filter:grayscale(1) brightness(0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        } /* MOBILE: уменьшен с 90px до 60px */
         .chat-empty-state p { font-size:11px;line-height:1.5;color:var(--text-secondary);letter-spacing:-.15px;max-width:240px; } /* MOBILE: font-size уменьшен с 13px до 11px, max-width с 260px до 240px */
 
         .chat-input-area { 
@@ -1466,6 +1477,10 @@
             font-weight:600;text-align:center;transition:all .2s ease;flex-shrink:0;
             position:relative;
         }
+        .pin-digit:disabled {
+            cursor: default !important;
+            opacity: 0.7;
+        }
         .pin-digit.shimmer {
             animation: shimmerPulse 0.56s ease-in-out;
         }
@@ -1778,6 +1793,10 @@
             transition:all .2s ease;letter-spacing:1.5px;text-align:center;text-transform:uppercase;
             min-width:0;
             position:relative;
+        }
+        .product-key-block:disabled {
+            cursor: default !important;
+            opacity: 0.7;
         }
         .product-key-block.shimmer {
             animation: shimmerPulse 0.56s ease-in-out;
@@ -5064,6 +5083,18 @@ function showProductKeyModal(itemTitle, itemIndex, tabType, itemIcon, itemDesc) 
 }
 
 function closeProductKeyModal() {
+    const keyBlocks = ['keyBlock1', 'keyBlock2', 'keyBlock3', 'keyBlock4'];
+    
+    // Разблокируем все поля при закрытии
+    keyBlocks.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.disabled = false;
+            input.style.cursor = 'text';
+            input.value = ''; // Очищаем поля
+        }
+    });
+    
     document.getElementById('productKeyOverlay').classList.remove('active');
     currentLockedItem = null;
 }
@@ -5076,8 +5107,15 @@ function validateProductKey() {
     const block4 = document.getElementById('keyBlock4').value.trim().toUpperCase();
     
     const key = `${block1}-${block2}-${block3}-${block4}`;
+    const keyBlocks = ['keyBlock1', 'keyBlock2', 'keyBlock3', 'keyBlock4'];
     
     if (!block1 || !block2 || !block3 || !block4) {
+        // Разблокируем поля при ошибке
+        keyBlocks.forEach(id => {
+            const input = document.getElementById(id);
+            input.disabled = false;
+            input.style.cursor = 'text';
+        });
         showAlert('Введите ключ продукта', 'Ошибка');
         return;
     }
@@ -5085,6 +5123,13 @@ function validateProductKey() {
     // TODO: Здесь будет механизм валидации ключа
     // Пока просто показываем сообщение
     showAlert(`Валидация ключа "${key}" для продукта "${currentLockedItem.title}" будет реализована позже`, 'Валидация ключа');
+    
+    // Разблокируем поля перед закрытием
+    keyBlocks.forEach(id => {
+        const input = document.getElementById(id);
+        input.disabled = false;
+        input.style.cursor = 'text';
+    });
     
     // Закрываем модалку
     closeProductKeyModal();
@@ -5120,6 +5165,13 @@ function validateProductKey() {
                 // Check if all blocks are filled
                 const allFilled = keyBlocks.every(id => document.getElementById(id).value.length === 4);
                 if (allFilled) {
+                    // Блокируем все поля ввода
+                    keyBlocks.forEach(id => {
+                        const input = document.getElementById(id);
+                        input.disabled = true;
+                        input.style.cursor = 'default';
+                    });
+                    
                     // Animate shimmer through each key block
                     animateShimmerThroughCells(keyBlocks);
                     
@@ -5546,6 +5598,14 @@ loginIdInputs.forEach((id,index)=>{
         console.log('[LOGIN ID] All filled:', allFilled, 'loginIdChecked:', loginIdChecked);
         if(allFilled&&!loginIdChecked){
             isIdChecking = true; // Начинаем проверку
+            
+            // Блокируем все поля ввода
+            loginIdInputs.forEach(p => {
+                const input = document.getElementById(p);
+                input.disabled = true;
+                input.style.cursor = 'default';
+            });
+            
             console.log('[LOGIN ID] Starting validation...');
             const idStr=loginIdInputs.map(p=>document.getElementById(p).value).join('');
             const id=parseInt(idStr);
@@ -5617,7 +5677,12 @@ loginIdInputs.forEach((id,index)=>{
                 } else { 
                     // Неправильный ID - показываем ошибку после задержки
                     setTimeout(() => {
-                        loginIdInputs.forEach(p=>document.getElementById(p).classList.add('error'));
+                        loginIdInputs.forEach(p => {
+                            const input = document.getElementById(p);
+                            input.classList.add('error');
+                            input.disabled = false; // Разблокируем поля
+                            input.style.cursor = 'text';
+                        });
                         isIdChecking = false; // Разблокируем ввод
                     }, 1600); // Задержка для имитации проверки
                 }
@@ -5665,6 +5730,13 @@ loginPinInputs.forEach((id,index)=>{
         const allFilled=loginPinInputs.every(p=>document.getElementById(p).value.length===1);
         if(allFilled){
             isPinChecking = true; // Начинаем проверку
+            
+            // Блокируем все поля ввода PIN
+            loginPinInputs.forEach(p => {
+                const input = document.getElementById(p);
+                input.disabled = true;
+                input.style.cursor = 'default';
+            });
             
             const pin=loginPinInputs.map(p=>document.getElementById(p).value).join('');
             const uid=parseInt(enteredLoginId);
@@ -6078,7 +6150,14 @@ loginPinInputs.forEach((id,index)=>{
                 setTimeout(() => {
                     // Показываем ошибку после анимации
                     document.getElementById('loginPin1').focus();
-                    requestAnimationFrame(()=>{loginPinInputs.forEach(p=>document.getElementById(p).classList.add('error'));});
+                    requestAnimationFrame(() => {
+                        loginPinInputs.forEach(p => {
+                            const input = document.getElementById(p);
+                            input.classList.add('error');
+                            input.disabled = false; // Разблокируем поля
+                            input.style.cursor = 'text';
+                        });
+                    });
                     
                     setTimeout(()=>{
                         loginPinInputs.forEach(p=>{
@@ -9430,11 +9509,25 @@ function renderCalculatorsLocked() {
         const container = document.getElementById('lottie-calculators-locked');
         if(container && !container.hasAnimation) {
             try {
-                // Используем иконку калькулятора как статичное изображение
-                container.innerHTML = '<img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/mathematics.svg" class="icon-gray" style="width:100px;height:100px;opacity:0.5;">';
+                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Green%20calculator.json');
+                let data = await response.json();
+                
+                // Конвертируем в grayscale
+                data = convertLottieToGrayscale(data);
+                
+                const animation = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                });
+                animation.setSpeed(0.5);
                 container.hasAnimation = true;
             } catch(e) {
-                console.error('Error loading calculators icon:', e);
+                console.error('[CALCULATORS] Error loading animation:', e);
+                // Fallback - показываем иконку
+                container.innerHTML = '<img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/mathematics.svg" class="icon-gray" style="width:100px;height:100px;opacity:0.5;">';
             }
         }
     }, 100);
@@ -10682,9 +10775,29 @@ function renderChatMessages(){
     } else if (messages.length === 0) {
         // Для других чатов - приветствие
         container.innerHTML = `<div class="chat-empty-state">
-            <div class="sofia-icon"><img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt=""></div>
+            <div class="sofia-icon" id="lottie-empty-chat"></div>
             <p>Это новый чат. Напишите сообщение или прикрепите файл, чтобы начать диалог.</p>
         </div>`;
+        
+        // Load Eye Loading Lottie animation for empty chat
+        const emptyLottieContainer = document.getElementById('lottie-empty-chat');
+        if (emptyLottieContainer && typeof lottie !== 'undefined') {
+            try {
+                const anim = lottie.loadAnimation({
+                    container: emptyLottieContainer,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    path: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/refs/heads/main/Eye%20Loading%20Animation.json'
+                });
+                anim.setSpeed(0.5); // Замедляем в 2 раза
+            } catch (error) {
+                console.error('[EMPTY CHAT] Failed to load Lottie animation:', error);
+                // Fallback to static icon
+                emptyLottieContainer.innerHTML = '<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="" style="width:100%;height:100%;opacity:0.7;">';
+            }
+        }
+        
         } else {
         container.innerHTML = messages.map((m, index) => {
             // Determine if this message is new (wasn't in previous render)
