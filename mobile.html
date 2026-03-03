@@ -1374,6 +1374,46 @@
         .form-input[type="number"]::-webkit-outer-spin-button,
         .form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
         
+        /* Select dropdown styling */
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 32px;
+            color-scheme: dark;
+            height: 36px;
+        }
+        
+        select.form-input option {
+            background: #1a1a1a;
+            color: #999;
+            padding: 8px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        
+        select.form-input option:hover,
+        select.form-input option:focus {
+            background: #2a2a2a;
+            color: #bbb;
+        }
+        
+        select.form-input option:checked {
+            background: #333;
+            color: #fff;
+        }
+        
+        select.form-input:focus {
+            outline: none;
+            background: rgba(255,255,255,.08);
+            border-color: rgba(255,255,255,.2);
+        }
+        
         /* Shimmer animation for form-group container */
         .form-group.shimmer {
             position: relative;
@@ -2484,12 +2524,17 @@
 
 <!-- CALCULATOR MODAL -->
 <div id="calculatorOverlay" class="auth-overlay" onclick="closeCalculator()" style="display:none;">
-  <div class="auth-modal" onclick="event.stopPropagation()" style="width:340px;max-width:calc(100% - 40px);height:auto;display:flex;flex-direction:column;">
-    <div style="padding:16px 20px;border-bottom:1px solid var(--glass-border);flex-shrink:0;">
+  <div class="auth-modal" onclick="event.stopPropagation()" style="width:340px;max-width:calc(100% - 40px);height:420px;display:flex;flex-direction:column;position:relative;">
+    <div class="calculator-header" style="padding:16px 20px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;">
       <h2 id="calculatorTitle" style="font-size:14px;font-weight:600;color:var(--text-primary);margin:0;">Калькулятор</h2>
+      <img id="calculatorIcon" class="calculator-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/373ac3fba555d35c463ac17aa63c3b6b1a845ae8/calculator.svg" alt="" style="width:24px;height:24px;flex-shrink:0;">
     </div>
-    <div id="calculatorContent" style="padding:20px;overflow:visible;">
+    <div id="calculatorContent" style="padding:20px;overflow:visible;position:relative;flex:1;">
       <!-- Calculator content will be inserted here -->
+    </div>
+    <!-- Grain loader for calculator - covers entire modal -->
+    <div id="calculatorGrainLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;padding:0;margin:0;overflow:hidden;z-index:1000;border-radius:8px;">
+      <canvas id="grainLoaderCalculator" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas>
     </div>
   </div>
 </div>
@@ -7022,13 +7067,13 @@ class AttachmentValidator {
 let activeInnerTab = 'materials'; // Track active inner tab
 
 function refreshProgressTab() {
-    // Refresh progress tab content if it's currently active
-    if (activeInnerTab === 'progress') {
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            mainContent.innerHTML = renderProgress();
-        }
+    // Always update progress tab content (even if not currently visible)
+    const mainContent = document.getElementById('main-content');
+    if (mainContent && activeInnerTab === 'progress') {
+        mainContent.innerHTML = renderProgress();
     }
+    // Also update the browser items list for search
+    updateAllBrowserItems();
 }
 
 // Store all tab data for search
@@ -7401,22 +7446,24 @@ function openCalculator(calcId) {
         calories: {
             title: 'Калькулятор калорий',
             content: `
-                <div style="display:flex;flex-direction:column;gap:10px;">
-                    <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
-                        <input type="number" id="calcWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Рост (см)</label>
-                        <input type="number" id="calcHeight" class="form-input" placeholder="170" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;">
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;gap:8px;">
+                        <div class="form-group" style="flex:1;">
+                            <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
+                            <input type="number" id="calcWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Рост (см)</label>
+                            <input type="number" id="calcHeight" class="form-input" placeholder="170" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Возраст</label>
-                        <input type="number" id="calcAge" class="form-input" placeholder="25" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;">
+                        <input type="number" id="calcAge" class="form-input" placeholder="25" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
                     </div>
                     <div class="form-group">
                         <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Активность</label>
-                        <select id="calcActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;">
+                        <select id="calcActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
                             <option value="1.2">Минимальная</option>
                             <option value="1.375">Низкая</option>
                             <option value="1.55" selected>Средняя</option>
@@ -7424,25 +7471,71 @@ function openCalculator(calcId) {
                             <option value="1.9">Очень высокая</option>
                         </select>
                     </div>
-                    <button onclick="calculateCalories()" class="auth-btn primary" style="margin-top:4px;width:100%;">Рассчитать</button>
-                    <div id="calcResult" style="display:none;padding:10px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;text-align:center;">
-                        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">Суточная норма</div>
-                        <div id="calcResultValue" style="font-size:18px;font-weight:600;color:var(--text-primary);"></div>
-                    </div>
+                    <button onclick="calculateCalories()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
                 </div>
             `
         },
         bmi: {
             title: 'Индекс массы тела',
-            content: '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Калькулятор ИМТ в разработке</div>'
+            content: `
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;gap:8px;">
+                        <div class="form-group" style="flex:1;">
+                            <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
+                            <input type="number" id="bmiWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Рост (см)</label>
+                            <input type="number" id="bmiHeight" class="form-input" placeholder="170" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                        </div>
+                    </div>
+                    <button onclick="calculateBMI()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
+                </div>
+            `
         },
         water: {
             title: 'Норма воды',
-            content: '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Калькулятор воды в разработке</div>'
+            content: `
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div class="form-group">
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
+                        <input type="number" id="waterWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Активность</label>
+                        <select id="waterActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                            <option value="1.2">Минимальная</option>
+                            <option value="1.375">Низкая</option>
+                            <option value="1.55" selected>Средняя</option>
+                            <option value="1.725">Высокая</option>
+                            <option value="1.9">Очень высокая</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateWater()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
+                </div>
+            `
         },
         protein: {
             title: 'Норма белка',
-            content: '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Калькулятор белка в разработке</div>'
+            content: `
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div class="form-group">
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Вес (кг)</label>
+                        <input type="number" id="proteinWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Активность</label>
+                        <select id="proteinActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
+                            <option value="1.2">Минимальная</option>
+                            <option value="1.375">Низкая</option>
+                            <option value="1.55" selected>Средняя</option>
+                            <option value="1.725">Высокая</option>
+                            <option value="1.9">Очень высокая</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateProtein()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
+                </div>
+            `
         }
     };
     
@@ -7455,10 +7548,508 @@ function openCalculator(calcId) {
 }
 
 function closeCalculator() {
-    const overlay = document.getElementById('calculatorOverlay');
-    if (overlay) {
-        overlay.classList.remove('active');
-        setTimeout(() => overlay.style.display = 'none', 300);
+    try {
+        const overlay = document.getElementById('calculatorOverlay');
+        if (overlay) {
+            // Stop any running animations
+            const sofiaContainer = document.getElementById('calculatorSofiaAnimation');
+            if (sofiaContainer && sofiaContainer.dataset.animation) {
+                const anim = sofiaContainer.dataset.animation;
+                if (anim.stop) anim.stop();
+            }
+            
+            // Clear any timeouts
+            if (window.calculatorTimeout) {
+                clearTimeout(window.calculatorTimeout);
+            }
+            
+            // Close modal
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Reset content
+                const content = document.getElementById('calculatorContent');
+                if (content) {
+                    content.innerHTML = '';
+                    content.style.position = '';
+                }
+            }, 300);
+        }
+    } catch (error) {
+        console.error('[CALCULATOR] Close failed:', error);
+        // Force close
+        const overlay = document.getElementById('calculatorOverlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+}
+
+// ─── INPUT VALIDATOR CLASS ───
+class InputValidator {
+    /**
+     * Validates calculator input fields
+     * @param {Object} inputs - Key-value pairs of field names and values
+     * @param {Object} rules - Validation rules for each field
+     * @returns {Object} { valid: boolean, errors: string[] }
+     */
+    static validate(inputs, rules) {
+        const errors = [];
+        
+        for (const [field, value] of Object.entries(inputs)) {
+            const rule = rules[field];
+            
+            // Check required
+            if (rule.required && (!value || value === '')) {
+                errors.push(`${rule.label} обязательно для заполнения`);
+                continue;
+            }
+            
+            // Check numeric
+            if (rule.numeric && isNaN(parseFloat(value))) {
+                errors.push(`${rule.label} должно быть числом`);
+                continue;
+            }
+            
+            // Check positive
+            if (rule.positive && parseFloat(value) <= 0) {
+                errors.push(`${rule.label} должно быть положительным числом`);
+                continue;
+            }
+            
+            // Check range
+            if (rule.min !== undefined && parseFloat(value) < rule.min) {
+                errors.push(`${rule.label} должно быть не менее ${rule.min}`);
+            }
+            if (rule.max !== undefined && parseFloat(value) > rule.max) {
+                errors.push(`${rule.label} должно быть не более ${rule.max}`);
+            }
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors: errors
+        };
+    }
+}
+
+function showValidationErrors(errors) {
+    // Remove existing errors first
+    const existing = document.querySelector('.validation-errors');
+    if (existing) existing.remove();
+    
+    // Find all input fields and remove error styling
+    document.querySelectorAll('#calculatorContent input, #calculatorContent select').forEach(field => {
+        field.style.borderColor = 'var(--glass-border)';
+    });
+    
+    // Add red border to fields with errors based on error messages
+    errors.forEach(err => {
+        let fieldId = null;
+        
+        // Map error messages to field IDs
+        if (err.includes('Вес')) {
+            fieldId = document.querySelector('#calcWeight, #bmiWeight, #waterWeight, #proteinWeight');
+        } else if (err.includes('Рост')) {
+            fieldId = document.querySelector('#calcHeight, #bmiHeight');
+        } else if (err.includes('Возраст')) {
+            fieldId = document.querySelector('#calcAge');
+        } else if (err.includes('Активность')) {
+            fieldId = document.querySelector('#calcActivity, #waterActivity, #proteinActivity');
+        }
+        
+        if (fieldId) {
+            fieldId.style.borderColor = '#ff6b6b';
+            fieldId.style.transition = 'border-color 0.3s ease';
+        }
+    });
+    
+    // Auto-remove red borders after 3 seconds
+    setTimeout(() => {
+        document.querySelectorAll('#calculatorContent input, #calculatorContent select').forEach(field => {
+            field.style.borderColor = 'var(--glass-border)';
+        });
+    }, 3000);
+}
+
+// ─── ANIMATION SYSTEM ───
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function startCalculationSequence(calcType, resultValue, unit, inputs) {
+    const content = document.getElementById('calculatorContent');
+    const grainLoaderDiv = document.getElementById('calculatorGrainLoader');
+    const grainCanvas = document.getElementById('grainLoaderCalculator');
+    const calculatorHeader = document.querySelector('.calculator-header');
+    
+    try {
+        // Hide form and header immediately
+        if (content) {
+            content.style.display = 'none';
+        }
+        if (calculatorHeader) {
+            calculatorHeader.style.display = 'none';
+        }
+        
+        // Show grain loader until results are ready
+        if (grainLoaderDiv && grainCanvas) {
+            grainLoaderDiv.style.display = 'block';
+            grainCanvas.style.opacity = '0';
+            grainCanvas.style.filter = 'blur(20px)';
+            
+            // Start grain animation
+            startGrainLoader('grainLoaderCalculator');
+            
+            // Fade in
+            setTimeout(() => {
+                grainCanvas.style.opacity = '1';
+                grainCanvas.style.filter = 'blur(0px)';
+            }, 50);
+            
+            // Wait for calculation (simulate processing time)
+            await sleep(2000);
+            
+            // Fade out
+            grainCanvas.style.opacity = '0';
+            grainCanvas.style.filter = 'blur(20px)';
+            await sleep(300);
+            grainLoaderDiv.style.display = 'none';
+        }
+        
+        // Show result display and header
+        if (calculatorHeader) {
+            calculatorHeader.style.display = 'flex';
+        }
+        if (content) {
+            content.style.display = 'block';
+        }
+        showResultDisplay(calcType, resultValue, unit, inputs);
+        
+    } catch (error) {
+        console.error('[CALCULATOR] Animation sequence failed:', error);
+        // Fallback: show results immediately
+        if (grainLoaderDiv) grainLoaderDiv.style.display = 'none';
+        if (calculatorHeader) calculatorHeader.style.display = 'flex';
+        if (content) content.style.display = 'block';
+        showResultDisplay(calcType, resultValue, unit, inputs);
+    }
+}
+
+function showResultDisplay(calcType, resultValue, unit, inputs) {
+    const content = document.getElementById('calculatorContent');
+    
+    // Calculate different calorie targets for calories calculator
+    let resultsHTML = '';
+    
+    if (calcType === 'calories') {
+        const tdee = parseInt(resultValue);
+        const baseMetabolism = tdee; // Базовый обмен при выбранном уровне активности
+        const maintenance = tdee; // Поддержание веса
+        const cutting = Math.round(tdee * 0.85); // -15% для похудения
+        const bulking = Math.round(tdee * 1.15); // +15% для набора массы
+        
+        resultsHTML = `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <div id="calculatorSofiaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
+                <div class="calculator-result" style="padding:16px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:6px;">
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Суточная норма</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${baseMetabolism} ккал</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Поддержание веса</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${maintenance} ккал</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Набор веса</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${bulking} ккал</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-secondary);">Похудение</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${cutting} ккал</span>
+                        </div>
+                    </div>
+                    <button class="result-note-btn auth-btn primary" style="width:100%;height:36px;display:flex;align-items:center;justify-content:center;">Добавить заметку</button>
+                </div>
+            </div>
+        `;
+    } else {
+        // For other calculators - simple result
+        const labels = {
+            bmi: 'Ваш индекс массы тела',
+            water: 'Ваша дневная норма воды',
+            protein: 'Ваша суточная норма белка'
+        };
+        
+        const label = labels[calcType] || 'Результат';
+        
+        resultsHTML = `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <div id="calculatorSofiaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
+                <div class="calculator-result" style="padding:16px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:6px;">
+                    <div class="result-label" style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;text-align:center;">${label}</div>
+                    <div class="result-value" style="font-size:24px;font-weight:600;color:var(--text-primary);text-align:center;margin-bottom:12px;">${resultValue} ${unit}</div>
+                    <button class="result-note-btn auth-btn primary" style="width:100%;height:36px;display:flex;align-items:center;justify-content:center;">Добавить заметку</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    content.innerHTML = resultsHTML;
+    
+    // Load Sofia lottie animation
+    const sofiaContainer = document.getElementById('calculatorSofiaAnimation');
+    if (sofiaContainer && typeof lottie !== 'undefined') {
+        setTimeout(async () => {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                let data = await response.json();
+                
+                // Replace white colors with gray (#797979)
+                const replaceColors = (obj) => {
+                    if (Array.isArray(obj)) {
+                        return obj.map((item) => {
+                            if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
+                                if ((item[0] > 0.8 && item[1] > 0.8 && item[2] > 0.8) ||
+                                    (item[0] === 1 && item[1] === 1 && item[2] === 1)) {
+                                    return [0.474, 0.474, 0.474, item[3]];
+                                }
+                            }
+                            return replaceColors(item);
+                        });
+                    } else if (obj !== null && typeof obj === 'object') {
+                        const result = {};
+                        for (let key in obj) {
+                            result[key] = replaceColors(obj[key]);
+                        }
+                        return result;
+                    }
+                    return obj;
+                };
+                
+                data = replaceColors(data);
+                
+                const animation = lottie.loadAnimation({
+                    container: sofiaContainer,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                });
+                animation.setSpeed(0.5); // Same speed as in chat
+            } catch (e) {
+                console.error('[CALCULATOR] Failed to load Sofia animation:', e);
+            }
+        }, 100);
+    }
+    
+    // Wire note button to addNoteToSofiaChat()
+    const noteButton = content.querySelector('.result-note-btn');
+    if (noteButton) {
+        noteButton.addEventListener('click', () => {
+            const fullResult = `${resultValue} ${unit}`;
+            addNoteToSofiaChat(calcType, inputs, fullResult);
+        });
+    }
+    
+    console.log('[CALCULATOR] Result displayed:', calcType, resultValue, unit);
+}
+
+// ─── SOFIA INTEGRATION LAYER ───
+function getActivityLabel(activity) {
+    const labels = {
+        1.2: 'Минимальная',
+        1.375: 'Низкая',
+        1.55: 'Средняя',
+        1.725: 'Высокая',
+        1.9: 'Очень высокая'
+    };
+    return labels[activity] || 'Средняя';
+}
+
+function getCalculatorLabel(calcType) {
+    const labels = {
+        calories: 'Калькулятор калорий',
+        bmi: 'Индекс массы тела',
+        water: 'Норма воды',
+        protein: 'Норма белка'
+    };
+    return labels[calcType] || calcType;
+}
+
+function createCalculatorNote(calcType, inputs, result) {
+    const noteTemplates = {
+        calories: (inputs, result) => 
+            `📊 Калькулятор калорий\n\nВес: ${inputs.weight} кг\nРост: ${inputs.height} см\nВозраст: ${inputs.age} лет\nАктивность: ${getActivityLabel(inputs.activity)}\n\n✅ Суточная норма: ${result}`,
+        
+        bmi: (inputs, result) => 
+            `📊 Индекс массы тела\n\nВес: ${inputs.weight} кг\nРост: ${inputs.height} см\n\n✅ ИМТ: ${result}`,
+        
+        water: (inputs, result) => 
+            `📊 Норма воды\n\nВес: ${inputs.weight} кг\nАктивность: ${getActivityLabel(inputs.activity)}\n\n✅ Дневная норма: ${result}`,
+        
+        protein: (inputs, result) => 
+            `📊 Норма белка\n\nВес: ${inputs.weight} кг\nАктивность: ${getActivityLabel(inputs.activity)}\n\n✅ Суточная норма: ${result}`
+    };
+    
+    const template = noteTemplates[calcType];
+    return template ? template(inputs, result) : '';
+}
+
+// ─── DUPLICATE DETECTION SYSTEM ───
+function findDuplicateCalculatorNotes(calcType) {
+    const targetChatTab = 'sofia';
+    if (!chatStore[targetChatTab]) return [];
+    
+    const today = new Date().toDateString();
+    const duplicates = [];
+    
+    chatStore[targetChatTab].forEach((message, index) => {
+        if (message.role === 'user' && message.text) {
+            // Check if message is a calculator note
+            const isCalculatorNote = message.text.includes('📊');
+            const matchesType = message.text.includes(getCalculatorLabel(calcType));
+            const messageDate = message.timestamp ? 
+                new Date(message.timestamp).toDateString() : today;
+            const isSameDay = messageDate === today;
+            
+            if (isCalculatorNote && matchesType && isSameDay) {
+                duplicates.push(index);
+            }
+        }
+    });
+    
+    return duplicates;
+}
+
+function removeDuplicateNotes(calcType) {
+    try {
+        const duplicates = findDuplicateCalculatorNotes(calcType);
+        const targetChatTab = 'sofia';
+        
+        // Remove in reverse order to maintain indices
+        duplicates.reverse().forEach(index => {
+            chatStore[targetChatTab].splice(index, 1);
+        });
+        
+        return duplicates.length;
+    } catch (error) {
+        console.error('[CALCULATOR] Duplicate removal failed:', error);
+        return 0; // Continue without removing duplicates
+    }
+}
+
+// ─── COMPLETE NOTE CREATION FLOW ───
+async function addNoteToSofiaChat(calcType, inputs, result) {
+    try {
+        console.log('[CALCULATOR] Adding note to Sofia chat:', calcType, inputs, result);
+        
+        // 1. Close calculator modal first
+        closeCalculator();
+        
+        // 2. Switch to Sofia chat
+        switchChatTab('sofia');
+        
+        // 3. Expand chat using correct functions (like discussExamResults)
+        const chatBlock = document.getElementById('chatBlock');
+        const browserBlock = document.getElementById('browserBlock');
+        
+        // If chat is collapsed - expand it
+        if (chatBlock && chatBlock.classList.contains('collapsed')) {
+            expandBlock('chatBlock');
+        }
+        
+        // If browser is expanded - collapse it so chat is full screen
+        if (browserBlock && !browserBlock.classList.contains('collapsed')) {
+            collapseBlock('browserBlock');
+        }
+        
+        await sleep(300);
+        
+        // 4. Show thinking animation
+        const thinkingId = Date.now();
+        if (!chatStore['sofia']) chatStore['sofia'] = [];
+        chatStore['sofia'].push({
+            role: 'ai',
+            type: 'thinking',
+            id: thinkingId
+        });
+        renderChatMessages();
+        
+        // 5. Wait for thinking animation (2s)
+        await sleep(2000);
+        
+        // 6. Remove thinking message
+        chatStore['sofia'] = chatStore['sofia'].filter(m => m.id !== thinkingId);
+        
+        // 7. Remove duplicates
+        const removedCount = removeDuplicateNotes(calcType);
+        console.log(`[CALCULATOR] Removed ${removedCount} duplicate notes`);
+        
+        // 8. Sofia sends message
+        chatStore['sofia'].push({
+            role: 'ai',
+            text: 'Добавила заметку о тебе! 📝'
+        });
+        
+        // 9. Create note labels and descriptions
+        const noteLabels = {
+            calories: 'Калорийность',
+            bmi: 'Индекс массы тела',
+            water: 'Норма воды',
+            protein: 'Норма белка'
+        };
+        
+        const noteDescriptions = {
+            calories: `Суточная норма: ${result}`,
+            bmi: `ИМТ: ${result}`,
+            water: `Дневная норма: ${result}`,
+            protein: `Суточная норма: ${result}`
+        };
+        
+        const noteLabel = noteLabels[calcType] || 'Данные';
+        const noteDesc = noteDescriptions[calcType] || result;
+        
+        // 10. Add note to userNotes (for progress tab)
+        const savedNote = addNote(noteLabel, noteDesc);
+        
+        // 11. Add calculator note as clickable card (like material recommendation)
+        chatStore['sofia'].push({
+            role: 'ai',
+            type: 'calculator-note',
+            title: noteLabel,
+            desc: noteDesc,
+            icon: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/ddb46762de48eb8d055667683230095f9b2008de/note.svg',
+            calcType: calcType,
+            result: result,
+            noteId: savedNote.id
+        });
+        
+        // 12. Render and scroll
+        renderChatMessages();
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 13. Update progress tab
+        refreshProgressTab();
+        
+        // 14. Save to Firebase (non-blocking)
+        if (typeof currentUser !== 'undefined' && currentUser) {
+            try {
+                await saveChatsToFirebase(currentUser.id, chatStore);
+                console.log('[CALCULATOR] Note saved to Firebase');
+            } catch (error) {
+                console.error('[CALCULATOR] Firebase save failed:', error);
+            }
+        }
+        
+        console.log('[CALCULATOR] Note creation complete');
+        
+    } catch (error) {
+        console.error('[CALCULATOR] Note creation failed:', error);
+        alert('Не удалось создать заметку. Попробуйте еще раз.');
     }
 }
 
@@ -7468,8 +8059,18 @@ function calculateCalories() {
     const age = parseFloat(document.getElementById('calcAge').value);
     const activity = parseFloat(document.getElementById('calcActivity').value);
     
-    if (!weight || !height || !age) {
-        alert('Заполните все поля');
+    // Validate using InputValidator
+    const validation = InputValidator.validate(
+        { weight, height, age },
+        {
+            weight: { required: true, numeric: true, positive: true, label: 'Вес', min: 35, max: 350 },
+            height: { required: true, numeric: true, positive: true, label: 'Рост', min: 100, max: 300 },
+            age: { required: true, numeric: true, positive: true, label: 'Возраст', min: 6, max: 99 }
+        }
+    );
+    
+    if (!validation.valid) {
+        showValidationErrors(validation.errors);
         return;
     }
     
@@ -7477,8 +8078,106 @@ function calculateCalories() {
     const bmr = 10 * weight + 6.25 * height - 5 * age + 5;
     const tdee = Math.round(bmr * activity);
     
-    document.getElementById('calcResult').style.display = 'block';
-    document.getElementById('calcResultValue').textContent = tdee + ' ккал';
+    // Start animation sequence with inputs
+    const inputs = { weight, height, age, activity };
+    startCalculationSequence('calories', tdee, 'ккал', inputs);
+}
+
+function calculateBMI() {
+    const weight = parseFloat(document.getElementById('bmiWeight').value);
+    const height = parseFloat(document.getElementById('bmiHeight').value);
+    
+    // Validate
+    const validation = InputValidator.validate(
+        { weight, height },
+        {
+            weight: { required: true, numeric: true, positive: true, label: 'Вес', min: 35, max: 350 },
+            height: { required: true, numeric: true, positive: true, label: 'Рост', min: 100, max: 300 }
+        }
+    );
+    
+    if (!validation.valid) {
+        showValidationErrors(validation.errors);
+        return;
+    }
+    
+    // Calculate: BMI = weight(kg) / (height(m))²
+    const heightInMeters = height / 100;
+    const bmi = weight / (heightInMeters * heightInMeters);
+    
+    // Start animation sequence with inputs
+    const inputs = { weight, height };
+    startCalculationSequence('bmi', bmi.toFixed(1), 'кг/м²', inputs);
+}
+
+function calculateWater() {
+    const weight = parseFloat(document.getElementById('waterWeight').value);
+    const activity = parseFloat(document.getElementById('waterActivity').value);
+    
+    // Validate
+    const validation = InputValidator.validate(
+        { weight },
+        {
+            weight: { required: true, numeric: true, positive: true, label: 'Вес', min: 35, max: 350 }
+        }
+    );
+    
+    if (!validation.valid) {
+        showValidationErrors(validation.errors);
+        return;
+    }
+    
+    // Calculate: water(ml) = weight(kg) × multiplier
+    // Multipliers: 1.2=30ml, 1.375=33ml, 1.55=35ml, 1.725=38ml, 1.9=40ml
+    const multiplierMap = {
+        1.2: 30,
+        1.375: 33,
+        1.55: 35,
+        1.725: 38,
+        1.9: 40
+    };
+    
+    const mlPerKg = multiplierMap[activity] || 35;
+    const waterIntake = Math.round(weight * mlPerKg);
+    
+    // Start animation sequence with inputs
+    const inputs = { weight, activity };
+    startCalculationSequence('water', waterIntake, 'мл', inputs);
+}
+
+function calculateProtein() {
+    const weight = parseFloat(document.getElementById('proteinWeight').value);
+    const activity = parseFloat(document.getElementById('proteinActivity').value);
+    
+    // Validate
+    const validation = InputValidator.validate(
+        { weight },
+        {
+            weight: { required: true, numeric: true, positive: true, label: 'Вес', min: 35, max: 350 }
+        }
+    );
+    
+    if (!validation.valid) {
+        showValidationErrors(validation.errors);
+        return;
+    }
+    
+    // Calculate: protein(g) = weight(kg) × multiplier
+    // Multipliers: 1.2=0.8g, 1.375=1.2g, 1.55=1.6g, 1.725=1.8g, 1.9=2.0g
+    const multiplierMap = {
+        1.2: 0.8,
+        1.375: 1.2,
+        1.55: 1.6,
+        1.725: 1.8,
+        1.9: 2.0
+    };
+    
+    const gramsPerKg = multiplierMap[activity] || 1.6;
+    const proteinIntake = Math.round(weight * gramsPerKg);
+    
+    // Start animation sequence with inputs
+    const inputs = { weight, activity };
+    startCalculationSequence('protein', proteinIntake, 'г', inputs);
 }
 
 
@@ -8681,8 +9380,11 @@ function getTabHTML(key) {
         return renderProgress();
     }
     
-    // Для калькуляторов показываем список калькуляторов
+    // Для калькуляторов показываем список калькуляторов (только для залогиненных)
     if (key === 'calculators') {
+        if (!currentUser) {
+            return '<div style="padding:40px 20px;text-align:center;color:var(--text-secondary);font-size:13px;">Войдите в систему для доступа к калькуляторам</div>';
+        }
         return renderCalculators();
     }
     
@@ -9938,9 +10640,36 @@ function renderChatMessages(){
                         </div>
                     </div>
                 </div>`;
+            } else if (m.type === 'calculator-note') {
+                // Заметка калькулятора - кликабельная плашка
+                return `<div class="chat-message ${m.role} ${newMessageClass}" onclick="event.preventDefault();openProgressTab();return false;" style="cursor:pointer;">
+                    <div class="material-item" style="margin:0;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);">
+                        <div class="material-icon">
+                            <img class="icon-gray" src="${m.icon}" alt="">
+                        </div>
+                        <div class="material-info">
+                            <h3>${m.title}</h3>
+                            <p>${m.desc}</p>
+                        </div>
+                    </div>
+                </div>`;
             } else if (m.type === 'material-recommendation') {
                 // Рекомендация материала от Софии
                 const clickHandler = `highlightInBrowser('${m.itemType}', ${m.itemIndex})`;
+                return `<div class="chat-message ${m.role} ${newMessageClass}" onclick="event.preventDefault();${clickHandler};return false;" style="cursor:pointer;">
+                    <div class="material-item" style="margin:0;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);">
+                        <div class="material-icon">
+                            <img class="icon-gray" src="${m.icon}" alt="">
+                        </div>
+                        <div class="material-info">
+                            <h3>${m.title}</h3>
+                            <p>${m.desc}</p>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (m.type === 'calculator-note') {
+                // Заметка калькулятора от Софии - открывает вкладку "Прогресс"
+                const clickHandler = `switchInnerTab('progress')`;
                 return `<div class="chat-message ${m.role} ${newMessageClass}" onclick="event.preventDefault();${clickHandler};return false;" style="cursor:pointer;">
                     <div class="material-item" style="margin:0;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);">
                         <div class="material-icon">
@@ -12359,6 +13088,28 @@ function switchToTab(tabName) {
     }
 }
 
+// Open progress tab from calculator note
+function openProgressTab() {
+    console.log('[CALCULATOR] Opening progress tab');
+    
+    // Expand browser using correct function (like discussExamResults)
+    const browserBlock = document.getElementById('browserBlock');
+    const chatBlock = document.getElementById('chatBlock');
+    
+    // If browser is collapsed - expand it
+    if (browserBlock && browserBlock.classList.contains('collapsed')) {
+        expandBlock('browserBlock');
+    }
+    
+    // If chat is expanded - collapse it
+    if (chatBlock && !chatBlock.classList.contains('collapsed')) {
+        collapseBlock('chatBlock');
+    }
+    
+    // Switch to progress tab
+    switchToTab('progress');
+}
+
 // ============================================================
 // HIGHLIGHT IN BROWSER FUNCTIONALITY
 // ============================================================
@@ -12436,6 +13187,11 @@ function highlightElement(type, id) {
         // Scroll to element
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
+        // Set position relative for shimmer to work
+        const originalPosition = element.style.position;
+        element.style.position = 'relative';
+        element.style.overflow = 'hidden';
+        
         // Создаём shimmer элемент
         const shimmer = document.createElement('div');
         shimmer.style.cssText = `
@@ -12463,9 +13219,11 @@ function highlightElement(type, id) {
             easing: 'ease-in-out'
         });
         
-        // Удаляем shimmer после анимации
+        // Удаляем shimmer после анимации и восстанавливаем position
         setTimeout(() => {
             shimmer.remove();
+            element.style.position = originalPosition;
+            element.style.overflow = '';
         }, 1000);
         
         console.log('[HIGHLIGHT] Shimmer animation started');
