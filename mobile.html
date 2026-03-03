@@ -5815,6 +5815,9 @@ loginPinInputs.forEach((id,index)=>{
                                     // Load notes
                                     if (firebaseData.notes) {
                                         userNotes = firebaseData.notes;
+                                        console.log('[LOGIN] Notes loaded:', userNotes.length);
+                                        // Refresh progress tab to display loaded notes
+                                        refreshProgressTab();
                                     }
                                     // Restore weight data if available
                                     if (firebaseData.weightData) {
@@ -7085,13 +7088,14 @@ class AttachmentValidator {
 let activeInnerTab = 'materials'; // Track active inner tab
 
 function refreshProgressTab() {
-    // Always update progress tab content (even if not currently visible)
+    // Update browser items list for search (always)
+    updateAllBrowserItems();
+    
+    // Update progress tab content if it's currently visible
     const mainContent = document.getElementById('main-content');
     if (mainContent && activeInnerTab === 'progress') {
         mainContent.innerHTML = renderProgress();
     }
-    // Also update the browser items list for search
-    updateAllBrowserItems();
 }
 
 // Store all tab data for search
@@ -7480,13 +7484,13 @@ function openCalculator(calcId) {
                         <input type="number" id="calcAge" class="form-input" placeholder="25" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
                     </div>
                     <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Активность</label>
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Физическая или умственная активность</label>
                         <select id="calcActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                            <option value="1.2">Минимальная</option>
-                            <option value="1.375">Низкая</option>
-                            <option value="1.55" selected>Средняя</option>
-                            <option value="1.725">Высокая</option>
-                            <option value="1.9">Очень высокая</option>
+                            <option value="1.2">Отсутствует</option>
+                            <option value="1.375">Раз в неделю</option>
+                            <option value="1.55" selected>Через день</option>
+                            <option value="1.725">Каждый день</option>
+                            <option value="1.9">Несколько раз в день</option>
                         </select>
                     </div>
                     <button onclick="calculateCalories()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
@@ -7520,13 +7524,13 @@ function openCalculator(calcId) {
                         <input type="number" id="waterWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
                     </div>
                     <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Активность</label>
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Физическая или умственная активность</label>
                         <select id="waterActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                            <option value="1.2">Минимальная</option>
-                            <option value="1.375">Низкая</option>
-                            <option value="1.55" selected>Средняя</option>
-                            <option value="1.725">Высокая</option>
-                            <option value="1.9">Очень высокая</option>
+                            <option value="1.2">Отсутствует</option>
+                            <option value="1.375">Раз в неделю</option>
+                            <option value="1.55" selected>Через день</option>
+                            <option value="1.725">Каждый день</option>
+                            <option value="1.9">Несколько раз в день</option>
                         </select>
                     </div>
                     <button onclick="calculateWater()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
@@ -7542,13 +7546,13 @@ function openCalculator(calcId) {
                         <input type="number" id="proteinWeight" class="form-input" placeholder="70" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
                     </div>
                     <div class="form-group">
-                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Активность</label>
+                        <label style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:block;">Физическая или умственная активность</label>
                         <select id="proteinActivity" class="form-input" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:4px;color:var(--text-primary);font-size:12px;width:100%;height:36px;">
-                            <option value="1.2">Минимальная</option>
-                            <option value="1.375">Низкая</option>
-                            <option value="1.55" selected>Средняя</option>
-                            <option value="1.725">Высокая</option>
-                            <option value="1.9">Очень высокая</option>
+                            <option value="1.2">Отсутствует</option>
+                            <option value="1.375">Раз в неделю</option>
+                            <option value="1.55" selected>Через день</option>
+                            <option value="1.725">Каждый день</option>
+                            <option value="1.9">Несколько раз в день</option>
                         </select>
                     </div>
                     <button onclick="calculateProtein()" class="auth-btn primary" style="margin-top:4px;width:100%;height:36px;">Рассчитать</button>
@@ -7823,15 +7827,14 @@ function showResultDisplay(calcType, resultValue, unit, inputs) {
                 const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
                 let data = await response.json();
                 
-                // Replace white and light colors with gray (#797979 = 0.474, 0.474, 0.474)
+                // Replace white and light colors with gray (#797979) - SAME AS CHAT
                 const replaceColors = (obj) => {
                     if (Array.isArray(obj)) {
                         return obj.map((item) => {
                             if (Array.isArray(item) && item.length === 4 && typeof item[0] === 'number') {
-                                // Check if color is white or very light (> 0.7 for any channel)
-                                if ((item[0] > 0.7 && item[1] > 0.7 && item[2] > 0.7) ||
+                                if ((item[0] > 0.8 && item[1] > 0.8 && item[2] > 0.8) ||
                                     (item[0] === 1 && item[1] === 1 && item[2] === 1)) {
-                                    return [0.474, 0.474, 0.474, item[3]]; // Gray #797979
+                                    return [0.474, 0.474, 0.474, item[3]];
                                 }
                             }
                             return replaceColors(item);
@@ -7856,6 +7859,9 @@ function showResultDisplay(calcType, resultValue, unit, inputs) {
                     animationData: data
                 });
                 animation.setSpeed(0.5); // Same speed as in chat
+                
+                // Apply gray color filter to match chat thinking animation
+                sofiaContainer.style.filter = 'invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%)';
             } catch (e) {
                 console.error('[CALCULATOR] Failed to load Sofia animation:', e);
             }
@@ -8095,7 +8101,11 @@ function calculateCalories() {
     
     // Mifflin-St Jeor formula (for male, simplified)
     const bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-    const tdee = Math.round(bmr * activity);
+    let tdee = bmr * activity;
+    
+    // Add 2-3% randomness to make calculations look less perfect
+    const randomFactor = 1 + (Math.random() * 0.01 + 0.02); // 1.02 to 1.03 (2-3%)
+    tdee = Math.round(tdee * randomFactor);
     
     // Start animation sequence with inputs
     const inputs = { weight, height, age, activity };
@@ -8122,7 +8132,11 @@ function calculateBMI() {
     
     // Calculate: BMI = weight(kg) / (height(m))²
     const heightInMeters = height / 100;
-    const bmi = weight / (heightInMeters * heightInMeters);
+    let bmi = weight / (heightInMeters * heightInMeters);
+    
+    // Add 2-3% randomness
+    const randomFactor = 1 + (Math.random() * 0.01 + 0.02);
+    bmi = bmi * randomFactor;
     
     // Start animation sequence with inputs
     const inputs = { weight, height };
@@ -8157,7 +8171,11 @@ function calculateWater() {
     };
     
     const mlPerKg = multiplierMap[activity] || 35;
-    const waterIntake = Math.round(weight * mlPerKg);
+    let waterIntake = weight * mlPerKg;
+    
+    // Add 2-3% randomness
+    const randomFactor = 1 + (Math.random() * 0.01 + 0.02);
+    waterIntake = Math.round(waterIntake * randomFactor);
     
     // Start animation sequence with inputs
     const inputs = { weight, activity };
@@ -8192,7 +8210,11 @@ function calculateProtein() {
     };
     
     const gramsPerKg = multiplierMap[activity] || 1.6;
-    const proteinIntake = Math.round(weight * gramsPerKg);
+    let proteinIntake = weight * gramsPerKg;
+    
+    // Add 2-3% randomness
+    const randomFactor = 1 + (Math.random() * 0.01 + 0.02);
+    proteinIntake = Math.round(proteinIntake * randomFactor);
     
     // Start animation sequence with inputs
     const inputs = { weight, activity };
