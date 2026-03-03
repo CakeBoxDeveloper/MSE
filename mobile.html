@@ -4149,14 +4149,15 @@ async function saveAchievementsToFirebase(userId, achievements) {
 // Save notes to Firebase
 async function saveNotesToFirebase(userId, notes) {
     try {
+        console.log('[FIREBASE] Saving notes to Firebase:', notes.length, notes);
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
         await window.firebaseUpdateDoc(userRef, {
             notes: notes,
             lastUpdated: window.firebaseServerTimestamp()
         });
-        console.log('Notes saved to Firebase');
+        console.log('[FIREBASE] Notes saved successfully to Firebase');
     } catch (error) {
-        console.error('Error saving notes:', error);
+        console.error('[FIREBASE] Error saving notes:', error);
     }
 }
 
@@ -5815,9 +5816,12 @@ loginPinInputs.forEach((id,index)=>{
                                     // Load notes
                                     if (firebaseData.notes) {
                                         userNotes = firebaseData.notes;
-                                        console.log('[LOGIN] Notes loaded:', userNotes.length);
+                                        console.log('[LOGIN] Notes loaded from Firebase:', userNotes.length, userNotes);
                                         // Refresh progress tab to display loaded notes
                                         refreshProgressTab();
+                                        console.log('[LOGIN] Progress tab refreshed after loading notes');
+                                    } else {
+                                        console.log('[LOGIN] No notes found in Firebase data');
                                     }
                                     // Restore weight data if available
                                     if (firebaseData.weightData) {
@@ -7087,14 +7091,68 @@ class AttachmentValidator {
 // ============================================================
 let activeInnerTab = 'materials'; // Track active inner tab
 
+// Function to programmatically switch inner tabs
+function switchInnerTab(tabName) {
+    console.log('[TABS] Switching to inner tab:', tabName);
+    
+    const mainContent = document.getElementById('main-content');
+    const innerTabs = document.querySelectorAll('.inner-tab');
+    
+    if (!mainContent) {
+        console.error('[TABS] Main content not found');
+        return;
+    }
+    
+    // Find the tab element
+    const targetTab = Array.from(innerTabs).find(t => t.dataset.inner === tabName);
+    if (!targetTab) {
+        console.error('[TABS] Tab not found:', tabName);
+        return;
+    }
+    
+    // If already active, just refresh content
+    if (activeInnerTab === tabName) {
+        console.log('[TABS] Tab already active, refreshing content');
+        mainContent.innerHTML = getTabHTML(tabName);
+        attachMaterialClickHandlers(tabName);
+        return;
+    }
+    
+    // Animate tab switch
+    mainContent.style.filter = 'blur(4px)';
+    mainContent.style.opacity = '0';
+    
+    setTimeout(() => {
+        // Switch tab
+        innerTabs.forEach(t => t.classList.remove('active'));
+        targetTab.classList.add('active');
+        activeInnerTab = tabName;
+        mainContent.innerHTML = getTabHTML(tabName);
+        
+        // Fade in
+        setTimeout(() => {
+            mainContent.style.filter = 'blur(0px)';
+            mainContent.style.opacity = '1';
+            attachMaterialClickHandlers(tabName);
+            console.log('[TABS] Tab switch complete');
+        }, 100);
+    }, 300);
+}
+
 function refreshProgressTab() {
+    console.log('[PROGRESS] Refreshing progress tab, userNotes:', userNotes.length);
     // Update browser items list for search (always)
     updateAllBrowserItems();
     
     // Update progress tab content if it's currently visible
     const mainContent = document.getElementById('main-content');
     if (mainContent && activeInnerTab === 'progress') {
+        console.log('[PROGRESS] Progress tab is active, re-rendering content');
         mainContent.innerHTML = renderProgress();
+    } else {
+        console.log('[PROGRESS] Progress tab is not active, activeInnerTab:', activeInnerTab);
+        // Even if not active, we should update the content when user switches to it
+        // This is handled by switchInnerTab/switchToTab which calls getTabHTML
     }
 }
 
@@ -7239,6 +7297,8 @@ function renderItemList(items, tabType){
     }).join('')+'</div>';
 }
 function renderProgress(){
+    console.log('[PROGRESS] renderProgress called, currentUser:', currentUser ? currentUser.id : 'not logged in', 'userNotes:', userNotes.length);
+    
     // Если пользователь не залогинен - показываем приглашение
     if (!currentUser) {
         const html = `<div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
@@ -7302,6 +7362,7 @@ function renderProgress(){
     }
     
     // Если пользователь залогинен - показываем достижения и заметки
+    console.log('[PROGRESS] User is logged in, rendering', userNotes.length, 'notes and', userAchievements.length, 'achievements');
     let html = '<div class="materials-list">';
     
     // Сначала показываем заметки
@@ -8060,11 +8121,14 @@ async function addNoteToSofiaChat(calcType, inputs, result) {
         // 13. Update progress tab
         refreshProgressTab();
         
-        // 14. Save to Firebase (non-blocking)
+        // 14. Save to Firebase (both chats and notes)
         if (typeof currentUser !== 'undefined' && currentUser) {
             try {
+                // Save chats
                 await saveChatsToFirebase(currentUser.id, chatStore);
-                console.log('[CALCULATOR] Note saved to Firebase');
+                // Save notes (important - must be saved separately!)
+                await saveNotesToFirebase(currentUser.id, userNotes);
+                console.log('[CALCULATOR] Chats and notes saved to Firebase');
             } catch (error) {
                 console.error('[CALCULATOR] Firebase save failed:', error);
             }
@@ -9728,6 +9792,23 @@ function restoreSession() {
                     if (firebaseData.age) currentUser.age = firebaseData.age;
                     if (firebaseData.chats) chatStore = firebaseData.chats;
                     
+                    // Load achievements
+                    if (firebaseData.achievements) {
+                        userAchievements = firebaseData.achievements;
+                        console.log('[SESSION] Achievements loaded:', userAchievements.length);
+                    }
+                    
+                    // Load notes
+                    if (firebaseData.notes) {
+                        userNotes = firebaseData.notes;
+                        console.log('[SESSION] Notes loaded from Firebase:', userNotes.length, userNotes);
+                        // Refresh progress tab to display loaded notes
+                        refreshProgressTab();
+                        console.log('[SESSION] Progress tab refreshed after loading notes');
+                    } else {
+                        console.log('[SESSION] No notes found in Firebase data');
+                    }
+                    
                     // Restore weight data if available
                     if (firebaseData.weightData) {
                         weightData = firebaseData.weightData;
@@ -10710,8 +10791,8 @@ function renderChatMessages(){
                     </div>
                 </div>`;
             } else if (m.type === 'calculator-note') {
-                // Заметка калькулятора от Софии - открывает вкладку "Прогресс"
-                const clickHandler = `switchInnerTab('progress')`;
+                // Заметка калькулятора от Софии - открывает вкладку "Прогресс" и подсвечивает заметку
+                const clickHandler = `highlightInBrowser('note', ${m.noteId})`;
                 return `<div class="chat-message ${m.role} ${newMessageClass}" onclick="event.preventDefault();${clickHandler};return false;" style="cursor:pointer;">
                     <div class="material-item" style="margin:0;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);">
                         <div class="material-icon">
@@ -13351,8 +13432,12 @@ function addNote(title, description) {
     userNotes.unshift(note);
     
     // Save to Firebase if user is logged in
+    // Note: This is async but we don't await it here for backward compatibility
+    // Callers should save notes explicitly if they need to ensure it's saved
     if (currentUser) {
-        saveNotesToFirebase(currentUser.id, userNotes);
+        saveNotesToFirebase(currentUser.id, userNotes).catch(err => {
+            console.error('[NOTES] Failed to save note:', err);
+        });
     }
     
     return note;
