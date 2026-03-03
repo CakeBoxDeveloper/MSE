@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     
     <!-- Firebase SDK -->
     <script type="module">
@@ -137,10 +138,9 @@
         }
         
         .logo img {
-            width: 80px;
-            height: 28px;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
-            filter: invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%);
         }
         
         .user-status {
@@ -791,7 +791,7 @@
         
         .chat-input {
             flex: 1;
-            padding: 10px 12px;
+            padding: 0 12px;
             background: rgba(255,255,255,.05);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
@@ -799,9 +799,10 @@
             font-family: 'Inter', sans-serif;
             font-size: 13px;
             resize: none;
+            line-height: 1.4;
             max-height: 80px;
-            min-height: 40px;
-            height: 40px;
+            min-height: 34px;
+            height: 34px;
             transition: all .2s ease;
             overflow: hidden;
             scrollbar-width: none;
@@ -823,8 +824,8 @@
         
         .chat-attach,
         .chat-send-btn {
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
             background: rgba(255,255,255,.06);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
@@ -969,6 +970,26 @@
             text-align: center;
             transition: all .2s ease;
             flex-shrink: 0;
+            position: relative;
+        }
+        
+        .pin-digit.shimmer {
+            animation: shimmerPulse 0.56s ease-in-out;
+        }
+        
+        @keyframes shimmerPulse {
+            0% {
+                background: rgba(255,255,255,.05);
+                box-shadow: 0 0 0 rgba(153, 153, 153, 0);
+            }
+            50% {
+                background: rgba(153, 153, 153, 0.25);
+                box-shadow: 0 0 20px rgba(153, 153, 153, 0.4);
+            }
+            100% {
+                background: rgba(255,255,255,.05);
+                box-shadow: 0 0 0 rgba(153, 153, 153, 0);
+            }
         }
         
         .pin-digit:focus {
@@ -1016,6 +1037,47 @@
             padding: 0;
             margin-left: 4px;
         }
+        
+        /* Age slider */
+        .age-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        
+        .age-slider::-webkit-slider-thumb:hover {
+            background: var(--text-primary);
+            transform: scale(1.1);
+        }
+        
+        .age-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all .2s ease;
+        }
+        
+        .age-slider::-moz-range-thumb:hover {
+            background: var(--text-primary);
+            transform: scale(1.1);
+        }
+        
+        /* Gender buttons */
+        .gender-btn:hover {
+            background: rgba(255,255,255,.08) !important;
+        }
+        
+        .register-form-content {
+            transition: filter 0.3s ease, opacity 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -1024,14 +1086,14 @@
     <header>
         <div class="header-inner">
             <div class="logo">
-                <img src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f9cf4d0f418e37fb1154fa7a2d314034985bbd37/MSESVGWhite.svg" alt="MSE">
+                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="MSE">
             </div>
             <div class="user-status" id="userStatus">
                 <span class="user-status-dot"></span>
                 <span id="userIdDisplay"></span>
             </div>
-            <button class="header-login-btn" onclick="handleLogin()">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Login">
+            <button class="header-login-btn" id="headerLoginBtn" onclick="handleLogin()">
+                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">
             </button>
         </div>
     </header>
@@ -1047,8 +1109,8 @@
                             <button class="add-task-btn" onclick="createNewTask()">+</button>
                         </div>
                         <button class="btn-minimize" onclick="toggleBlock('organizerBlock')">
-                            <img class="icon-minimize" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z'/%3E%3C/svg%3E" alt="Minimize">
-                            <img class="icon-maximize" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z'/%3E%3C/svg%3E" alt="Maximize">
+                            <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="" style="width:12px;height:12px;">
+                            <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="" style="width:12px;height:12px;">
                         </button>
                     </div>
                     <div class="content-body">
@@ -1069,12 +1131,11 @@
                 <div class="block-body">
                     <div class="inner-tabs">
                         <div class="inner-tab active">
-                            <img class="inner-tab-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E" alt="Chat">
                             <span>София</span>
                         </div>
                         <button class="btn-minimize" onclick="toggleBlock('chatBlock')">
-                            <img class="icon-minimize" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z'/%3E%3C/svg%3E" alt="Minimize">
-                            <img class="icon-maximize" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z'/%3E%3C/svg%3E" alt="Maximize">
+                            <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="" style="width:12px;height:12px;">
+                            <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="" style="width:12px;height:12px;">
                         </button>
                     </div>
                     <div class="content-body">
@@ -1086,12 +1147,12 @@
                             </div>
                         </div>
                         <div class="chat-input-container">
-                            <textarea class="chat-input" id="chatInput" placeholder="Опишите задачу..." rows="1"></textarea>
+                            <textarea class="chat-input" id="chatInput" placeholder="Сообщение..." rows="1"></textarea>
                             <button class="chat-attach" onclick="alert('Прикрепление файлов в разработке')">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z'/%3E%3C/svg%3E" alt="Attach">
+                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/attach.svg" alt="Attach" style="width:18px;height:18px;">
                             </button>
                             <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/%3E%3C/svg%3E" alt="Send">
+                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/send.svg" alt="Send" style="width:18px;height:18px;">
                             </button>
                         </div>
                     </div>
@@ -1102,29 +1163,112 @@
     
     <!-- Auth Modal -->
     <div class="auth-overlay" id="authOverlay">
-        <div class="auth-modal">
-            <div class="auth-title">Запрос на подключение к сети MSE</div>
-            <form class="auth-form" onsubmit="return false;">
-                <div class="step-instruction" id="stepInstruction">Введите номер звена</div>
-                <div id="stepId">
-                    <div class="pin-input-container">
-                        <input type="number" class="pin-digit" id="loginId1" maxlength="1" autocomplete="off">
-                        <input type="number" class="pin-digit" id="loginId2" maxlength="1" autocomplete="off">
-                        <input type="number" class="pin-digit" id="loginId3" maxlength="1" autocomplete="off">
-                        <input type="number" class="pin-digit" id="loginId4" maxlength="1" autocomplete="off">
+        <div class="auth-modal" id="authModal">
+            <!-- LOGIN -->
+            <div id="loginForm">
+                <div id="loginContent" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;padding-top:5px;">
+                    <div>
+                        <div style="text-align:center;color:#999;font-size:11px;margin-bottom:1px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;padding:4px 8px;">Запрос на подключение к сети MSE</div>
+                        <!-- Pipeline with 3 icons -->
+                        <div class="login-pipeline" style="display:flex;align-items:center;justify-content:center;margin-bottom:0;gap:0;position:relative;height:90px;">
+                            <!-- Icon 1: Computer -->
+                            <div class="pipeline-icon" id="pipelineIcon1" style="width:45px;height:45px;position:relative;z-index:2;">
+                                <div id="lottie-pipeline-computer" style="width:45px;height:45px;"></div>
+                            </div>
+                            <!-- Line 1 (static) -->
+                            <div class="pipeline-line" id="pipelineLine1" style="flex:1;height:2px;background:rgba(153,153,153,.3);position:relative;margin:0 12px;"></div>
+                            <!-- Icon 2: Fingerprint (30% bigger than 70px = 91px) -->
+                            <div class="pipeline-icon" id="pipelineIcon2" style="width:91px;height:91px;position:relative;z-index:2;">
+                                <div id="lottie-pipeline-fingerprint" style="width:91px;height:91px;"></div>
+                            </div>
+                            <!-- Line 2 (static) -->
+                            <div class="pipeline-line" id="pipelineLine2" style="flex:1;height:2px;background:rgba(153,153,153,.3);position:relative;margin:0 12px;"></div>
+                            <!-- Icon 3: Sofia Eye -->
+                            <div class="pipeline-icon" id="pipelineIcon3" style="width:45px;height:45px;position:relative;z-index:2;">
+                                <div id="lottie-pipeline-sofia" style="width:45px;height:45px;"></div>
+                            </div>
+                        </div>
+                        <form class="auth-form" onsubmit="return false;" style="margin-top:0;">
+                            <div id="stepInstruction" style="text-align:center;color:rgba(153,153,153,.6);font-size:11px;margin-bottom:0.5px;margin-top:-5px;">Введите номер звена</div>
+                            <div class="form-group" id="stepId" style="margin-bottom:14px;">
+                                <div class="pin-input-container">
+                                    <input type="number" class="pin-digit" id="loginId1" maxlength="1" autocomplete="off">
+                                    <input type="number" class="pin-digit" id="loginId2" maxlength="1" autocomplete="off">
+                                    <input type="number" class="pin-digit" id="loginId3" maxlength="1" autocomplete="off">
+                                    <input type="number" class="pin-digit" id="loginId4" maxlength="1" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" id="stepPin" style="display:none;margin-bottom:14px;">
+                                <div class="pin-input-container" id="pinContainer">
+                                    <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
+                                    <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
+                                    <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
+                                    <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="auth-switch" id="authSwitchText" style="display:flex;align-items:center;justify-content:center;margin-bottom:8px;margin-top:auto;width:100%;">
+                        <span style="font-size:13px;white-space:nowrap;width:100%;text-align:center;">Нет аккаунта? <button onclick="showRegister()" style="font-size:13px;">Присоединиться к MSE</button></span>
                     </div>
                 </div>
-                <div id="stepPin" style="display: none;">
-                    <div class="pin-input-container">
-                        <input type="number" class="pin-digit" id="loginPin1" maxlength="1" autocomplete="off">
-                        <input type="number" class="pin-digit" id="loginPin2" maxlength="1" autocomplete="off">
-                        <input type="number" class="pin-digit" id="loginPin3" maxlength="1" autocomplete="off">
-                        <input type="number" class="pin-digit" id="loginPin4" maxlength="1" autocomplete="off">
+            </div>
+            
+            <!-- REGISTER -->
+            <div id="registerForm" style="display:none;">
+                <div id="registerContent">
+                    <!-- STEP 1: PIN CODE -->
+                    <div class="register-form-content" id="registerStep1">
+                        <div class="user-id-display" style="padding:10px;margin-bottom:12px;">
+                            <span class="user-id-label" style="font-size:11px;">ВЫ СТАНЕТЕ ЗВЕНОМ ПОД НОМЕРОМ:</span>
+                            <span class="user-id-number" id="newUserId" style="font-size:11px;">----</span>
+                        </div>
+                        <form class="auth-form" onsubmit="return false;" style="margin-top: 12px;">
+                            <div class="form-label-key" style="margin-bottom:12px;width:100%;">
+                                <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="">
+                                <span style="font-size:14px;white-space:nowrap;width:100%;text-align:center;">Создайте уникальный ключ доступа</span>
+                            </div>
+                            <div class="pin-input-container" style="margin-bottom:10px;">
+                                <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="pin2" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
+                                <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
+                            </div>
+                            <div style="font-size:11px;color:var(--text-tertiary);text-align:justify;line-height:1.4;margin-top:0;width:100%;">
+                                Внимание! Ключ доступа не восстанавливается. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- STEP 2: AGE AND GENDER -->
+                    <div class="register-form-content" id="registerStep2" style="display:none;">
+                        <form class="auth-form" onsubmit="return false;">
+                            <div class="age-slider-container">
+                                <div class="age-display" style="margin-bottom:18px;">
+                                    <div class="age-label">Возраст</div>
+                                    <div class="age-value" id="ageValue">18</div>
+                                </div>
+                                <input type="range" class="age-slider" id="ageSlider" min="6" max="99" value="18">
+                            </div>
+                            <div class="gender-buttons" style="display:flex;gap:8px;margin-top:16px;">
+                                <button type="button" class="gender-btn" id="genderMale" onclick="selectGender('male')" style="flex:1;padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;">
+                                    <span>Мужской</span>
+                                </button>
+                                <button type="button" class="gender-btn" id="genderFemale" onclick="selectGender('female')" style="flex:1;padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;">
+                                    <span>Женский</span>
+                                </button>
+                            </div>
+                            <div class="checkbox-group" style="display:flex;align-items:center;gap:8px;margin-top:16px;">
+                                <input type="checkbox" id="termsCheckbox2" style="width:16px;height:16px;">
+                                <label for="termsCheckbox2" style="font-size:12px;color:var(--text-secondary);">Я принимаю <span style="font-weight:600;">условия подключения к сети MSE</span></label>
+                            </div>
+                            <div class="auth-buttons" id="registerButtons" style="display:flex;gap:8px;margin-top:16px;">
+                                <button type="button" class="auth-btn" onclick="closeAuth()" style="flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-secondary);font-size:13px;cursor:pointer;">Отмена</button>
+                                <button type="button" class="auth-btn primary" onclick="register()" id="registerBtn" disabled style="flex:1;padding:10px;background:rgba(255,255,255,.15);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);font-size:13px;cursor:pointer;">Создать аккаунт</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </form>
-            <div class="auth-switch">
-                <span>Нет аккаунта? <button onclick="alert('Регистрация в разработке')">Присоединиться к MSE</button></span>
             </div>
         </div>
     </div>
@@ -1137,6 +1281,71 @@
         let chatHistory = [];
         let loginStep = 'id';
         let enteredId = '';
+        let selectedAge = 18;
+        let selectedGender = null;
+        let registrationPin = '';
+        
+        // Show register form
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('registerStep1').style.display = 'block';
+            document.getElementById('registerStep2').style.display = 'none';
+            
+            // Generate new user ID
+            const newId = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('newUserId').textContent = newId;
+            
+            // Setup PIN inputs for registration
+            setupPinInputs('pin');
+            
+            setTimeout(() => {
+                document.getElementById('pin1').focus();
+            }, 100);
+        }
+        
+        // Select gender
+        function selectGender(gender) {
+            selectedGender = gender;
+            document.getElementById('genderMale').style.background = gender === 'male' ? 'var(--text-secondary)' : 'rgba(255,255,255,.05)';
+            document.getElementById('genderMale').style.color = gender === 'male' ? 'var(--bg-primary)' : 'var(--text-secondary)';
+            document.getElementById('genderFemale').style.background = gender === 'female' ? 'var(--text-secondary)' : 'rgba(255,255,255,.05)';
+            document.getElementById('genderFemale').style.color = gender === 'female' ? 'var(--bg-primary)' : 'var(--text-secondary)';
+            checkRegisterButton();
+        }
+        
+        // Check register button state
+        function checkRegisterButton() {
+            const termsChecked = document.getElementById('termsCheckbox2').checked;
+            const registerBtn = document.getElementById('registerBtn');
+            registerBtn.disabled = !(selectedGender && termsChecked);
+        }
+        
+        // Register function
+        function register() {
+            const userId = document.getElementById('newUserId').textContent;
+            const pin = registrationPin;
+            
+            if (userId && pin && selectedAge && selectedGender) {
+                // Save to Firebase (in production)
+                currentUser = { id: userId, pin: pin, age: selectedAge, gender: selectedGender };
+                
+                closeAuth();
+                
+                document.getElementById('userStatus').classList.add('logged-in');
+                document.getElementById('userIdDisplay').textContent = `Звено ${userId}`;
+                
+                addChatMessage('ai', `Регистрация завершена! Добро пожаловать в MSE, звено ${userId}. Вы можете продолжить работу с задачами.`);
+            }
+        }
+        
+        // Close auth modal
+        function closeAuth() {
+            closeAuthModal();
+            // Reset forms
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
         
         // PIN input handlers
         function setupPinInputs(prefix) {
@@ -1144,7 +1353,11 @@
                 const input = document.getElementById(`${prefix}${i}`);
                 if (!input) continue;
                 
-                input.addEventListener('input', function(e) {
+                // Remove old listeners
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                
+                newInput.addEventListener('input', function(e) {
                     if (this.value.length > 1) {
                         this.value = this.value.slice(0, 1);
                     }
@@ -1157,12 +1370,14 @@
                                 handleIdComplete();
                             } else if (prefix === 'loginPin') {
                                 handlePinComplete();
+                            } else if (prefix === 'pin') {
+                                handleRegisterPinComplete();
                             }
                         }
                     }
                 });
                 
-                input.addEventListener('keydown', function(e) {
+                newInput.addEventListener('keydown', function(e) {
                     if (e.key === 'Backspace' && this.value === '') {
                         const prevInput = document.getElementById(`${prefix}${i - 1}`);
                         if (prevInput) {
@@ -1171,6 +1386,47 @@
                     }
                 });
             }
+        }
+        
+        function handleRegisterPinComplete() {
+            registrationPin = '';
+            for (let i = 1; i <= 4; i++) {
+                registrationPin += document.getElementById(`pin${i}`).value;
+            }
+            
+            if (registrationPin.length === 4) {
+                // Add shimmer to PIN inputs
+                for (let i = 1; i <= 4; i++) {
+                    const input = document.getElementById(`pin${i}`);
+                    input.classList.add('shimmer');
+                }
+                
+                setTimeout(() => {
+                    transitionToStep2();
+                }, 560);
+            }
+        }
+        
+        function transitionToStep2() {
+            const step1 = document.getElementById('registerStep1');
+            const step2 = document.getElementById('registerStep2');
+            
+            step1.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+            step1.style.filter = 'blur(8px)';
+            step1.style.opacity = '0';
+            
+            setTimeout(() => {
+                step1.style.display = 'none';
+                step2.style.display = 'block';
+                step2.style.filter = 'blur(8px)';
+                step2.style.opacity = '0';
+                step2.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                
+                setTimeout(() => {
+                    step2.style.filter = 'blur(0px)';
+                    step2.style.opacity = '1';
+                }, 50);
+            }, 300);
         }
         
         function handleIdComplete() {
@@ -1232,7 +1488,7 @@
         // Auto-resize textarea
         const chatInput = document.getElementById('chatInput');
         chatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
+            this.style.height = '34px';
             this.style.height = Math.min(this.scrollHeight, 80) + 'px';
         });
         
@@ -1832,6 +2088,22 @@
             setupPinInputs('loginId');
             setupPinInputs('loginPin');
             
+            // Age slider
+            const ageSlider = document.getElementById('ageSlider');
+            const ageValue = document.getElementById('ageValue');
+            if (ageSlider && ageValue) {
+                ageSlider.addEventListener('input', function() {
+                    selectedAge = this.value;
+                    ageValue.textContent = this.value;
+                });
+            }
+            
+            // Terms checkbox
+            const termsCheckbox = document.getElementById('termsCheckbox2');
+            if (termsCheckbox) {
+                termsCheckbox.addEventListener('change', checkRegisterButton);
+            }
+            
             if (!currentUser) {
                 setTimeout(() => {
                     addChatMessage('ai', 'Войдите в систему, чтобы начать управлять задачами.');
@@ -1852,6 +2124,197 @@
                 setTimeout(() => updateChatScrollGradients(), 500);
             }
         });
+        
+        // Lottie animations initialization
+        const lottieAnimations = {
+            computer: null,
+            fingerprint: null,
+            sofia: null
+        };
+        
+        // Load animations when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            // Computer/Puzzle animation
+            fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Computer.json')
+                .then(response => response.json())
+                .then(data => {
+                    lottieAnimations.computer = lottie.loadAnimation({
+                        container: document.getElementById('lottie-pipeline-computer'),
+                        renderer: 'svg',
+                        loop: false,
+                        autoplay: false,
+                        animationData: data
+                    });
+                    lottieAnimations.computer.setSpeed(1.5);
+                })
+                .catch(e => console.error('Failed to load computer animation:', e));
+            
+            // Fingerprint animation
+            fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Fingerprint.json')
+                .then(response => response.json())
+                .then(data => {
+                    lottieAnimations.fingerprint = lottie.loadAnimation({
+                        container: document.getElementById('lottie-pipeline-fingerprint'),
+                        renderer: 'svg',
+                        loop: false,
+                        autoplay: false,
+                        animationData: data
+                    });
+                    lottieAnimations.fingerprint.setSpeed(1.5);
+                })
+                .catch(e => console.error('Failed to load fingerprint animation:', e));
+            
+            // Sofia Eye animation
+            fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Sofia%20Eye.json')
+                .then(response => response.json())
+                .then(data => {
+                    lottieAnimations.sofia = lottie.loadAnimation({
+                        container: document.getElementById('lottie-pipeline-sofia'),
+                        renderer: 'svg',
+                        loop: false,
+                        autoplay: false,
+                        animationData: data
+                    });
+                    lottieAnimations.sofia.setSpeed(1.5);
+                })
+                .catch(e => console.error('Failed to load sofia animation:', e));
+        });
+        
+        // Override handleIdComplete to add animation
+        handleIdComplete = function() {
+            enteredId = '';
+            for (let i = 1; i <= 4; i++) {
+                enteredId += document.getElementById(`loginId${i}`).value;
+            }
+            
+            if (enteredId.length === 4) {
+                // Add shimmer to ID inputs
+                for (let i = 1; i <= 4; i++) {
+                    const input = document.getElementById(`loginId${i}`);
+                    input.classList.add('shimmer');
+                }
+                
+                // Play computer animation
+                if (lottieAnimations.computer) {
+                    lottieAnimations.computer.goToAndPlay(0, true);
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('stepId').style.display = 'none';
+                    document.getElementById('stepPin').style.display = 'block';
+                    document.getElementById('stepInstruction').textContent = 'Введите PIN-код';
+                    setupPinInputs('loginPin');
+                    document.getElementById('loginPin1').focus();
+                    loginStep = 'pin';
+                    
+                    // Play fingerprint animation
+                    if (lottieAnimations.fingerprint) {
+                        lottieAnimations.fingerprint.goToAndPlay(0, true);
+                    }
+                }, 560);
+            }
+        };
+        
+        // Override confirmLogin to add Firebase validation and animation
+        confirmLogin = async function(userId, pin) {
+            if (!userId || !pin || userId.length !== 4 || pin.length !== 4) {
+                return;
+            }
+            
+            // Add shimmer to PIN inputs
+            for (let i = 1; i <= 4; i++) {
+                const input = document.getElementById(`loginPin${i}`);
+                input.classList.add('shimmer');
+            }
+            
+            // Play Sofia eye animation
+            if (lottieAnimations.sofia) {
+                lottieAnimations.sofia.goToAndPlay(0, true);
+            }
+            
+            // Wait for shimmer animation
+            await new Promise(resolve => setTimeout(resolve, 560));
+            
+            try {
+                // Validate credentials with Firebase
+                const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId);
+                const userSnap = await window.firebaseGetDoc(userRef);
+                
+                if (!userSnap.exists()) {
+                    // User doesn't exist
+                    alert('Неверный номер звена или PIN-код');
+                    // Reset PIN inputs
+                    for (let i = 1; i <= 4; i++) {
+                        document.getElementById(`loginPin${i}`).value = '';
+                    }
+                    document.getElementById('loginPin1').focus();
+                    return;
+                }
+                
+                const userData = userSnap.data();
+                if (userData.pin !== pin) {
+                    // Wrong PIN
+                    alert('Неверный номер звена или PIN-код');
+                    // Reset PIN inputs
+                    for (let i = 1; i <= 4; i++) {
+                        document.getElementById(`loginPin${i}`).value = '';
+                    }
+                    document.getElementById('loginPin1').focus();
+                    return;
+                }
+                
+                // Login successful
+                currentUser = { id: userId, pin: pin, ...userData };
+                closeAuthModal();
+                await loadUserTasks();
+                
+                document.getElementById('userStatus').classList.add('logged-in');
+                document.getElementById('userIdDisplay').textContent = `Звено ${userId}`;
+                
+                addChatMessage('ai', `Добро пожаловать, звено ${userId}! Теперь вы можете создавать и управлять задачами.`);
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Ошибка при входе. Попробуйте еще раз.');
+            }
+        };
+        
+        // Override register to save to Firebase
+        register = async function() {
+            const userId = document.getElementById('newUserId').textContent;
+            const pin = registrationPin;
+            
+            if (userId && pin && selectedAge && selectedGender) {
+                try {
+                    // Save to Firebase
+                    const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId);
+                    await window.firebaseSetDoc(userRef, {
+                        pin: pin,
+                        age: selectedAge,
+                        gender: selectedGender,
+                        createdAt: window.firebaseServerTimestamp()
+                    });
+                    
+                    currentUser = { id: userId, pin: pin, age: selectedAge, gender: selectedGender };
+                    
+                    // Blur out registration form
+                    const registerContent = document.getElementById('registerContent');
+                    registerContent.style.filter = 'blur(8px)';
+                    registerContent.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        closeAuth();
+                        
+                        document.getElementById('userStatus').classList.add('logged-in');
+                        document.getElementById('userIdDisplay').textContent = `Звено ${userId}`;
+                        
+                        addChatMessage('ai', `Регистрация завершена! Добро пожаловать в MSE, звено ${userId}. Вы можете продолжить работу с задачами.`);
+                    }, 300);
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    alert('Ошибка при регистрации. Попробуйте еще раз.');
+                }
+            }
+        };
     </script>
 </body>
 </html>
