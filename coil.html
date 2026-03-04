@@ -2239,10 +2239,7 @@
         <div class="form-group">
           <textarea class="form-input" id="taskDescription" placeholder="Описание задачи" rows="4" style="font-size:13px;resize:vertical;min-height:80px;"></textarea>
         </div>
-        <div class="auth-buttons" style="margin-top:16px;">
-          <button type="button" class="auth-btn" onclick="closeNewTaskModal()">Отмена</button>
-          <button type="button" class="auth-btn primary" onclick="createNewTask()">Создать задачу</button>
-        </div>
+        <button type="button" class="auth-btn primary" onclick="createNewTask()" style="width:100%;margin-top:16px;">Создать задачу</button>
       </form>
     </div>
   </div>
@@ -12764,16 +12761,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (browserSearchInput) {
         browserSearchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
-            const mainContent = document.getElementById('main-content');
             
             if (query === '') {
-                // Show current tab content
-                mainContent.innerHTML = getTabHTML(activeInnerTab);
-                attachMaterialClickHandlers(activeInnerTab);
+                // Restore current task content
+                renderTaskContent(activeTaskTab);
             } else {
-                // Show search results
-                mainContent.innerHTML = renderSearchResults(query);
-                attachSearchResultHandlers();
+                // Search in task tabs and steps
+                const results = searchTasksAndSteps(query);
+                renderTaskSearchResults(results);
             }
         });
     }
@@ -12789,15 +12784,105 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!wrap.contains(e.target) && e.target !== searchBtn && !searchBtn.contains(e.target)) {
                 wrap.style.display = 'none';
                 input.value = '';
-                isSearchActive = false;
-                // Restore current tab content
-                const mainContent = document.getElementById('main-content');
-                mainContent.innerHTML = getTabHTML(activeInnerTab);
-                attachMaterialClickHandlers(activeInnerTab);
+                // Restore current task content
+                renderTaskContent(activeTaskTab);
             }
         }
     });
 });
+
+function searchTasksAndSteps(query) {
+    const results = [];
+    
+    // Search in all tasks
+    Object.keys(taskStore).forEach(taskId => {
+        if (taskId === 'overview') return;
+        
+        const task = taskStore[taskId];
+        const taskName = taskMetadata[taskId]?.name || task.title;
+        
+        // Check if task title or description matches
+        if (taskName.toLowerCase().includes(query) || 
+            task.description.toLowerCase().includes(query)) {
+            results.push({
+                type: 'task',
+                id: taskId,
+                title: taskName,
+                description: task.description,
+                status: task.status
+            });
+        }
+        
+        // Search in task steps if task is ready
+        if (task.status === 'ready' && task.pipeline) {
+            const steps = parsePipelineSteps(task.pipeline);
+            steps.forEach((step, index) => {
+                if (step.title.toLowerCase().includes(query) || 
+                    step.description.toLowerCase().includes(query)) {
+                    results.push({
+                        type: 'step',
+                        taskId: taskId,
+                        taskName: taskName,
+                        stepIndex: index,
+                        title: step.title,
+                        description: step.description,
+                        emoji: step.emoji
+                    });
+                }
+            });
+        }
+    });
+    
+    return results;
+}
+
+function renderTaskSearchResults(results) {
+    const taskContent = document.getElementById('taskContent');
+    
+    if (results.length === 0) {
+        taskContent.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:20px;">
+                <div style="font-size:13px;color:var(--text-secondary);">Ничего не найдено</div>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;">';
+    
+    results.forEach(result => {
+        if (result.type === 'task') {
+            const statusIcon = result.status === 'ready' ? '✅' : result.status === 'error' ? '❌' : '⏳';
+            html += `
+                <div onclick="switchTaskTab('${result.id}')" class="material-item" style="cursor:pointer;">
+                    <div class="material-icon">
+                        <span style="font-size:16px;">${statusIcon}</span>
+                    </div>
+                    <div class="material-info">
+                        <h3>${result.title}</h3>
+                        <p>${result.description}</p>
+                    </div>
+                </div>
+            `;
+        } else if (result.type === 'step') {
+            html += `
+                <div onclick="switchTaskTab('${result.taskId}')" class="material-item" style="cursor:pointer;">
+                    <div class="material-icon">
+                        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/doc.svg" alt="">
+                    </div>
+                    <div class="material-info">
+                        <h3>${result.title}</h3>
+                        <p style="font-size:10px;opacity:0.7;margin-bottom:2px;">Задача: ${result.taskName}</p>
+                        <p>${result.description}</p>
+                    </div>
+                </div>
+            `;
+        }
+    });
+    
+    html += '</div>';
+    taskContent.innerHTML = html;
+}
 
 function attachSearchResultHandlers() {
     const items = document.querySelectorAll('.search-result-item');
@@ -13401,8 +13486,40 @@ function restoreTaskTabs() {
     // Render current task content
     renderTaskContent(activeTaskTab);
     
+    // Update blur effect
+    updateTaskTabsBlur();
+    
     console.log('[TASK TABS] Task tabs restored successfully');
 }
+
+function updateTaskTabsBlur() {
+    const wrapper = document.querySelector('#taskTabs').parentElement;
+    const tabs = document.getElementById('taskTabs');
+    
+    if (!wrapper || !tabs) return;
+    
+    const scrollable = tabs.scrollWidth > tabs.clientWidth;
+    const atStart = tabs.scrollLeft <= 1;
+    const atEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 1;
+    
+    wrapper.classList.remove('blur-left', 'blur-right', 'blur-both');
+    
+    if (scrollable && !atStart && atEnd) {
+        wrapper.classList.add('blur-left');
+    } else if (scrollable && atStart && !atEnd) {
+        wrapper.classList.add('blur-right');
+    } else if (scrollable && !atStart && !atEnd) {
+        wrapper.classList.add('blur-both');
+    }
+}
+
+// Add scroll listener for task tabs
+document.addEventListener('DOMContentLoaded', () => {
+    const taskTabs = document.getElementById('taskTabs');
+    if (taskTabs) {
+        taskTabs.addEventListener('scroll', updateTaskTabsBlur);
+    }
+});
 
 function switchTaskTab(taskId) {
     console.log('[TASK TAB] Switching to:', taskId);
@@ -13453,9 +13570,14 @@ function renderTaskContent(taskId) {
                 const t = taskStore[id];
                 const statusIcon = t.status === 'ready' ? '✅' : t.status === 'error' ? '❌' : '⏳';
                 tasksHTML += `
-                    <div onclick="switchTaskTab('${id}')" style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;cursor:pointer;transition:all .2s ease;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">${statusIcon} ${t.title}</div>
-                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.4;">${t.description}</div>
+                    <div onclick="switchTaskTab('${id}')" class="material-item" style="cursor:pointer;">
+                        <div class="material-icon">
+                            <span style="font-size:16px;">${statusIcon}</span>
+                        </div>
+                        <div class="material-info">
+                            <h3>${t.title}</h3>
+                            <p>${t.description}</p>
+                        </div>
                     </div>
                 `;
             });
@@ -13468,11 +13590,7 @@ function renderTaskContent(taskId) {
     // Show specific task
     if (task.status === 'pending') {
         taskContent.innerHTML = `
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
-                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${task.title}</div>
-                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${task.description}</div>
-                </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
                 <div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:12px;">
                     <div class="loader" style="margin:0 auto 12px;"></div>
                     Проксима анализирует задачу и создаёт пайплайн...
@@ -13481,30 +13599,142 @@ function renderTaskContent(taskId) {
         `;
     } else if (task.status === 'error') {
         taskContent.innerHTML = `
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
-                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${task.title}</div>
-                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${task.description}</div>
-                </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
                 <div style="padding:20px;text-align:center;color:rgba(255,80,80,.8);font-size:12px;">
                     ❌ Ошибка при создании пайплайна. Попробуй создать задачу заново.
                 </div>
             </div>
         `;
     } else {
-        // Show pipeline
-        taskContent.innerHTML = `
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
-                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${task.title}</div>
-                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${task.description}</div>
+        // Parse pipeline into steps
+        const steps = parsePipelineSteps(task.pipeline);
+        
+        // Show pipeline as cards (like materials)
+        let stepsHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;">';
+        
+        // Pipeline steps as cards
+        steps.forEach((step, index) => {
+            stepsHTML += `
+                <div class="material-item" style="cursor:default;">
+                    <div class="material-icon">
+                        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/doc.svg" alt="">
+                    </div>
+                    <div class="material-info">
+                        <h3>${step.title}</h3>
+                        <p>${step.description}</p>
+                    </div>
                 </div>
-                <div style="padding:12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;">
-                    <div style="font-size:12px;color:var(--text-primary);line-height:1.6;">${markdownToHTML(task.pipeline)}</div>
-                </div>
-            </div>
-        `;
+            `;
+        });
+        
+        stepsHTML += '</div>';
+        taskContent.innerHTML = stepsHTML;
     }
+}
+
+// Parse pipeline text into structured steps
+function parsePipelineSteps(pipelineText) {
+    const steps = [];
+    
+    // Split by lines
+    const lines = pipelineText.split('\n');
+    
+    let currentStep = null;
+    let stepCounter = 0;
+    
+    lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        
+        // Check if line is a step header (starts with **Шаг or contains ⏱️)
+        const stepMatch = line.match(/\*\*Шаг\s+(\d+):\s*(.+?)\*\*/i) || 
+                         line.match(/^Шаг\s+(\d+):\s*(.+?)(?:⏱️|$)/i) ||
+                         line.match(/^(\d+)\.\s*\*\*(.+?)\*\*/);
+        
+        if (stepMatch) {
+            // Save previous step
+            if (currentStep) {
+                steps.push(currentStep);
+            }
+            
+            // Start new step
+            stepCounter++;
+            const stepTitle = stepMatch[2].replace(/\*\*/g, '').replace(/⏱️.+$/, '').trim();
+            
+            // Extract emoji from title if present
+            const emojiMatch = stepTitle.match(/^([\u{1F300}-\u{1F9FF}])/u);
+            const emoji = emojiMatch ? emojiMatch[1] : getStepEmoji(stepCounter);
+            const cleanTitle = stepTitle.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '');
+            
+            // Extract time if present
+            const timeMatch = line.match(/⏱️\s*(.+?)(?:\*\*|$)/);
+            const time = timeMatch ? timeMatch[1].trim() : '';
+            
+            currentStep = {
+                number: stepCounter,
+                title: cleanTitle,
+                emoji: emoji,
+                time: time,
+                description: ''
+            };
+        } else if (currentStep && line && !line.startsWith('#') && !line.startsWith('**')) {
+            // Add to current step description
+            const cleanLine = line.replace(/^\*\*|\*\*$/g, '').replace(/^-\s*/, '');
+            if (cleanLine && !cleanLine.match(/^(💡|✅|📋)/)) {
+                if (currentStep.description) {
+                    currentStep.description += ' ';
+                }
+                currentStep.description += cleanLine;
+            }
+        }
+    });
+    
+    // Save last step
+    if (currentStep) {
+        steps.push(currentStep);
+    }
+    
+    // If no steps found, try to extract from bullet points
+    if (steps.length === 0) {
+        let bulletCounter = 0;
+        lines.forEach(line => {
+            line = line.trim();
+            if (line.match(/^[-•]\s+/) || line.match(/^\d+\.\s+/)) {
+                bulletCounter++;
+                const text = line.replace(/^[-•]\s+/, '').replace(/^\d+\.\s+/, '').trim();
+                const emojiMatch = text.match(/^([\u{1F300}-\u{1F9FF}])/u);
+                const emoji = emojiMatch ? emojiMatch[1] : getStepEmoji(bulletCounter);
+                const cleanText = text.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '');
+                
+                steps.push({
+                    number: bulletCounter,
+                    title: cleanText.substring(0, 50) + (cleanText.length > 50 ? '...' : ''),
+                    emoji: emoji,
+                    time: '',
+                    description: cleanText
+                });
+            }
+        });
+    }
+    
+    // Format descriptions with time
+    steps.forEach(step => {
+        if (step.time) {
+            step.description = `⏱️ ${step.time} • ${step.description}`;
+        }
+        // Limit description length
+        if (step.description.length > 150) {
+            step.description = step.description.substring(0, 147) + '...';
+        }
+    });
+    
+    return steps;
+}
+
+// Get emoji for step number
+function getStepEmoji(stepNumber) {
+    const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+    return emojis[stepNumber - 1] || '📌';
 }
 
 async function saveTasksToFirebase(userId, tasks, metadata) {
@@ -13633,6 +13863,9 @@ async function createNewTask() {
     // Switch to new task tab
     switchTaskTab(taskId);
     
+    // Update blur effect
+    updateTaskTabsBlur();
+    
     // Show loading state in task content
     const taskContent = document.getElementById('taskContent');
     taskContent.innerHTML = `
@@ -13688,11 +13921,11 @@ async function createNewTask() {
 2. Каждый шаг должен быть четким и выполнимым
 3. Укажи примерное время на каждый шаг
 4. Добавь рекомендации и советы
-5. Используй эмодзи для наглядности
-6. Структурируй ответ с помощью списков и подзаголовков
+5. Структурируй ответ с помощью списков и подзаголовков
+6. НЕ используй эмодзи
 
 Формат ответа:
-📋 **ПАЙПЛАЙН ЗАДАЧИ: [название]**
+**ПАЙПЛАЙН ЗАДАЧИ: [название]**
 
 **Шаг 1: [название шага]** ⏱️ [время]
 [Описание что нужно сделать]
@@ -13702,10 +13935,10 @@ async function createNewTask() {
 
 ... и так далее
 
-💡 **Рекомендации:**
+**Рекомендации:**
 [Полезные советы]
 
-✅ **Критерии завершения:**
+**Критерии завершения:**
 [Как понять что задача выполнена]
 
 ВАЖНО: Верни ответ в формате JSON:
@@ -13714,7 +13947,7 @@ async function createNewTask() {
   "actions": []
 }`;
 
-            callGeminiAPI(prompt, chatStore['proxima']).then(aiResult => {
+            callGeminiAPI(prompt, []).then(aiResult => {
                 const responseText = aiResult.response || 'Извини, не смогла создать пайплайн. Попробуй ещё раз.';
                 
                 // Calculate thinking time based on response length
@@ -13726,10 +13959,10 @@ async function createNewTask() {
                     // Remove thinking message
                     chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
                     
-                    // Add AI response to Proxima chat
+                    // Add simple confirmation to Proxima chat (NOT the full pipeline)
                     chatStore['proxima'].push({
                         role: 'ai',
-                        text: responseText
+                        text: `Пайплайн для задачи "${title}" создан. Открой вкладку "${title}" в списке дел, чтобы увидеть подробный план.`
                     });
                     
                     renderChatMessages();
