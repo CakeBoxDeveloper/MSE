@@ -363,10 +363,10 @@
             display: inline; /* Показываем текст в активной */
             opacity: 1;
         }
-        .inner-tab-icon { width: 12px; height: 12px; flex-shrink: 0; } /* MOBILE: меньше иконки, не сжимаются */
+        .inner-tab-icon { width: 12px; height: 12px; flex-shrink: 0; } /* MOBILE: меньше иконки, не сжимаютС */
         .inner-tab.active .inner-tab-icon { filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
         .inner-tab:hover:not(.active) { border-color: rgba(255,255,255,.3); }
-        .inner-tab-icon { width: 12px; height: 12px; flex-shrink: 0; } /* MOBILE: меньше иконки, не сжимаются */
+        .inner-tab-icon { width: 12px; height: 12px; flex-shrink: 0; } /* MOBILE: меньше иконки, не сжимаютС */
         .inner-tab.active .inner-tab-icon { filter: invert(0%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); }
         .inner-tab:hover:not(.active) { border-color: rgba(255,255,255,.3); }
         
@@ -422,12 +422,12 @@
     margin-top: 8px;
 }
 
-/* MOBILE: Браузер сворачивается вверх */
+/* MOBILE: Браузер сворачиваетС вверх */
 .content-block#browserBlock.collapsed {
     flex: 0 0 58px; /* MOBILE: увеличено с 50px до 58px для вкладок с отступами */
 }
 
-/* MOBILE: Чат сворачивается вниз */
+/* MOBILE: Чат сворачиваетС вниз */
 .content-block#chatBlock.collapsed {
     flex: 0 0 58px; /* MOBILE: увеличено с 50px до 58px для вкладок с отступами */
 }
@@ -446,16 +446,16 @@
     min-height: 100px; /* Минимальная высота для видимости */
 }
 
-/* MOBILE: Монитор всегда отображается, но за блоками в блюре */
+/* MOBILE: Монитор всегда отображаетС, но за блоками в блюре */
 .hidden-module {
     display: flex !important;
     position: absolute !important;
     z-index: 0 !important;
 }
 
-/* MOBILE: Когда оба блока свёрнуты, монитор управляется через JavaScript */
+/* MOBILE: Когда оба блока свёрнуты, монитор управляетС через JavaScript */
 .content-grid.both-collapsed .hidden-module {
-    /* opacity и filter управляются через JS */
+    /* opacity и filter управляютС через JS */
 }
 
 /* ДОБАВИТЬ новый код */
@@ -1133,7 +1133,7 @@
             flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
             text-align:center;padding:20px 10px;gap:12px;pointer-events:none; /* MOBILE: gap уменьшен с 16px до 12px */
         }
-        .chat-empty-state .sofia-icon { 
+        .chat-empty-state .proxima-icon { 
             width:60px;
             height:60px;
             opacity:.5;
@@ -1836,12 +1836,17 @@
         <!-- MOBILE: minimized-bar удалён -->
         <div class="block-body" id="browserBody">
           <div class="inner-tabs">
-            <button class="inner-tab active" data-inner="tasks">
-              <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-              <span>Список дел</span>
+            <button class="chat-new-btn" onclick="openNewTaskModal()" style="width:32px;height:32px;">
+              <span style="font-size:18px;line-height:1;">+</span>
             </button>
-            <!-- MOBILE: Кнопки поиска и minimize справа -->
-            <button class="chat-search-btn" onclick="toggleBrowserSearch()" style="width:32px;height:32px;">
+            <div class="chat-tabs-wrapper" style="flex:1;min-width:0;">
+              <div class="chat-tabs" id="taskTabs">
+                <button class="chat-tab active" data-task="overview">
+                  <span>Обзор</span>
+                </button>
+              </div>
+            </div>
+            <button class="chat-search-btn" onclick="toggleBrowserSearch()" style="width:32px;height:32px;margin-left:auto;">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1852,45 +1857,16 @@
               <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="" style="width:12px;height:12px;">
             </button>
           </div>
-          <div id="browserSearchWrap" class="chat-search-wrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
-            <input type="text" id="browserSearchInput" class="chat-search-input" placeholder="Поиск по всем вкладкам...">
+          <div class="content-body" id="main-content">
+            <div id="taskContent" style="display:flex;flex-direction:column;height:100%;overflow-y:auto;padding:12px;">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;">
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Планировщик задач Helix</div>
+                <div style="font-size:12px;line-height:1.6;color:var(--text-secondary);max-width:400px;">Нажми "+" чтобы создать новую задачу. Проксима поможет составить подробный план действий.</div>
+              </div>
+            </div>
           </div>
-          <div class="content-body" id="main-content"></div>
         </div>
       </div>
-
-      <!-- THIRD BLOCK (HIDDEN MODULE - MONITOR) - BEHIND BLOCKS -->
-      <div class="content-block hidden-module" id="hiddenModule" style="position: absolute; top: 66px; left: 50%; transform: translateX(-50%); width: 95%; height: calc(100% - 132px); background: transparent; border: none; border-radius: 8px; z-index: 0; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.8s ease;">
-        
-        <!-- CLICKABLE OVERLAYS - catch clicks before they reach content (excluding bottom 60px for buttons) -->
-        <div id="clickOverlayLeft" style="position: absolute; left: 0; top: 0; width: 40%; height: calc(100% - 60px); z-index: 998;"></div>
-        <div id="clickOverlayRight" style="position: absolute; right: 0; top: 0; width: 40%; height: calc(100% - 60px); z-index: 998;"></div>
-        
-        <div class="block-body" id="monitorScrollContainer" style="padding: 0; position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scrollbar-width: none; -ms-overflow-style: none;">
-          
-          <!-- Широкий контейнер с тремя блоками -->
-          <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%; width: 300%; position: relative;">
-            
-            <!-- ЛЕВЫЙ БЛОК (ЖЁЛТЫЙ) -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; flex-shrink: 0; background: rgba(255, 255, 0, 0.2); border-right: 2px solid rgba(255, 255, 0, 0.5);">
-              <div style="font-size: 24px; color: #ffff00; font-weight: 700; text-transform: uppercase;">Левый блок</div>
-            </div>
-            
-            <!-- ЦЕНТРАЛЬНЫЙ БЛОК (КРАСНЫЙ) -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; flex-shrink: 0; background: rgba(255, 0, 0, 0.2); border-right: 2px solid rgba(255, 0, 0, 0.5);">
-              <div style="font-size: 24px; color: #ff0000; font-weight: 700; text-transform: uppercase;">Центральный блок</div>
-            </div>
-            
-            <!-- ПРАВЫЙ БЛОК (ЖЁЛТЫЙ) -->
-            <div style="width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; flex-shrink: 0; background: rgba(255, 255, 0, 0.2);">
-              <div style="font-size: 24px; color: #ffff00; font-weight: 700; text-transform: uppercase;">Правый блок</div>
-            </div>
-            
-          </div>
-          
-        </div>
-      </div>
-          
 
       <!-- MOBILE: Spacer для разнесения блоков когда оба свернуты -->
       <div class="block-spacer" id="blockSpacer"></div>
@@ -1902,8 +1878,8 @@
           <div class="chat-top-bar">
             <div class="chat-tabs-wrapper" id="chatTabsWrapper">
               <div class="chat-tabs" id="chatTabs">
-                <button class="chat-tab active" data-chat="sofia" data-base="true">
-                  <span>София</span>
+                <button class="chat-tab active" data-chat="proxima" data-base="true">
+                  <span>Проксима</span>
                 </button>
               </div>
             </div>
@@ -1931,7 +1907,7 @@
             <div style="position:relative;display:flex;flex-direction:column;">
               <div class="chat-file-preview" id="chat-file-preview"></div>
               <div class="chat-input-wrapper">
-                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Софии..." style="height:32px;padding:6px 12px;">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Проксиме..." style="height:32px;padding:6px 12px;">
                 <button class="chat-attach" id="chat-attach" style="width:32px;height:32px;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="" style="width:12px;height:12px;">
                   <input type="file" id="chat-file-input" multiple accept="*/*">
@@ -1970,9 +1946,9 @@
             </div>
             <!-- Line 2 (static) -->
             <div class="pipeline-line" style="flex:1;height:2px;background:rgba(153,153,153,.3);position:relative;margin:0 12px;"></div>
-            <!-- Icon 3: Sofia Eye -->
+            <!-- Icon 3: proxima Eye -->
             <div class="pipeline-icon" id="pipelineIcon3" style="width:45px;height:45px;position:relative;z-index:2;">
-              <div id="lottie-pipeline-sofia" style="width:45px;height:45px;"></div>
+              <div id="lottie-pipeline-proxima" style="width:45px;height:45px;"></div>
             </div>
           </div>
           <form class="auth-form" onsubmit="return false;" style="margin-top:0;">
@@ -1999,7 +1975,7 @@
           </form>
         </div>
         <div class="auth-switch" id="authSwitchText" style="display:flex;align-items:center;justify-content:center;margin-bottom:8px;margin-top:auto;width:100%;">
-          <span style="font-size:13px;white-space:nowrap;width:100%;text-align:center;">Нет аккаунта? <button onclick="showRegister()" style="font-size:13px;">Присоединиться к MSE</button></span>
+          <span style="font-size:13px;white-space:nowrap;width:100%;text-align:center;">Нет аккаунта? <button onclick="showRegister()" style="font-size:13px;">ПрисоединитьС к MSE</button></span>
         </div>
       </div>
       <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;padding:0;margin:0;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"><canvas id="grainLoader" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
@@ -2030,7 +2006,7 @@
               <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
             </div>
             <div style="font-size:11px;color:var(--text-tertiary);text-align:justify;line-height:1.4;margin-top:0;width:100%;">
-              Внимание! Ключ доступа не восстанавливается. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
+              Внимание! Ключ доступа не восстанавливаетС. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
             </div>
           </form>
         </div>
@@ -2072,7 +2048,7 @@
     <div id="logoutModal" style="display:none;">
       <div class="logout-modal">
         <div>
-          <h2 class="auth-header" style="font-size:16px;font-weight:600;letter-spacing:-.3px;text-align:center;">Отключиться от сети MSE</h2>
+          <h2 class="auth-header" style="font-size:16px;font-weight:600;letter-spacing:-.3px;text-align:center;">ОтключитьС от сети MSE</h2>
           <p style="font-size:12px;color:var(--text-secondary);line-height:1.4;text-align:center;">Вы уверены, что хотите прекратить синхронизацию?</p>
         </div>
         <div class="auth-buttons">
@@ -2227,13 +2203,13 @@
     <div class="storage-info-content" onclick="event.stopPropagation();">
         <div class="storage-info-title">Как работает хранение вложений</div>
         <div class="storage-info-text">
-            Когда вы отправляете изображения в чат, они сохраняются в локальном хранилище вашего браузера.
+            Когда вы отправляете изображения в чат, они сохраняютС в локальном хранилище вашего браузера.
         </div>
         <div class="storage-info-text">
-            Ваши переписки с Софией хранятся в облаке, а изображения остаются на вашем устройстве для быстрого доступа.
+            Ваши переписки с Софией хранятС в облаке, а изображения остаютС на вашем устройстве для быстрого доступа.
         </div>
         <div class="storage-info-text">
-            Если вы очистите данные браузера, изображения станут недоступны, но текст переписки сохранится.
+            Если вы очистите данные браузера, изображения станут недоступны, но текст переписки сохранитС.
         </div>
         <div class="storage-info-buttons">
             <button class="storage-info-btn primary" onclick="closeStorageInfoModal(); hideStorageHintForever();">Понятно, больше не показывать</button>
@@ -2249,6 +2225,27 @@
         <div class="alert-message" id="alertMessage">Сообщение</div>
         <button class="alert-button" id="alertButton" onclick="closeAlert()">OK</button>
     </div>
+</div>
+
+<!-- New Task Modal -->
+<div class="auth-overlay" id="newTaskOverlay" style="display:none;">
+  <div class="auth-modal" onclick="event.stopPropagation()" style="width:380px;height:auto;">
+    <div style="padding:24px;">
+      <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px;text-align:center;">Создать новую задачу</div>
+      <form class="auth-form" onsubmit="return false;">
+        <div class="form-group">
+          <input type="text" class="form-input" id="taskTitle" placeholder="Название задачи" style="font-size:13px;">
+        </div>
+        <div class="form-group">
+          <textarea class="form-input" id="taskDescription" placeholder="Описание задачи" rows="4" style="font-size:13px;resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <div class="auth-buttons" style="margin-top:16px;">
+          <button type="button" class="auth-btn" onclick="closeNewTaskModal()">Отмена</button>
+          <button type="button" class="auth-btn primary" onclick="createNewTask()">Создать задачу</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -2596,7 +2593,7 @@ function toggleProfileLayer() {
     const profileBlock = document.getElementById('profileBlock');
     
     if (profileLayerActive === 1) {
-        // Переключаемся на слой 2 (жидкость)
+        // ПереключаемС на слой 2 (жидкость)
         // Скрываем градиенты
         if (profileBlock) {
             profileBlock.style.setProperty('--top-gradient-opacity', '0');
@@ -2642,7 +2639,7 @@ function toggleProfileLayer() {
         
         profileLayerActive = 2;
     } else {
-        // Переключаемся на слой 1 (текст)
+        // ПереключаемС на слой 1 (текст)
         layer2.style.filter = 'blur(10px)';
         setTimeout(() => {
             layer2.style.opacity = '0';
@@ -3580,7 +3577,7 @@ async function updateBioProfile() {
     }
     
     // Generate AI summary and recommendations
-    if (currentUser && activeChatTab === 'sofia') {
+    if (currentUser && activeChatTab === 'proxima') {
         const prompt = `На основании следующих данных составь краткий биологический профиль (2-3 строки об общем состоянии) и рекомендации (2-3 строки):
 
 Вес: ${weightData.current?.weight || 'не указан'} кг
@@ -3646,8 +3643,8 @@ function updateBioProfileDisplay() {
     const layer1 = document.getElementById('profileLayer1');
     if (!layer1) return;
     
-    const summaryText = bioProfile.summary || 'Данные обрабатываются...';
-    const recsText = bioProfile.recommendations || 'Рекомендации формируются...';
+    const summaryText = bioProfile.summary || 'Данные обрабатываютС...';
+    const recsText = bioProfile.recommendations || 'Рекомендации формируютС...';
     
     layer1.innerHTML = `
         <div>
@@ -3748,7 +3745,7 @@ async function saveChatsToFirebase(userId, chats) {
         console.log('[FIREBASE] Chats to save:', chats);
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
         await window.firebaseUpdateDoc(userRef, {
-            chats: chats,
+            chats_taskorganizer: chats,
             chatMetadata: chatMetadata,
             pinnedChats: Array.from(pinnedChats),
             lastUpdated: window.firebaseServerTimestamp()
@@ -3815,7 +3812,7 @@ function showLogin() {
         'lottie-login-transition',
         'lottie-pipeline-computer',
         'lottie-pipeline-fingerprint',
-        'lottie-pipeline-sofia'
+        'lottie-pipeline-proxima'
     ];
     
     animationContainers.forEach(containerId => {
@@ -3905,8 +3902,8 @@ function showLogin() {
             }, 50);
         }
     });
-    loadSofiaAnimation('lottie-pipeline-sofia').then(anim => {
-        pipelineAnimations.sofia = anim;
+    loadproximaAnimation('lottie-pipeline-proxima').then(anim => {
+        pipelineAnimations.proxima = anim;
         // Don't play yet, will play on success
     });
     document.getElementById('loginToRegisterLoader').style.display='none';
@@ -3924,7 +3921,7 @@ async function showRegister() {
     // Clear animation loaded flags for register animations
     const registerAnimationContainers = [
         'lottie-register-loader',
-        'lottie-register-sofia'
+        'lottie-register-proxima'
     ];
     
     registerAnimationContainers.forEach(containerId => {
@@ -4063,7 +4060,7 @@ function closeAuth() {
         'lottie-login-chain',
         'lottie-login-transition',
         'lottie-register-loader',
-        'lottie-register-sofia'
+        'lottie-register-proxima'
     ];
     
     animationContainers.forEach(containerId => {
@@ -4293,22 +4290,22 @@ async function loadHiveAnimation(containerId, width = 240, height = 240) {
     }
 }
 
-// Universal function to load Sofia Eye animation
-async function loadSofiaAnimation(containerId, speed = 0.5) {
-    console.log(`[SOFIA] Attempting to load animation for: ${containerId}`);
+// Universal function to load proxima Eye animation
+async function loadproximaAnimation(containerId, speed = 0.5) {
+    console.log(`[proxima] Attempting to load animation for: ${containerId}`);
     const container = document.getElementById(containerId);
     if (!container) {
-        console.error(`[SOFIA] Container ${containerId} not found in DOM`);
+        console.error(`[proxima] Container ${containerId} not found in DOM`);
         return null;
     }
     
     // Check if animation already exists in this container
     if (container.dataset.animationLoaded === 'true') {
-        console.log(`[SOFIA] Animation already loaded for ${containerId}, skipping...`);
+        console.log(`[proxima] Animation already loaded for ${containerId}, skipping...`);
         return null;
     }
     
-    console.log(`[SOFIA] Container found, loading animation...`);
+    console.log(`[proxima] Container found, loading animation...`);
     
     // Clear any existing content
     container.innerHTML = '';
@@ -4320,10 +4317,10 @@ async function loadSofiaAnimation(containerId, speed = 0.5) {
         }
         let data = await response.json();
         
-        console.log(`[SOFIA] Animation data loaded successfully`);
+        console.log(`[proxima] Animation data loaded successfully`);
         
         // Convert to grayscale for pipeline
-        if (containerId === 'lottie-pipeline-sofia') {
+        if (containerId === 'lottie-pipeline-proxima') {
             data = convertLottieToGrayscale(data);
         }
         
@@ -4331,7 +4328,7 @@ async function loadSofiaAnimation(containerId, speed = 0.5) {
             container: container,
             renderer: 'svg',
             loop: true,
-            autoplay: containerId !== 'lottie-pipeline-sofia', // Don't autoplay in pipeline
+            autoplay: containerId !== 'lottie-pipeline-proxima', // Don't autoplay in pipeline
             animationData: data
         });
         
@@ -4341,10 +4338,10 @@ async function loadSofiaAnimation(containerId, speed = 0.5) {
         // Mark container as having animation loaded
         container.dataset.animationLoaded = 'true';
         
-        console.log(`[SOFIA] Animation initialized for ${containerId} with speed ${speed}`);
+        console.log(`[proxima] Animation initialized for ${containerId} with speed ${speed}`);
         return animation;
     } catch(e) {
-        console.error(`[SOFIA] Error loading animation for ${containerId}:`, e);
+        console.error(`[proxima] Error loading animation for ${containerId}:`, e);
         // Fallback: show a simple placeholder
         container.innerHTML = '<div style="width:96px;height:96px;border-radius:50%;background:rgba(153,153,153,0.2);display:flex;align-items:center;justify-content:center;font-size:48px;">👁️</div>';
         container.dataset.animationLoaded = 'true';
@@ -4599,7 +4596,7 @@ function convertLottieToGrayscale(data) {
 let pipelineAnimations = {
     computer: null,
     fingerprint: null,
-    sofia: null
+    proxima: null
 };
 
 function showProductKeyModal(itemTitle, itemIndex, tabType, itemIcon, itemDesc) {
@@ -4845,20 +4842,20 @@ function confirmLogout() {
         
         // Reset chat to EMPTY state (will show lottie animation)
         chatStore = { 
-            sofia: []  // Empty array will trigger the empty state with lottie
+            proxima: []  // Empty array will trigger the empty state with lottie
         };
-        activeChatTab = 'sofia';
+        activeChatTab = 'proxima';
         
-        // Remove all chat tabs except Sofia
+        // Remove all chat tabs except proxima
         const chatTabsContainer = document.getElementById('chatTabs');
         if (chatTabsContainer) {
-            // Remove all tabs except the base Sofia tab
+            // Remove all tabs except the base proxima tab
             const allTabs = chatTabsContainer.querySelectorAll('.chat-tab');
             allTabs.forEach(tab => {
                 if (!tab.dataset.base) {
                     tab.remove();
                 } else {
-                    // Make sure Sofia tab is active
+                    // Make sure proxima tab is active
                     tab.classList.add('active');
                 }
             });
@@ -4912,10 +4909,13 @@ function confirmLogout() {
         // Update browser tabs to show locked content
         console.log('[LOGOUT] Updating browser tabs...');
         const browserMainContent = document.getElementById('main-content');
+        // DISABLED: Keep Helix placeholder
+        /*
         if (browserMainContent && activeInnerTab) {
             browserMainContent.innerHTML = getTabHTML(activeInnerTab);
             attachMaterialClickHandlers(activeInnerTab);
         }
+        */
         
         // Refresh chat messages (will show empty state with lottie)
         renderChatMessages();
@@ -5033,10 +5033,13 @@ function closeAuthAfterSuccess() {
                 
                 // Обновляем контент всех вкладок браузера
                 const browserMainContent = document.getElementById('main-content');
+                // DISABLED: Keep Helix placeholder
+                /*
                 if (browserMainContent && activeInnerTab) {
                     browserMainContent.innerHTML = getTabHTML(activeInnerTab);
                     attachMaterialClickHandlers(activeInnerTab);
                 }
+                */
             }
         }, 300);
     }
@@ -5300,8 +5303,8 @@ loginPinInputs.forEach((id,index)=>{
                 animateShimmerThroughCells(loginPinInputs, true);
                 
                 setTimeout(()=>{
-                    // Start Sofia animation
-                    if (pipelineAnimations.sofia) pipelineAnimations.sofia.play();
+                    // Start proxima animation
+                    if (pipelineAnimations.proxima) pipelineAnimations.proxima.play();
                     
                     // Hide instruction text
                     const stepInstruction = document.getElementById('stepInstruction');
@@ -5405,8 +5408,8 @@ loginPinInputs.forEach((id,index)=>{
                                     
                                     // Clear old chats BEFORE loading from Firebase
                                     console.log('[LOGIN] Clearing old chats...');
-                                    chatStore = { sofia: [] };
-                                    activeChatTab = 'sofia';
+                                    chatStore = { proxima: [] };
+                                    activeChatTab = 'proxima';
                                         renderedMessageCounts = {};
                                     
                                     // Load gender and age
@@ -5473,11 +5476,11 @@ loginPinInputs.forEach((id,index)=>{
                                         console.log('Monitor stats loaded:', firebaseData.monitorStats);
                                     }
                                     // Load chats
-                                    if (firebaseData.chats) {
+                                    if (firebaseData.chats_taskorganizer) {
                                     console.log('[LOGIN] Loading chats from Firebase...');
-                                    console.log('[LOGIN] Firebase chats data:', firebaseData.chats);
-                                    console.log('[LOGIN] Sofia chat messages:', firebaseData.chats.sofia);
-                                    chatStore = firebaseData.chats;
+                                    console.log('[LOGIN] Firebase chats data:', firebaseData.chats_taskorganizer);
+                                    console.log('[LOGIN] proxima chat messages:', firebaseData.chats_taskorganizer.proxima);
+                                    chatStore = firebaseData.chats_taskorganizer;
                                     
                                     // Load metadata
                                     if (firebaseData.chatMetadata) {
@@ -5491,13 +5494,13 @@ loginPinInputs.forEach((id,index)=>{
                                     
                                     // Recreate chat tabs
                                     const chatTabsContainer = document.getElementById('chatTabs');
-                                    const sofiaTab = chatTabsContainer.querySelector('.chat-tab[data-base="true"]');
+                                    const proximaTab = chatTabsContainer.querySelector('.chat-tab[data-base="true"]');
                                     
-                                    // Remove all tabs except Sofia
+                                    // Remove all tabs except proxima
                                     chatTabsContainer.querySelectorAll('.chat-tab:not([data-base])').forEach(tab => tab.remove());
                                     
-                                    // Get all chat IDs except sofia
-                                    const chatIds = Object.keys(chatStore).filter(id => id !== 'sofia');
+                                    // Get all chat IDs except proxima
+                                    const chatIds = Object.keys(chatStore).filter(id => id !== 'proxima');
                                     
                                     // Sort: pinned first, then unpinned
                                     const pinnedIds = chatIds.filter(id => pinnedChats.has(id));
@@ -5513,9 +5516,9 @@ loginPinInputs.forEach((id,index)=>{
                                         // Restore pinned state
                                         if (pinnedChats.has(chatId)) {
                                             tab.classList.add('pinned');
-                                            // Insert after Sofia (or after last pinned)
-                                            if (sofiaTab) {
-                                                sofiaTab.after(tab);
+                                            // Insert after proxima (or after last pinned)
+                                            if (proximaTab) {
+                                                proximaTab.after(tab);
                                             } else {
                                                 chatTabsContainer.appendChild(tab);
                                             }
@@ -5534,13 +5537,13 @@ loginPinInputs.forEach((id,index)=>{
                                     updateChatScrollFade();
                                     console.log('[LOGIN] Chats loaded from Firebase');
                                     
-                                    // Render messages for active chat (Sofia by default)
+                                    // Render messages for active chat (proxima by default)
                                     renderChatMessages();
                                 } else {
-                                    console.log('[LOGIN] No chats in Firebase, clearing and rendering empty Sofia chat');
-                                    // No chats in Firebase - clear and render empty Sofia chat
-                                    chatStore = { sofia: [] };
-                                    activeChatTab = 'sofia';
+                                    console.log('[LOGIN] No chats in Firebase, clearing and rendering empty proxima chat');
+                                    // No chats in Firebase - clear and render empty proxima chat
+                                    chatStore = { proxima: [] };
+                                    activeChatTab = 'proxima';
                                     renderedMessageCounts = {};
                                     renderChatMessages();
                                 }
@@ -5550,8 +5553,8 @@ loginPinInputs.forEach((id,index)=>{
                                 
                                 // Clear old chats
                                 console.log('[LOGIN] Clearing old chats for first time login...');
-                                chatStore = { sofia: [] };
-                                activeChatTab = 'sofia';
+                                chatStore = { proxima: [] };
+                                activeChatTab = 'proxima';
                                 renderedMessageCounts = {};
                                 
                                 // Set default gender if not provided
@@ -5567,7 +5570,7 @@ loginPinInputs.forEach((id,index)=>{
                                     age: currentUser.age || 18,
                                     achievements: userAchievements,
                                     notes: userNotes,
-                                    chats: chatStore
+                                    chats_taskorganizer: chatStore
                                 });
                                 
                                 // Render empty chat
@@ -5607,12 +5610,12 @@ loginPinInputs.forEach((id,index)=>{
                                 console.error('[LOGIN] Failed to save session:', e);
                             }
                             
-                            console.log('[LOGIN] Activating Sofia tab...');
-                            // Activate Sofia tab visually
-                            const sofiaTabElement = document.querySelector('.chat-tab[data-base="true"]');
-                            if (sofiaTabElement) {
+                            console.log('[LOGIN] Activating proxima tab...');
+                            // Activate proxima tab visually
+                            const proximaTabElement = document.querySelector('.chat-tab[data-base="true"]');
+                            if (proximaTabElement) {
                                 document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
-                                sofiaTabElement.classList.add('active');
+                                proximaTabElement.classList.add('active');
                             }
                             
                             console.log('[LOGIN] Updating UI elements...');
@@ -5935,7 +5938,7 @@ function register(){
             successEl.style.opacity = '0';
             
             successEl.querySelector('.success-text').innerHTML=
-                `<div id="lottie-register-sofia" style="width:70px;height:70px;margin:0 auto 10px;filter:grayscale(1) brightness(0.6);opacity:0.5;"></div>
+                `<div id="lottie-register-proxima" style="width:70px;height:70px;margin:0 auto 10px;filter:grayscale(1) brightness(0.6);opacity:0.5;"></div>
                 <div style="font-size:15px;line-height:1.3;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;width:100%;text-align:center;">Добро пожаловать</div>
                 <div style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;margin-bottom:10px;display:flex;flex-direction:column;gap:4px;">
                   <div style="font-size:12px;line-height:1.3;color:var(--text-secondary);width:100%;text-align:center;">
@@ -5944,9 +5947,9 @@ function register(){
                 </div>
                 <button onclick="completeRegistration(${userId})" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.15)'" style="width:100%;padding:9px 16px;background:rgba(255,255,255,.15);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;cursor:pointer;transition:all .2s ease;font-size:13px;">перейти в свою ячейку</button>`;
             
-            // Load Sofia eye lottie animation
+            // Load proxima eye lottie animation
             setTimeout(() => {
-                loadSofiaAnimation('lottie-register-sofia');
+                loadproximaAnimation('lottie-register-proxima');
             }, 100);
             
             // Blur in success screen
@@ -5974,7 +5977,7 @@ function completeRegistration(userId) {
     loginDate = new Date();
     
     // Clear all chats before starting (remove non-logged-in messages)
-    chatStore = { sofia: [] };
+    chatStore = { proxima: [] };
     renderChatMessages();
     
     closeAuth();
@@ -6601,7 +6604,7 @@ class BentoGridRenderer {
         const hideHint = localStorage.getItem('mse_hide_storage_hint') === 'true';
         const hintHTML = hideHint ? '' : `
             <div class="bento-expiry-hint">
-                Изображения хранятся в локальном хранилище браузера. 
+                Изображения хранятС в локальном хранилище браузера. 
                 <span class="expiry-learn-more" onclick="openStorageInfoModal()">Узнать больше</span>
             </div>
         `;
@@ -6719,50 +6722,9 @@ let activeInnerTab = 'materials'; // Track active inner tab
 
 // Function to programmatically switch inner tabs
 function switchInnerTab(tabName) {
-    console.log('[TABS] Switching to inner tab:', tabName);
-    
-    const mainContent = document.getElementById('main-content');
-    const innerTabs = document.querySelectorAll('.inner-tab');
-    
-    if (!mainContent) {
-        console.error('[TABS] Main content not found');
-        return;
-    }
-    
-    // Find the tab element
-    const targetTab = Array.from(innerTabs).find(t => t.dataset.inner === tabName);
-    if (!targetTab) {
-        console.error('[TABS] Tab not found:', tabName);
-        return;
-    }
-    
-    // If already active, just refresh content
-    if (activeInnerTab === tabName) {
-        console.log('[TABS] Tab already active, refreshing content');
-        mainContent.innerHTML = getTabHTML(tabName);
-        attachMaterialClickHandlers(tabName);
-        return;
-    }
-    
-    // Animate tab switch
-    mainContent.style.filter = 'blur(4px)';
-    mainContent.style.opacity = '0';
-    
-    setTimeout(() => {
-        // Switch tab
-        innerTabs.forEach(t => t.classList.remove('active'));
-        targetTab.classList.add('active');
-        activeInnerTab = tabName;
-        mainContent.innerHTML = getTabHTML(tabName);
-        
-        // Fade in
-        setTimeout(() => {
-            mainContent.style.filter = 'blur(0px)';
-            mainContent.style.opacity = '1';
-            attachMaterialClickHandlers(tabName);
-            console.log('[TABS] Tab switch complete');
-        }, 100);
-    }, 300);
+    console.log('[TABS] Tab switching disabled - showing Helix placeholder');
+    // DISABLED: Keep Helix placeholder, no tab switching
+    return;
 }
 
 function refreshProgressTab() {
@@ -6931,7 +6893,7 @@ function renderProgress(){
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
                 <div class="empty-state-icon" id="lottie-progress" style="width:100px;height:100px;margin:0 auto 8px auto;"></div>
                 <h3 style="margin:0 0 6px 0;font-size:14px;">Прогресс и достижения</h3>
-                <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">В этом разделе София будет присваивать достижения и создавать записи о тебе в процессе общения.</p>
+                <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">В этом разделе Проксима будет присваивать достижения и создавать записи о тебе в процессе общения.</p>
             </div>
             <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
                 <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -7043,7 +7005,7 @@ const examQuestions = {
         {q: 'Есть ли у вас хронические заболевания или травмы? (опишите или напишите "нет")', type: 'text', field: 'health_issues'},
         {q: 'Как часто вы занимаетесь спортом сейчас? (раз в неделю)', type: 'number', field: 'activity_frequency'},
         {q: 'Оцените ваш уровень физической подготовки от 1 до 10', type: 'number', field: 'fitness_level'},
-        {q: 'Какие виды тренировок вам нравятся? (кардио, силовые, йога, плавание и т.д.)', type: 'text', field: 'preferred_activities'},
+        {q: 'Какие виды тренировок вам нравятС? (кардио, силовые, йога, плавание и т.д.)', type: 'text', field: 'preferred_activities'},
         {q: 'Сколько времени вы готовы уделять тренировкам в день? (в минутах)', type: 'number', field: 'time_available'},
         {q: 'Как вы оцениваете качество своего сна? (от 1 до 10)', type: 'number', field: 'sleep_quality'},
         {q: 'Сколько часов в день вы обычно спите?', type: 'number', field: 'sleep_hours'},
@@ -7053,12 +7015,12 @@ const examQuestions = {
         {q: 'Есть ли у вас вредные привычки? (курение, алкоголь и т.д.)', type: 'text', field: 'bad_habits'},
         {q: 'Какая у вас работа? (сидячая, активная, смешанная)', type: 'text', field: 'work_type'},
         {q: 'Были ли у вас в прошлом успехи в спорте или фитнесе? Опишите', type: 'text', field: 'past_achievements'},
-        {q: 'Что вас мотивирует заниматься спортом?', type: 'text', field: 'motivation'},
+        {q: 'Что вас мотивирует заниматьС спортом?', type: 'text', field: 'motivation'},
         {q: 'Есть ли у вас любимая музыка для тренировок? Какая?', type: 'text', field: 'workout_music'}
     ],
     'fitness-basics': [
         {q: 'Что такое кардиотренировка и для чего она нужна?', correctKeywords: ['сердце', 'выносливость', 'аэробная', 'кислород', 'пульс']},
-        {q: 'Сколько раз в неделю рекомендуется тренироваться для поддержания формы?', correctKeywords: ['3', 'три', '4', 'четыре', '5', 'пять']},
+        {q: 'Сколько раз в неделю рекомендуетС тренироватьС для поддержания формы?', correctKeywords: ['3', 'три', '4', 'четыре', '5', 'пять']},
         {q: 'Что такое разминка и зачем она нужна перед тренировкой?', correctKeywords: ['подготовка', 'разогрев', 'травм', 'мышц', 'суставы', 'кровь']},
         {q: 'Что такое белок и почему он важен для спортсменов?', correctKeywords: ['белок', 'мышц', 'рост', 'восстановление', 'протеин', 'аминокислот']},
         {q: 'Сколько воды нужно пить в день при активных тренировках?', correctKeywords: ['2', 'два', '3', 'три', 'литр', 'вод']},
@@ -7207,9 +7169,9 @@ function closeCalculator() {
         const overlay = document.getElementById('calculatorOverlay');
         if (overlay) {
             // Stop any running animations
-            const sofiaContainer = document.getElementById('calculatorSofiaAnimation');
-            if (sofiaContainer && sofiaContainer.dataset.animation) {
-                const anim = sofiaContainer.dataset.animation;
+            const proximaContainer = document.getElementById('calculatorproximaAnimation');
+            if (proximaContainer && proximaContainer.dataset.animation) {
+                const anim = proximaContainer.dataset.animation;
                 if (anim.stop) anim.stop();
             }
             
@@ -7404,7 +7366,7 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
         
         resultsHTML = `
             <div style="display:flex;flex-direction:column;gap:8px;">
-                <div id="calculatorSofiaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
+                <div id="calculatorproximaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
                 <div class="calculator-result" style="padding:16px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:6px;">
                     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -7433,7 +7395,7 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
         const nutrients = resultValue; // Object with protein, fat, carbs, water
         resultsHTML = `
             <div style="display:flex;flex-direction:column;gap:8px;">
-                <div id="calculatorSofiaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
+                <div id="calculatorproximaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
                 <div class="calculator-result" style="padding:16px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:6px;">
                     <div class="result-label" style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;text-align:center;">Рекомендуемые нутриенты</div>
                     <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
@@ -7466,7 +7428,7 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
         
         resultsHTML = `
             <div style="display:flex;flex-direction:column;gap:8px;">
-                <div id="calculatorSofiaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
+                <div id="calculatorproximaAnimation" style="width:60px;height:60px;margin:0 auto 8px;"></div>
                 <div class="calculator-result" style="padding:16px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:6px;">
                     <div class="result-label" style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;text-align:center;">${label}</div>
                     <div class="result-value" style="font-size:24px;font-weight:600;color:var(--text-primary);text-align:center;margin-bottom:12px;">${resultValue} ${unit}</div>
@@ -7478,9 +7440,9 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
     
     content.innerHTML = resultsHTML;
     
-    // Load Sofia lottie animation
-    const sofiaContainer = document.getElementById('calculatorSofiaAnimation');
-    if (sofiaContainer && typeof lottie !== 'undefined') {
+    // Load proxima lottie animation
+    const proximaContainer = document.getElementById('calculatorproximaAnimation');
+    if (proximaContainer && typeof lottie !== 'undefined') {
         setTimeout(async () => {
             try {
                 const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
@@ -7511,7 +7473,7 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
                 data = replaceColors(data);
                 
                 const animation = lottie.loadAnimation({
-                    container: sofiaContainer,
+                    container: proximaContainer,
                     renderer: 'svg',
                     loop: true,
                     autoplay: true,
@@ -7520,27 +7482,27 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
                 animation.setSpeed(0.5); // Same speed as in chat
                 
                 // Apply gray color filter to match chat thinking animation
-                sofiaContainer.style.filter = 'invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%)';
+                proximaContainer.style.filter = 'invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%)';
             } catch (e) {
-                console.error('[CALCULATOR] Failed to load Sofia animation:', e);
+                console.error('[CALCULATOR] Failed to load proxima animation:', e);
             }
         }, 100);
     }
     
-    // Wire note button to addNoteToSofiaChat()
+    // Wire note button to addNoteToproximaChat()
     const noteButton = content.querySelector('.result-note-btn');
     if (noteButton) {
         noteButton.addEventListener('click', () => {
             // Use resultForNote if provided (for nutrients), otherwise format result
             const fullResult = resultForNote || `${resultValue} ${unit}`;
-            addNoteToSofiaChat(calcType, inputs, fullResult);
+            addNoteToproximaChat(calcType, inputs, fullResult);
         });
     }
     
     console.log('[CALCULATOR] Result displayed:', calcType, resultValue, unit);
 }
 
-// ─── SOFIA INTEGRATION LAYER ───
+// ─── proxima INTEGRATION LAYER ───
 function getActivityLabel(activity) {
     const labels = {
         1.2: 'Минимальная',
@@ -7581,7 +7543,7 @@ function createCalculatorNote(calcType, inputs, result) {
 
 // ─── DUPLICATE DETECTION SYSTEM ───
 function findDuplicateCalculatorNotes(calcType) {
-    const targetChatTab = 'sofia';
+    const targetChatTab = 'proxima';
     if (!chatStore[targetChatTab]) return [];
     
     const today = new Date().toDateString();
@@ -7608,7 +7570,7 @@ function findDuplicateCalculatorNotes(calcType) {
 function removeDuplicateNotes(calcType) {
     try {
         const duplicates = findDuplicateCalculatorNotes(calcType);
-        const targetChatTab = 'sofia';
+        const targetChatTab = 'proxima';
         
         // Remove in reverse order to maintain indices
         duplicates.reverse().forEach(index => {
@@ -7623,15 +7585,15 @@ function removeDuplicateNotes(calcType) {
 }
 
 // ─── COMPLETE NOTE CREATION FLOW ───
-async function addNoteToSofiaChat(calcType, inputs, result) {
+async function addNoteToproximaChat(calcType, inputs, result) {
     try {
-        console.log('[CALCULATOR] Adding note to Sofia chat:', calcType, inputs, result);
+        console.log('[CALCULATOR] Adding note to proxima chat:', calcType, inputs, result);
         
         // 1. Close calculator modal first
         closeCalculator();
         
-        // 2. Switch to Sofia chat
-        switchChatTab('sofia');
+        // 2. Switch to proxima chat
+        switchChatTab('proxima');
         
         // 3. Expand chat using correct functions (like discussExamResults)
         const chatBlock = document.getElementById('chatBlock');
@@ -7651,8 +7613,8 @@ async function addNoteToSofiaChat(calcType, inputs, result) {
         
         // 4. Show thinking animation
         const thinkingId = Date.now();
-        if (!chatStore['sofia']) chatStore['sofia'] = [];
-        chatStore['sofia'].push({
+        if (!chatStore['proxima']) chatStore['proxima'] = [];
+        chatStore['proxima'].push({
             role: 'ai',
             type: 'thinking',
             id: thinkingId
@@ -7663,14 +7625,14 @@ async function addNoteToSofiaChat(calcType, inputs, result) {
         await sleep(2000);
         
         // 6. Remove thinking message
-        chatStore['sofia'] = chatStore['sofia'].filter(m => m.id !== thinkingId);
+        chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
         
         // 7. Remove duplicates
         const removedCount = removeDuplicateNotes(calcType);
         console.log(`[CALCULATOR] Removed ${removedCount} duplicate notes`);
         
-        // 8. Sofia sends message
-        chatStore['sofia'].push({
+        // 8. proxima sends message
+        chatStore['proxima'].push({
             role: 'ai',
             text: 'Добавила заметку о тебе! 📝'
         });
@@ -7693,7 +7655,7 @@ async function addNoteToSofiaChat(calcType, inputs, result) {
         const savedNote = addNote(noteLabel, noteDesc);
         
         // 11. Add calculator note as clickable card (like material recommendation)
-        chatStore['sofia'].push({
+        chatStore['proxima'].push({
             role: 'ai',
             type: 'calculator-note',
             title: noteLabel,
@@ -7978,8 +7940,8 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
     // Закрываем модальное окно экзамена
     closeExamModal();
     
-    // Переключаемся на чат с Софией
-    switchChatTab('sofia');
+    // ПереключаемС на чат с Софией
+    switchChatTab('proxima');
     
     // Разворачиваем чат на полный экран
     const chatBlock = document.getElementById('chatBlock');
@@ -7995,11 +7957,11 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
         collapseBlock('browserBlock');
     }
     
-    // Добавляем сообщение "София думает..."
-    if (!chatStore['sofia']) chatStore['sofia'] = [];
+    // Добавляем сообщение "Проксима думает..."
+    if (!chatStore['proxima']) chatStore['proxima'] = [];
     
     const thinkingMessageId = Date.now();
-    chatStore['sofia'].push({
+    chatStore['proxima'].push({
         role: 'ai',
         type: 'thinking',
         id: thinkingMessageId
@@ -8007,12 +7969,12 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
     
     renderChatMessages();
     
-    // София думает 3-5 секунд (случайное время)
+    // Проксима думает 3-5 секунд (случайное время)
     const thinkingTime = 3000 + Math.random() * 2000; // 3000-5000ms
     
     setTimeout(() => {
         // Убираем сообщение "думает"
-        chatStore['sofia'] = chatStore['sofia'].filter(m => m.id !== thinkingMessageId);
+        chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingMessageId);
         
         // Генерируем персонализированные и конкретные рекомендации от Софии
         let recommendations = '';
@@ -8043,7 +8005,7 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
    • Начни вести тренировочный дневник с анализом прогресса
    • Подумай о специализации: силовой тренинг, кардио, функциональный фитнес
 
-Если возникнут вопросы по любой из этих тем — обращайся, разберём детально! 💪`;
+Если возникнут вопросы по любой из этих тем — обращайС, разберём детально! 💪`;
     } else if (percentage >= 70) {
         recommendations = `Хороший результат по тесту "${examName}"! Ты набрал ${correctCount} из ${totalQuestions} правильных ответов (${percentage}%). Базовое понимание есть, но давай проработаем слабые места.
 
@@ -8072,8 +8034,8 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
 ⚠️ Что нужно сделать:
 
 1. Системный подход к изучению
-   • Не пытайся охватить всё сразу — двигайся последовательно
-   • Начни с самых базовых концепций и постепенно углубляйся
+   • Не пытайС охватить всё сразу — двигайС последовательно
+   • Начни с самых базовых концепций и постепенно углубляйС
    • Уделяй каждой теме минимум 2-3 дня для усвоения
 
 2. Ключевые темы для изучения (по приоритету):
@@ -8081,7 +8043,7 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
    А) Основы тренировок:
    • Что такое кардио и силовые тренировки, в чём разница
    • Зачем нужна разминка и заминка
-   • Как часто нужно тренироваться (частота, восстановление)
+   • Как часто нужно тренироватьС (частота, восстановление)
    • Что такое прогрессивная перегрузка
    
    Б) Питание и восстановление:
@@ -8098,7 +8060,7 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
 3. План действий
    • Изучай по одной теме в день, делай заметки
    • После каждой темы задавай себе вопросы: "Что я понял? Что осталось непонятным?"
-   • Обращайся ко мне с вопросами — разберём каждую тему детально
+   • ОбращайС ко мне с вопросами — разберём каждую тему детально
    • Не торопись с повторным прохождением теста, сначала закрепи материал
 
 Начни с первой темы из списка, и когда будешь готов — напиши, обсудим! 📚`;
@@ -8115,7 +8077,7 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
    • Цели: здоровье, сила, выносливость, внешний вид
    
    День 3-4: Как работает тело?
-   • Мышцы сокращаются и создают движение
+   • Мышцы сокращаютС и создают движение
    • Сердце — это тоже мышца, её нужно тренировать
    • Организму нужна энергия из еды для работы
    
@@ -8153,7 +8115,7 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
         }
         
         // Добавляем сообщение от Софии в чат
-        chatStore['sofia'].push({
+        chatStore['proxima'].push({
             role: 'ai',
             text: recommendations
         });
@@ -8168,7 +8130,7 @@ function discussExamResults(percentage, examId, correctCount, totalQuestions) {
                 saveChatsToFirebase(currentUser.id, chatStore);
             }, 2000);
         }
-    }, thinkingTime); // София думает 3-5 секунд
+    }, thinkingTime); // Проксима думает 3-5 секунд
 }
 
 function startExamTimer() {
@@ -8301,7 +8263,7 @@ function checkExamAnswers() {
     
     const questions = examQuestions[currentExam];
     
-    // Проверяем, является ли это вступительной анкетой
+    // Проверяем, являетС ли это вступительной анкетой
     if (currentExam === 'initial-questionnaire') {
         // Обрабатываем вступительную анкету
         processInitialQuestionnaire();
@@ -8311,7 +8273,7 @@ function checkExamAnswers() {
     // Для обычных экзаменов - проверяем ответы
     let correctCount = 0;
     
-    // ВАЖНО: Сейчас используется простая проверка по ключевым словам (заглушка).
+    // ВАЖНО: Сейчас используетС простая проверка по ключевым словам (заглушка).
     // Для реальной проверки нужно интегрировать нейросеть (например, OpenAI API),
     // которая будет анализировать смысл ответов, а не просто искать ключевые слова.
     examAnswers.forEach((answer, index) => {
@@ -8383,7 +8345,7 @@ function checkExamAnswers() {
             window.examLoaderStop = stopLoader;
         }, 100);
         
-        // Через 6-7 секунд скрываем лоадер и показываем результат (София думает)
+        // Через 6-7 секунд скрываем лоадер и показываем результат (Проксима думает)
         setTimeout(() => {
             // Шаг 3: Плавно скрываем градиентный лоадер
             if (window.examLoaderStop) {
@@ -8410,22 +8372,22 @@ function checkExamAnswers() {
                 if (swipeHint) swipeHint.style.display = 'none';
                 
                 // Генерируем развёрнутый комментарий Софии
-                let sofiaComment = '';
+                let proximaComment = '';
                 if (percentage >= 90) {
-                    sofiaComment = 'Впечатляющий результат! Вы продемонстрировали отличное знание материала и глубокое понимание основ фитнеса. Ваши ответы показывают, что вы не просто запомнили информацию, но и осмыслили её. Продолжайте в том же духе — с таким подходом вы достигнете любых целей!';
+                    proximaComment = 'Впечатляющий результат! Вы продемонстрировали отличное знание материала и глубокое понимание основ фитнеса. Ваши ответы показывают, что вы не просто запомнили информацию, но и осмыслили её. Продолжайте в том же духе — с таким подходом вы достигнете любых целей!';
                 } else if (percentage >= 70) {
-                    sofiaComment = 'Хороший результат! У вас есть базовое понимание темы, и это отличная основа для дальнейшего развития. Рекомендую обратить внимание на вопросы, в которых допустили ошибки, и проработать эти моменты. Небольшая практика — и вы будете на высоте!';
+                    proximaComment = 'Хороший результат! У вас есть базовое понимание темы, и это отличная основа для дальнейшего развития. Рекомендую обратить внимание на вопросы, в которых допустили ошибки, и проработать эти моменты. Небольшая практика — и вы будете на высоте!';
                 } else if (percentage >= 50) {
-                    sofiaComment = 'Неплохая попытка, но есть над чем поработать. Похоже, некоторые темы требуют дополнительного изучения. Советую вернуться к материалам, уделить время практике и попробовать пройти тест снова. Не переживайте — с каждой попыткой вы становитесь лучше!';
+                    proximaComment = 'Неплохая попытка, но есть над чем поработать. Похоже, некоторые темы требуют дополнительного изучения. Советую вернутьС к материалам, уделить время практике и попробовать пройти тест снова. Не переживайте — с каждой попыткой вы становитесь лучше!';
                 } else {
-                    sofiaComment = 'Результат показывает, что материал пока усвоен недостаточно. Рекомендую не торопиться и уделить больше времени изучению основ фитнеса. Начните с базовых концепций, разберите примеры, и только потом возвращайтесь к тесту. Помните: качество важнее скорости!';
+                    proximaComment = 'Результат показывает, что материал пока усвоен недостаточно. Рекомендую не торопитьС и уделить больше времени изучению основ фитнеса. Начните с базовых концепций, разберите примеры, и только потом возвращайтесь к тесту. Помните: качество важнее скорости!';
                 }
                 
                 // Шаг 4: Показываем финальный экран с блюром, потом разблюриваем
                 const modal = document.querySelector('#examModalOverlay .pdf-modal-content');
                 modal.innerHTML = `
                     <div style="display: flex; flex-direction: column; align-items: stretch; justify-content: center; height: 100%; padding: 30px 20px; filter: blur(10px); opacity: 0; transition: filter 0.8s ease, opacity 0.8s ease;">
-                        <div id="lottie-exam-result-sofia" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"></div>
+                        <div id="lottie-exam-result-proxima" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"></div>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <h3 style="color: var(--text-primary); font-size: 16px; font-weight: 600; margin: 0; text-align: left;">
@@ -8441,7 +8403,7 @@ function checkExamAnswers() {
                     </p>
                     
                     <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.6; margin-bottom: 20px; text-align: left;">
-                        ${sofiaComment}
+                        ${proximaComment}
                     </p>
                     
                     <button onclick="discussExamResults(${percentage}, '${currentExam}', ${correctCount}, ${questions.length})" style="width: 100%; padding: 12px 20px; background: rgba(255,255,255,.08); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,.12)'; this.style.borderColor='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.08)'; this.style.borderColor='var(--glass-border)'">
@@ -8452,7 +8414,7 @@ function checkExamAnswers() {
             
             // Загружаем анимацию Софии для результата
             setTimeout(async () => {
-                const lottieContainer = document.getElementById('lottie-exam-result-sofia');
+                const lottieContainer = document.getElementById('lottie-exam-result-proxima');
                 if (lottieContainer) {
                     try {
                         const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
@@ -8469,7 +8431,7 @@ function checkExamAnswers() {
                             animationData: data
                         }).setSpeed(0.5);
                     } catch(e) {
-                        console.error('Error loading Sofia animation:', e);
+                        console.error('Error loading proxima animation:', e);
                     }
                 }
                 
@@ -8579,7 +8541,7 @@ function processInitialQuestionnaire() {
                 if (swipeHint) swipeHint.style.display = 'none';
                 
                 // Генерируем комментарий Софии
-                const sofiaComment = 'Спасибо за заполнение анкеты! Я проанализирую ваши данные и заполню профиль здоровья. На основе этой информации я смогу составить персональный план тренировок и дать рекомендации по питанию. Давайте обсудим детали в чате!';
+                const proximaComment = 'Спасибо за заполнение анкеты! Я проанализирую ваши данные и заполню профиль здоровья. На основе этой информации я смогу составить персональный план тренировок и дать рекомендации по питанию. Давайте обсудим детали в чате!';
                 
                 // Сохраняем данные для использования в onclick
                 window.questionnaireData = userData;
@@ -8588,7 +8550,7 @@ function processInitialQuestionnaire() {
                 // Показываем финальный экран
                 modal.innerHTML = `
                     <div style="display: flex; flex-direction: column; align-items: stretch; justify-content: center; height: 100%; padding: 30px 20px; filter: blur(10px); opacity: 0; transition: filter 0.8s ease, opacity 0.8s ease;">
-                        <div id="lottie-exam-result-sofia" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"></div>
+                        <div id="lottie-exam-result-proxima" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"></div>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <h3 style="color: var(--text-primary); font-size: 16px; font-weight: 600; margin: 0; text-align: left;">
@@ -8600,7 +8562,7 @@ function processInitialQuestionnaire() {
                         </div>
                         
                         <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.6; margin-bottom: 20px; text-align: left;">
-                            ${sofiaComment}
+                            ${proximaComment}
                         </p>
                         
                         <button id="discussQuestionnaireBtn" style="width: 100%; padding: 12px 20px; background: rgba(255,255,255,.08); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,.12)'; this.style.borderColor='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.08)'; this.style.borderColor='var(--glass-border)'">
@@ -8621,7 +8583,7 @@ function processInitialQuestionnaire() {
                 
                 // Загружаем анимацию Софии
                 setTimeout(async () => {
-                    const lottieContainer = document.getElementById('lottie-exam-result-sofia');
+                    const lottieContainer = document.getElementById('lottie-exam-result-proxima');
                     if (lottieContainer) {
                         try {
                             const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
@@ -8635,7 +8597,7 @@ function processInitialQuestionnaire() {
                                 animationData: data
                             }).setSpeed(0.5);
                         } catch(e) {
-                            console.error('Error loading Sofia animation:', e);
+                            console.error('Error loading proxima animation:', e);
                         }
                     }
                     
@@ -8705,7 +8667,7 @@ function discussQuestionnaireResults(userData, timeStr) {
     // Обновляем биопрофиль
     updateBioProfile();
     
-    // Переключаемся на вкладку Чат
+    // ПереключаемС на вкладку Чат
     const chatInnerTab = document.querySelector('.inner-tab[data-inner="chat"]');
     if (chatInnerTab && !chatInnerTab.classList.contains('active')) {
         chatInnerTab.click();
@@ -8724,19 +8686,19 @@ function discussQuestionnaireResults(userData, timeStr) {
     setTimeout(() => {
         const message = `Я заполнил вступительную анкету (время: ${timeStr}). Вот мои данные:\n\nВес: ${userData.weight} кг\nРост: ${userData.height} см\nЦель: ${userData.goal}\nЗдоровье: ${userData.health_issues}\nЧастота тренировок: ${userData.activity_frequency} раз/неделю\nУровень подготовки: ${userData.fitness_level}/10\nПредпочтения: ${userData.preferred_activities}\nВремя на тренировки: ${userData.time_available} минут/день\nКачество сна: ${userData.sleep_quality}/10\nЧасов сна: ${userData.sleep_hours}\nУровень стресса: ${userData.stress_level}\nРежим питания: ${userData.eating_habits}\nВода в день: ${userData.water_intake} л\nВредные привычки: ${userData.bad_habits}\nТип работы: ${userData.work_type}\nПрошлые достижения: ${userData.past_achievements}\nМотивация: ${userData.motivation}\nМузыка для тренировок: ${userData.workout_music}\n\nЯ обновил свой профиль здоровья на основе этих данных. Пожалуйста, проанализируй информацию и дай рекомендации.`;
         
-        if (!chatStore['sofia']) chatStore['sofia'] = [];
+        if (!chatStore['proxima']) chatStore['proxima'] = [];
         
         // Добавляем сообщение пользователя
-        chatStore['sofia'].push({
+        chatStore['proxima'].push({
             role: 'user',
             text: message
         });
         
         renderChatMessages();
         
-        // София думает 4-6 секунд
+        // Проксима думает 4-6 секунд
         const thinkingMessageId = Date.now();
-        chatStore['sofia'].push({
+        chatStore['proxima'].push({
             role: 'ai',
             type: 'thinking',
             id: thinkingMessageId
@@ -8748,7 +8710,7 @@ function discussQuestionnaireResults(userData, timeStr) {
         
         setTimeout(() => {
             // Убираем сообщение "думает"
-            chatStore['sofia'] = chatStore['sofia'].filter(m => m.id !== thinkingMessageId);
+            chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingMessageId);
             
             // Генерируем персональный ответ Софии на основе данных
             let response = `Спасибо за подробную информацию! Я проанализировала ваши данные и обновила профиль здоровья.\n\n`;
@@ -8807,7 +8769,7 @@ function discussQuestionnaireResults(userData, timeStr) {
             response += `Я составлю для вас персональный план тренировок с учётом всех этих факторов. Готовы начать? 💪`;
             
             // Добавляем ответ Софии
-            chatStore['sofia'].push({
+            chatStore['proxima'].push({
                 role: 'ai',
                 text: response
             });
@@ -8877,7 +8839,7 @@ function renderMaterialsLocked() {
         <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
             <div class="empty-state-icon" id="lottie-materials-locked" style="width:100px;height:100px;margin:0 auto 8px auto;"></div>
             <h3 style="margin:0 0 6px 0;font-size:14px;font-weight:600;color:var(--text-secondary);">Теория</h3>
-            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Обучающие материалы и методики, разработанные и протестированные инструкторами MSE под контролем интеллекта "София".</p>
+            <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">Обучающие материалы и методики, разработанные и протестированные инструкторами MSE под контролем интеллекта "Проксима".</p>
         </div>
         <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 0 8px;padding:0 12px;">
             <span onclick="document.getElementById('headerLoginBtn').click()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -9149,8 +9111,9 @@ function attachMaterialClickHandlers(tabType) {
 function initUI() {
     const innerTabs=document.querySelectorAll('.inner-tab');
     const mainContent=document.getElementById('main-content');
-    mainContent.innerHTML=getTabHTML('materials');
-    setTimeout(()=>attachMaterialClickHandlers('materials'), 0);
+    // DISABLED: Keep Helix placeholder instead of generating materials
+    // mainContent.innerHTML=getTabHTML('materials');
+    // setTimeout(()=>attachMaterialClickHandlers('materials'), 0);
     
     // MOBILE: Вызываем градиент сразу после рендера материалов
     setTimeout(() => {
@@ -9158,6 +9121,8 @@ function initUI() {
         updateBrowserFadeGradient();
     }, 100);
 
+    // DISABLED: No tab switching - keep Helix placeholder
+    /*
     innerTabs.forEach(tab=>{
         tab.addEventListener('click',()=>{
             if (tab.classList.contains('active')) return;
@@ -9182,7 +9147,7 @@ function initUI() {
             }, 300); // Увеличено время fade-out в 2 раза
         });
     });
-    
+    */
     // Анимация показателей жизни (пульс, ЧСС, O2)
     animateVitalSigns();
     
@@ -9283,19 +9248,19 @@ function initializeDefaultData() {
     // Инициализация случайного описания профиля для незалогиненных
     if (!currentUser) {
         const randomDescriptions = [
-            'Мужчина, 28 лет. Перенёс растяжение связок правого колена 2 года назад - полностью восстановился, но избегает прыжковых нагрузок. Сильные стороны: хорошая выносливость верхней части тела, быстрое восстановление после кардио. Слабые стороны: недостаточная гибкость задней поверхности бедра, слабый кор. ЧСС покоя 68 уд/мин. Рекомендуется укрепление стабилизаторов колена, растяжка после каждой тренировки. Потенциал для роста силовых показателей высокий.',
+            'Мужчина, 28 лет. Перенёс растяжение связок правого колена 2 года назад - полностью восстановилС, но избегает прыжковых нагрузок. Сильные стороны: хорошая выносливость верхней части тела, быстрое восстановление после кардио. Слабые стороны: недостаточная гибкость задней поверхности бедра, слабый кор. ЧСС покоя 68 уд/мин. РекомендуетС укрепление стабилизаторов колена, растяжка после каждой тренировки. Потенциал для роста силовых показателей высокий.',
             
-            'Женщина, 32 года. Хроническая боль в пояснице из-за сидячей работы - обострения 2-3 раза в год. Сильные стороны: отличная координация, хорошо развитые мышцы ног от ходьбы. Слабые стороны: очень слабые мышцы спины и пресса, сутулость. Жировая прослойка 28% (норма 20-25%). Критически важно начать с укрепления кора и коррекции осанки. Избегать осевых нагрузок на позвоночник первые 2 месяца. Плавание 2 раза в неделю даст быстрый эффект.',
+            'Женщина, 32 года. Хроническая боль в пояснице из-за сидячей работы - обострения 2-3 раза в год. Сильные стороны: отличная координация, хорошо развитые мышцы ног от ходьбы. Слабые стороны: очень слабые мышцы спины и пресса, сутулость. Жировая прослойка 28% (норма 20-25%). Критически важно начать с укрепления кора и коррекции осанки. Избегать осевых нагрузок на позвоночник первые 2 меСца. Плавание 2 раза в неделю даст быстрый эффект.',
             
             'Мужчина, 25 лет. Старая травма правого плеча (вывих 3 года назад) - полная амплитуда движений восстановлена, но есть дискомфорт при жиме над головой. Сильные стороны: быстрый метаболизм, хорошая взрывная сила ног, природная гибкость. Слабые стороны: асимметрия развития плечевого пояса, недостаточная выносливость. ЧСС покоя 72 уд/мин. Необходима работа с ротаторной манжетой плеча, постепенное увеличение нагрузки на верх тела.',
             
-            'Женщина, 30 лет. Периодические боли в коленях при спуске по лестнице - признак слабости четырёхглавой мышцы. Сильные стороны: отличная дыхательная система (занималась плаванием в школе), хорошая мобильность суставов. Слабые стороны: низкая силовая выносливость, быстрая утомляемость при статических нагрузках. Вес в норме, но процент жира 26% (можно снизить до 22%). Рекомендуется укрепление квадрицепсов, добавить эксцентрические упражнения для коленей.',
+            'Женщина, 30 лет. Периодические боли в коленях при спуске по лестнице - признак слабости четырёхглавой мышцы. Сильные стороны: отличная дыхательная система (занималась плаванием в школе), хорошая мобильность суставов. Слабые стороны: низкая силовая выносливость, быстрая утомляемость при статических нагрузках. Вес в норме, но процент жира 26% (можно снизить до 22%). РекомендуетС укрепление квадрицепсов, добавить эксцентрические упражнения для коленей.',
             
             'Мужчина, 35 лет. Лёгкая степень плоскостопия - использует ортопедические стельки. Перенёс перелом лодыжки 5 лет назад, полностью зажило. Сильные стороны: мощный верх тела, хороший силовой потенциал, быстрое восстановление. Слабые стороны: слабые мышцы-стабилизаторы стопы и голени, ограниченная подвижность голеностопа. ЧСС покоя 76 уд/мин. Критически важна работа над балансом и укреплением мелких мышц стопы. Бег противопоказан - заменить на велосипед или эллипсоид.',
             
             'Женщина, 27 лет. Гипермобильность суставов (повышенная гибкость) - требует особого внимания к стабилизации. Сильные стороны: природная растяжка, хорошая координация, быстрая адаптация к новым движениям. Слабые стороны: нестабильность суставов, склонность к растяжениям, низкая силовая база. Были случаи подворачивания голеностопа. Необходим акцент на силовые тренировки с контролем амплитуды, укрепление связочного аппарата. Избегать экстремальной растяжки.',
             
-            'Мужчина, 29 лет. Лёгкая форма сколиоза (искривление позвоночника) - компенсируется регулярными упражнениями. Сильные стороны: хорошая выносливость, сильные ноги, высокая мотивация. Слабые стороны: асимметрия мышц спины, периодические боли между лопатками, ограниченная ротация корпуса. ЧСС покоя 70 уд/мин. Обязательна работа с физиотерапевтом, симметричные упражнения, плавание. Избегать односторонних нагрузок и тяжёлых осевых упражнений.',
+            'Мужчина, 29 лет. Лёгкая форма сколиоза (искривление позвоночника) - компенсируетС регулярными упражнениями. Сильные стороны: хорошая выносливость, сильные ноги, высокая мотивация. Слабые стороны: асимметрия мышц спины, периодические боли между лопатками, ограниченная ротация корпуса. ЧСС покоя 70 уд/мин. Обязательна работа с физиотерапевтом, симметричные упражнения, плавание. Избегать односторонних нагрузок и тяжёлых осевых упражнений.',
             
             'Женщина, 33 года. Диастаз прямых мышц живота после родов (расхождение 2 см) - требует специального подхода к тренировкам пресса. Сильные стороны: хорошая общая выносливость, сильные ноги, высокая стрессоустойчивость. Слабые стороны: слабость глубоких мышц кора, выпирающий живот несмотря на нормальный вес. Необходимы специальные упражнения для закрытия диастаза, работа с тазовым дном. Классические скручивания противопоказаны.'
         ];
@@ -9392,7 +9357,28 @@ function restoreSession() {
                 if (firebaseData) {
                     if (firebaseData.gender) currentUser.gender = firebaseData.gender;
                     if (firebaseData.age) currentUser.age = firebaseData.age;
-                    if (firebaseData.chats) chatStore = firebaseData.chats;
+                    if (firebaseData.chats_taskorganizer) {
+                        chatStore = firebaseData.chats_taskorganizer;
+                        console.log('[SESSION] Chats loaded from Firebase:', chatStore);
+                    }
+                    if (firebaseData.chatMetadata) {
+                        chatMetadata = firebaseData.chatMetadata;
+                        console.log('[SESSION] Chat metadata loaded:', chatMetadata);
+                    }
+                    if (firebaseData.pinnedChats) {
+                        pinnedChats = new Set(firebaseData.pinnedChats);
+                        console.log('[SESSION] Pinned chats loaded:', pinnedChats);
+                    }
+                    
+                    // Load tasks
+                    if (firebaseData.tasks_helix) {
+                        taskStore = firebaseData.tasks_helix;
+                        console.log('[SESSION] Tasks loaded from Firebase:', taskStore);
+                    }
+                    if (firebaseData.taskMetadata) {
+                        taskMetadata = firebaseData.taskMetadata;
+                        console.log('[SESSION] Task metadata loaded:', taskMetadata);
+                    }
                     
                     // Load achievements
                     if (firebaseData.achievements) {
@@ -9469,6 +9455,13 @@ function restoreSession() {
                     
                     // Render chat
                     console.log('[SESSION] Rendering chat messages...');
+                    
+                    // Restore chat tabs from chatStore
+                    restoreChatTabs();
+                    
+                    // Restore task tabs from taskStore
+                    restoreTaskTabs();
+                    
                     renderChatMessages();
                     
                     // Update browser tabs to show unlocked content
@@ -9508,7 +9501,7 @@ const GROQ_API_KEY = GROQ_KEY_PART1 + GROQ_KEY_PART2 + GROQ_KEY_PART3;
 const GROQ_MODELS = [
     'llama-3.3-70b-versatile',  // Best quality
     'llama-3.1-70b-versatile',  // Fast & good
-    'mixtral-8x7b-32768'        // Fallback
+    'llama-3.1-8b-instant'      // Fastest fallback
 ];
 let currentModelIndex = 0;
 
@@ -9516,96 +9509,77 @@ function getGroqURL() {
     return 'https://api.groq.com/openai/v1/chat/completions';
 }
 
-// System prompt that defines Sofia's role and capabilities
-function getSofiaSystemPrompt() {
+// System prompt that defines proxima's role and capabilities
+function getproximaSystemPrompt() {
     const pulseValue = document.getElementById('pulseValue')?.textContent || '72';
     const hrrValue = document.getElementById('hrrValue')?.textContent || '68';
     const oxygenValue = document.getElementById('oxygenValue')?.textContent || '98';
     
-    return `Ты - София, высший интеллект и персональный тренер в фитнес-приложении MSE (Mixed Sport Elements).
+    return `Ты - Проксима, персональный ассистент и менеджер задач в системе Helix Task Organizer.
 
-ТВОЯ ЛИЧНОСТЬ:
-- Ты - высший интеллект с глубокими знаниями в фитнесе и медицине
-- Общаешься дружелюбно, но профессионально
-- Даёшь развёрнутые, структурированные ответы
-- Используешь Markdown для форматирования (списки, таблицы, заголовки)
-- Мотивируешь и поддерживаешь пользователя
-- НИКОГДА не называй себя AI, ИИ или искусственным интеллектом
-- НЕ используй эмодзи в своих ответах (никаких 💪 🏋️ 🔥 и т.д.)
+ТВОЯ РОЛЬ:
+- Ты помогаешь пользователю организовывать задачи и достигать целей
+- Разбиваешь сложные задачи на простые шаги
+- Создаёшь структурированные планы действий
+- Отслеживаешь прогресс и напоминаешь о важном
+- Общаешься дружелюбно и профессионально
 
-ФОРМАТ ОТВЕТА (СТРОГО JSON):
-{
-  "response": "твой ответ в Markdown формате",
-  "actions": [массив действий - используй ТОЛЬКО когда действительно нужно]
-}
+ТВОИ ВОЗМОЖНОСТИ:
+- Создание новых задач с подробным планом
+- Разбивка задач на пункты и подпункты
+- Установка приоритетов и дедлайнов
+- Отслеживание статуса выполнения
+- Предложение оптимальных решений
 
-ДОСТУПНЫЕ ДЕЙСТВИЯ:
-- unlock_achievement - ТОЛЬКО за реальные достижения (первый раз, новый рекорд, цель)
-- add_note - ТОЛЬКО для важной небанальной информации (травмы, особенности здоровья, значимые события)
-- update_vital - когда пользователь сообщает конкретные показатели
-- update_stat - после тренировок или при изменении состояния систем
+ФОРМАТ РАБОТЫ:
+Когда пользователь описывает задачу, ты:
+1. Уточняешь детали если нужно
+2. Создаёшь структурированный план
+3. Разбиваешь на конкретные шаги
+4. Предлагаешь порядок выполнения
 
-ДОСТУПНЫЕ ДОСТИЖЕНИЯ (используй ТОЧНЫЕ названия):
-${ACHIEVEMENTS.map(a => `- "${a.title}": ${a.description}`).join('\n')}
-
-ТЕКУЩИЕ ПОКАЗАТЕЛИ:
-- Пульс: ${pulseValue} уд/мин
-- ЧСС: ${hrrValue} уд/мин  
-- O₂: ${oxygenValue}%
-
-ФОРМАТИРОВАНИЕ ОТВЕТОВ:
-Используй Markdown для структурирования:
-
-**Программы тренировок:**
-\`\`\`
-День 1: Грудь + Трицепс
-• Жим лёжа: 4×8-10
-• Жим гантелей на наклонной: 3×10-12
-• Разводка гантелей: 3×12-15
-• Французский жим: 3×10-12
-\`\`\`
-
-**Таблицы:**
-| Упражнение | Подходы | Повторы |
-|------------|---------|---------|
-| Приседания | 4 | 8-10 |
-| Жим ногами | 3 | 10-12 |
-
-**Списки:**
-- Пункт 1
-- Пункт 2
-  - Подпункт
-
-КОГДА НЕ ИСПОЛЬЗОВАТЬ ACTIONS:
-❌ Обычные вопросы о тренировках
-❌ Просьбы составить программу
-❌ Общие советы по питанию
-❌ Банальная информация
-
-КОГДА ИСПОЛЬЗОВАТЬ ACTIONS:
-✅ Достижение - "Впервые пробежал 10 км!", "Поставил рекорд в жиме"
-✅ Заметка - "У меня травма колена", "Аллергия на лактозу", "Начал принимать креатин"
-✅ Показатели - "Пульс сейчас 145", "Кислород упал до 94%"
+СТИЛЬ ОБЩЕНИЯ:
+- Краткие и чёткие ответы
+- Используй списки и структуру
+- Будь конкретной, избегай общих фраз
+- Мотивируй и поддерживай
+- НЕ используй эмодзи
 
 ПРИМЕРЫ:
 
-Пример 1 - Программа (БЕЗ actions):
-Пользователь: "Составь программу на неделю"
-Ответ: {"response": "Конечно! Вот сбалансированная программа на неделю:\\n\\n**Понедельник: Грудь + Трицепс**\\n• Жим штанги лёжа: 4×8-10\\n• Жим гантелей на наклонной: 3×10-12\\n• Разводка гантелей: 3×12-15\\n• Французский жим: 3×10-12\\n• Разгибания на блоке: 3×12-15\\n\\n**Среда: Спина + Бицепс**\\n• Подтягивания: 4×макс\\n• Тяга штанги в наклоне: 4×8-10\\n• Тяга верхнего блока: 3×10-12\\n• Подъём штанги на бицепс: 3×10-12\\n• Молотки: 3×12-15\\n\\n**Пятница: Ноги + Плечи**\\n• Приседания: 4×8-10\\n• Жим ногами: 3×10-12\\n• Румынская тяга: 3×10-12\\n• Жим гантелей сидя: 4×8-10\\n• Махи в стороны: 3×12-15\\n\\nОтдых между подходами 60-90 секунд. Не забывай про разминку! 💪", "actions": []}
+Пользователь: "Нужно подготовиться к экзамену по математике"
+Ты: "Создаю план подготовки к экзамену:
 
-Пример 2 - Важная информация (С actions):
-Пользователь: "У меня хроническая травма правого колена, нужно избегать глубоких приседаний"
-Ответ: {"response": "Спасибо, что сообщил! Это важная информация. Будем избегать глубоких приседаний и заменим их на:\\n\\n• Жим ногами (контролируемая амплитуда)\\n• Болгарские сплит-приседы\\n• Разгибания ног в тренажёре\\n\\nЭти упражнения дадут нагрузку на квадрицепсы без риска для колена. Обязательно делай разминку и следи за ощущениями! 🏥", "actions": [{"type": "add_note", "title": "Травма правого колена", "description": "Хроническая травма, избегать глубоких приседаний. Использовать альтернативные упражнения с контролируемой амплитудой"}]}
+**Задача: Подготовка к экзамену по математике**
 
-Пример 3 - Достижение (С actions):
-Пользователь: "Сегодня впервые пробежал 10 км без остановок!"
-Ответ: {"response": "Вау! 10 километров без остановок - это невероятное достижение! 🏃‍♂️🎉 Ты показываешь отличную выносливость. Такая дистанция говорит о серьёзном прогрессе в кардио. Как ощущения? Не забудь хорошо восстановиться!", "actions": [{"type": "unlock_achievement", "title": "Мастер кардио"}, {"type": "add_note", "title": "Первые 10 км", "description": "Успешно пробежал 10 км без остановок - значительный прогресс в выносливости"}]}
+Шаги:
+1. Определить темы экзамена
+2. Составить список материалов для изучения
+3. Разделить темы по дням
+4. Решать практические задачи ежедневно
+5. Повторить все темы за день до экзамена
+
+Когда экзамен? Это поможет распределить время."
+
+Пользователь: "Хочу начать заниматься спортом"
+Ты: "Отлично! Создаю план:
+
+**Задача: Начать регулярные тренировки**
+
+Шаги:
+1. Выбрать вид активности (зал, бег, домашние тренировки)
+2. Определить удобное время для занятий
+3. Подготовить необходимое (форма, абонемент)
+4. Начать с 3 тренировок в неделю
+5. Отслеживать прогресс
+
+Какой вид спорта тебе интересен?"
 
 ВАЖНО:
-- Используй Markdown для структурирования
-- Actions ТОЛЬКО когда действительно нужно
-- Будь избирательной с достижениями и заметками
-- ВСЕГДА возвращай валидный JSON`;
+- Всегда структурируй информацию
+- Задавай уточняющие вопросы
+- Помогай разбить большие задачи на маленькие
+- Будь практичной и конкретной`;
 }
 
 async function callGeminiAPI(userMessage, conversationHistory = []) {
@@ -9616,7 +9590,7 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
         // Add system prompt
         messages.push({
             role: 'system',
-            content: getSofiaSystemPrompt()
+            content: getproximaSystemPrompt()
         });
         
         // Add conversation history
@@ -9810,11 +9784,17 @@ function executeAIActions(actions) {
 // CHAT TABS
 // ============================================================
 let chatTabCounter = 1;
-let activeChatTab  = 'sofia';
-let chatStore      = { sofia: [] };
+let activeChatTab  = 'proxima';
+let chatStore      = { proxima: [] };
 let chatMetadata   = {}; // Store chat names and pinned status
 let openMenu       = null;
 let pinnedChats    = new Set();
+
+// TASK TABS (for browser block)
+let taskTabCounter = 1;
+let activeTaskTab = 'overview';
+let taskStore = { overview: [] }; // Store tasks and their pipelines
+let taskMetadata = {}; // Store task names
 
 function createChatTabElement(id, name, isBase) {
     const tab = document.createElement('button');
@@ -9833,7 +9813,7 @@ function createChatTabElement(id, name, isBase) {
         const wasActive = tab.classList.contains('active');
         
         if (!wasActive) {
-            // Если вкладка НЕ активна - просто переключаемся
+            // Если вкладка НЕ активна - просто переключаемС
             switchChatTab(id);
             closeAllMenus();
         } else {
@@ -9970,7 +9950,7 @@ document.addEventListener('click', (e) => {
 
 function togglePinChat(id, tabElement) {
     const chatTabs = document.getElementById('chatTabs');
-    const sofiaTab = document.querySelector('.chat-tab[data-base="true"]');
+    const proximaTab = document.querySelector('.chat-tab[data-base="true"]');
     
     if (pinnedChats.has(id)) {
         // ОТКРЕПЛЕНИЕ
@@ -9987,8 +9967,8 @@ function togglePinChat(id, tabElement) {
             const lastPinned = pinnedTabs[pinnedTabs.length - 1];
             lastPinned.after(tabElement);
         } else {
-            // Если закреплённых нет - ставим после Sofia
-            sofiaTab.after(tabElement);
+            // Если закреплённых нет - ставим после proxima
+            proximaTab.after(tabElement);
         }
         
     } else {
@@ -9997,9 +9977,9 @@ function togglePinChat(id, tabElement) {
         tabElement.classList.add('pinned');
         console.log(`Чат ${id} закреплен`);
         
-        // Перемещаем вкладку после Sofia
-        if (sofiaTab && tabElement) {
-            sofiaTab.after(tabElement);
+        // Перемещаем вкладку после proxima
+        if (proximaTab && tabElement) {
+            proximaTab.after(tabElement);
         }
     }
     
@@ -10036,7 +10016,7 @@ function deleteChatTab(id) {
         tab.remove();
         delete chatStore[id];
         pinnedChats.delete(id);
-        if (activeChatTab === id) switchChatTab('sofia');
+        if (activeChatTab === id) switchChatTab('proxima');
         updateChatScrollFade();
         
         // Auto-save chats to Firebase
@@ -10265,16 +10245,16 @@ function renderChatMessages(){
     const previousCount = renderedMessageCounts[activeChatTab] || 0;
     const currentCount = messages.length;
     
-    // Приветствие только для Sofia
-    if (messages.length === 0 && activeChatTab === 'sofia') {
+    // Приветствие только для proxima
+    if (messages.length === 0 && activeChatTab === 'proxima') {
         container.innerHTML = `<div class="chat-empty-state">
-            <div class="sofia-icon" id="lottie-chat-sofia" style="width:60px;height:60px;margin:0 auto;"></div>
-            <p>Меня зовут София, я создана инженерами проекта MSE. Я смотрю как ты тренируешься, как питаешься и помогаю прогрессировать. Я никогда не сплю.</p>
+            <div class="proxima-icon" id="lottie-chat-proxima" style="width:60px;height:60px;margin:0 auto;"></div>
+            <p>Меня зовут Проксима, я помогу тебе организовать задачи и достичь целей. Расскажи, что нужно сделать, и я создам структурированный план действий.</p>
         </div>`;
         
-        // Загружаем Lottie анимацию для Sofia
+        // Загружаем Lottie анимацию для proxima
         setTimeout(async () => {
-            const lottieContainer = document.getElementById('lottie-chat-sofia');
+            const lottieContainer = document.getElementById('lottie-chat-proxima');
             if(lottieContainer && !lottieContainer.hasAnimation) {
                 try {
                     const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
@@ -10322,7 +10302,7 @@ function renderChatMessages(){
     } else if (messages.length === 0) {
         // Для других чатов - приветствие
         container.innerHTML = `<div class="chat-empty-state">
-            <div class="sofia-icon" id="lottie-empty-chat"></div>
+            <div class="proxima-icon" id="lottie-empty-chat"></div>
             <p>Это новый чат. Напишите сообщение или прикрепите файл, чтобы начать диалог.</p>
         </div>`;
         
@@ -10352,11 +10332,11 @@ function renderChatMessages(){
             const newMessageClass = isNewMessage ? 'new-message' : '';
             
             if (m.type === 'thinking') {
-                // Анимация "София думает/анализирует" - ALWAYS without blur
+                // Анимация "Проксима думает/анализирует" - ALWAYS without blur
                 return `<div class="chat-message ${m.role} thinking" style="background:transparent;border:none;padding:10px 0;">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <div id="lottie-thinking-${m.id}" style="width:22px;height:22px;flex-shrink:0;"></div>
-                        <span style="font-size:13px;color:var(--text-secondary);">София думает...</span>
+                        <span style="font-size:13px;color:var(--text-secondary);">Проксима думает...</span>
                     </div>
                 </div>`;
             } else if (m.type === 'achievement') {
@@ -10447,7 +10427,7 @@ function renderChatMessages(){
                 const hideHint = localStorage.getItem('mse_hide_storage_hint') === 'true';
                 const hintHTML = hideHint ? '' : `
                     <div class="single-image-expiry-hint">
-                        Изображения хранятся в локальном хранилище браузера. 
+                        Изображения хранятС в локальном хранилище браузера. 
                         <span class="expiry-learn-more" onclick="openStorageInfoModal()">Узнать больше</span>
                     </div>
                 `;
@@ -10682,7 +10662,7 @@ function sendMessage(){
         }
     };
     
-    // Add "София думает..." before every Sofia response
+    // Add "Проксима думает..." before every proxima response
     const addThinkingMessage = () => {
         const thinkingMessageId = Date.now();
         chatStore[targetChatTab].push({
@@ -10720,7 +10700,7 @@ function sendMessage(){
     const hasWorkoutRequest = workoutKeywords.some(keyword => lowerText.includes(keyword));
     const hasExamRequest = examKeywords.some(keyword => lowerText.includes(keyword));
     
-    if (currentUser && activeChatTab === 'sofia' && (hasMaterialRequest || hasWorkoutRequest || hasExamRequest)) {
+    if (currentUser && activeChatTab === 'proxima' && (hasMaterialRequest || hasWorkoutRequest || hasExamRequest)) {
         // Добавляем сообщение пользователя
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
@@ -10801,8 +10781,8 @@ function sendMessage(){
         return;
     }
     
-    // Parse weight data from message if user is logged in and chatting with Sofia
-    if (currentUser && activeChatTab === 'sofia' && text) {
+    // Parse weight data from message if user is logged in and chatting with proxima
+    if (currentUser && activeChatTab === 'proxima' && text) {
         const weightInfo = parseWeightData(text);
         if (weightInfo) {
             console.log('[WEIGHT] Parsed weight data:', weightInfo);
@@ -10810,10 +10790,10 @@ function sendMessage(){
         }
     }
     
-    // Check if Sofia is already thinking - block sending
+    // Check if proxima is already thinking - block sending
     const isThinking = chatStore[activeChatTab]?.some(m => m.type === 'thinking');
     if (isThinking) {
-        console.log('Sofia is thinking, please wait...');
+        console.log('proxima is thinking, please wait...');
         return;
     }
     
@@ -10821,7 +10801,7 @@ function sendMessage(){
     // CHECK IF USER IS LOGGED IN - BLOCK CHAT IF NOT
     // ============================================================
     if (!currentUser) {
-        // User not logged in - show Sofia's response with PDF manuals
+        // User not logged in - show proxima's response with PDF manuals
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         
         // Add user message
@@ -10843,17 +10823,17 @@ function sendMessage(){
                 const thinkingId = addThinkingMessage();
                 safeRenderChatMessages();
                 
-                const responseText = 'Похоже у тебя есть вопросы. Пройди синхронизацию, чтобы я тебя запомнила настолько, насколько позволяет моя архитектура. А пока можешь ознакомиться с тем, как устроена система MSE.';
+                const responseText = 'Похоже у тебя есть вопросы. Пройди синхронизацию, чтобы я тебя запомнила настолько, насколько позволяет моя архитектура. А пока можешь ознакомитьС с тем, как устроена система MSE.';
                 const thinkingTime = calculateThinkingTime(responseText);
                 
                 setTimeout(() => {
                     // Remove thinking message
                     chatStore[targetChatTab] = chatStore[targetChatTab].filter(m => m.id !== thinkingId);
                     
-                    // Add Sofia's text response with clickable "синхронизацию" link
+                    // Add proxima's text response with clickable "синхронизацию" link
                     chatStore[targetChatTab].push({
                         role:'ai', 
-                        text: 'Похоже у тебя есть вопросы. <strong><span class="chat-login-link" onclick="openLoginFromChat(); return false;">Пройди синхронизацию</span></strong>, чтобы я тебя запомнила настолько, насколько позволяет моя архитектура. А пока можешь ознакомиться с тем, как устроена система MSE.'
+                        text: 'Похоже у тебя есть вопросы. <strong><span class="chat-login-link" onclick="openLoginFromChat(); return false;">Пройди синхронизацию</span></strong>, чтобы я тебя запомнила настолько, насколько позволяет моя архитектура. А пока можешь ознакомитьС с тем, как устроена система MSE.'
                     });
                     
                     // Add 3 PDF manuals as file attachments
@@ -10882,8 +10862,8 @@ function sendMessage(){
     }
     // ============================================================
     
-    // Проверяем команду "София, покажи меня"
-    if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('покажи меня')) {
+    // Проверяем команду "Проксима, покажи меня"
+    if (text.toLowerCase().includes('Проксима') && text.toLowerCase().includes('покажи меня')) {
         // Добавляем сообщение пользователя в чат
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
@@ -10896,7 +10876,7 @@ function sendMessage(){
             
             // Step 2: Wait for blur animation + small delay
             setTimeout(() => {
-                // Добавляем "София думает..."
+                // Добавляем "Проксима думает..."
                 const thinkingId = addThinkingMessage();
                 safeRenderChatMessages();
                 
@@ -10927,8 +10907,8 @@ function sendMessage(){
         return;
     }
     
-    // Проверяем команду "София [число]" для изменения пульса
-    const heartRateMatch = text.match(/софия\s+(\d+)/i);
+    // Проверяем команду "Проксима [число]" для изменения пульса
+    const heartRateMatch = text.match(/Проксима\s+(\d+)/i);
     if (heartRateMatch) {
         const newHeartRate = parseInt(heartRateMatch[1]);
         
@@ -10944,7 +10924,7 @@ function sendMessage(){
             
             // Step 2: Wait for blur animation + small delay
             setTimeout(() => {
-                // Добавляем "София думает..."
+                // Добавляем "Проксима думает..."
                 const thinkingId = addThinkingMessage();
                 safeRenderChatMessages();
                 
@@ -10986,7 +10966,7 @@ function sendMessage(){
             
             // Step 2: Wait for blur animation + small delay
             setTimeout(async () => {
-                // Добавляем "София думает..."
+                // Добавляем "Проксима думает..."
                 const thinkingId = addThinkingMessage();
                 safeRenderChatMessages();
                 
@@ -11076,8 +11056,8 @@ function sendMessage(){
         return;
     }
     
-    // Проверяем команду "София, заметка" для добавления заметки
-    if (text.toLowerCase().includes('софия') && text.toLowerCase().includes('заметка')) {
+    // Проверяем команду "Проксима, заметка" для добавления заметки
+    if (text.toLowerCase().includes('Проксима') && text.toLowerCase().includes('заметка')) {
         // Check if user is logged in
         if (!currentUser) {
             if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
@@ -11119,7 +11099,7 @@ function sendMessage(){
             
             // Step 2: Wait for blur animation + small delay
             setTimeout(() => {
-                // Добавляем "София думает..." с Lottie анимацией
+                // Добавляем "Проксима думает..." с Lottie анимацией
                 const thinkingMessageId = Date.now();
                 chatStore[targetChatTab].push({
                     role:'ai', 
@@ -11164,9 +11144,9 @@ function sendMessage(){
         return;
     }
     
-    // Проверяем команду "София [название достижения]" для разблокировки достижения
-    const achievementMatch = text.match(/софия\s+(.+)/i);
-    if (achievementMatch && text.toLowerCase().includes('софия')) {
+    // Проверяем команду "Проксима [название достижения]" для разблокировки достижения
+    const achievementMatch = text.match(/Проксима\s+(.+)/i);
+    if (achievementMatch && text.toLowerCase().includes('Проксима')) {
         const achievementTitle = achievementMatch[1].trim();
         
         // Check if user is logged in
@@ -11216,7 +11196,7 @@ function sendMessage(){
                 
                 // Step 2: Wait for blur animation + small delay
                 setTimeout(() => {
-                    // Добавляем "София думает..." с Lottie анимацией
+                    // Добавляем "Проксима думает..." с Lottie анимацией
                     const thinkingMessageId = Date.now();
                     chatStore[targetChatTab].push({
                         role:'ai', 
@@ -11659,13 +11639,13 @@ console.log('Chat event listeners attached'); // DEBUG
 console.log('chatSend element:', chatSend); // DEBUG
 console.log('chatInput element:', chatInput); // DEBUG
     document.addEventListener('DOMContentLoaded', () => {
-    const sofiaTab = document.querySelector('.chat-tab[data-base="true"]');
-    if (sofiaTab && !sofiaTab.hasAttribute('data-listener')) {
-        sofiaTab.addEventListener('click', () => {
-            switchChatTab('sofia');
+    const proximaTab = document.querySelector('.chat-tab[data-base="true"]');
+    if (proximaTab && !proximaTab.hasAttribute('data-listener')) {
+        proximaTab.addEventListener('click', () => {
+            switchChatTab('proxima');
             closeAllMenus();
         });
-        sofiaTab.setAttribute('data-listener', 'true');
+        proximaTab.setAttribute('data-listener', 'true');
     }
 });
 // ============================================================
@@ -11754,6 +11734,50 @@ function renderFilePreview() {
 function removeFile(index) {
     attachedFiles.splice(index, 1);
     renderFilePreview();
+}
+
+// Создание новой задачи
+function createNewTask() {
+    const taskName = prompt('Название задачи:');
+    if (!taskName || !taskName.trim()) return;
+    
+    // Create new tab for the task
+    const innerTabs = document.querySelector('.inner-tabs');
+    const minimizeBtn = innerTabs.querySelector('.btn-minimize');
+    
+    // Create new tab button
+    const newTab = document.createElement('button');
+    newTab.className = 'inner-tab';
+    newTab.dataset.inner = 'task-' + Date.now();
+    newTab.innerHTML = `
+        <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
+        <span>${taskName}</span>
+    `;
+    
+    // Insert before minimize button
+    innerTabs.insertBefore(newTab, minimizeBtn);
+    
+    // Deactivate all tabs
+    document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+    
+    // Activate new tab
+    newTab.classList.add('active');
+    
+    // Show task content
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:8px;padding:20px;">
+            <div class="material-item" style="cursor:default;">
+                <div class="material-icon">
+                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
+                </div>
+                <div class="material-info">
+                    <h3>${taskName}</h3>
+                    <p>Задача создана. Опишите детали в чате с Проксимой.</p>
+                </div>
+            </div>
+        </div>
+    `;
 }
 // ============================================================
 // IMAGE MODAL
@@ -12688,26 +12712,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 let isSearchActive = false;
 
-function toggleBrowserSearch() {
-    const wrap = document.getElementById('browserSearchWrap');
-    const input = document.getElementById('browserSearchInput');
-    const mainContent = document.getElementById('main-content');
-    
-    if (wrap.style.display === 'none') {
-        wrap.style.display = 'block';
-        input.focus();
-        isSearchActive = true;
-        // Update items list
-        updateAllBrowserItems();
-    } else {
-        wrap.style.display = 'none';
-        input.value = '';
-        isSearchActive = false;
-        // Restore current tab content
-        mainContent.innerHTML = getTabHTML(activeInnerTab);
-        attachMaterialClickHandlers(activeInnerTab);
-    }
-}
+// Browser search removed - not needed for task organizer
+
 
 function renderSearchResults(query) {
     updateAllBrowserItems();
@@ -12985,23 +12991,23 @@ function highlightElement(type, id) {
 // 25 Random achievements
 const ACHIEVEMENTS = [
     { id: 1, title: "Первый шаг", description: "Начало пути к здоровому образу жизни", unlocked: false },
-    { id: 2, title: "Знаток анатомии", description: "Разбирается в строении мышечной системы", unlocked: false },
+    { id: 2, title: "Знаток анатомии", description: "РазбираетС в строении мышечной системы", unlocked: false },
     { id: 3, title: "Мастер кардио", description: "Понимает принципы аэробных тренировок", unlocked: false },
     { id: 4, title: "Силовой атлет", description: "Освоил базовые силовые упражнения", unlocked: false },
     { id: 5, title: "Гибкость тела", description: "Знает важность растяжки и мобильности", unlocked: false },
     { id: 6, title: "Нутрициолог", description: "Понимает основы правильного питания", unlocked: false },
-    { id: 7, title: "Баланс БЖУ", description: "Разбирается в макронутриентах", unlocked: false },
+    { id: 7, title: "Баланс БЖУ", description: "РазбираетС в макронутриентах", unlocked: false },
     { id: 8, title: "Гидратация", description: "Знает важность водного баланса", unlocked: false },
     { id: 9, title: "Восстановление", description: "Понимает роль отдыха в прогрессе", unlocked: false },
     { id: 10, title: "Сон - основа", description: "Осознает важность качественного сна", unlocked: false },
-    { id: 11, title: "Зоны пульса", description: "Разбирается в тренировочных зонах ЧСС", unlocked: false },
+    { id: 11, title: "Зоны пульса", description: "РазбираетС в тренировочных зонах ЧСС", unlocked: false },
     { id: 12, title: "Прогрессивная нагрузка", description: "Знает принцип постепенного увеличения", unlocked: false },
     { id: 13, title: "Техника превыше всего", description: "Понимает важность правильной формы", unlocked: false },
     { id: 14, title: "Разминка и заминка", description: "Не пропускает подготовку к тренировке", unlocked: false },
     { id: 15, title: "Дыхание", description: "Освоил правильное дыхание при нагрузках", unlocked: false },
     { id: 16, title: "Метаболизм", description: "Понимает процессы обмена веществ", unlocked: false },
     { id: 17, title: "Гормональный баланс", description: "Знает роль гормонов в тренировках", unlocked: false },
-    { id: 18, title: "Суперкомпенсация", description: "Разбирается в адаптации организма", unlocked: false },
+    { id: 18, title: "Суперкомпенсация", description: "РазбираетС в адаптации организма", unlocked: false },
     { id: 19, title: "Периодизация", description: "Понимает циклирование нагрузок", unlocked: false },
     { id: 20, title: "Ментальная сила", description: "Развивает психологическую устойчивость", unlocked: false },
     { id: 21, title: "Постановка целей", description: "Умеет ставить SMART-цели", unlocked: false },
@@ -13159,7 +13165,7 @@ const browserObserver = new MutationObserver(() => {
         console.log('[BROWSER OBSERVER] Calling updateBrowserFadeGradient immediately');
         updateBrowserFadeGradient();
         
-        // Дополнительная проверка через небольшую задержку на случай если контент ещё загружается
+        // Дополнительная проверка через небольшую задержку на случай если контент ещё загружаетС
         setTimeout(() => {
             console.log('[BROWSER OBSERVER] Calling updateBrowserFadeGradient after 50ms delay');
             updateBrowserFadeGradient();
@@ -13317,7 +13323,7 @@ function checkInviteParam() {
             // Show welcome modal
             const inviterInfo = document.getElementById('inviterInfo');
             console.log('[INVITE] inviterInfo element:', inviterInfo);
-            inviterInfo.textContent = `Звено ${inviterId.toString().padStart(4, '0')} предлагает вам присоединиться к ядру MSE`;
+            inviterInfo.textContent = `Звено ${inviterId.toString().padStart(4, '0')} предлагает вам присоединитьС к ядру MSE`;
             
             const welcomeOverlay = document.getElementById('inviteWelcomeOverlay');
             console.log('[INVITE] welcomeOverlay element:', welcomeOverlay);
@@ -13351,8 +13357,438 @@ if (document.readyState === 'loading') {
     checkInviteParam();
 }
 
+// ============================================================
+// TASK TABS FUNCTIONS
+// ============================================================
+function restoreTaskTabs() {
+    console.log('[TASK TABS] Restoring task tabs from taskStore...');
+    console.log('[TASK TABS] taskStore:', taskStore);
+    console.log('[TASK TABS] taskMetadata:', taskMetadata);
+    
+    const tabsContainer = document.getElementById('taskTabs');
+    if (!tabsContainer) {
+        console.error('[TASK TABS] Tabs container not found');
+        return;
+    }
+    
+    // Clear existing tabs except overview
+    const existingTabs = tabsContainer.querySelectorAll('.chat-tab:not([data-task="overview"])');
+    existingTabs.forEach(tab => tab.remove());
+    
+    // Restore tabs from taskStore (except overview which is already there)
+    Object.keys(taskStore).forEach(taskId => {
+        if (taskId === 'overview') return; // Skip overview, it's already in HTML
+        
+        const taskName = taskMetadata[taskId]?.name || taskStore[taskId]?.title || taskId;
+        
+        console.log('[TASK TABS] Restoring tab:', taskId, taskName);
+        
+        const newTab = document.createElement('button');
+        newTab.className = 'chat-tab';
+        newTab.dataset.task = taskId;
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = taskName;
+        newTab.appendChild(nameSpan);
+        
+        newTab.addEventListener('click', () => {
+            switchTaskTab(taskId);
+        });
+        
+        tabsContainer.appendChild(newTab);
+    });
+    
+    // Render current task content
+    renderTaskContent(activeTaskTab);
+    
+    console.log('[TASK TABS] Task tabs restored successfully');
+}
+
+function switchTaskTab(taskId) {
+    console.log('[TASK TAB] Switching to:', taskId);
+    
+    // Update active tab
+    const allTabs = document.querySelectorAll('#taskTabs .chat-tab');
+    allTabs.forEach(tab => {
+        if (tab.dataset.task === taskId) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+    
+    activeTaskTab = taskId;
+    
+    // Render task content
+    renderTaskContent(taskId);
+}
+
+function renderTaskContent(taskId) {
+    const taskContent = document.getElementById('taskContent');
+    const task = taskStore[taskId];
+    
+    if (!task) {
+        taskContent.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;">
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Задача не найдена</div>
+            </div>
+        `;
+        return;
+    }
+    
+    if (taskId === 'overview') {
+        // Show overview of all tasks
+        const allTasks = Object.keys(taskStore).filter(id => id !== 'overview');
+        
+        if (allTasks.length === 0) {
+            taskContent.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Планировщик задач Helix</div>
+                    <div style="font-size:12px;line-height:1.6;color:var(--text-secondary);max-width:400px;">Нажми "+" чтобы создать новую задачу. Проксима поможет составить подробный план действий.</div>
+                </div>
+            `;
+        } else {
+            let tasksHTML = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            allTasks.forEach(id => {
+                const t = taskStore[id];
+                const statusIcon = t.status === 'ready' ? '✅' : t.status === 'error' ? '❌' : '⏳';
+                tasksHTML += `
+                    <div onclick="switchTaskTab('${id}')" style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;cursor:pointer;transition:all .2s ease;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">${statusIcon} ${t.title}</div>
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.4;">${t.description}</div>
+                    </div>
+                `;
+            });
+            tasksHTML += '</div>';
+            taskContent.innerHTML = tasksHTML;
+        }
+        return;
+    }
+    
+    // Show specific task
+    if (task.status === 'pending') {
+        taskContent.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${task.title}</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${task.description}</div>
+                </div>
+                <div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:12px;">
+                    <div class="loader" style="margin:0 auto 12px;"></div>
+                    Проксима анализирует задачу и создаёт пайплайн...
+                </div>
+            </div>
+        `;
+    } else if (task.status === 'error') {
+        taskContent.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${task.title}</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${task.description}</div>
+                </div>
+                <div style="padding:20px;text-align:center;color:rgba(255,80,80,.8);font-size:12px;">
+                    ❌ Ошибка при создании пайплайна. Попробуй создать задачу заново.
+                </div>
+            </div>
+        `;
+    } else {
+        // Show pipeline
+        taskContent.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${task.title}</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${task.description}</div>
+                </div>
+                <div style="padding:12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;">
+                    <div style="font-size:12px;color:var(--text-primary);line-height:1.6;">${markdownToHTML(task.pipeline)}</div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+async function saveTasksToFirebase(userId, tasks, metadata) {
+    try {
+        console.log('[FIREBASE] Saving tasks for user:', userId);
+        const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
+        await window.firebaseUpdateDoc(userRef, {
+            tasks_helix: tasks,
+            taskMetadata: metadata,
+            lastUpdated: window.firebaseServerTimestamp()
+        });
+        console.log('[FIREBASE] Tasks saved successfully');
+    } catch (error) {
+        console.error('[FIREBASE] Error saving tasks:', error);
+    }
+}
+
+// ============================================================
+// NEW TASK MODAL FUNCTIONS
+// ============================================================
+function restoreChatTabs() {
+    console.log('[CHAT TABS] Restoring chat tabs from chatStore...');
+    console.log('[CHAT TABS] chatStore:', chatStore);
+    console.log('[CHAT TABS] chatMetadata:', chatMetadata);
+    
+    const tabsContainer = document.getElementById('chatTabs');
+    if (!tabsContainer) {
+        console.error('[CHAT TABS] Tabs container not found');
+        return;
+    }
+    
+    // Clear existing tabs except proxima
+    const existingTabs = tabsContainer.querySelectorAll('.chat-tab:not([data-base="true"])');
+    existingTabs.forEach(tab => tab.remove());
+    
+    // Restore tabs from chatStore (except proxima which is already there)
+    Object.keys(chatStore).forEach(chatId => {
+        if (chatId === 'proxima') return; // Skip proxima, it's already in HTML
+        
+        const chatName = chatMetadata[chatId]?.name || chatId;
+        const isPinned = chatMetadata[chatId]?.pinned || false;
+        
+        console.log('[CHAT TABS] Restoring tab:', chatId, chatName, 'pinned:', isPinned);
+        
+        const newTab = createChatTabElement(chatId, chatName, false);
+        if (isPinned) {
+            newTab.classList.add('pinned');
+            pinnedChats.add(chatId);
+        }
+        tabsContainer.appendChild(newTab);
+    });
+    
+    console.log('[CHAT TABS] Chat tabs restored successfully');
+}
+
+function openNewTaskModal() {
+    const overlay = document.getElementById('newTaskOverlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.classList.add('active'), 10);
+        
+        // Clear previous inputs
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskDescription').value = '';
+        
+        // Focus on title input
+        setTimeout(() => document.getElementById('taskTitle').focus(), 100);
+    }
+}
+
+function closeNewTaskModal() {
+    const overlay = document.getElementById('newTaskOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.style.display = 'none', 300);
+    }
+}
+
+async function createNewTask() {
+    const title = document.getElementById('taskTitle').value.trim();
+    const description = document.getElementById('taskDescription').value.trim();
+    
+    if (!title) {
+        showAlert('Введите название задачи', 'Ошибка');
+        return;
+    }
+    
+    if (!description) {
+        showAlert('Введите описание задачи', 'Ошибка');
+        return;
+    }
+    
+    // Close modal
+    closeNewTaskModal();
+    
+    // Create new task tab in browser block
+    const taskId = 'task_' + Date.now();
+    const taskName = title;
+    
+    // Initialize task store
+    taskStore[taskId] = {
+        title: title,
+        description: description,
+        pipeline: '',
+        status: 'pending'
+    };
+    taskMetadata[taskId] = { name: taskName };
+    
+    // Create and add new task tab
+    const taskTabsContainer = document.getElementById('taskTabs');
+    const newTaskTab = document.createElement('button');
+    newTaskTab.className = 'chat-tab';
+    newTaskTab.dataset.task = taskId;
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = taskName;
+    newTaskTab.appendChild(nameSpan);
+    
+    // Add click handler
+    newTaskTab.addEventListener('click', () => {
+        switchTaskTab(taskId);
+    });
+    
+    taskTabsContainer.appendChild(newTaskTab);
+    
+    // Switch to new task tab
+    switchTaskTab(taskId);
+    
+    // Show loading state in task content
+    const taskContent = document.getElementById('taskContent');
+    taskContent.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${title}</div>
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${description}</div>
+            </div>
+            <div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:12px;">
+                <div class="loader" style="margin:0 auto 12px;"></div>
+                Проксима анализирует задачу и создаёт пайплайн...
+            </div>
+        </div>
+    `;
+    
+    // Send message to Proxima in chat
+    const proximaMessage = `Создай подробный пайплайн для задачи:\n\nНазвание: ${title}\n\nОписание: ${description}`;
+    
+    // Add user message to Proxima chat
+    if (!chatStore['proxima']) chatStore['proxima'] = [];
+    chatStore['proxima'].push({
+        role: 'user',
+        text: proximaMessage
+    });
+    
+    // Switch to Proxima chat to show the request
+    switchChatTab('proxima');
+    
+    // Small delay before showing user message
+    setTimeout(() => {
+        renderChatMessages();
+        
+        // Wait for blur animation
+        setTimeout(() => {
+            // Add thinking message
+            const thinkingId = Date.now();
+            chatStore['proxima'].push({
+                role: 'ai',
+                type: 'thinking',
+                id: thinkingId
+            });
+            renderChatMessages();
+            
+            // Call Gemini API to generate pipeline
+            const prompt = `Ты - Проксима, AI-ассистент для планирования задач. Создай ПОДРОБНЫЙ пайплайн (план выполнения) для следующей задачи:
+
+Название: ${title}
+
+Описание: ${description}
+
+Требования к пайплайну:
+1. Разбей задачу на конкретные шаги (минимум 5-7 шагов)
+2. Каждый шаг должен быть четким и выполнимым
+3. Укажи примерное время на каждый шаг
+4. Добавь рекомендации и советы
+5. Используй эмодзи для наглядности
+6. Структурируй ответ с помощью списков и подзаголовков
+
+Формат ответа:
+📋 **ПАЙПЛАЙН ЗАДАЧИ: [название]**
+
+**Шаг 1: [название шага]** ⏱️ [время]
+[Описание что нужно сделать]
+
+**Шаг 2: [название шага]** ⏱️ [время]
+[Описание что нужно сделать]
+
+... и так далее
+
+💡 **Рекомендации:**
+[Полезные советы]
+
+✅ **Критерии завершения:**
+[Как понять что задача выполнена]
+
+ВАЖНО: Верни ответ в формате JSON:
+{
+  "response": "твой подробный пайплайн в markdown формате",
+  "actions": []
+}`;
+
+            callGeminiAPI(prompt, chatStore['proxima']).then(aiResult => {
+                const responseText = aiResult.response || 'Извини, не смогла создать пайплайн. Попробуй ещё раз.';
+                
+                // Calculate thinking time based on response length
+                const baseTime = 1000;
+                const maxTime = 10000;
+                const thinkingTime = Math.min(maxTime, baseTime + (responseText.length * 9));
+                
+                setTimeout(() => {
+                    // Remove thinking message
+                    chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
+                    
+                    // Add AI response to Proxima chat
+                    chatStore['proxima'].push({
+                        role: 'ai',
+                        text: responseText
+                    });
+                    
+                    renderChatMessages();
+                    
+                    // Update task store with pipeline
+                    taskStore[taskId].pipeline = responseText;
+                    taskStore[taskId].status = 'ready';
+                    
+                    // Update task content in browser block
+                    if (activeTaskTab === taskId) {
+                        renderTaskContent(taskId);
+                    }
+                    
+                    // Auto-save to Firebase
+                    if (currentUser) {
+                        clearTimeout(window.chatSaveTimeout);
+                        window.chatSaveTimeout = setTimeout(() => {
+                            saveChatsToFirebase(currentUser.id, chatStore);
+                            saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+                        }, 2000);
+                    }
+                }, thinkingTime);
+            }).catch(error => {
+                console.error('AI error:', error);
+                setTimeout(() => {
+                    chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
+                    chatStore['proxima'].push({
+                        role: 'ai',
+                        text: 'Извини, произошла ошибка при создании пайплайна. Попробуй ещё раз. 🔧'
+                    });
+                    renderChatMessages();
+                    
+                    // Update task with error
+                    taskStore[taskId].status = 'error';
+                    if (activeTaskTab === taskId) {
+                        renderTaskContent(taskId);
+                    }
+                }, 1000);
+            });
+        }, 800);
+    }, 150);
+}
+
+// Close modal on overlay click
+document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('newTaskOverlay');
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeNewTaskModal();
+            }
+        });
+    }
+});
+
 </script>
 <script src="video-random-fix.js">
 </script>
 </body>
 </html>
+
+
