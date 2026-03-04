@@ -145,24 +145,6 @@
         
         .user-status {
             display: none;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: var(--text-secondary);
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .user-status.logged-in {
-            display: flex;
-        }
-        
-        .user-status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #44ff44;
         }
         
         .header-login-btn {
@@ -427,7 +409,7 @@
         #organizerBlock::before {
             content: '';
             position: absolute;
-            top: 58px;
+            top: 98px;
             left: 12px;
             right: 12px;
             height: 60px;
@@ -452,6 +434,11 @@
             transition: opacity 0.3s ease;
         }
         
+        #organizerBlock.collapsed::before,
+        #organizerBlock.collapsed::after {
+            opacity: 0 !important;
+        }
+        
         #chatBlock::before {
             content: '';
             position: absolute;
@@ -469,7 +456,7 @@
         #chatBlock::after {
             content: '';
             position: absolute;
-            bottom: 64px;
+            bottom: 58px;
             left: 12px;
             right: 12px;
             height: 60px;
@@ -480,23 +467,44 @@
             transition: opacity 0.3s ease;
         }
         
+        #chatBlock.collapsed::before,
+        #chatBlock.collapsed::after {
+            opacity: 0 !important;
+        }
+        
         /* Task Tabs */
         .task-tabs-container {
-            padding: 8px 12px 0 12px;
-            border-bottom: 1px solid var(--glass-border);
             display: flex;
-            gap: 8px;
+            gap: 6px;
             overflow-x: auto;
             scrollbar-width: none;
-            padding-bottom: 8px;
+            flex: 1;
+            position: relative;
+            padding: 0 8px;
+            transition: mask-image 0.3s ease;
         }
         
         .task-tabs-container::-webkit-scrollbar {
             display: none;
         }
         
+        .task-tabs-container.blur-left {
+            mask-image: linear-gradient(to right, transparent 0%, black 10%, black 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 100%);
+        }
+        
+        .task-tabs-container.blur-right {
+            mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+        }
+        
+        .task-tabs-container.blur-both {
+            mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        }
+        
         .task-tab {
-            min-width: 120px;
+            min-width: 100px;
             height: 32px;
             padding: 0 12px;
             background: transparent;
@@ -509,7 +517,7 @@
             transition: all .3s ease;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 8px;
             white-space: nowrap;
             flex-shrink: 0;
@@ -521,23 +529,18 @@
             border-color: var(--text-secondary);
         }
         
+        .task-tab.completed {
+            opacity: 0.5;
+        }
+        
+        .task-tab.completed::after {
+            content: '✓';
+            margin-left: 4px;
+            font-size: 12px;
+        }
+        
         .task-tab:hover:not(.active) {
             border-color: rgba(255,255,255,.3);
-        }
-        
-        .task-tab-close {
-            width: 14px;
-            height: 14px;
-            opacity: 0.5;
-            transition: opacity .15s ease;
-        }
-        
-        .task-tab-close:hover {
-            opacity: 1;
-        }
-        
-        .task-tab.active .task-tab-close {
-            filter: invert(1);
         }
         
         .add-task-btn {
@@ -555,6 +558,10 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background: rgba(13,13,13,0.95);
         }
         
         .add-task-btn:hover {
@@ -566,7 +573,7 @@
         /* Task Tree */
         .task-tree-container {
             flex: 1;
-            padding: 0;
+            padding: 12px;
             overflow-y: auto;
             scrollbar-width: none;
             position: relative;
@@ -583,10 +590,10 @@
             border: none;
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 8px;
             position: relative;
-            padding-left: 12px;
-            min-height: 40px;
+            padding-left: 0;
+            min-height: 32px;
         }
         
         .task-item:hover .task-content {
@@ -606,13 +613,13 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            width: 12px;
+            width: 8px;
             flex-shrink: 0;
         }
         
         .task-progress-dot {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: var(--glass-border);
             border: 2px solid rgba(13,13,13,1);
@@ -620,7 +627,7 @@
             z-index: 2;
             flex-shrink: 0;
             transition: all .2s ease;
-            margin-top: 14px;
+            margin-top: 12px;
         }
         
         .task-item.completed .task-progress-dot {
@@ -628,10 +635,10 @@
         }
         
         .task-progress-line {
-            width: 2px;
+            width: 1px;
             position: absolute;
-            top: 26px;
-            bottom: -40px;
+            top: 20px;
+            bottom: -32px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--glass-border);
@@ -647,31 +654,31 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            padding: 8px 12px;
-            border-radius: 6px;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 5px;
             transition: background .15s ease;
             cursor: pointer;
-            min-height: 40px;
+            min-height: 32px;
         }
         
         .task-title {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-primary);
-            line-height: 1.4;
+            line-height: 1.3;
             flex: 1;
         }
         
         .task-meta {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
             flex-shrink: 0;
         }
         
         .task-priority {
-            font-size: 10px;
-            padding: 2px 6px;
+            font-size: 9px;
+            padding: 2px 5px;
             border-radius: 3px;
             font-weight: 500;
         }
@@ -695,7 +702,7 @@
         }
         
         .task-subtasks {
-            margin-left: 24px;
+            margin-left: 16px;
             margin-top: 0;
             padding-left: 0;
             border-left: none;
@@ -791,7 +798,7 @@
         
         .chat-input {
             flex: 1;
-            padding: 0 12px;
+            padding: 10px 12px;
             background: rgba(255,255,255,.05);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
@@ -799,13 +806,12 @@
             font-family: 'Inter', sans-serif;
             font-size: 13px;
             resize: none;
-            line-height: 1.4;
-            max-height: 80px;
-            min-height: 34px;
-            height: 34px;
+            height: 40px;
             transition: all .2s ease;
             overflow: hidden;
             scrollbar-width: none;
+            display: flex;
+            align-items: center;
         }
         
         .chat-input::-webkit-scrollbar {
@@ -824,8 +830,8 @@
         
         .chat-attach,
         .chat-send-btn {
-            width: 34px;
-            height: 34px;
+            width: 40px;
+            height: 40px;
             background: rgba(255,255,255,.06);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
@@ -847,7 +853,6 @@
         .chat-send-btn img {
             width: 18px;
             height: 18px;
-            opacity: .7;
         }
         
         .chat-send-btn:disabled {
@@ -927,8 +932,17 @@
             overflow: hidden;
         }
         
+        .auth-modal.logout-size {
+            height: 140px;
+            padding: 8px 24px 6px 24px;
+        }
+        
         .auth-overlay.active .auth-modal {
             transform: scale(1);
+        }
+        
+        .pin-digit.error {
+            border-color: rgba(255,80,80,.5) !important;
         }
         
         .auth-title {
@@ -1038,7 +1052,43 @@
             margin-left: 4px;
         }
         
-        /* Age slider */
+        /* Age slider styles */
+        .age-slider-container {
+            width: 100%;
+            margin: 0;
+        }
+        
+        .age-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .age-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .age-value {
+            font-size: 24px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .age-slider {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,.1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
         .age-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -1071,8 +1121,88 @@
         }
         
         /* Gender buttons */
+        .gender-buttons {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            margin: 0;
+        }
+        
+        .gender-btn {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        
         .gender-btn:hover {
-            background: rgba(255,255,255,.08) !important;
+            background: rgba(255,255,255,.08);
+        }
+        
+        .gender-btn.selected {
+            background: var(--text-secondary);
+            color: var(--bg-primary);
+            border-color: var(--text-secondary);
+        }
+        
+        /* Checkbox group */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        /* Auth buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .auth-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        
+        .auth-btn:hover {
+            background: rgba(255,255,255,.08);
+        }
+        
+        .auth-btn.primary {
+            background: rgba(255,255,255,.15);
+            color: var(--text-primary);
+        }
+        
+        .auth-btn.primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .register-form-content {
@@ -1085,12 +1215,8 @@
     <!-- Header -->
     <header>
         <div class="header-inner">
-            <div class="logo">
+            <div class="logo" onclick="toggleMonitorMode()" style="cursor: pointer;">
                 <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="MSE">
-            </div>
-            <div class="user-status" id="userStatus">
-                <span class="user-status-dot"></span>
-                <span id="userIdDisplay"></span>
             </div>
             <button class="header-login-btn" id="headerLoginBtn" onclick="handleLogin()">
                 <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">
@@ -1105,8 +1231,8 @@
             <div class="content-block" id="organizerBlock">
                 <div class="block-body">
                     <div class="inner-tabs">
-                        <div class="task-tabs-container" style="border: none; padding: 0; margin: 0; flex: 1; overflow-x: auto;">
-                            <button class="add-task-btn" onclick="createNewTask()">+</button>
+                        <button class="add-task-btn" onclick="createNewTask()">+</button>
+                        <div class="task-tabs-container" id="taskTabsContainer" style="border: none; padding: 0; margin: 0; flex: 1; overflow-x: auto;">
                         </div>
                         <button class="btn-minimize" onclick="toggleBlock('organizerBlock')">
                             <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="" style="width:12px;height:12px;">
@@ -1149,10 +1275,10 @@
                         <div class="chat-input-container">
                             <textarea class="chat-input" id="chatInput" placeholder="Сообщение..." rows="1"></textarea>
                             <button class="chat-attach" onclick="alert('Прикрепление файлов в разработке')">
-                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/attach.svg" alt="Attach" style="width:18px;height:18px;">
+                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="Прикрепить" style="width:18px;height:18px;">
                             </button>
                             <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
-                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/send.svg" alt="Send" style="width:18px;height:18px;">
+                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="Отправить" style="width:18px;height:18px;">
                             </button>
                         </div>
                     </div>
@@ -1219,14 +1345,14 @@
                 <div id="registerContent">
                     <!-- STEP 1: PIN CODE -->
                     <div class="register-form-content" id="registerStep1">
-                        <div class="user-id-display" style="padding:10px;margin-bottom:12px;">
-                            <span class="user-id-label" style="font-size:11px;">ВЫ СТАНЕТЕ ЗВЕНОМ ПОД НОМЕРОМ:</span>
-                            <span class="user-id-number" id="newUserId" style="font-size:11px;">----</span>
+                        <div class="user-id-display" style="padding:10px;margin-bottom:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;text-align:center;">
+                            <span style="font-size:11px;color:var(--text-secondary);white-space:nowrap;">ВЫ СТАНЕТЕ ЗВЕНОМ ПОД НОМЕРОМ: </span>
+                            <span id="newUserId" style="font-size:14px;font-weight:600;color:var(--text-primary);">----</span>
                         </div>
-                        <form class="auth-form" onsubmit="return false;" style="margin-top: 12px;">
-                            <div class="form-label-key" style="margin-bottom:12px;width:100%;">
-                                <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="">
-                                <span style="font-size:14px;white-space:nowrap;width:100%;text-align:center;">Создайте уникальный ключ доступа</span>
+                        <form class="auth-form" onsubmit="return false;">
+                            <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                                <img class="key-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/key.svg" alt="" style="width:16px;height:16px;">
+                                <span style="font-size:14px;color:var(--text-primary);">Создайте уникальный ключ доступа</span>
                             </div>
                             <div class="pin-input-container" style="margin-bottom:10px;">
                                 <input type="number" class="pin-digit" id="pin1" maxlength="1" autocomplete="off">
@@ -1234,7 +1360,7 @@
                                 <input type="number" class="pin-digit" id="pin3" maxlength="1" autocomplete="off">
                                 <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
                             </div>
-                            <div style="font-size:11px;color:var(--text-tertiary);text-align:justify;line-height:1.4;margin-top:0;width:100%;">
+                            <div style="font-size:11px;color:var(--text-tertiary);text-align:justify;line-height:1.4;margin-top:0;">
                                 Внимание! Ключ доступа не восстанавливается. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
                             </div>
                         </form>
@@ -1250,24 +1376,36 @@
                                 </div>
                                 <input type="range" class="age-slider" id="ageSlider" min="6" max="99" value="18">
                             </div>
-                            <div class="gender-buttons" style="display:flex;gap:8px;margin-top:16px;">
-                                <button type="button" class="gender-btn" id="genderMale" onclick="selectGender('male')" style="flex:1;padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;">
+                            <div class="gender-buttons" style="margin-top:16px;">
+                                <button type="button" class="gender-btn" id="genderMale" onclick="selectGender('male')">
                                     <span>Мужской</span>
                                 </button>
-                                <button type="button" class="gender-btn" id="genderFemale" onclick="selectGender('female')" style="flex:1;padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;">
+                                <button type="button" class="gender-btn" id="genderFemale" onclick="selectGender('female')">
                                     <span>Женский</span>
                                 </button>
                             </div>
-                            <div class="checkbox-group" style="display:flex;align-items:center;gap:8px;margin-top:16px;">
-                                <input type="checkbox" id="termsCheckbox2" style="width:16px;height:16px;">
-                                <label for="termsCheckbox2" style="font-size:12px;color:var(--text-secondary);">Я принимаю <span style="font-weight:600;">условия подключения к сети MSE</span></label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="termsCheckbox2">
+                                <label for="termsCheckbox2">Я принимаю <span style="font-weight:600;">условия подключения к сети MSE</span></label>
                             </div>
-                            <div class="auth-buttons" id="registerButtons" style="display:flex;gap:8px;margin-top:16px;">
-                                <button type="button" class="auth-btn" onclick="closeAuth()" style="flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-secondary);font-size:13px;cursor:pointer;">Отмена</button>
-                                <button type="button" class="auth-btn primary" onclick="register()" id="registerBtn" disabled style="flex:1;padding:10px;background:rgba(255,255,255,.15);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);font-size:13px;cursor:pointer;">Создать аккаунт</button>
+                            <div class="auth-buttons">
+                                <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+                                <button type="button" class="auth-btn primary" onclick="register()" id="registerBtn" disabled>Создать аккаунт</button>
                             </div>
                         </form>
                     </div>
+                </div>
+            </div>
+            
+            <!-- LOGOUT CONFIRMATION -->
+            <div id="logoutForm" style="display:none;">
+                <div style="text-align:center;color:#999;font-size:11px;margin-bottom:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;padding:4px 8px;">Отключиться от сети MSE</div>
+                <div style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:16px;line-height:1.5;">
+                    Вы уверены, что хотите прервать синхронизацию?
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="cancelLogout()" style="flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-secondary);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;">Отмена</button>
+                    <button onclick="confirmLogout()" style="flex:1;padding:10px;background:rgba(255,255,255,.15);border:1px solid var(--glass-border);border-radius:5px;color:var(--text-primary);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;">Выйти</button>
                 </div>
             </div>
         </div>
@@ -1286,15 +1424,33 @@
         let registrationPin = '';
         
         // Show register form
-        function showRegister() {
+        async function showRegister() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
             document.getElementById('registerStep1').style.display = 'block';
             document.getElementById('registerStep2').style.display = 'none';
             
-            // Generate new user ID
-            const newId = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('newUserId').textContent = newId;
+            // Generate sequential user ID from Firebase
+            try {
+                const usersRef = window.firebaseCollection(window.firebaseDB, 'users');
+                const snapshot = await window.firebaseGetDocs(usersRef);
+                
+                let maxId = 1000;
+                snapshot.forEach((doc) => {
+                    const userId = parseInt(doc.id);
+                    if (!isNaN(userId) && userId > maxId) {
+                        maxId = userId;
+                    }
+                });
+                
+                const newId = maxId + 1;
+                document.getElementById('newUserId').textContent = newId;
+            } catch (error) {
+                console.error('Error generating user ID:', error);
+                // Fallback to random if Firebase fails
+                const newId = Math.floor(1000 + Math.random() * 9000);
+                document.getElementById('newUserId').textContent = newId;
+            }
             
             // Setup PIN inputs for registration
             setupPinInputs('pin');
@@ -1307,10 +1463,17 @@
         // Select gender
         function selectGender(gender) {
             selectedGender = gender;
-            document.getElementById('genderMale').style.background = gender === 'male' ? 'var(--text-secondary)' : 'rgba(255,255,255,.05)';
-            document.getElementById('genderMale').style.color = gender === 'male' ? 'var(--bg-primary)' : 'var(--text-secondary)';
-            document.getElementById('genderFemale').style.background = gender === 'female' ? 'var(--text-secondary)' : 'rgba(255,255,255,.05)';
-            document.getElementById('genderFemale').style.color = gender === 'female' ? 'var(--bg-primary)' : 'var(--text-secondary)';
+            const maleBtn = document.getElementById('genderMale');
+            const femaleBtn = document.getElementById('genderFemale');
+            
+            if (gender === 'male') {
+                maleBtn.classList.add('selected');
+                femaleBtn.classList.remove('selected');
+            } else {
+                femaleBtn.classList.add('selected');
+                maleBtn.classList.remove('selected');
+            }
+            
             checkRegisterButton();
         }
         
@@ -1457,38 +1620,95 @@
             }
         }
         
-        // Toggle block
-        function toggleBlock(blockId) {
-            const block = document.getElementById(blockId);
-            const grid = document.querySelector('.content-grid');
+        function toggleMonitorMode() {
             const organizerBlock = document.getElementById('organizerBlock');
             const chatBlock = document.getElementById('chatBlock');
-            
-            block.classList.toggle('collapsed');
+            const grid = document.querySelector('.content-grid');
             
             const bothCollapsed = organizerBlock.classList.contains('collapsed') && 
                                  chatBlock.classList.contains('collapsed');
             
             if (bothCollapsed) {
-                grid.classList.add('both-collapsed');
+                // Expand both
+                toggleBlock('organizerBlock');
+                setTimeout(() => toggleBlock('chatBlock'), 100);
             } else {
-                grid.classList.remove('both-collapsed');
+                // Collapse both
+                toggleBlock('organizerBlock');
+                setTimeout(() => toggleBlock('chatBlock'), 100);
             }
+        }
+        
+        // Toggle block with blur animation
+        function toggleBlock(blockId) {
+            const block = document.getElementById(blockId);
+            const grid = document.querySelector('.content-grid');
+            const organizerBlock = document.getElementById('organizerBlock');
+            const chatBlock = document.getElementById('chatBlock');
+            const contentBody = block.querySelector('.content-body');
+            const chatContainer = block.querySelector('.chat-container');
+            const content = contentBody || chatContainer;
             
-            setTimeout(() => {
-                const contentBody = block.querySelector('.content-body');
-                if (block.classList.contains('collapsed')) {
-                    contentBody.style.overflow = 'hidden';
-                } else {
-                    contentBody.style.overflow = 'visible';
-                }
-            }, 800);
+            if (block.classList.contains('collapsed')) {
+                // Expanding - blur first, then expand, then unblur
+                content.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                content.style.filter = 'blur(8px)';
+                content.style.opacity = '0';
+                
+                setTimeout(() => {
+                    block.classList.remove('collapsed');
+                    
+                    const bothCollapsed = organizerBlock.classList.contains('collapsed') && 
+                                         chatBlock.classList.contains('collapsed');
+                    
+                    if (bothCollapsed) {
+                        grid.classList.add('both-collapsed');
+                    } else {
+                        grid.classList.remove('both-collapsed');
+                    }
+                    
+                    setTimeout(() => {
+                        content.style.filter = 'blur(0px)';
+                        content.style.opacity = '1';
+                        
+                        setTimeout(() => {
+                            if (!block.classList.contains('collapsed')) {
+                                content.style.overflow = 'visible';
+                            }
+                        }, 300);
+                    }, 100);
+                }, 300);
+            } else {
+                // Collapsing - blur, then collapse, then unblur
+                content.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                content.style.filter = 'blur(8px)';
+                content.style.opacity = '0';
+                
+                setTimeout(() => {
+                    block.classList.add('collapsed');
+                    content.style.overflow = 'hidden';
+                    
+                    const bothCollapsed = organizerBlock.classList.contains('collapsed') && 
+                                         chatBlock.classList.contains('collapsed');
+                    
+                    if (bothCollapsed) {
+                        grid.classList.add('both-collapsed');
+                    } else {
+                        grid.classList.remove('both-collapsed');
+                    }
+                    
+                    setTimeout(() => {
+                        content.style.filter = 'blur(0px)';
+                        content.style.opacity = '1';
+                    }, 100);
+                }, 300);
+            }
         }
         
         // Auto-resize textarea
         const chatInput = document.getElementById('chatInput');
         chatInput.addEventListener('input', function() {
-            this.style.height = '34px';
+            this.style.height = '40px';
             this.style.height = Math.min(this.scrollHeight, 80) + 'px';
         });
         
@@ -1502,20 +1722,26 @@
         // Login Handler
         function handleLogin() {
             if (currentUser) {
-                if (confirm('Выйти из аккаунта?')) {
-                    currentUser = null;
-                    tasks = [];
-                    activeTaskId = null;
-                    document.getElementById('userStatus').classList.remove('logged-in');
-                    renderTaskTabs();
-                    renderTaskTree();
-                    addChatMessage('ai', 'Вы вышли из системы. Войдите, чтобы управлять задачами.');
-                }
+                // Show logout confirmation
+                const authModal = document.getElementById('authModal');
+                authModal.classList.add('logout-size');
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('logoutForm').style.display = 'block';
+                
+                const overlay = document.getElementById('authOverlay');
+                overlay.classList.add('active');
                 return;
             }
             
             const overlay = document.getElementById('authOverlay');
+            const authModal = document.getElementById('authModal');
+            authModal.classList.remove('logout-size');
             overlay.classList.add('active');
+            
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('logoutForm').style.display = 'none';
             
             loginStep = 'id';
             enteredId = '';
@@ -1526,17 +1752,43 @@
             for (let i = 1; i <= 4; i++) {
                 document.getElementById(`loginId${i}`).value = '';
                 document.getElementById(`loginPin${i}`).value = '';
+                document.getElementById(`loginId${i}`).classList.remove('error');
+                document.getElementById(`loginPin${i}`).classList.remove('error');
             }
+            
+            setupPinInputs('loginId');
+            setupPinInputs('loginPin');
             
             setTimeout(() => {
                 document.getElementById('loginId1').focus();
             }, 100);
         }
         
+        function cancelLogout() {
+            closeAuthModal();
+        }
+        
+        function confirmLogout() {
+            currentUser = null;
+            tasks = [];
+            activeTaskId = null;
+            renderTaskTabs();
+            renderTaskTree();
+            closeAuthModal();
+            addChatMessage('ai', 'Вы вышли из системы. Войдите, чтобы управлять задачами.');
+        }
+        
         function closeAuthModal() {
             const overlay = document.getElementById('authOverlay');
             overlay.classList.remove('active');
         }
+        
+        // Close modal on overlay click
+        document.getElementById('authOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAuthModal();
+            }
+        });
         
         function confirmLogin(userId, pin) {
             if (userId && pin && userId.length === 4 && pin.length === 4) {
@@ -1645,36 +1897,54 @@
         }
         
         function renderTaskTabs() {
-            const container = document.querySelector('.task-tabs-container');
-            const addBtn = container.querySelector('.add-task-btn');
+            const container = document.getElementById('taskTabsContainer');
             
-            container.querySelectorAll('.task-tab').forEach(tab => tab.remove());
+            container.innerHTML = '';
             
             tasks.forEach(task => {
                 const tab = document.createElement('div');
-                tab.className = 'task-tab' + (task.id === activeTaskId ? ' active' : '');
-                
-                const taskName = document.createElement('span');
-                taskName.textContent = task.name;
-                taskName.style.flex = '1';
-                taskName.style.overflow = 'hidden';
-                taskName.style.textOverflow = 'ellipsis';
-                
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'task-tab-close';
-                closeBtn.textContent = '✕';
-                closeBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    deleteTask(task.id);
-                };
-                
-                tab.appendChild(taskName);
-                tab.appendChild(closeBtn);
+                tab.className = 'task-tab' + (task.id === activeTaskId ? ' active' : '') + (task.completed ? ' completed' : '');
+                tab.textContent = task.name;
                 tab.onclick = () => switchTask(task.id);
-                
-                container.insertBefore(tab, addBtn);
+                container.appendChild(tab);
             });
+            
+            // Update blur gradients
+            updateTabsBlur();
         }
+        
+        function updateTabsBlur() {
+            const container = document.getElementById('taskTabsContainer');
+            if (!container) return;
+            
+            const scrollLeft = container.scrollLeft;
+            const scrollWidth = container.scrollWidth;
+            const clientWidth = container.clientWidth;
+            const maxScroll = scrollWidth - clientWidth;
+            
+            container.classList.remove('blur-left', 'blur-right', 'blur-both');
+            
+            if (maxScroll <= 0) return;
+            
+            const atStart = scrollLeft <= 5;
+            const atEnd = scrollLeft >= maxScroll - 5;
+            
+            if (!atStart && !atEnd) {
+                container.classList.add('blur-both');
+            } else if (!atStart) {
+                container.classList.add('blur-left');
+            } else if (!atEnd) {
+                container.classList.add('blur-right');
+            }
+        }
+        
+        // Add scroll listener
+        setTimeout(() => {
+            const container = document.getElementById('taskTabsContainer');
+            if (container) {
+                container.addEventListener('scroll', updateTabsBlur);
+            }
+        }, 100);
         
         function renderTaskTree() {
             const container = document.getElementById('taskTreeContainer');
@@ -1779,7 +2049,7 @@
             
             addChatMessage('user', message);
             input.value = '';
-            input.style.height = 'auto';
+            input.style.height = '40px';
             
             const typingId = addTypingIndicator();
             
@@ -1806,35 +2076,30 @@
             setTimeout(() => updateChatScrollGradients(), 100);
         }
         
-        function addTypingIndicator() {
+        function showThinking() {
             const messagesContainer = document.getElementById('chatMessages');
-            const typingDiv = document.createElement('div');
-            const typingId = 'typing_' + Date.now();
-            typingDiv.id = typingId;
-            typingDiv.className = 'chat-message ai';
-            typingDiv.innerHTML = `
-                <div class="chat-bubble">
-                    <div class="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.id = 'thinkingMessage';
+            thinkingDiv.className = 'chat-message ai';
+            thinkingDiv.innerHTML = `
+                <div class="chat-bubble" style="font-style:italic;opacity:0.7;">София думает...</div>
             `;
-            messagesContainer.appendChild(typingDiv);
+            messagesContainer.appendChild(thinkingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            setTimeout(() => updateChatScrollGradients(), 100);
-            
-            return typingId;
         }
         
-        function removeTypingIndicator(typingId) {
-            const typingDiv = document.getElementById(typingId);
-            if (typingDiv) {
-                typingDiv.remove();
-                setTimeout(() => updateChatScrollGradients(), 100);
-            }
+        function removeThinking() {
+            const thinking = document.getElementById('thinkingMessage');
+            if (thinking) thinking.remove();
+        }
+        
+        function addTypingIndicator() {
+            showThinking();
+            return 'thinkingMessage';
+        }
+        
+        function removeTypingIndicator(id) {
+            removeThinking();
         }
         
         async function processAIResponse(userMessage) {
@@ -1853,18 +2118,15 @@
         }
         
         function handleNewTask(message) {
-            let taskName = message;
-            if (message.length > 50) {
-                taskName = message.substring(0, 47) + '...';
+            // Extract task name from message (first 3-5 words or up to 40 chars)
+            let taskName = message.split(' ').slice(0, 5).join(' ');
+            if (taskName.length > 40) {
+                taskName = message.substring(0, 37) + '...';
             }
             
-            const questions = [
-                'Какой результат вы хотите получить?',
-                'Есть ли дедлайн для этой задачи?',
-                'Какие ресурсы у вас есть?'
-            ];
-            
-            const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+            // Clean up task name
+            taskName = taskName.replace(/^(нужно|надо|хочу|помочь|помоги|создай|сделай)\s+/i, '');
+            taskName = taskName.charAt(0).toUpperCase() + taskName.slice(1);
             
             const newTask = {
                 id: 'task_' + Date.now(),
@@ -1881,89 +2143,132 @@
             renderTaskTabs();
             switchTask(newTask.id);
             
-            addChatMessage('ai', `Отлично! Я создал задачу "${taskName}" и разбил её на этапы. ${randomQuestion}`);
+            addChatMessage('ai', `Создал задачу "${taskName}". Разбил на конкретные шаги. Что-то нужно уточнить?`);
         }
         
         function generateTaskPipeline(message) {
             const lowerMessage = message.toLowerCase();
             
-            if (lowerMessage.includes('чайник') || lowerMessage.includes('починить')) {
+            // Помыть плиту
+            if (lowerMessage.includes('плит') && (lowerMessage.includes('помыть') || lowerMessage.includes('почистить') || lowerMessage.includes('отмыть'))) {
                 return [
                     {
                         id: 'item_1',
-                        title: 'Диагностика проблемы',
-                        priority: 80,
+                        title: 'Подготовить средства',
+                        priority: 60,
                         completed: false,
                         subtasks: [
-                            { id: 'item_1_1', title: 'Проверить подключение к сети', priority: 75, completed: false, subtasks: [] },
-                            { id: 'item_1_2', title: 'Осмотреть внешние повреждения', priority: 70, completed: false, subtasks: [] },
-                            { id: 'item_1_3', title: 'Проверить нагревательный элемент', priority: 85, completed: false, subtasks: [] }
+                            { id: 'item_1_1', title: 'Взять губку и моющее средство', priority: 50, completed: false, subtasks: [] },
+                            { id: 'item_1_2', title: 'Приготовить тряпки', priority: 40, completed: false, subtasks: [] }
                         ]
                     },
                     {
                         id: 'item_2',
-                        title: 'Подготовка инструментов',
-                        priority: 60,
+                        title: 'Снять решётки и конфорки',
+                        priority: 70,
                         completed: false,
-                        subtasks: [
-                            { id: 'item_2_1', title: 'Отвертка', priority: 50, completed: false, subtasks: [] },
-                            { id: 'item_2_2', title: 'Мультиметр', priority: 65, completed: false, subtasks: [] }
-                        ]
+                        subtasks: []
                     },
                     {
                         id: 'item_3',
-                        title: 'Ремонт',
-                        priority: 90,
+                        title: 'Отмыть поверхность плиты',
+                        priority: 85,
                         completed: false,
                         subtasks: [
-                            { id: 'item_3_1', title: 'Разобрать чайник', priority: 70, completed: false, subtasks: [] },
-                            { id: 'item_3_2', title: 'Заменить/починить неисправную деталь', priority: 95, completed: false, subtasks: [] },
-                            { id: 'item_3_3', title: 'Собрать чайник обратно', priority: 75, completed: false, subtasks: [] }
+                            { id: 'item_3_1', title: 'Нанести моющее средство', priority: 80, completed: false, subtasks: [] },
+                            { id: 'item_3_2', title: 'Оттереть загрязнения', priority: 90, completed: false, subtasks: [] },
+                            { id: 'item_3_3', title: 'Протереть влажной тряпкой', priority: 75, completed: false, subtasks: [] }
                         ]
                     },
                     {
                         id: 'item_4',
-                        title: 'Тестирование',
+                        title: 'Помыть решётки и конфорки',
+                        priority: 80,
+                        completed: false,
+                        subtasks: []
+                    },
+                    {
+                        id: 'item_5',
+                        title: 'Собрать плиту обратно',
+                        priority: 65,
+                        completed: false,
+                        subtasks: []
+                    }
+                ];
+            }
+            
+            // Починить чайник
+            if (lowerMessage.includes('чайник') && (lowerMessage.includes('починить') || lowerMessage.includes('отремонтировать') || lowerMessage.includes('сломался'))) {
+                return [
+                    {
+                        id: 'item_1',
+                        title: 'Определить неисправность',
                         priority: 85,
                         completed: false,
                         subtasks: [
-                            { id: 'item_4_1', title: 'Проверить работу чайника', priority: 90, completed: false, subtasks: [] },
-                            { id: 'item_4_2', title: 'Убедиться в отсутствии протечек', priority: 80, completed: false, subtasks: [] }
+                            { id: 'item_1_1', title: 'Проверить включается ли', priority: 80, completed: false, subtasks: [] },
+                            { id: 'item_1_2', title: 'Проверить греет ли воду', priority: 85, completed: false, subtasks: [] },
+                            { id: 'item_1_3', title: 'Осмотреть на протечки', priority: 75, completed: false, subtasks: [] }
+                        ]
+                    },
+                    {
+                        id: 'item_2',
+                        title: 'Подготовить инструменты',
+                        priority: 60,
+                        completed: false,
+                        subtasks: [
+                            { id: 'item_2_1', title: 'Отвёртка', priority: 50, completed: false, subtasks: [] },
+                            { id: 'item_2_2', title: 'Мультиметр (если есть)', priority: 55, completed: false, subtasks: [] }
+                        ]
+                    },
+                    {
+                        id: 'item_3',
+                        title: 'Разобрать чайник',
+                        priority: 70,
+                        completed: false,
+                        subtasks: [
+                            { id: 'item_3_1', title: 'Отключить от сети', priority: 95, completed: false, subtasks: [] },
+                            { id: 'item_3_2', title: 'Открутить винты', priority: 65, completed: false, subtasks: [] }
+                        ]
+                    },
+                    {
+                        id: 'item_4',
+                        title: 'Устранить неисправность',
+                        priority: 90,
+                        completed: false,
+                        subtasks: [
+                            { id: 'item_4_1', title: 'Заменить/почистить контакты', priority: 85, completed: false, subtasks: [] },
+                            { id: 'item_4_2', title: 'Проверить ТЭН', priority: 90, completed: false, subtasks: [] }
+                        ]
+                    },
+                    {
+                        id: 'item_5',
+                        title: 'Собрать и протестировать',
+                        priority: 80,
+                        completed: false,
+                        subtasks: [
+                            { id: 'item_5_1', title: 'Собрать чайник', priority: 70, completed: false, subtasks: [] },
+                            { id: 'item_5_2', title: 'Проверить работу', priority: 85, completed: false, subtasks: [] }
                         ]
                     }
                 ];
             }
             
+            // Generic task - create simple structure
             return [
                 {
                     id: 'item_1',
-                    title: 'Планирование и подготовка',
-                    priority: 70,
+                    title: 'Начать выполнение',
+                    priority: 75,
                     completed: false,
-                    subtasks: [
-                        { id: 'item_1_1', title: 'Определить цели и требования', priority: 75, completed: false, subtasks: [] },
-                        { id: 'item_1_2', title: 'Собрать необходимые ресурсы', priority: 60, completed: false, subtasks: [] }
-                    ]
+                    subtasks: []
                 },
                 {
                     id: 'item_2',
-                    title: 'Выполнение основной работы',
-                    priority: 85,
+                    title: 'Завершить задачу',
+                    priority: 80,
                     completed: false,
-                    subtasks: [
-                        { id: 'item_2_1', title: 'Начать выполнение', priority: 80, completed: false, subtasks: [] },
-                        { id: 'item_2_2', title: 'Контроль качества', priority: 70, completed: false, subtasks: [] }
-                    ]
-                },
-                {
-                    id: 'item_3',
-                    title: 'Завершение и проверка',
-                    priority: 75,
-                    completed: false,
-                    subtasks: [
-                        { id: 'item_3_1', title: 'Финальная проверка', priority: 80, completed: false, subtasks: [] },
-                        { id: 'item_3_2', title: 'Документирование результатов', priority: 50, completed: false, subtasks: [] }
-                    ]
+                    subtasks: []
                 }
             ];
         }
@@ -2132,86 +2437,186 @@
             sofia: null
         };
         
-        // Load animations when page loads
-        window.addEventListener('DOMContentLoaded', function() {
+        // Load animations immediately when script runs
+        (function loadLottieAnimations() {
+            console.log('Loading Lottie animations...');
+            console.log('Lottie library available:', typeof lottie !== 'undefined');
+            
             // Computer/Puzzle animation
             fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Computer.json')
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Computer animation fetch response:', response.status);
+                    return response.json();
+                })
                 .then(data => {
-                    lottieAnimations.computer = lottie.loadAnimation({
-                        container: document.getElementById('lottie-pipeline-computer'),
-                        renderer: 'svg',
-                        loop: false,
-                        autoplay: false,
-                        animationData: data
-                    });
-                    lottieAnimations.computer.setSpeed(1.5);
+                    const container = document.getElementById('lottie-pipeline-computer');
+                    console.log('Computer container found:', !!container);
+                    if (container) {
+                        lottieAnimations.computer = lottie.loadAnimation({
+                            container: container,
+                            renderer: 'svg',
+                            loop: false,
+                            autoplay: false,
+                            animationData: data
+                        });
+                        lottieAnimations.computer.setSpeed(1.5);
+                        console.log('Computer animation loaded successfully');
+                    }
                 })
                 .catch(e => console.error('Failed to load computer animation:', e));
             
             // Fingerprint animation
             fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Fingerprint.json')
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Fingerprint animation fetch response:', response.status);
+                    return response.json();
+                })
                 .then(data => {
-                    lottieAnimations.fingerprint = lottie.loadAnimation({
-                        container: document.getElementById('lottie-pipeline-fingerprint'),
-                        renderer: 'svg',
-                        loop: false,
-                        autoplay: false,
-                        animationData: data
-                    });
-                    lottieAnimations.fingerprint.setSpeed(1.5);
+                    const container = document.getElementById('lottie-pipeline-fingerprint');
+                    console.log('Fingerprint container found:', !!container);
+                    if (container) {
+                        lottieAnimations.fingerprint = lottie.loadAnimation({
+                            container: container,
+                            renderer: 'svg',
+                            loop: false,
+                            autoplay: false,
+                            animationData: data
+                        });
+                        lottieAnimations.fingerprint.setSpeed(1.5);
+                        console.log('Fingerprint animation loaded successfully');
+                    }
                 })
                 .catch(e => console.error('Failed to load fingerprint animation:', e));
             
             // Sofia Eye animation
             fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Sofia%20Eye.json')
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Sofia animation fetch response:', response.status);
+                    return response.json();
+                })
                 .then(data => {
-                    lottieAnimations.sofia = lottie.loadAnimation({
-                        container: document.getElementById('lottie-pipeline-sofia'),
-                        renderer: 'svg',
-                        loop: false,
-                        autoplay: false,
-                        animationData: data
-                    });
-                    lottieAnimations.sofia.setSpeed(1.5);
+                    const container = document.getElementById('lottie-pipeline-sofia');
+                    console.log('Sofia container found:', !!container);
+                    if (container) {
+                        lottieAnimations.sofia = lottie.loadAnimation({
+                            container: container,
+                            renderer: 'svg',
+                            loop: false,
+                            autoplay: false,
+                            animationData: data
+                        });
+                        lottieAnimations.sofia.setSpeed(1.5);
+                        console.log('Sofia animation loaded successfully');
+                    }
                 })
                 .catch(e => console.error('Failed to load sofia animation:', e));
-        });
+        })();
         
         // Override handleIdComplete to add animation
-        handleIdComplete = function() {
+        handleIdComplete = async function() {
             enteredId = '';
             for (let i = 1; i <= 4; i++) {
                 enteredId += document.getElementById(`loginId${i}`).value;
             }
             
             if (enteredId.length === 4) {
-                // Add shimmer to ID inputs
-                for (let i = 1; i <= 4; i++) {
-                    const input = document.getElementById(`loginId${i}`);
-                    input.classList.add('shimmer');
-                }
+                // Block modal close
+                const authOverlay = document.getElementById('authOverlay');
+                authOverlay.style.pointerEvents = 'none';
                 
-                // Play computer animation
+                // Play computer animation in loop
                 if (lottieAnimations.computer) {
+                    lottieAnimations.computer.loop = true;
+                    lottieAnimations.computer.setSpeed(0.5); // Slow down 2x
                     lottieAnimations.computer.goToAndPlay(0, true);
                 }
                 
-                setTimeout(() => {
+                // Disable inputs and add shimmer one by one with 140ms delay
+                for (let i = 1; i <= 4; i++) {
+                    const input = document.getElementById(`loginId${i}`);
+                    input.disabled = true;
+                    input.readOnly = true;
+                    input.classList.add('shimmer');
+                    input.classList.remove('error');
+                    if (i < 4) {
+                        await new Promise(resolve => setTimeout(resolve, 140));
+                    }
+                }
+                
+                // Wait for validation (2-3 seconds total)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Stop animation
+                if (lottieAnimations.computer) {
+                    lottieAnimations.computer.loop = false;
+                    lottieAnimations.computer.pause();
+                }
+                
+                // Check if user exists
+                try {
+                    const userRef = window.firebaseDoc(window.firebaseDB, 'users', enteredId);
+                    const userSnap = await window.firebaseGetDoc(userRef);
+                    
+                    if (!userSnap.exists()) {
+                        // User doesn't exist - show error and clear
+                        authOverlay.style.pointerEvents = 'all';
+                        for (let i = 1; i <= 4; i++) {
+                            const input = document.getElementById(`loginId${i}`);
+                            input.disabled = false;
+                            input.readOnly = false;
+                            input.classList.remove('shimmer');
+                            input.classList.add('error');
+                            input.value = '';
+                        }
+                        document.getElementById('loginId1').focus();
+                        return;
+                    }
+                    
+                    // User exists - remove shimmer
+                    for (let i = 1; i <= 4; i++) {
+                        document.getElementById(`loginId${i}`).classList.remove('shimmer');
+                    }
+                    
+                    // Blur transition
+                    document.getElementById('stepId').style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                    document.getElementById('stepId').style.filter = 'blur(8px)';
+                    document.getElementById('stepId').style.opacity = '0';
+                    
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
                     document.getElementById('stepId').style.display = 'none';
                     document.getElementById('stepPin').style.display = 'block';
+                    document.getElementById('stepPin').style.filter = 'blur(8px)';
+                    document.getElementById('stepPin').style.opacity = '0';
                     document.getElementById('stepInstruction').textContent = 'Введите PIN-код';
                     setupPinInputs('loginPin');
-                    document.getElementById('loginPin1').focus();
-                    loginStep = 'pin';
                     
-                    // Play fingerprint animation
-                    if (lottieAnimations.fingerprint) {
-                        lottieAnimations.fingerprint.goToAndPlay(0, true);
+                    setTimeout(() => {
+                        document.getElementById('stepPin').style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                        document.getElementById('stepPin').style.filter = 'blur(0px)';
+                        document.getElementById('stepPin').style.opacity = '1';
+                        document.getElementById('loginPin1').focus();
+                        loginStep = 'pin';
+                        authOverlay.style.pointerEvents = 'all';
+                        
+                        // Play fingerprint animation
+                        if (lottieAnimations.fingerprint) {
+                            lottieAnimations.fingerprint.goToAndPlay(0, true);
+                        }
+                    }, 50);
+                } catch (error) {
+                    console.error('Error checking user:', error);
+                    authOverlay.style.pointerEvents = 'all';
+                    for (let i = 1; i <= 4; i++) {
+                        const input = document.getElementById(`loginId${i}`);
+                        input.disabled = false;
+                        input.readOnly = false;
+                        input.classList.remove('shimmer');
+                        input.classList.add('error');
+                        input.value = '';
                     }
-                }, 560);
+                    document.getElementById('loginId1').focus();
+                }
             }
         };
         
@@ -2221,19 +2626,37 @@
                 return;
             }
             
-            // Add shimmer to PIN inputs
-            for (let i = 1; i <= 4; i++) {
-                const input = document.getElementById(`loginPin${i}`);
-                input.classList.add('shimmer');
-            }
+            // Block modal close
+            const authOverlay = document.getElementById('authOverlay');
+            authOverlay.style.pointerEvents = 'none';
             
-            // Play Sofia eye animation
+            // Play Sofia eye animation in loop
             if (lottieAnimations.sofia) {
+                lottieAnimations.sofia.loop = true;
+                lottieAnimations.sofia.setSpeed(0.5); // Slow down 2x
                 lottieAnimations.sofia.goToAndPlay(0, true);
             }
             
-            // Wait for shimmer animation
-            await new Promise(resolve => setTimeout(resolve, 560));
+            // Disable inputs and add shimmer one by one with 140ms delay
+            for (let i = 1; i <= 4; i++) {
+                const input = document.getElementById(`loginPin${i}`);
+                input.disabled = true;
+                input.readOnly = true;
+                input.classList.add('shimmer');
+                input.classList.remove('error');
+                if (i < 4) {
+                    await new Promise(resolve => setTimeout(resolve, 140));
+                }
+            }
+            
+            // Wait 2-3 seconds for validation
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Stop animation
+            if (lottieAnimations.sofia) {
+                lottieAnimations.sofia.loop = false;
+                lottieAnimations.sofia.pause();
+            }
             
             try {
                 // Validate credentials with Firebase
@@ -2241,11 +2664,15 @@
                 const userSnap = await window.firebaseGetDoc(userRef);
                 
                 if (!userSnap.exists()) {
-                    // User doesn't exist
-                    alert('Неверный номер звена или PIN-код');
-                    // Reset PIN inputs
+                    // User doesn't exist (shouldn't happen as we checked in step 1)
+                    authOverlay.style.pointerEvents = 'all';
                     for (let i = 1; i <= 4; i++) {
-                        document.getElementById(`loginPin${i}`).value = '';
+                        const input = document.getElementById(`loginPin${i}`);
+                        input.disabled = false;
+                        input.readOnly = false;
+                        input.classList.remove('shimmer');
+                        input.classList.add('error');
+                        input.value = '';
                     }
                     document.getElementById('loginPin1').focus();
                     return;
@@ -2253,28 +2680,62 @@
                 
                 const userData = userSnap.data();
                 if (userData.pin !== pin) {
-                    // Wrong PIN
-                    alert('Неверный номер звена или PIN-код');
-                    // Reset PIN inputs
+                    // Wrong PIN - show error
+                    authOverlay.style.pointerEvents = 'all';
                     for (let i = 1; i <= 4; i++) {
-                        document.getElementById(`loginPin${i}`).value = '';
+                        const input = document.getElementById(`loginPin${i}`);
+                        input.disabled = false;
+                        input.readOnly = false;
+                        input.classList.remove('shimmer');
+                        input.classList.add('error');
+                        input.value = '';
                     }
                     document.getElementById('loginPin1').focus();
                     return;
                 }
                 
-                // Login successful
+                // Login successful - remove shimmer
+                for (let i = 1; i <= 4; i++) {
+                    document.getElementById(`loginPin${i}`).classList.remove('shimmer');
+                }
+                
                 currentUser = { id: userId, pin: pin, ...userData };
+                
+                // Show success message
+                document.getElementById('stepInstruction').textContent = 'Подключение установлено';
+                document.getElementById('stepPin').innerHTML = `
+                    <div style="font-size:10px;text-align:center;line-height:1.5;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;padding:12px;color:var(--text-secondary);">
+                        Звено <span style="font-weight:600;color:var(--text-primary);">${userId}</span> успешно подключено к сети MSE. Синхронизация данных завершена.
+                    </div>
+                `;
+                
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Blur out the form
+                const loginContent = document.getElementById('loginContent');
+                loginContent.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
+                loginContent.style.filter = 'blur(8px)';
+                loginContent.style.opacity = '0';
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                authOverlay.style.pointerEvents = 'all';
                 closeAuthModal();
                 await loadUserTasks();
-                
-                document.getElementById('userStatus').classList.add('logged-in');
-                document.getElementById('userIdDisplay').textContent = `Звено ${userId}`;
                 
                 addChatMessage('ai', `Добро пожаловать, звено ${userId}! Теперь вы можете создавать и управлять задачами.`);
             } catch (error) {
                 console.error('Login error:', error);
-                alert('Ошибка при входе. Попробуйте еще раз.');
+                authOverlay.style.pointerEvents = 'all';
+                for (let i = 1; i <= 4; i++) {
+                    const input = document.getElementById(`loginPin${i}`);
+                    input.disabled = false;
+                    input.readOnly = false;
+                    input.classList.remove('shimmer');
+                    input.classList.add('error');
+                    input.value = '';
+                }
+                document.getElementById('loginPin1').focus();
             }
         };
         
@@ -2303,10 +2764,6 @@
                     
                     setTimeout(() => {
                         closeAuth();
-                        
-                        document.getElementById('userStatus').classList.add('logged-in');
-                        document.getElementById('userIdDisplay').textContent = `Звено ${userId}`;
-                        
                         addChatMessage('ai', `Регистрация завершена! Добро пожаловать в MSE, звено ${userId}. Вы можете продолжить работу с задачами.`);
                     }, 300);
                 } catch (error) {
