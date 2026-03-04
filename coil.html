@@ -14495,6 +14495,7 @@ async function createNewTask() {
             // Call Gemini API to generate pipeline
             const prompt = `Ты - Проксима, AI-ассистент для планирования задач. Создай ПОДРОБНЫЙ пайплайн (план выполнения) для следующей задачи:
 
+Название задачи: ${title}
 Описание: ${description}
 
 Требования к пайплайну:
@@ -14569,18 +14570,23 @@ async function createNewTask() {
                         // Step 1: Fade out loader
                         grainLoader.classList.remove('active');
                         
-                        // Step 2: After loader fades, remove blur from content
+                        // Step 2: After loader fades, remove blur from content and render task
                         setTimeout(() => {
                             if (taskContent) {
                                 taskContent.style.filter = 'blur(0px)';
                                 taskContent.style.opacity = '1';
                             }
+                            
+                            // Step 3: Render task content after blur is removed
+                            if (activeTaskTab === taskId) {
+                                renderTaskContent(taskId);
+                            }
                         }, 500);
-                    }
-                    
-                    // Update task content in browser block
-                    if (activeTaskTab === taskId) {
-                        renderTaskContent(taskId);
+                    } else {
+                        // Fallback if no loader
+                        if (activeTaskTab === taskId) {
+                            renderTaskContent(taskId);
+                        }
                     }
                     
                     // Auto-save to Firebase
@@ -14613,13 +14619,19 @@ async function createNewTask() {
                                 taskContent.style.filter = 'blur(0px)';
                                 taskContent.style.opacity = '1';
                             }
+                            
+                            // Update task with error
+                            taskStore[taskId].status = 'error';
+                            if (activeTaskTab === taskId) {
+                                renderTaskContent(taskId);
+                            }
                         }, 500);
-                    }
-                    
-                    // Update task with error
-                    taskStore[taskId].status = 'error';
-                    if (activeTaskTab === taskId) {
-                        renderTaskContent(taskId);
+                    } else {
+                        // Fallback
+                        taskStore[taskId].status = 'error';
+                        if (activeTaskTab === taskId) {
+                            renderTaskContent(taskId);
+                        }
                     }
                 }, 1000);
             });
