@@ -780,42 +780,37 @@
             border: 1px solid var(--glass-border);
         }
         
-        .chat-input-container {
-            padding: 0;
-            border-top: none;
+        .chat-input-area {
             display: flex;
-            gap: 8px;
-            align-items: stretch;
+            flex-direction: column;
             flex-shrink: 0;
             margin-top: auto;
         }
         
-        .content-block.collapsed .chat-input-container {
+        .content-block.collapsed .chat-input-area {
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.1s ease;
         }
         
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            align-items: stretch;
+        }
+        
         .chat-input {
             flex: 1;
-            padding: 10px 12px;
+            padding: 6px 12px;
             background: rgba(255,255,255,.05);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             font-size: 13px;
-            resize: none;
-            height: 40px;
             transition: all .2s ease;
-            overflow: hidden;
-            scrollbar-width: none;
-            display: flex;
-            align-items: center;
-        }
-        
-        .chat-input::-webkit-scrollbar {
-            display: none;
+            height: 32px;
         }
         
         .chat-input::placeholder {
@@ -830,8 +825,8 @@
         
         .chat-attach,
         .chat-send-btn {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             background: rgba(255,255,255,.06);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
@@ -851,8 +846,8 @@
         
         .chat-attach img,
         .chat-send-btn img {
-            width: 18px;
-            height: 18px;
+            width: 12px;
+            height: 12px;
         }
         
         .chat-send-btn:disabled {
@@ -1272,14 +1267,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="chat-input-container">
-                            <textarea class="chat-input" id="chatInput" placeholder="Сообщение..." rows="1"></textarea>
-                            <button class="chat-attach" onclick="alert('Прикрепление файлов в разработке')">
-                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="Прикрепить" style="width:18px;height:18px;">
-                            </button>
-                            <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
-                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="Отправить" style="width:18px;height:18px;">
-                            </button>
+                        <div class="chat-input-area">
+                            <div class="chat-input-wrapper">
+                                <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение...">
+                                <button class="chat-attach" onclick="alert('Прикрепление файлов в разработке')">
+                                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="">
+                                </button>
+                                <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+                                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="">
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1705,15 +1702,10 @@
             }
         }
         
-        // Auto-resize textarea
+        // Chat input handler
         const chatInput = document.getElementById('chatInput');
-        chatInput.addEventListener('input', function() {
-            this.style.height = '40px';
-            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-        });
-        
         chatInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter') {
                 e.preventDefault();
                 sendMessage();
             }
