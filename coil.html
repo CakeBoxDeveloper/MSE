@@ -1751,6 +1751,19 @@
             100% { transform: translateX(-50%); }
         }
         
+        @keyframes scroll-text {
+            0% { left: 0; }
+            100% { left: -100%; }
+        }
+        
+        .scrolling-text {
+            animation-play-state: paused;
+        }
+        
+        .material-item:hover .scrolling-text {
+            animation-play-state: running;
+        }
+        
         .product-key-input {
             width:100%;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:14px;
@@ -10390,6 +10403,19 @@ function renderChatMessages(){
                         </div>
                     </div>
                 </div>`;
+            } else if (m.type === 'task-link') {
+                // Task link card - opens task tab in browser block
+                return `<div class="chat-message ${m.role} ${newMessageClass} task-link-card" data-task-id="${m.taskId}" style="cursor:pointer;">
+                    <div class="material-item" style="margin:0;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);">
+                        <div class="material-icon">
+                            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
+                        </div>
+                        <div class="material-info">
+                            <h3>${m.taskTitle}</h3>
+                            <p>${m.taskDescription}</p>
+                        </div>
+                    </div>
+                </div>`;
             } else if (m.type === 'calculator-note') {
                 // Заметка калькулятора от Софии - открывает вкладку "Прогресс" и подсвечивает заметку
                 const clickHandler = `highlightInBrowser('note', ${m.noteId})`;
@@ -10528,6 +10554,28 @@ function renderChatMessages(){
     renderedMessageCounts[activeChatTab] = currentCount;
 }
 renderChatMessages();
+
+// Add event delegation for task-link cards (so they work immediately after being added)
+document.addEventListener('DOMContentLoaded', () => {
+    const chatMessagesContainer = document.getElementById('chat-messages');
+    if (chatMessagesContainer) {
+        chatMessagesContainer.addEventListener('click', (e) => {
+            // Find if click was on a task-link card or its children
+            const taskLinkCard = e.target.closest('.task-link-card');
+            if (taskLinkCard) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get taskId from data attribute
+                const taskId = taskLinkCard.dataset.taskId;
+                if (taskId) {
+                    console.log('[TASK LINK] Clicked task link card:', taskId);
+                    openTaskFromChat(taskId);
+                }
+            }
+        });
+    }
+});
 
 const chatInput = document.getElementById('chat-input');
 const chatSend  = document.getElementById('chat-send');
@@ -12868,7 +12916,7 @@ function renderTaskSearchResults(results) {
             html += `
                 <div onclick="switchTaskTab('${result.taskId}')" class="material-item" style="cursor:pointer;">
                     <div class="material-icon">
-                        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/doc.svg" alt="">
+                        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
                     <div class="material-info">
                         <h3>${result.title}</h3>
@@ -13442,6 +13490,22 @@ if (document.readyState === 'loading') {
     checkInviteParam();
 }
 
+// Open task from chat link
+function openTaskFromChat(taskId) {
+    console.log('[TASK] Opening task from chat:', taskId);
+    
+    // Expand browser block if collapsed
+    const browserBlock = document.getElementById('browserBlock');
+    if (browserBlock && browserBlock.classList.contains('collapsed')) {
+        expandBlock('browserBlock');
+    }
+    
+    // Switch to task tab
+    setTimeout(() => {
+        switchTaskTab(taskId);
+    }, browserBlock && browserBlock.classList.contains('collapsed') ? 800 : 0);
+}
+
 // ============================================================
 // TASK TABS FUNCTIONS
 // ============================================================
@@ -13519,6 +13583,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (taskTabs) {
         taskTabs.addEventListener('scroll', updateTaskTabsBlur);
     }
+    
+    // Add click handler for overview tab
+    const overviewTab = document.querySelector('#taskTabs .chat-tab[data-task="overview"]');
+    if (overviewTab) {
+        overviewTab.addEventListener('click', () => {
+            switchTaskTab('overview');
+        });
+    }
 });
 
 function switchTaskTab(taskId) {
@@ -13538,6 +13610,9 @@ function switchTaskTab(taskId) {
     
     // Render task content
     renderTaskContent(taskId);
+    
+    // Update blur effect
+    updateTaskTabsBlur();
 }
 
 function renderTaskContent(taskId) {
@@ -13565,17 +13640,17 @@ function renderTaskContent(taskId) {
                 </div>
             `;
         } else {
-            let tasksHTML = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            let tasksHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;position:relative;">';
             allTasks.forEach(id => {
                 const t = taskStore[id];
                 const statusIcon = t.status === 'ready' ? '✅' : t.status === 'error' ? '❌' : '⏳';
                 tasksHTML += `
                     <div onclick="switchTaskTab('${id}')" class="material-item" style="cursor:pointer;">
                         <div class="material-icon">
-                            <span style="font-size:16px;">${statusIcon}</span>
+                            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                         </div>
                         <div class="material-info">
-                            <h3>${t.title}</h3>
+                            <h3>${statusIcon} ${t.title}</h3>
                             <p>${t.description}</p>
                         </div>
                     </div>
@@ -13583,6 +13658,9 @@ function renderTaskContent(taskId) {
             });
             tasksHTML += '</div>';
             taskContent.innerHTML = tasksHTML;
+            
+            // Add fade-out gradients
+            addOverviewFadeGradients();
         }
         return;
     }
@@ -13617,11 +13695,13 @@ function renderTaskContent(taskId) {
             stepsHTML += `
                 <div class="material-item" style="cursor:default;">
                     <div class="material-icon">
-                        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/86e9d94bad44abbb9f11716894a6a30d68de3fac/doc.svg" alt="">
+                        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
                     <div class="material-info">
                         <h3>${step.title}</h3>
-                        <p>${step.description}</p>
+                        <div style="position:relative;overflow:hidden;max-width:100%;height:16px;-webkit-mask-image:linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%);mask-image:linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%);">
+                            <p class="scrolling-text" style="white-space:nowrap;position:absolute;left:0;animation:scroll-text 10s linear infinite;">${step.description}</p>
+                        </div>
                     </div>
                 </div>
             `;
@@ -13630,6 +13710,41 @@ function renderTaskContent(taskId) {
         stepsHTML += '</div>';
         taskContent.innerHTML = stepsHTML;
     }
+}
+
+function addOverviewFadeGradients() {
+    const taskContent = document.getElementById('taskContent');
+    const list = taskContent.querySelector('.materials-list');
+    
+    if (!list) return;
+    
+    // Create top gradient
+    const topGradient = document.createElement('div');
+    topGradient.style.cssText = 'position:absolute;top:0;left:0;right:0;height:40px;background:linear-gradient(to bottom,rgba(13,13,13,1) 0%,rgba(13,13,13,0) 100%);pointer-events:none;z-index:10;opacity:0;transition:opacity 0.3s ease;';
+    topGradient.id = 'overviewTopGradient';
+    
+    // Create bottom gradient
+    const bottomGradient = document.createElement('div');
+    bottomGradient.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(to top,rgba(13,13,13,1) 0%,rgba(13,13,13,0) 100%);pointer-events:none;z-index:10;opacity:0;transition:opacity 0.3s ease;';
+    bottomGradient.id = 'overviewBottomGradient';
+    
+    taskContent.style.position = 'relative';
+    taskContent.appendChild(topGradient);
+    taskContent.appendChild(bottomGradient);
+    
+    // Update gradients on scroll
+    const updateGradients = () => {
+        const scrollTop = list.scrollTop;
+        const scrollHeight = list.scrollHeight;
+        const clientHeight = list.clientHeight;
+        const scrollBottom = scrollHeight - scrollTop - clientHeight;
+        
+        topGradient.style.opacity = scrollTop > 10 ? '1' : '0';
+        bottomGradient.style.opacity = scrollBottom > 10 ? '1' : '0';
+    };
+    
+    list.addEventListener('scroll', updateGradients);
+    updateGradients();
 }
 
 // Parse pipeline text into structured steps
@@ -13882,7 +13997,7 @@ async function createNewTask() {
     `;
     
     // Send message to Proxima in chat
-    const proximaMessage = `Создай подробный пайплайн для задачи:\n\nНазвание: ${title}\n\nОписание: ${description}`;
+    const proximaMessage = description;
     
     // Add user message to Proxima chat
     if (!chatStore['proxima']) chatStore['proxima'] = [];
@@ -13912,38 +14027,36 @@ async function createNewTask() {
             // Call Gemini API to generate pipeline
             const prompt = `Ты - Проксима, AI-ассистент для планирования задач. Создай ПОДРОБНЫЙ пайплайн (план выполнения) для следующей задачи:
 
-Название: ${title}
-
 Описание: ${description}
 
 Требования к пайплайну:
 1. Разбей задачу на конкретные шаги (минимум 5-7 шагов)
-2. Каждый шаг должен быть четким и выполнимым
+2. Каждый шаг должен иметь КОРОТКИЙ заголовок (2-4 слова) и краткое описание (одно предложение)
 3. Укажи примерное время на каждый шаг
 4. Добавь рекомендации и советы
-5. Структурируй ответ с помощью списков и подзаголовков
-6. НЕ используй эмодзи
+5. Структурируй ответ с помощью списков
+6. НЕ используй эмодзи вообще
 
 Формат ответа:
-**ПАЙПЛАЙН ЗАДАЧИ: [название]**
+ПАЙПЛАЙН ЗАДАЧИ
 
-**Шаг 1: [название шага]** ⏱️ [время]
-[Описание что нужно сделать]
+Шаг 1: [короткий заголовок] (время)
+[Краткое описание одним предложением]
 
-**Шаг 2: [название шага]** ⏱️ [время]
-[Описание что нужно сделать]
+Шаг 2: [короткий заголовок] (время)
+[Краткое описание одним предложением]
 
 ... и так далее
 
-**Рекомендации:**
+Рекомендации:
 [Полезные советы]
 
-**Критерии завершения:**
+Критерии завершения:
 [Как понять что задача выполнена]
 
 ВАЖНО: Верни ответ в формате JSON:
 {
-  "response": "твой подробный пайплайн в markdown формате",
+  "response": "твой подробный пайплайн в markdown формате БЕЗ эмодзи",
   "actions": []
 }`;
 
@@ -13959,10 +14072,19 @@ async function createNewTask() {
                     // Remove thinking message
                     chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
                     
-                    // Add simple confirmation to Proxima chat (NOT the full pipeline)
+                    // Add clickable card to Proxima chat
                     chatStore['proxima'].push({
                         role: 'ai',
-                        text: `Пайплайн для задачи "${title}" создан. Открой вкладку "${title}" в списке дел, чтобы увидеть подробный план.`
+                        text: 'Я создала тебе подробный план.'
+                    });
+                    
+                    // Add task link card
+                    chatStore['proxima'].push({
+                        role: 'ai',
+                        type: 'task-link',
+                        taskId: taskId,
+                        taskTitle: title,
+                        taskDescription: description
                     });
                     
                     renderChatMessages();
