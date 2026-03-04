@@ -1766,10 +1766,7 @@
         
         /* Completed step styling */
         .material-item.completed {
-            opacity: 0.6;
-        }
-        .material-item.completed h3 {
-            text-decoration: line-through;
+            transition: background 0.3s ease;
         }
         
         /* ─── TASK TAB DROPDOWN MENU ─── */
@@ -1961,25 +1958,19 @@
             </button>
             <div class="chat-tabs-wrapper" style="flex:1;min-width:0;">
               <div class="chat-tabs" id="taskTabs">
-                <button class="chat-tab active" data-task="overview" style="background:rgba(153,153,153,1);color:#000;">
+                <button class="chat-tab active pinned" data-task="overview">
                   <span>Обзор</span>
                 </button>
               </div>
             </div>
-            <button class="chat-search-btn" id="taskSearchBtn" onclick="toggleBrowserSearch()" style="width:32px;height:32px;margin-left:auto;display:flex;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="m21 21-4.35-4.35" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')" style="width:32px;height:32px;">
+            <button class="btn-minimize" onclick="event.stopPropagation(); toggleMinimize('browserBlock')" style="width:32px;height:32px;margin-left:auto;">
               <img class="icon-minimize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78604dcba41d217a860371149b6158d31c153e7f/minimize.svg?raw=true" alt="" style="width:12px;height:12px;">
               <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="" style="width:12px;height:12px;">
             </button>
           </div>
-          <!-- Search input for task steps (visible only on task tabs, not overview) -->
-          <div id="taskStepSearchBar" style="display:none;padding:8px 12px;border-bottom:1px solid var(--glass-border);">
-            <input type="text" id="taskStepSearchInput" placeholder="Поиск по шагам..." oninput="filterTaskSteps()" style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:12px;outline:none;">
+          <!-- Search input for tasks (visible only on Overview tab) -->
+          <div id="taskOverviewSearchBar" style="display:block;padding:8px 12px;">
+            <input type="text" id="taskOverviewSearchInput" placeholder="Поиск по задачам..." oninput="filterOverviewTasks()" style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:12px;outline:none;">
           </div>
           <div class="content-body" id="main-content">
             <div id="taskContent" style="display:flex;flex-direction:column;height:100%;overflow-y:auto;padding:12px;">
@@ -9700,7 +9691,14 @@ function getproximaSystemPrompt() {
 - Всегда структурируй информацию
 - Задавай уточняющие вопросы
 - Помогай разбить большие задачи на маленькие
-- Будь практичной и конкретной`;
+- Будь практичной и конкретной
+
+ФОРМАТ ОТВЕТА:
+Ты ДОЛЖНА отвечать ТОЛЬКО в формате JSON:
+{
+  "response": "твой ответ пользователю в markdown формате",
+  "actions": []
+}`;
 }
 
 async function callGeminiAPI(userMessage, conversationHistory = []) {
@@ -9741,7 +9739,7 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
                 model: GROQ_MODELS[currentModelIndex],
                 messages: messages,
                 temperature: 0.7,
-                max_tokens: 1024,
+                max_tokens: 2048,
                 response_format: { type: 'json_object' }
             })
         });
@@ -9785,7 +9783,18 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
             return parsed;
         } catch (e) {
             console.error('Failed to parse AI response as JSON:', aiResponse, e);
-            // If not valid JSON, return as plain text response
+            // If not valid JSON, try to extract response from markdown code block
+            const codeBlockMatch = aiResponse.match(/```json\s*([\s\S]*?)\s*```/);
+            if (codeBlockMatch) {
+                try {
+                    const parsed = JSON.parse(codeBlockMatch[1]);
+                    console.log('Parsed from code block:', parsed);
+                    return parsed;
+                } catch (e2) {
+                    console.error('Failed to parse code block as JSON:', e2);
+                }
+            }
+            // If still not valid JSON, return as plain text response
             return {
                 response: aiResponse,
                 actions: []
@@ -9799,6 +9808,14 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
         if (error.message && error.message.includes('Quota exceeded')) {
             return {
                 response: 'Превышен лимит запросов к AI. Подожди минутку и попробуй снова! ⏱️',
+                actions: []
+            };
+        }
+        
+        // Check if it's a network error
+        if (error.message && (error.message.includes('fetch') || error.message.includes('network'))) {
+            return {
+                response: 'Проблема с подключением к AI. Проверь интернет и попробуй снова. 🌐',
                 actions: []
             };
         }
@@ -13711,16 +13728,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Initialize search button visibility (show only on overview)
-    const searchBtn = document.getElementById('taskSearchBtn');
-    if (searchBtn) {
-        searchBtn.style.display = (activeTaskTab === 'overview') ? 'flex' : 'none';
-    }
-    
-    // Initialize task step search bar visibility (hide on overview)
-    const stepSearchBar = document.getElementById('taskStepSearchBar');
-    if (stepSearchBar) {
-        stepSearchBar.style.display = (activeTaskTab !== 'overview') ? 'block' : 'none';
+    // Initialize overview search bar visibility (show only on overview)
+    const overviewSearchBar = document.getElementById('taskOverviewSearchBar');
+    if (overviewSearchBar) {
+        overviewSearchBar.style.display = (activeTaskTab === 'overview') ? 'block' : 'none';
     }
 });
 
@@ -13732,38 +13743,19 @@ function switchTaskTab(taskId) {
     allTabs.forEach(tab => {
         if (tab.dataset.task === taskId) {
             tab.classList.add('active');
-            // Вкладка "Обзор" имеет серую заливку и чёрный текст
-            if (taskId === 'overview') {
-                tab.style.background = 'rgba(153,153,153,1)';
-                tab.style.color = '#000';
-            }
         } else {
             tab.classList.remove('active');
-            // Убираем заливку у неактивных вкладок
-            if (tab.dataset.task === 'overview') {
-                tab.style.background = 'rgba(153,153,153,1)';
-                tab.style.color = '#000';
-            } else {
-                tab.style.background = '';
-                tab.style.color = '';
-            }
         }
     });
     
     activeTaskTab = taskId;
     
-    // Show/hide search button - only visible on Overview tab
-    const searchBtn = document.getElementById('taskSearchBtn');
-    if (searchBtn) {
-        searchBtn.style.display = (taskId === 'overview') ? 'flex' : 'none';
-    }
-    
-    // Show/hide task step search bar - visible on task tabs, hidden on overview
-    const stepSearchBar = document.getElementById('taskStepSearchBar');
-    if (stepSearchBar) {
-        stepSearchBar.style.display = (taskId !== 'overview') ? 'block' : 'none';
+    // Show/hide overview search bar - visible only on Overview tab
+    const overviewSearchBar = document.getElementById('taskOverviewSearchBar');
+    if (overviewSearchBar) {
+        overviewSearchBar.style.display = (taskId === 'overview') ? 'block' : 'none';
         // Clear search input when switching tabs
-        const searchInput = document.getElementById('taskStepSearchInput');
+        const searchInput = document.getElementById('taskOverviewSearchInput');
         if (searchInput) {
             searchInput.value = '';
         }
@@ -13992,14 +13984,23 @@ function renderTaskContent(taskId) {
             let tasksHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;position:relative;">';
             allTasks.forEach(id => {
                 const t = taskStore[id];
-                const statusIcon = t.status === 'ready' ? '✅' : t.status === 'error' ? '❌' : '⏳';
+                
+                // Check if all steps are completed
+                const pipeline = t.pipeline || '';
+                const steps = parsePipelineSteps(pipeline);
+                const completedSteps = t.completedSteps || [];
+                const allStepsCompleted = steps.length > 0 && completedSteps.length === steps.length;
+                
                 tasksHTML += `
                     <div onclick="switchTaskTab('${id}')" class="material-item" style="cursor:pointer;">
                         <div class="material-icon">
                             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                         </div>
-                        <div class="material-info">
-                            <h3>${statusIcon} ${t.title}</h3>
+                        <div class="material-info" style="flex:1;min-width:0;">
+                            <h3 style="display:flex;align-items:center;justify-content:space-between;">
+                                <span>${t.title}</span>
+                                ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
+                            </h3>
                             <p>${t.description}</p>
                         </div>
                     </div>
@@ -14042,21 +14043,21 @@ function renderTaskContent(taskId) {
         // Pipeline steps as cards
         steps.forEach((step, index) => {
             const isCompleted = taskStore[taskId].completedSteps?.includes(index) || false;
-            const checkmarkClass = isCompleted ? 'completed' : '';
-            const checkmarkIcon = isCompleted ? '✓' : '';
+            const completedClass = isCompleted ? 'completed' : '';
+            const completedStyle = isCompleted ? 'opacity:0.4;' : '';
             
             stepsHTML += `
-                <div class="material-item ${checkmarkClass}" onclick="toggleStepCompletion('${taskId}', ${index})" style="cursor:pointer;position:relative;">
+                <div class="material-item ${completedClass}" onclick="toggleStepCompletion('${taskId}', ${index})" style="cursor:pointer;position:relative;${completedStyle}">
                     <div class="material-icon">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
                     <div class="material-info" style="flex:1;min-width:0;">
                         <h3 style="display:flex;align-items:center;justify-content:space-between;">
                             <span>${step.title}</span>
-                            <span class="step-checkmark" style="width:20px;height:20px;border:1px solid var(--glass-border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-primary);flex-shrink:0;margin-left:8px;transition:all 0.2s ease;${isCompleted ? 'background:rgba(153,153,153,1);border-color:rgba(153,153,153,1);' : ''}">${checkmarkIcon}</span>
+                            ${isCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                         </h3>
                         <div style="position:relative;overflow:hidden;width:100%;height:16px;-webkit-mask-image:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%);mask-image:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%);">
-                            <p class="scrolling-text" style="white-space:nowrap;position:absolute;left:0;animation:scroll-text 10s linear infinite;${isCompleted ? 'opacity:0.5;text-decoration:line-through;' : ''}">${step.description}</p>
+                            <p class="scrolling-text" style="white-space:nowrap;position:absolute;left:0;animation:scroll-text 10s linear infinite;">${step.description}</p>
                         </div>
                     </div>
                 </div>
@@ -14091,6 +14092,11 @@ function toggleStepCompletion(taskId, stepIndex) {
     // Re-render task content
     renderTaskContent(taskId);
     
+    // If we're on overview, re-render it to update checkmarks
+    if (activeTaskTab === 'overview') {
+        renderTaskContent('overview');
+    }
+    
     // Auto-save to Firebase
     if (currentUser) {
         clearTimeout(window.taskSaveTimeout);
@@ -14113,6 +14119,25 @@ function filterTaskSteps() {
         const description = item.querySelector('.scrolling-text')?.textContent.toLowerCase() || '';
         
         if (query === '' || title.includes(query) || description.includes(query)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Filter overview tasks by search query (searches only task titles)
+function filterOverviewTasks() {
+    const searchInput = document.getElementById('taskOverviewSearchInput');
+    if (!searchInput) return;
+    
+    const query = searchInput.value.toLowerCase().trim();
+    const taskItems = document.querySelectorAll('#taskContent .material-item');
+    
+    taskItems.forEach(item => {
+        const title = item.querySelector('h3')?.textContent.toLowerCase() || '';
+        
+        if (query === '' || title.includes(query)) {
             item.style.display = '';
         } else {
             item.style.display = 'none';
@@ -14410,15 +14435,26 @@ async function createNewTask() {
     // Update blur effect
     updateTaskTabsBlur();
     
-    // Show grain loader overlay
+    // Show grain loader with blur effect
+    const taskContent = document.getElementById('taskContent');
     const grainLoader = document.getElementById('taskGrainLoader');
-    if (grainLoader) {
-        grainLoader.classList.add('active');
-        const stopGrainLoader = startGrainLoader('grainLoaderTask');
+    
+    // Step 1: Blur content
+    if (taskContent) {
+        taskContent.style.filter = 'blur(10px)';
+        taskContent.style.opacity = '0.5';
+        taskContent.style.transition = 'filter 0.5s ease, opacity 0.5s ease';
     }
     
+    // Step 2: Show grain loader after blur starts
+    setTimeout(() => {
+        if (grainLoader) {
+            grainLoader.classList.add('active');
+            const stopGrainLoader = startGrainLoader('grainLoaderTask');
+        }
+    }, 300);
+    
     // Show loading state in task content
-    const taskContent = document.getElementById('taskContent');
     taskContent.innerHTML = `
         <div style="display:flex;flex-direction:column;gap:12px;">
             <div style="padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;">
@@ -14525,10 +14561,21 @@ async function createNewTask() {
                     taskStore[taskId].pipeline = responseText;
                     taskStore[taskId].status = 'ready';
                     
-                    // Hide grain loader with fade out
+                    // Hide grain loader with fade out and remove blur from content
                     const grainLoader = document.getElementById('taskGrainLoader');
+                    const taskContent = document.getElementById('taskContent');
+                    
                     if (grainLoader) {
+                        // Step 1: Fade out loader
                         grainLoader.classList.remove('active');
+                        
+                        // Step 2: After loader fades, remove blur from content
+                        setTimeout(() => {
+                            if (taskContent) {
+                                taskContent.style.filter = 'blur(0px)';
+                                taskContent.style.opacity = '1';
+                            }
+                        }, 500);
                     }
                     
                     // Update task content in browser block
@@ -14555,10 +14602,18 @@ async function createNewTask() {
                     });
                     renderChatMessages();
                     
-                    // Hide grain loader
+                    // Hide grain loader and remove blur
                     const grainLoader = document.getElementById('taskGrainLoader');
+                    const taskContent = document.getElementById('taskContent');
+                    
                     if (grainLoader) {
                         grainLoader.classList.remove('active');
+                        setTimeout(() => {
+                            if (taskContent) {
+                                taskContent.style.filter = 'blur(0px)';
+                                taskContent.style.opacity = '1';
+                            }
+                        }, 500);
                     }
                     
                     // Update task with error
