@@ -729,10 +729,23 @@
         
         /* Hierarchy lines for substeps */
         .hierarchy-line-vertical {
-            background: rgba(255,255,255,0.1);
+            background: rgb(38,38,38);
         }
         .hierarchy-line-horizontal {
-            background: rgba(255,255,255,0.1);
+            background: rgb(38,38,38);
+        }
+        
+        /* Marquee animation for overflowing substep titles */
+        @keyframes marquee {
+            0%, 10% { transform: translateX(0); }
+            45%, 55% { transform: translateX(var(--marquee-distance)); }
+            90%, 100% { transform: translateX(0); }
+        }
+        
+        .step-title-marquee {
+            display: inline-block;
+            animation: marquee 12s ease-in-out infinite;
+            white-space: nowrap;
         }
         
         .material-icon {
@@ -14377,7 +14390,6 @@ function renderTaskContent(taskId) {
             
             stepsHTML += `
                 <div class="material-item ${completedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${completedStyle}">
-                    ${hasSubsteps ? '<div class="hierarchy-line-vertical" style="position:absolute;left:0;top:100%;width:1px;height:8px;"></div>' : ''}
                     <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
@@ -14405,24 +14417,14 @@ function renderTaskContent(taskId) {
                     const isLastSubstep = subIndex === step.substeps.length - 1;
                     
                     stepsHTML += `
-                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${subCompletedStyle};margin-left:40px;overflow:visible;">
-                            <div style="position:absolute;left:-40px;top:0;width:40px;height:100%;pointer-events:none;overflow:visible;">
-                                <div class="hierarchy-line-vertical" style="position:absolute;left:0;top:0;width:1px;height:calc(50% + 0.5px);"></div>
-                                <div class="hierarchy-line-vertical" style="position:absolute;left:0;top:calc(50% + 0.5px);width:1px;${isLastSubstep ? 'height:0;' : 'height:calc(50% - 0.5px);'}"></div>
-                                <div class="hierarchy-line-horizontal" style="position:absolute;left:0;top:50%;width:32px;height:1px;"></div>
+                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${subCompletedStyle};margin-left:40px;margin-right:-40px;overflow:visible;padding:10px 12px;">
+                            <div style="position:absolute;left:-40px;top:-11px;width:40px;height:calc(100% + 12px);pointer-events:none;overflow:visible;opacity:1 !important;">
+                                <div class="hierarchy-line-vertical" style="position:absolute;left:0;top:0;width:1px;${isLastSubstep ? 'height:calc(50% + 6.5px);' : 'height:100%;'}opacity:1 !important;"></div>
+                                <div class="hierarchy-line-horizontal" style="position:absolute;left:1px;top:calc(50% + 6.5px);width:38px;height:1px;opacity:1 !important;"></div>
                             </div>
-                            <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;width:28px;height:28px;">
-                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="" style="width:18px;height:18px;">
-                            </div>
-                            <div class="material-info" style="flex:1;min-width:0;">
-                                <h3 onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;font-size:13px;">
-                                    <span class="step-title-text" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${substep.title}</span>
-                                    ${isSubCompleted ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
-                                </h3>
-                                <div class="step-description-container" onclick="event.stopPropagation();toggleStepDescription(this)" style="cursor:pointer;margin-top:4px;">
-                                    <p class="step-description-short" style="font-size:12px;color:var(--text-secondary);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;">${substep.description || ''}</p>
-                                    <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;display:none;white-space:normal;background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;">${substep.description || ''}</p>
-                                </div>
+                            <div class="step-description-container" style="background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;cursor:pointer;margin:0;" onclick="event.stopPropagation();toggleStepDescription(this)">
+                                <p class="step-description-short" style="font-size:12px;color:var(--text-secondary);line-height:1.4;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${substep.title}</p>
+                                <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;margin:0;display:none;white-space:normal;">${substep.title}</p>
                             </div>
                         </div>
                     `;
@@ -14597,6 +14599,24 @@ function toggleStepDescription(container) {
         // Expand - show full
         shortDesc.style.display = 'none';
         fullDesc.style.display = '';
+    }
+}
+
+// Toggle substep text expand/collapse
+function toggleSubstepText(element) {
+    const shortText = element.querySelector('.substep-text-short');
+    const fullText = element.querySelector('.substep-text-full');
+    
+    if (!shortText || !fullText) return;
+    
+    if (shortText.style.display === 'none') {
+        // Collapse - show short
+        shortText.style.display = '';
+        fullText.style.display = 'none';
+    } else {
+        // Expand - show full
+        shortText.style.display = 'none';
+        fullText.style.display = '';
     }
 }
 
