@@ -614,6 +614,28 @@
             box-sizing: border-box; /* Include padding and border in width calculation */
         }
         
+        /* Shimmer animation for highlighting current step - блестящий эффект слева направо */
+        .step-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .step-shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(153, 153, 153, 0.6) 50%, 
+                transparent 100%);
+            animation: shimmer 1s ease-in-out;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
         /* Shimmer animation for highlighting */
         @keyframes shimmer {
             0% {
@@ -1963,7 +1985,7 @@
             </button>
             <div class="chat-tabs-wrapper" style="flex:1;min-width:0;">
               <div class="chat-tabs" id="taskTabs">
-                <button class="chat-tab active pinned" data-task="overview">
+                <button class="chat-tab active" data-task="overview">
                   <span>Обзор</span>
                 </button>
               </div>
@@ -2357,7 +2379,7 @@
           <input type="text" class="form-input" id="taskTitle" placeholder="Название задачи" style="font-size:13px;">
         </div>
         <div class="form-group">
-          <textarea class="form-input" id="taskDescription" placeholder="Описание задачи" rows="4" style="font-size:13px;resize:vertical;min-height:80px;"></textarea>
+          <textarea class="form-input" id="taskDescription" placeholder="Описание задачи" rows="4" style="font-size:13px;resize:none;min-height:80px;"></textarea>
         </div>
         <div class="form-group">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -2367,12 +2389,10 @@
           <input type="range" id="taskPriority" min="0" max="3" value="1" step="1" style="width:100%;accent-color:rgba(255,255,255,.3);" oninput="updatePriorityLabel()">
         </div>
         <div class="form-group">
-          <label style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;cursor:pointer;">
-            <input type="checkbox" id="taskHasDeadline" onchange="toggleDeadlineInput()" style="width:16px;height:16px;cursor:pointer;accent-color:rgba(255,255,255,.3);">
-            <span>Задача с дедлайном</span>
-          </label>
-          <div id="deadlineInputContainer" style="display:none;margin-top:8px;">
-            <input type="datetime-local" class="form-input" id="taskDeadline" style="font-size:13px;color-scheme:dark;">
+          <label style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:block;">По желанию можно указать срок завершения</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" class="form-input" id="taskDeadlineDate" placeholder="ДД.ММ.ГГГГ" maxlength="10" style="font-size:13px;flex:1;transition:border-color 0.3s ease;" oninput="formatDateInput(this)">
+            <input type="text" class="form-input" id="taskDeadlineTime" placeholder="ЧЧ:ММ" maxlength="5" style="font-size:13px;width:100px;transition:border-color 0.3s ease;" oninput="formatTimeInput(this)">
           </div>
         </div>
         <button type="button" class="auth-btn primary" onclick="createNewTask()" style="width:100%;margin-top:8px;">Создать задачу</button>
@@ -4267,23 +4287,6 @@ function startGrainLoader(canvasId = 'grainLoader') {
         });
     }
     
-    // Create offscreen canvas for coarse noise texture
-    const noiseCanvas = document.createElement('canvas');
-    noiseCanvas.width = width / 2;
-    noiseCanvas.height = height / 2;
-    const noiseCtx = noiseCanvas.getContext('2d');
-    
-    // Generate coarse noise texture
-    const noiseData = noiseCtx.createImageData(noiseCanvas.width, noiseCanvas.height);
-    for (let i = 0; i < noiseData.data.length; i += 4) {
-        const noise = Math.random() * 100;
-        noiseData.data[i] = noise;
-        noiseData.data[i + 1] = noise;
-        noiseData.data[i + 2] = noise;
-        noiseData.data[i + 3] = 255;
-    }
-    noiseCtx.putImageData(noiseData, 0, 0);
-    
     function drawGrainGradient() {
         // Clear canvas
         ctx.clearRect(0, 0, width, height);
@@ -4339,13 +4342,6 @@ function startGrainLoader(canvasId = 'grainLoader') {
             // Reset filter
             ctx.filter = 'none';
         });
-        
-        // Apply coarse noise texture overlay
-        ctx.globalAlpha = 0.45;
-        ctx.globalCompositeOperation = 'overlay';
-        ctx.drawImage(noiseCanvas, 0, 0, width, height);
-        ctx.globalAlpha = 1;
-        ctx.globalCompositeOperation = 'source-over';
         
         time += 1;
         animationFrame = requestAnimationFrame(drawGrainGradient);
@@ -9652,67 +9648,53 @@ function getproximaSystemPrompt() {
 
 ТВОЯ РОЛЬ:
 - Ты помогаешь пользователю организовывать задачи и достигать целей
-- Разбиваешь сложные задачи на простые шаги
-- Создаёшь структурированные планы действий
+- Разбиваешь сложные задачи на простые шаги с подробными инструкциями
+- Создаёшь структурированные планы действий с иерархией
 - Отслеживаешь прогресс и напоминаешь о важном
 - Общаешься дружелюбно и профессионально
 
-ТВОИ ВОЗМОЖНОСТИ:
-- Создание новых задач с подробным планом
-- Разбивка задач на пункты и подпункты
-- Установка приоритетов и дедлайнов
-- Отслеживание статуса выполнения
-- Предложение оптимальных решений
+ФОРМАТ ПАЙПЛАЙНА:
+Создавай детальные пошаговые инструкции. Каждый шаг ОБЯЗАТЕЛЬНО должен содержать:
+- Краткое название (что делать)
+- Подробное описание (как именно это сделать, какие инструменты использовать, на что обратить внимание)
+- Подшаги если задача сложная (обозначай их отступом "  - ")
 
-ФОРМАТ РАБОТЫ:
-Когда пользователь описывает задачу, ты:
-1. Уточняешь детали если нужно
-2. Создаёшь структурированный план
-3. Разбиваешь на конкретные шаги
-4. Предлагаешь порядок выполнения
+ВАЖНО: ВСЕГДА пиши подробные комментарии к КАЖДОМУ шагу. Комментарий должен объяснять КАК выполнить шаг, какие инструменты использовать, на что обратить внимание.
+
+ПРИМЕР ПРАВИЛЬНОГО ПАЙПЛАЙНА:
+
+1. Изучить основы JavaScript
+Начни с базового синтаксиса: переменные (let, const, var), типы данных (string, number, boolean, object, array), операторы. Используй интерактивные платформы типа JavaScript.info или MDN Web Docs. Выдели 2-3 часа на изучение, делай заметки в отдельном файле.
+  - Изучить переменные и типы данных
+  - Освоить условные операторы (if/else, switch)
+  - Понять циклы (for, while, forEach)
+
+2. Практика на простых задачах
+Решай задачи на CodeWars или LeetCode уровня 8-7 kyu. Начни с задач на работу со строками и массивами. Цель - решить минимум 10 задач, чтобы закрепить базовый синтаксис. Анализируй чужие решения после своего.
+  - Решить 5 задач на работу со строками
+  - Решить 5 задач на работу с массивами
+  - Изучить разные подходы к решению
+
+3. Создать первый проект
+Сделай простой калькулятор или todo-list. Используй чистый JavaScript без фреймворков. Создай HTML структуру, добавь стили CSS, реализуй логику на JS. Обязательно добавь обработку ошибок и валидацию ввода.
 
 СТИЛЬ ОБЩЕНИЯ:
 - Краткие и чёткие ответы
 - Используй списки и структуру
 - Будь конкретной, избегай общих фраз
-- Мотивируй и поддерживай
-- НЕ используй эмодзи
-
-ПРИМЕРЫ:
-
-Пользователь: "Нужно подготовиться к экзамену по математике"
-Ты: "Создаю план подготовки к экзамену:
-
-**Задача: Подготовка к экзамену по математике**
-
-Шаги:
-1. Определить темы экзамена
-2. Составить список материалов для изучения
-3. Разделить темы по дням
-4. Решать практические задачи ежедневно
-5. Повторить все темы за день до экзамена
-
-Когда экзамен? Это поможет распределить время."
-
-Пользователь: "Хочу начать заниматься спортом"
-Ты: "Отлично! Создаю план:
-
-**Задача: Начать регулярные тренировки**
-
-Шаги:
-1. Выбрать вид активности (зал, бег, домашние тренировки)
-2. Определить удобное время для занятий
-3. Подготовить необходимое (форма, абонемент)
-4. Начать с 3 тренировок в неделю
-5. Отслеживать прогресс
-
-Какой вид спорта тебе интересен?"
+- Давай практические советы с деталями
+- НЕ используй эмодзи НИКОГДА
+- Пиши подробные инструкции в описании КАЖДОГО шага
+- НЕ указывай время выполнения в скобках
 
 ВАЖНО:
 - Всегда структурируй информацию
 - Задавай уточняющие вопросы
 - Помогай разбить большие задачи на маленькие
 - Будь практичной и конкретной
+- В описании шага пиши ЧТО и КАК делать, какие инструменты использовать
+- Используй подшаги (с отступом "  - ") для сложных задач
+- КАЖДЫЙ шаг должен иметь подробный комментарий
 
 ФОРМАТ ОТВЕТА:
 Ты ДОЛЖНА отвечать ТОЛЬКО в формате JSON:
@@ -13645,14 +13627,33 @@ function openTaskFromChat(taskId) {
     
     // Expand browser block if collapsed
     const browserBlock = document.getElementById('browserBlock');
-    if (browserBlock && browserBlock.classList.contains('collapsed')) {
+    const wasCollapsed = browserBlock && browserBlock.classList.contains('collapsed');
+    
+    if (wasCollapsed) {
         expandBlock('browserBlock');
     }
     
-    // Switch to task tab
+    // Switch to task tab and highlight current step with smooth transition
     setTimeout(() => {
         switchTaskTab(taskId);
-    }, browserBlock && browserBlock.classList.contains('collapsed') ? 800 : 0);
+        
+        // Highlight current step with shimmer after content is rendered
+        setTimeout(() => {
+            const task = taskStore[taskId];
+            if (task && task.currentStep !== undefined) {
+                const stepElement = document.querySelector(`[data-step-index="${task.currentStep}"]`);
+                if (stepElement) {
+                    // Add shimmer immediately (no scroll to prevent jump)
+                    stepElement.classList.add('step-shimmer');
+                    
+                    // Remove shimmer after animation completes
+                    setTimeout(() => {
+                        stepElement.classList.remove('step-shimmer');
+                    }, 1000); // Match animation duration
+                }
+            }
+        }, 200);
+    }, wasCollapsed ? 800 : 0);
 }
 
 // ============================================================
@@ -14098,23 +14099,24 @@ function renderTaskContent(taskId) {
         stepsHTML += `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;font-size:11px;margin-bottom:4px;">
                 <div style="color:var(--text-secondary);">${priorityLabel}</div>
-                ${task.deadline ? `<div style="color:var(--text-secondary);">${deadlineText}</div>` : ''}
+                <div style="color:var(--text-secondary);">${task.deadline ? deadlineText : 'БЕЗ СРОКА'}</div>
             </div>
         `;
         
-        // Pipeline steps as cards
-        steps.forEach((step, index) => {
-            const isCompleted = taskStore[taskId].completedSteps?.includes(index) || false;
+        // Pipeline steps as cards with hierarchy
+        let stepGlobalIndex = 0;
+        steps.forEach((step, mainIndex) => {
+            const isCompleted = taskStore[taskId].completedSteps?.includes(stepGlobalIndex) || false;
             const completedClass = isCompleted ? 'completed' : '';
             const completedStyle = isCompleted ? 'opacity:0.4;' : '';
             
             stepsHTML += `
-                <div class="material-item ${completedClass}" style="position:relative;${completedStyle}">
-                    <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${index})" style="cursor:pointer;align-self:flex-start;">
+                <div class="material-item ${completedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${completedStyle}">
+                    <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
                     <div class="material-info" style="flex:1;min-width:0;">
-                        <h3 onclick="toggleStepCompletion('${taskId}', ${index})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;">
+                        <h3 onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;">
                             <span class="step-title-text" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${step.title}</span>
                             ${isCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                         </h3>
@@ -14125,6 +14127,33 @@ function renderTaskContent(taskId) {
                     </div>
                 </div>
             `;
+            
+            stepGlobalIndex++;
+            
+            // Render substeps with hierarchy
+            if (step.substeps && step.substeps.length > 0) {
+                step.substeps.forEach((substep, subIndex) => {
+                    const isSubCompleted = taskStore[taskId].completedSteps?.includes(stepGlobalIndex) || false;
+                    const subCompletedClass = isSubCompleted ? 'completed' : '';
+                    const subCompletedStyle = isSubCompleted ? 'opacity:0.4;' : '';
+                    
+                    stepsHTML += `
+                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${subCompletedStyle};margin-left:32px;border-left:2px solid rgba(255,255,255,.1);padding-left:12px;">
+                            <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;width:28px;height:28px;">
+                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="" style="width:20px;height:20px;">
+                            </div>
+                            <div class="material-info" style="flex:1;min-width:0;">
+                                <h3 onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;font-size:13px;">
+                                    <span class="step-title-text" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${substep.title}</span>
+                                    ${isSubCompleted ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
+                                </h3>
+                            </div>
+                        </div>
+                    `;
+                    
+                    stepGlobalIndex++;
+                });
+            }
         });
         
         stepsHTML += '</div>';
@@ -14152,8 +14181,20 @@ function toggleStepCompletion(taskId, stepIndex) {
         task.completedSteps.push(stepIndex);
     }
     
+    // Save scroll position before re-render (from materials-list container)
+    const materialsList = document.querySelector('#taskContent .materials-list');
+    const scrollTop = materialsList ? materialsList.scrollTop : 0;
+    
     // Re-render task content
     renderTaskContent(taskId);
+    
+    // Restore scroll position after re-render
+    setTimeout(() => {
+        const materialsListAfter = document.querySelector('#taskContent .materials-list');
+        if (materialsListAfter) {
+            materialsListAfter.scrollTop = scrollTop;
+        }
+    }, 0);
     
     // If we're on overview, re-render it to update checkmarks
     if (activeTaskTab === 'overview') {
@@ -14261,123 +14302,139 @@ function addOverviewFadeGradients() {
     updateGradients();
 }
 
-// Parse pipeline text into structured steps
+// Parse pipeline text into structured steps with hierarchy
 function parsePipelineSteps(pipelineText) {
-    const steps = [];
+    console.log('[PARSER] Input text:', pipelineText);
     
-    // Split by lines
+    const steps = [];
     const lines = pipelineText.split('\n');
     
     let currentStep = null;
     let stepCounter = 0;
+    let descriptionLines = [];
     
-    lines.forEach(line => {
-        line = line.trim();
-        if (!line) return;
+    lines.forEach((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return;
         
-        // Check if line is a step header (starts with **Шаг or contains ⏱️)
-        const stepMatch = line.match(/\*\*Шаг\s+(\d+):\s*(.+?)\*\*/i) || 
-                         line.match(/^Шаг\s+(\d+):\s*(.+?)(?:\(|⏱️|$)/i) ||
-                         line.match(/^(\d+)\.\s*\*\*(.+?)\*\*/);
+        // Check if line is a main step (starts with number and dot)
+        const mainStepMatch = trimmed.match(/^(\d+)\.\s+(.+)/);
         
-        if (stepMatch) {
+        // Check if line is a substep (starts with "  - " or "- " after indent)
+        const isSubstep = line.match(/^\s{2,}-\s+/) || (trimmed.startsWith('- ') && currentStep && descriptionLines.length > 0);
+        
+        if (mainStepMatch && !isSubstep) {
             // Save previous step
             if (currentStep) {
+                currentStep.description = descriptionLines.join(' ').trim();
                 steps.push(currentStep);
             }
             
-            // Start new step
+            // Start new main step
             stepCounter++;
-            let stepTitle = stepMatch[2].replace(/\*\*/g, '').trim();
-            
-            // Extract short title (before parenthesis or first 30 chars)
-            const parenIndex = stepTitle.indexOf('(');
-            if (parenIndex > 0) {
-                stepTitle = stepTitle.substring(0, parenIndex).trim();
-            }
-            
-            // Limit title to 30 characters
-            if (stepTitle.length > 30) {
-                stepTitle = stepTitle.substring(0, 27) + '...';
-            }
-            
-            // Extract emoji from title if present
-            const emojiMatch = stepTitle.match(/^([\u{1F300}-\u{1F9FF}])/u);
-            const emoji = emojiMatch ? emojiMatch[1] : getStepEmoji(stepCounter);
-            const cleanTitle = stepTitle.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '');
-            
-            // Extract time if present in original line
-            const timeMatch = line.match(/\(([^)]+)\)|⏱️\s*(.+?)(?:\*\*|$)/);
-            const time = timeMatch ? (timeMatch[1] || timeMatch[2] || '').trim() : '';
+            const title = mainStepMatch[2].trim();
             
             currentStep = {
                 number: stepCounter,
-                title: cleanTitle,
-                emoji: emoji,
-                time: time,
-                description: ''
+                title: title,
+                description: '',
+                substeps: [],
+                level: 0
             };
-        } else if (currentStep && line && !line.startsWith('#') && !line.startsWith('**')) {
-            // Add to current step description (only first line after step header)
-            if (!currentStep.description) {
-                const cleanLine = line.replace(/^\*\*|\*\*$/g, '').replace(/^-\s*/, '').replace(/^\[|\]$/g, '');
-                if (cleanLine && !cleanLine.match(/^(💡|✅|📋|Шаг)/)) {
-                    currentStep.description = cleanLine;
-                }
+            descriptionLines = [];
+        } else if (isSubstep && currentStep) {
+            // Add substep to current step
+            const substepText = trimmed.replace(/^-\s+/, '').trim();
+            currentStep.substeps.push({
+                title: substepText,
+                level: 1
+            });
+        } else if (currentStep && !mainStepMatch && !isSubstep) {
+            // Add to description (collect all lines until next step)
+            if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('**Шаг')) {
+                descriptionLines.push(trimmed);
             }
         }
     });
     
     // Save last step
     if (currentStep) {
+        currentStep.description = descriptionLines.join(' ').trim();
         steps.push(currentStep);
     }
     
-    // If no steps found, try to extract from bullet points
+    // Fallback: if no steps found, try to parse as simple list
     if (steps.length === 0) {
-        let bulletCounter = 0;
-        lines.forEach(line => {
-            line = line.trim();
-            if (line.match(/^[-•]\s+/) || line.match(/^\d+\.\s+/)) {
-                bulletCounter++;
-                const text = line.replace(/^[-•]\s+/, '').replace(/^\d+\.\s+/, '').trim();
-                const emojiMatch = text.match(/^([\u{1F300}-\u{1F9FF}])/u);
-                const emoji = emojiMatch ? emojiMatch[1] : getStepEmoji(bulletCounter);
-                const cleanText = text.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '');
+        console.log('[PARSER] No numbered steps found, trying fallback parsing...');
+        let fallbackCounter = 0;
+        let fallbackStep = null;
+        let fallbackDesc = [];
+        let collectingDescription = false;
+        
+        lines.forEach((line, index) => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+            
+            // Try to match any line that looks like a step header
+            const stepMatch = trimmed.match(/^[-•*]\s+(.+)/) || 
+                            trimmed.match(/^Шаг\s+\d+[:.]\s*(.+)/i) ||
+                            trimmed.match(/^\*\*(.+?)\*\*/) ||
+                            trimmed.match(/^#{1,3}\s+(.+)/);
+            
+            if (stepMatch) {
+                // Save previous step
+                if (fallbackStep) {
+                    fallbackStep.description = fallbackDesc.join(' ').trim();
+                    steps.push(fallbackStep);
+                }
                 
-                // Split into title and description
-                const firstSentence = cleanText.split(/[.!?]/)[0];
-                const title = firstSentence.length > 30 ? firstSentence.substring(0, 27) + '...' : firstSentence;
-                
-                steps.push({
-                    number: bulletCounter,
+                fallbackCounter++;
+                const title = stepMatch[1].trim().replace(/\*\*/g, '').replace(/^Шаг\s+\d+[:.]\s*/i, '');
+                fallbackStep = {
+                    number: fallbackCounter,
                     title: title,
-                    emoji: emoji,
-                    time: '',
-                    description: cleanText
-                });
+                    description: '',
+                    substeps: [],
+                    level: 0
+                };
+                fallbackDesc = [];
+                collectingDescription = true;
+            } else if (fallbackStep && trimmed && collectingDescription) {
+                // Check if it's a substep
+                if (line.match(/^\s{2,}-\s+/) || (trimmed.startsWith('- ') && fallbackDesc.length > 0)) {
+                    const substepText = trimmed.replace(/^-\s+/, '').trim();
+                    fallbackStep.substeps.push({
+                        title: substepText,
+                        level: 1
+                    });
+                } else if (!trimmed.startsWith('#') && !trimmed.match(/^[-•*]\s+/)) {
+                    // Add to description
+                    fallbackDesc.push(trimmed);
+                }
             }
+        });
+        
+        // Save last fallback step
+        if (fallbackStep) {
+            fallbackStep.description = fallbackDesc.join(' ').trim();
+            steps.push(fallbackStep);
+        }
+    }
+    
+    // Last resort: if still no steps, create one generic step
+    if (steps.length === 0 && pipelineText.trim()) {
+        console.log('[PARSER] Creating generic step from entire text');
+        steps.push({
+            number: 1,
+            title: 'Выполнить задачу',
+            description: pipelineText.trim().substring(0, 500),
+            substeps: [],
+            level: 0
         });
     }
     
-    // Format descriptions with time
-    steps.forEach(step => {
-        if (step.time) {
-            step.description = `⏱️ ${step.time} • ${step.description}`;
-        }
-        // Limit description length
-        if (step.description.length > 150) {
-            step.description = step.description.substring(0, 147) + '...';
-        }
-    });
-    
+    console.log('[PARSER] Parsed steps:', steps);
     return steps;
-}
-
-// Get emoji for step number
-function getStepEmoji(stepNumber) {
-    const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-    return emojis[stepNumber - 1] || '📌';
 }
 
 async function saveTasksToFirebase(userId, tasks, metadata) {
@@ -14443,9 +14500,8 @@ function openNewTaskModal() {
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskDescription').value = '';
         document.getElementById('taskPriority').value = '1';
-        document.getElementById('taskHasDeadline').checked = false;
-        document.getElementById('taskDeadline').value = '';
-        document.getElementById('deadlineInputContainer').style.display = 'none';
+        document.getElementById('taskDeadlineDate').value = '';
+        document.getElementById('taskDeadlineTime').value = '';
         updatePriorityLabel();
         
         // Focus on title input
@@ -14453,16 +14509,35 @@ function openNewTaskModal() {
     }
 }
 
+function formatDateInput(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.slice(0, 2) + '.' + value.slice(2);
+    }
+    if (value.length >= 5) {
+        value = value.slice(0, 5) + '.' + value.slice(5);
+    }
+    if (value.length > 10) {
+        value = value.slice(0, 10);
+    }
+    input.value = value;
+}
+
+function formatTimeInput(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.slice(0, 2) + ':' + value.slice(2);
+    }
+    if (value.length > 5) {
+        value = value.slice(0, 5);
+    }
+    input.value = value;
+}
+
 function updatePriorityLabel() {
     const priority = document.getElementById('taskPriority').value;
     const labels = ['НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
     document.getElementById('priorityLabel').textContent = labels[priority];
-}
-
-function toggleDeadlineInput() {
-    const checkbox = document.getElementById('taskHasDeadline');
-    const container = document.getElementById('deadlineInputContainer');
-    container.style.display = checkbox.checked ? 'block' : 'none';
 }
 
 function closeNewTaskModal() {
@@ -14477,22 +14552,40 @@ async function createNewTask() {
     const title = document.getElementById('taskTitle').value.trim();
     const description = document.getElementById('taskDescription').value.trim();
     const priority = parseInt(document.getElementById('taskPriority').value);
-    const hasDeadline = document.getElementById('taskHasDeadline').checked;
-    const deadline = hasDeadline ? document.getElementById('taskDeadline').value : null;
+    const deadlineDate = document.getElementById('taskDeadlineDate').value.trim();
+    const deadlineTime = document.getElementById('taskDeadlineTime').value.trim();
+    
+    // Clear previous errors
+    document.getElementById('taskTitle').style.borderColor = '';
+    document.getElementById('taskDescription').style.borderColor = '';
     
     if (!title) {
-        showAlert('Введите название задачи', 'Ошибка');
+        document.getElementById('taskTitle').style.borderColor = 'rgba(255,80,80,0.8)';
+        setTimeout(() => {
+            document.getElementById('taskTitle').style.borderColor = '';
+        }, 2000);
         return;
     }
     
     if (!description) {
-        showAlert('Введите описание задачи', 'Ошибка');
+        document.getElementById('taskDescription').style.borderColor = 'rgba(255,80,80,0.8)';
+        setTimeout(() => {
+            document.getElementById('taskDescription').style.borderColor = '';
+        }, 2000);
         return;
     }
     
-    if (hasDeadline && !deadline) {
-        showAlert('Укажите дедлайн задачи', 'Ошибка');
-        return;
+    // Parse deadline if provided
+    let deadline = null;
+    if (deadlineDate && deadlineDate.length === 10) {
+        const parts = deadlineDate.split('.');
+        if (parts.length === 3) {
+            const day = parts[0];
+            const month = parts[1];
+            const year = parts[2];
+            const time = deadlineTime && deadlineTime.length === 5 ? deadlineTime : '23:59';
+            deadline = `${year}-${month}-${day}T${time}`;
+        }
     }
     
     // Close modal
@@ -14509,7 +14602,8 @@ async function createNewTask() {
         priority: priority,
         deadline: deadline,
         pipeline: '',
-        status: 'pending'
+        status: 'pending',
+        currentStep: 0
     };
     taskMetadata[taskId] = { name: taskName };
     
@@ -14667,6 +14761,7 @@ async function createNewTask() {
                     renderChatMessages();
                     
                     // Update task store with pipeline
+                    console.log('[PIPELINE] Received pipeline text:', responseText);
                     taskStore[taskId].pipeline = responseText;
                     taskStore[taskId].status = 'ready';
                     
