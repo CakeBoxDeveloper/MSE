@@ -1629,6 +1629,18 @@
         }
         @keyframes spin { to{transform:rotate(360deg);} }
         
+        /* Animated dots for "Проксима работает..." */
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .dots-animation::after {
+            content: '.';
+            animation: dots 1.5s infinite;
+        }
+        
         @keyframes shimmer {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
@@ -4447,7 +4459,7 @@ async function loadproximaAnimation(containerId, speed = 0.5) {
     container.innerHTML = '';
     
     try {
-        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -7581,7 +7593,7 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
     if (proximaContainer && typeof lottie !== 'undefined') {
         setTimeout(async () => {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json');
                 let data = await response.json();
                 
                 // Replace white and light colors with gray (#797979) - SAME AS CHAT
@@ -8553,7 +8565,7 @@ function checkExamAnswers() {
                 const lottieContainer = document.getElementById('lottie-exam-result-proxima');
                 if (lottieContainer) {
                     try {
-                        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                        const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json');
                         let data = await response.json();
                         
                         // Используем функцию convertLottieToGrayscale для правильной замены цветов
@@ -8722,7 +8734,7 @@ function processInitialQuestionnaire() {
                     const lottieContainer = document.getElementById('lottie-exam-result-proxima');
                     if (lottieContainer) {
                         try {
-                            const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                            const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json');
                             let data = await response.json();
                             data = convertLottieToGrayscale(data);
                             lottie.loadAnimation({
@@ -10460,7 +10472,7 @@ function renderChatMessages(){
             const lottieContainer = document.getElementById('lottie-chat-proxima');
             if(lottieContainer && !lottieContainer.hasAnimation) {
                 try {
-                    const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                    const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json');
                     let data = await response.json();
                     
                     // Замена белых и светлых цветов на серый (#797979)
@@ -10518,7 +10530,7 @@ function renderChatMessages(){
                     renderer: 'svg',
                     loop: true,
                     autoplay: true,
-                    path: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/refs/heads/main/Eye%20Loading%20Animation.json'
+                    path: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/refs/heads/main/Proxima.json'
                 });
                 anim.setSpeed(0.5); // Замедляем в 2 раза
             } catch (error) {
@@ -10535,11 +10547,11 @@ function renderChatMessages(){
             const newMessageClass = isNewMessage ? 'new-message' : '';
             
             if (m.type === 'thinking') {
-                // Анимация "Проксима думает/анализирует" - ALWAYS without blur
+                // Анимация "Проксима работает..." - ALWAYS without blur
                 return `<div class="chat-message ${m.role} thinking" style="background:transparent;border:none;padding:10px 0;">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <div id="lottie-thinking-${m.id}" style="width:22px;height:22px;flex-shrink:0;"></div>
-                        <span style="font-size:13px;color:var(--text-secondary);">Проксима думает...</span>
+                        <span style="font-size:13px;color:var(--text-secondary);">Проксима работает<span class="dots-animation"></span></span>
                     </div>
                 </div>`;
             } else if (m.type === 'achievement') {
@@ -10695,7 +10707,7 @@ function renderChatMessages(){
                     const lottieContainer = document.getElementById(`lottie-thinking-${m.id}`);
                     if(lottieContainer && !lottieContainer.hasAnimation) {
                         try {
-                            const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json');
+                            const response = await fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json');
                             let data = await response.json();
                             
                             // Замена белых и светлых цветов на серый (#797979)
@@ -15114,5 +15126,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
 
