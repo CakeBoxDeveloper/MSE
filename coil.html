@@ -2014,7 +2014,7 @@
             </button>
           </div>
           <!-- Search input for tasks (visible only on Overview tab when logged in) -->
-          <div id="taskOverviewSearchBar" style="display:none;padding:8px 12px 8px 12px;">
+          <div id="taskOverviewSearchBar" style="display:none;padding:0 12px 8px 12px;">
             <input type="text" id="taskOverviewSearchInput" placeholder="Поиск по задачам..." oninput="filterOverviewTasks()" style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:12px;outline:none;box-sizing:border-box;">
           </div>
           <div class="content-body" id="main-content">
@@ -2422,10 +2422,16 @@
       </form>
     </div>
     <!-- Loader container inside modal -->
-    <div id="newTaskModalLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(25,25,25,0.98);backdrop-filter:blur(10px);border-radius:8px;z-index:10;">
-      <div id="lottie-modal-proxima" style="width:240px;height:240px;"></div>
-      <div style="font-size:14px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:4px;">
-        Проксима работает<span class="dots-animation"></span>
+    <div id="newTaskModalLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(25,25,25,0.98);backdrop-filter:blur(10px);border-radius:8px;z-index:10;padding:24px;">
+      <div id="lottie-modal-proxima" style="width:240px;height:240px;margin-bottom:8px;"></div>
+      <div id="codeRunnerWindow" style="width:100%;max-width:400px;height:120px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:10px;line-height:1.4;color:#999;overflow:hidden;position:relative;filter:blur(1px);">
+        <div id="codeRunnerContent" style="position:absolute;top:12px;left:12px;right:12px;"></div>
+      </div>
+      <div style="width:100%;max-width:400px;height:40px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+        <span style="font-size:13px;font-weight:600;color:var(--text-primary);position:relative;z-index:1;">Проксима работает</span>
+        <div class="shimmer-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;">
+          <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2s infinite;"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -5868,6 +5874,9 @@ loginPinInputs.forEach((id,index)=>{
                             
                             // Обновляем вкладку "Прогресс" если она открыта
                             refreshProgressTab();
+                            
+                            // Restore task tabs after login
+                            restoreTaskTabs();
                             
                             console.log('[LOGIN] Login process completed successfully!');
                         } catch (error) {
@@ -9631,6 +9640,9 @@ function restoreSession() {
                     updateAllStatsDisplays();
                     
                     console.log('[SESSION] Updated currentUser with Firebase data:', currentUser);
+                    
+                    // Restore task tabs after loading from Firebase
+                    restoreTaskTabs();
                     
                     // Show invite and leaderboard buttons
                     const inviteBtn = document.getElementById('inviteButton');
@@ -14991,13 +15003,16 @@ async function createNewTask() {
             console.log('[CREATE TASK] Showing loader');
             modalLoader.style.display = 'flex';
             
-            // Load Proxima animation (white, no filter)
+            // Load Proxima animation with gray color
             const lottieContainer = document.getElementById('lottie-modal-proxima');
             if (lottieContainer) {
                 lottieContainer.innerHTML = '';
                 fetch('https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json')
                     .then(response => response.json())
                     .then(data => {
+                        // Convert to grayscale (MSE logo colors)
+                        data = convertLottieToGrayscale(data);
+                        
                         const anim = lottie.loadAnimation({
                             container: lottieContainer,
                             renderer: 'svg',
@@ -15005,8 +15020,59 @@ async function createNewTask() {
                             autoplay: true,
                             animationData: data
                         });
-                        // No filter - keep white like text
+                        
+                        // Set speed to 0.5 (consistent with all Proxima animations)
+                        anim.setSpeed(0.5);
                     });
+            }
+            
+            // Start code runner animation
+            const codeRunnerContent = document.getElementById('codeRunnerContent');
+            if (codeRunnerContent) {
+                const codeLines = [
+                    'analyzing task structure...',
+                    'parsing requirements...',
+                    'generating pipeline steps...',
+                    'optimizing workflow...',
+                    'validating dependencies...',
+                    'calculating priorities...',
+                    'building execution plan...',
+                    'allocating resources...',
+                    'initializing task context...',
+                    'preparing response...'
+                ];
+                
+                let lineIndex = 0;
+                const addCodeLine = () => {
+                    if (lineIndex < codeLines.length) {
+                        const line = document.createElement('div');
+                        line.textContent = '> ' + codeLines[lineIndex];
+                        line.style.opacity = '0';
+                        line.style.transition = 'opacity 0.2s ease';
+                        codeRunnerContent.appendChild(line);
+                        
+                        // Fade in
+                        setTimeout(() => {
+                            line.style.opacity = '1';
+                        }, 30);
+                        
+                        // Remove old lines if too many
+                        if (codeRunnerContent.children.length > 7) {
+                            const firstChild = codeRunnerContent.firstChild;
+                            firstChild.style.opacity = '0';
+                            setTimeout(() => {
+                                if (firstChild.parentNode) {
+                                    firstChild.remove();
+                                }
+                            }, 200);
+                        }
+                        
+                        lineIndex++;
+                        setTimeout(addCodeLine, 150 + Math.random() * 100);
+                    }
+                };
+                
+                addCodeLine();
             }
         }
     }, 300);
