@@ -14047,17 +14047,18 @@ function renderTaskContent(taskId) {
             const completedStyle = isCompleted ? 'opacity:0.4;' : '';
             
             stepsHTML += `
-                <div class="material-item ${completedClass}" onclick="toggleStepCompletion('${taskId}', ${index})" style="cursor:pointer;position:relative;${completedStyle}">
-                    <div class="material-icon">
+                <div class="material-item ${completedClass}" style="position:relative;${completedStyle}">
+                    <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${index})" style="cursor:pointer;">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
                     <div class="material-info" style="flex:1;min-width:0;">
-                        <h3 style="display:flex;align-items:center;justify-content:space-between;">
+                        <h3 onclick="toggleStepCompletion('${taskId}', ${index})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
                             <span>${step.title}</span>
                             ${isCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                         </h3>
-                        <div style="position:relative;overflow:hidden;width:100%;height:16px;-webkit-mask-image:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%);mask-image:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%);">
-                            <p class="scrolling-text" style="white-space:nowrap;position:absolute;left:0;animation:scroll-text 10s linear infinite;">${step.description}</p>
+                        <div class="step-description-container" onclick="event.stopPropagation();toggleStepDescription(this)" style="cursor:pointer;">
+                            <p class="step-description-short" style="font-size:12px;color:var(--text-secondary);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${step.description}</p>
+                            <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;display:none;white-space:normal;">${step.description}</p>
                         </div>
                     </div>
                 </div>
@@ -14103,6 +14104,24 @@ function toggleStepCompletion(taskId, stepIndex) {
         window.taskSaveTimeout = setTimeout(() => {
             saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
         }, 1000);
+    }
+}
+
+// Toggle step description expand/collapse
+function toggleStepDescription(container) {
+    const shortDesc = container.querySelector('.step-description-short');
+    const fullDesc = container.querySelector('.step-description-full');
+    
+    if (!shortDesc || !fullDesc) return;
+    
+    if (shortDesc.style.display === 'none') {
+        // Collapse - show short
+        shortDesc.style.display = '';
+        fullDesc.style.display = 'none';
+    } else {
+        // Expand - show full
+        shortDesc.style.display = 'none';
+        fullDesc.style.display = '';
     }
 }
 
