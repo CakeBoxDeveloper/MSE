@@ -726,6 +726,15 @@
             pointer-events: none;
         }
         .material-item:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
+        
+        /* Hierarchy lines for substeps */
+        .hierarchy-line-vertical {
+            background: rgba(255,255,255,0.1);
+        }
+        .hierarchy-line-horizontal {
+            background: rgba(255,255,255,0.1);
+        }
+        
         .material-icon {
             width: 32px; /* MOBILE: меньше */
             height: 32px; /* MOBILE: меньше */
@@ -14364,9 +14373,11 @@ function renderTaskContent(taskId) {
             const isCompleted = taskStore[taskId].completedSteps?.includes(stepGlobalIndex) || false;
             const completedClass = isCompleted ? 'completed' : '';
             const completedStyle = isCompleted ? 'opacity:0.4;' : '';
+            const hasSubsteps = step.substeps && step.substeps.length > 0;
             
             stepsHTML += `
                 <div class="material-item ${completedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${completedStyle}">
+                    ${hasSubsteps ? '<div class="hierarchy-line-vertical" style="position:absolute;left:0;top:100%;width:2px;height:8px;"></div>' : ''}
                     <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
@@ -14395,9 +14406,10 @@ function renderTaskContent(taskId) {
                     
                     stepsHTML += `
                         <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${subCompletedStyle};margin-left:40px;overflow:visible;">
-                            <div style="position:absolute;left:-20px;top:0;width:20px;height:100%;pointer-events:none;overflow:visible;">
-                                <div style="position:absolute;left:0;top:0;width:2px;${isLastSubstep ? 'height:calc(50% + 1px);' : 'height:100%;'}background:rgba(255,255,255,0.1);"></div>
-                                <div style="position:absolute;left:0;top:50%;width:20px;height:2px;background:rgba(255,255,255,0.1);"></div>
+                            <div style="position:absolute;left:-40px;top:0;width:40px;height:100%;pointer-events:none;overflow:visible;">
+                                <div class="hierarchy-line-vertical" style="position:absolute;left:0;top:0;width:2px;height:calc(50% - 1px);"></div>
+                                <div class="hierarchy-line-vertical" style="position:absolute;left:0;top:calc(50% + 1px);width:2px;${isLastSubstep ? 'height:0;' : 'height:calc(50% - 1px);'}"></div>
+                                <div class="hierarchy-line-horizontal" style="position:absolute;left:2px;top:50%;width:30px;height:2px;margin-top:-1px;"></div>
                             </div>
                             <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;width:28px;height:28px;">
                                 <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="" style="width:18px;height:18px;">
