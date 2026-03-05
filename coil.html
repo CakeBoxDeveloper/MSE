@@ -1756,6 +1756,11 @@
             100% { left: -100%; }
         }
         
+        @keyframes marquee-lr {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(calc(-50%)); }
+        }
+        
         .scrolling-text {
             animation-play-state: paused;
         }
@@ -2344,7 +2349,7 @@
 
 <!-- New Task Modal -->
 <div class="auth-overlay" id="newTaskOverlay" style="display:none;">
-  <div class="auth-modal" onclick="event.stopPropagation()" style="width:380px;height:auto;">
+  <div class="auth-modal" onclick="event.stopPropagation()" style="width:420px;height:auto;">
     <div style="padding:24px;">
       <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px;text-align:center;">Создать новую задачу</div>
       <form class="auth-form" onsubmit="return false;">
@@ -2354,7 +2359,23 @@
         <div class="form-group">
           <textarea class="form-input" id="taskDescription" placeholder="Описание задачи" rows="4" style="font-size:13px;resize:vertical;min-height:80px;"></textarea>
         </div>
-        <button type="button" class="auth-btn primary" onclick="createNewTask()" style="width:100%;margin-top:16px;">Создать задачу</button>
+        <div class="form-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <label style="font-size:12px;color:var(--text-secondary);">ПРИОРИТЕТ</label>
+            <div id="priorityLabel" style="font-size:11px;color:var(--text-primary);">УМЕРЕННО</div>
+          </div>
+          <input type="range" id="taskPriority" min="0" max="3" value="1" step="1" style="width:100%;accent-color:rgba(255,255,255,.3);" oninput="updatePriorityLabel()">
+        </div>
+        <div class="form-group">
+          <label style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="taskHasDeadline" onchange="toggleDeadlineInput()" style="width:16px;height:16px;cursor:pointer;accent-color:rgba(255,255,255,.3);">
+            <span>Задача с дедлайном</span>
+          </label>
+          <div id="deadlineInputContainer" style="display:none;margin-top:8px;">
+            <input type="datetime-local" class="form-input" id="taskDeadline" style="font-size:13px;color-scheme:dark;">
+          </div>
+        </div>
+        <button type="button" class="auth-btn primary" onclick="createNewTask()" style="width:100%;margin-top:8px;">Создать задачу</button>
       </form>
     </div>
   </div>
@@ -13991,17 +14012,34 @@ function renderTaskContent(taskId) {
                 const completedSteps = t.completedSteps || [];
                 const allStepsCompleted = steps.length > 0 && completedSteps.length === steps.length;
                 
+                // Priority and deadline for overview
+                const priorityLabels = ['НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
+                const priorityLabel = priorityLabels[t.priority || 1];
+                
+                let deadlineText = '';
+                if (t.deadline) {
+                    const deadlineDate = new Date(t.deadline);
+                    const now = new Date();
+                    const isOverdue = deadlineDate < now;
+                    const dateStr = deadlineDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    const timeStr = deadlineDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                    deadlineText = `${dateStr} ${timeStr}`;
+                    if (isOverdue) {
+                        deadlineText = `⚠️ ${deadlineText}`;
+                    }
+                }
+                
                 tasksHTML += `
                     <div onclick="switchTaskTab('${id}')" class="material-item" style="cursor:pointer;">
-                        <div class="material-icon">
+                        <div class="material-icon" style="align-self:flex-start;">
                             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
+                            ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;right:0;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                         </div>
                         <div class="material-info" style="flex:1;min-width:0;">
-                            <h3 style="display:flex;align-items:center;justify-content:space-between;">
-                                <span>${t.title}</span>
-                                ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
-                            </h3>
-                            <p>${t.description}</p>
+                            <h3>${t.title}</h3>
+                            <p style="font-size:11px;color:var(--text-secondary);margin-top:4px;">
+                                ${priorityLabel}${t.deadline ? ' • ' + deadlineText : ''}
+                            </p>
                         </div>
                     </div>
                 `;
@@ -14040,6 +14078,30 @@ function renderTaskContent(taskId) {
         // Show pipeline as cards (like materials)
         let stepsHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;">';
         
+        // Priority and deadline display box
+        const priorityLabels = ['НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
+        const priorityLabel = priorityLabels[task.priority || 1];
+        
+        let deadlineText = '';
+        if (task.deadline) {
+            const deadlineDate = new Date(task.deadline);
+            const now = new Date();
+            const isOverdue = deadlineDate < now;
+            const dateStr = deadlineDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const timeStr = deadlineDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            deadlineText = `${dateStr} ${timeStr}`;
+            if (isOverdue) {
+                deadlineText = `⚠️ ${deadlineText}`;
+            }
+        }
+        
+        stepsHTML += `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;font-size:11px;margin-bottom:4px;">
+                <div style="color:var(--text-secondary);">${priorityLabel}</div>
+                ${task.deadline ? `<div style="color:var(--text-secondary);">${deadlineText}</div>` : ''}
+            </div>
+        `;
+        
         // Pipeline steps as cards
         steps.forEach((step, index) => {
             const isCompleted = taskStore[taskId].completedSteps?.includes(index) || false;
@@ -14048,17 +14110,17 @@ function renderTaskContent(taskId) {
             
             stepsHTML += `
                 <div class="material-item ${completedClass}" style="position:relative;${completedStyle}">
-                    <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${index})" style="cursor:pointer;">
+                    <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${index})" style="cursor:pointer;align-self:flex-start;">
                         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                     </div>
                     <div class="material-info" style="flex:1;min-width:0;">
-                        <h3 onclick="toggleStepCompletion('${taskId}', ${index})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-                            <span>${step.title}</span>
+                        <h3 onclick="toggleStepCompletion('${taskId}', ${index})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;">
+                            <span class="step-title-text" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${step.title}</span>
                             ${isCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                         </h3>
-                        <div class="step-description-container" onclick="event.stopPropagation();toggleStepDescription(this)" style="cursor:pointer;">
-                            <p class="step-description-short" style="font-size:12px;color:var(--text-secondary);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${step.description}</p>
-                            <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;display:none;white-space:normal;">${step.description}</p>
+                        <div class="step-description-container" onclick="event.stopPropagation();toggleStepDescription(this)" style="cursor:pointer;margin-top:4px;">
+                            <p class="step-description-short" style="font-size:12px;color:var(--text-secondary);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;">${step.description}</p>
+                            <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;display:none;white-space:normal;background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;">${step.description}</p>
                         </div>
                     </div>
                 </div>
@@ -14380,10 +14442,27 @@ function openNewTaskModal() {
         // Clear previous inputs
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskDescription').value = '';
+        document.getElementById('taskPriority').value = '1';
+        document.getElementById('taskHasDeadline').checked = false;
+        document.getElementById('taskDeadline').value = '';
+        document.getElementById('deadlineInputContainer').style.display = 'none';
+        updatePriorityLabel();
         
         // Focus on title input
         setTimeout(() => document.getElementById('taskTitle').focus(), 100);
     }
+}
+
+function updatePriorityLabel() {
+    const priority = document.getElementById('taskPriority').value;
+    const labels = ['НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
+    document.getElementById('priorityLabel').textContent = labels[priority];
+}
+
+function toggleDeadlineInput() {
+    const checkbox = document.getElementById('taskHasDeadline');
+    const container = document.getElementById('deadlineInputContainer');
+    container.style.display = checkbox.checked ? 'block' : 'none';
 }
 
 function closeNewTaskModal() {
@@ -14397,6 +14476,9 @@ function closeNewTaskModal() {
 async function createNewTask() {
     const title = document.getElementById('taskTitle').value.trim();
     const description = document.getElementById('taskDescription').value.trim();
+    const priority = parseInt(document.getElementById('taskPriority').value);
+    const hasDeadline = document.getElementById('taskHasDeadline').checked;
+    const deadline = hasDeadline ? document.getElementById('taskDeadline').value : null;
     
     if (!title) {
         showAlert('Введите название задачи', 'Ошибка');
@@ -14405,6 +14487,11 @@ async function createNewTask() {
     
     if (!description) {
         showAlert('Введите описание задачи', 'Ошибка');
+        return;
+    }
+    
+    if (hasDeadline && !deadline) {
+        showAlert('Укажите дедлайн задачи', 'Ошибка');
         return;
     }
     
@@ -14419,6 +14506,8 @@ async function createNewTask() {
     taskStore[taskId] = {
         title: title,
         description: description,
+        priority: priority,
+        deadline: deadline,
         pipeline: '',
         status: 'pending'
     };
