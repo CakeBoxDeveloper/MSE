@@ -615,12 +615,16 @@
         }
         
         /* Shimmer animation for highlighting current step - блестящий эффект слева направо */
-        .step-shimmer {
-            position: relative;
-            overflow: hidden;
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
         }
         
-        .step-shimmer::after {
+        .material-item.step-shimmer::after {
             content: '';
             position: absolute;
             top: 0;
@@ -634,16 +638,6 @@
             animation: shimmer 1s ease-in-out;
             z-index: 10;
             pointer-events: none;
-        }
-        
-        /* Shimmer animation for highlighting */
-        @keyframes shimmer {
-            0% {
-                left: -100%;
-            }
-            100% {
-                left: 100%;
-            }
         }
         
         @keyframes moveLine {
@@ -2389,7 +2383,7 @@
           <input type="range" id="taskPriority" min="0" max="3" value="1" step="1" style="width:100%;accent-color:rgba(255,255,255,.3);" oninput="updatePriorityLabel()">
         </div>
         <div class="form-group">
-          <label style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:block;">По желанию можно указать срок завершения</label>
+          <label style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:block;">ЕСЛИ ЗАДАЧА СРОЧНАЯ УКАЖИТЕ СРОК</label>
           <div style="display:flex;gap:8px;">
             <input type="text" class="form-input" id="taskDeadlineDate" placeholder="ДД.ММ.ГГГГ" maxlength="10" style="font-size:13px;flex:1;transition:border-color 0.3s ease;" oninput="formatDateInput(this)">
             <input type="text" class="form-input" id="taskDeadlineTime" placeholder="ЧЧ:ММ" maxlength="5" style="font-size:13px;width:100px;transition:border-color 0.3s ease;" oninput="formatTimeInput(this)">
@@ -13640,16 +13634,71 @@ function openTaskFromChat(taskId) {
         // Highlight current step with shimmer after content is rendered
         setTimeout(() => {
             const task = taskStore[taskId];
-            if (task && task.currentStep !== undefined) {
-                const stepElement = document.querySelector(`[data-step-index="${task.currentStep}"]`);
+            console.log('[SHIMMER] Task:', task);
+            
+            if (task) {
+                // Find first incomplete step or last step if all completed
+                const completedSteps = task.completedSteps || [];
+                const steps = parsePipelineSteps(task.pipeline);
+                
+                // Count total steps including substeps
+                let totalSteps = 0;
+                steps.forEach(step => {
+                    totalSteps++; // Main step
+                    if (step.substeps) {
+                        totalSteps += step.substeps.length; // Substeps
+                    }
+                });
+                
+                // Find first incomplete step
+                let currentStepIndex = 0;
+                for (let i = 0; i < totalSteps; i++) {
+                    if (!completedSteps.includes(i)) {
+                        currentStepIndex = i;
+                        break;
+                    }
+                }
+                
+                // If all completed, use last step
+                if (completedSteps.length === totalSteps && totalSteps > 0) {
+                    currentStepIndex = totalSteps - 1;
+                }
+                
+                console.log('[SHIMMER] Current step index:', currentStepIndex);
+                console.log('[SHIMMER] Total steps:', totalSteps);
+                console.log('[SHIMMER] Completed steps:', completedSteps);
+                
+                const stepElement = document.querySelector(`[data-step-index="${currentStepIndex}"]`);
+                console.log('[SHIMMER] Step element:', stepElement);
+                
                 if (stepElement) {
-                    // Add shimmer immediately (no scroll to prevent jump)
-                    stepElement.classList.add('step-shimmer');
+                    // Scroll to element smoothly
+                    const materialsList = document.querySelector('#taskContent .materials-list');
+                    if (materialsList) {
+                        const containerRect = materialsList.getBoundingClientRect();
+                        const elementRect = stepElement.getBoundingClientRect();
+                        const scrollOffset = elementRect.top - containerRect.top - (containerRect.height / 2) + (elementRect.height / 2);
+                        
+                        materialsList.scrollBy({
+                            top: scrollOffset,
+                            behavior: 'smooth'
+                        });
+                    }
                     
-                    // Remove shimmer after animation completes
+                    // Add shimmer after scroll - wait longer for smooth scroll to complete
                     setTimeout(() => {
-                        stepElement.classList.remove('step-shimmer');
-                    }, 1000); // Match animation duration
+                        console.log('[SHIMMER] Adding shimmer class');
+                        stepElement.classList.add('step-shimmer');
+                        
+                        // Force reflow to ensure animation starts
+                        void stepElement.offsetWidth;
+                        
+                        // Remove shimmer after animation completes
+                        setTimeout(() => {
+                            stepElement.classList.remove('step-shimmer');
+                            console.log('[SHIMMER] Removed shimmer class');
+                        }, 1000);
+                    }, 500);
                 }
             }
         }, 200);
@@ -14171,6 +14220,16 @@ function toggleStepCompletion(taskId, stepIndex) {
         task.completedSteps = [];
     }
     
+    // Get the clicked element and its position before any changes
+    const clickedElement = document.querySelector(`[data-step-index="${stepIndex}"]`);
+    const materialsList = document.querySelector('#taskContent .materials-list');
+    
+    let elementOffsetTop = 0;
+    if (clickedElement && materialsList) {
+        // Calculate element's position relative to container
+        elementOffsetTop = clickedElement.offsetTop - materialsList.scrollTop;
+    }
+    
     // Toggle completion
     const index = task.completedSteps.indexOf(stepIndex);
     if (index > -1) {
@@ -14181,20 +14240,20 @@ function toggleStepCompletion(taskId, stepIndex) {
         task.completedSteps.push(stepIndex);
     }
     
-    // Save scroll position before re-render (from materials-list container)
-    const materialsList = document.querySelector('#taskContent .materials-list');
-    const scrollTop = materialsList ? materialsList.scrollTop : 0;
-    
     // Re-render task content
     renderTaskContent(taskId);
     
-    // Restore scroll position after re-render
-    setTimeout(() => {
+    // Restore scroll position to keep clicked element in same visual position
+    requestAnimationFrame(() => {
         const materialsListAfter = document.querySelector('#taskContent .materials-list');
-        if (materialsListAfter) {
-            materialsListAfter.scrollTop = scrollTop;
+        const clickedElementAfter = document.querySelector(`[data-step-index="${stepIndex}"]`);
+        
+        if (materialsListAfter && clickedElementAfter) {
+            // Calculate new scroll position to maintain element's visual position
+            const newScrollTop = clickedElementAfter.offsetTop - elementOffsetTop;
+            materialsListAfter.scrollTop = newScrollTop;
         }
-    }, 0);
+    });
     
     // If we're on overview, re-render it to update checkmarks
     if (activeTaskTab === 'overview') {
