@@ -2422,19 +2422,15 @@
       </form>
     </div>
     <!-- Loader container inside modal -->
-    <div id="newTaskModalLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(25,25,25,0.98);backdrop-filter:blur(10px);border-radius:8px;z-index:10;padding:24px;">
-      <div id="lottie-modal-proxima" style="width:240px;height:240px;margin-bottom:8px;"></div>
-      <div id="codeRunnerWindow" style="width:100%;max-width:400px;height:120px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:10px;line-height:1.4;color:var(--text-primary);overflow:hidden;position:relative;">
+    <div id="newTaskModalLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(25,25,25,0.98);backdrop-filter:blur(10px);border-radius:8px;z-index:10;padding:24px;">
+      <div id="lottie-modal-proxima" style="width:240px;height:240px;margin-bottom:4px;"></div>
+      <div id="codeRunnerWindow" style="width:100%;max-width:400px;height:160px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:10px;line-height:1.4;color:var(--text-primary);overflow:hidden;position:relative;">
         <div id="codeRunnerContent" style="position:absolute;top:12px;left:12px;right:12px;"></div>
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;">
-          <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);animation:shimmer 2s infinite;"></div>
-        </div>
+        <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);animation:shimmer 2s infinite;pointer-events:none;"></div>
       </div>
       <div style="width:100%;max-width:400px;height:40px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
-        <span style="font-size:13px;font-weight:600;color:var(--text-primary);position:relative;z-index:1;">Проксима работает</span>
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;">
-          <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2s infinite;"></div>
-        </div>
+        <span style="font-size:13px;font-weight:600;color:var(--text-primary);position:relative;z-index:1;">Проксима работает над этой задачей</span>
+        <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2s infinite;pointer-events:none;"></div>
       </div>
     </div>
   </div>
@@ -4991,6 +4987,12 @@ function confirmLogout() {
         if (taskTabsContainer) {
             const taskTabs = taskTabsContainer.querySelectorAll('.chat-tab:not([data-task="overview"])');
             taskTabs.forEach(tab => tab.remove());
+        }
+        
+        // Hide search bar
+        const taskSearchBar = document.getElementById('taskOverviewSearchBar');
+        if (taskSearchBar) {
+            taskSearchBar.style.display = 'none';
         }
         
         // Show task placeholder with sync card
@@ -15067,27 +15069,27 @@ async function createNewTask() {
                     const line = document.createElement('div');
                     line.textContent = codeLines[lineIndex];
                     line.style.opacity = '0';
-                    line.style.transition = 'opacity 0.1s ease';
+                    line.style.transition = 'opacity 0.08s ease';
                     codeRunnerContent.appendChild(line);
                     
                     // Fade in
                     setTimeout(() => {
                         line.style.opacity = '1';
-                    }, 20);
+                    }, 15);
                     
                     // Remove old lines if too many
-                    if (codeRunnerContent.children.length > 7) {
+                    if (codeRunnerContent.children.length > 10) {
                         const firstChild = codeRunnerContent.firstChild;
                         firstChild.style.opacity = '0';
                         setTimeout(() => {
                             if (firstChild.parentNode) {
                                 firstChild.remove();
                             }
-                        }, 100);
+                        }, 80);
                     }
                     
                     lineIndex = (lineIndex + 1) % codeLines.length;
-                    setTimeout(addCodeLine, 60 + Math.random() * 40);
+                    setTimeout(addCodeLine, 40 + Math.random() * 30);
                 };
                 
                 addCodeLine();
