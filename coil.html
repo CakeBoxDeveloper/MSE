@@ -600,26 +600,24 @@
             background: rgba(255,255,255,.03);
             border: 1px solid var(--glass-border);
             border-radius: 5px;
-            padding: 14px 12px; /* MOBILE: меньше padding */
+            padding: 14px 12px;
             cursor: pointer;
             transition: all .2s ease;
             display: flex;
             align-items: center;
-            gap: 10px; /* MOBILE: меньше gap */
+            gap: 10px;
             position: relative;
             overflow: hidden;
-            min-height: 60px; /* MOBILE: меньше высота */
-            flex-shrink: 0; /* MOBILE: не сжимать и не растягивать */
-            width: 100%; /* Ensure item doesn't expand beyond list */
-            box-sizing: border-box; /* Include padding and border in width calculation */
+            min-height: 60px;
+            flex-shrink: 0;
         }
         
         /* Shimmer animation for highlighting current step - блестящий эффект слева направо */
         @keyframes shimmer {
-            0% {
+            from {
                 left: -100%;
             }
-            100% {
+            to {
                 left: 100%;
             }
         }
@@ -635,8 +633,7 @@
                 transparent 0%, 
                 rgba(153, 153, 153, 0.6) 50%, 
                 transparent 100%);
-            animation: shimmer 1s ease-in-out;
-            z-index: 10;
+            animation: shimmer 1s ease-in-out forwards;
             pointer-events: none;
         }
         
@@ -9698,6 +9695,61 @@ function getproximaSystemPrompt() {
 }`;
 }
 
+// Simple Groq API call for task pipeline generation (returns plain text, not JSON)
+async function callGroqAPI(userMessage) {
+    try {
+        console.log('[GROQ] Calling API for pipeline generation...');
+        
+        const response = await fetch(getGroqURL(), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${GROQ_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: GROQ_MODELS[currentModelIndex],
+                messages: [
+                    {
+                        role: 'user',
+                        content: userMessage
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 2048
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('[GROQ] API error:', errorData);
+            
+            // Try next model if current fails
+            if (currentModelIndex < GROQ_MODELS.length - 1 && response.status !== 429) {
+                console.log('[GROQ] Trying next model...');
+                currentModelIndex++;
+                return callGroqAPI(userMessage);
+            }
+            
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('[GROQ] Response received');
+        
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error('Invalid API response structure');
+        }
+        
+        const aiResponse = data.choices[0].message.content;
+        console.log('[GROQ] Pipeline text length:', aiResponse.length);
+        
+        return aiResponse;
+    } catch (error) {
+        console.error('[GROQ] Error:', error);
+        throw error;
+    }
+}
+
 async function callGeminiAPI(userMessage, conversationHistory = []) {
     try {
         // Build conversation context (last 10 messages)
@@ -13627,82 +13679,105 @@ function openTaskFromChat(taskId) {
         expandBlock('browserBlock');
     }
     
-    // Switch to task tab and highlight current step with smooth transition
+    // Switch to task tab
     setTimeout(() => {
         switchTaskTab(taskId);
         
         // Highlight current step with shimmer after content is rendered
         setTimeout(() => {
-            const task = taskStore[taskId];
-            console.log('[SHIMMER] Task:', task);
-            
-            if (task) {
-                // Find first incomplete step or last step if all completed
-                const completedSteps = task.completedSteps || [];
-                const steps = parsePipelineSteps(task.pipeline);
-                
-                // Count total steps including substeps
-                let totalSteps = 0;
-                steps.forEach(step => {
-                    totalSteps++; // Main step
-                    if (step.substeps) {
-                        totalSteps += step.substeps.length; // Substeps
-                    }
-                });
-                
-                // Find first incomplete step
-                let currentStepIndex = 0;
-                for (let i = 0; i < totalSteps; i++) {
-                    if (!completedSteps.includes(i)) {
-                        currentStepIndex = i;
-                        break;
-                    }
-                }
-                
-                // If all completed, use last step
-                if (completedSteps.length === totalSteps && totalSteps > 0) {
-                    currentStepIndex = totalSteps - 1;
-                }
-                
-                console.log('[SHIMMER] Current step index:', currentStepIndex);
-                console.log('[SHIMMER] Total steps:', totalSteps);
-                console.log('[SHIMMER] Completed steps:', completedSteps);
-                
-                const stepElement = document.querySelector(`[data-step-index="${currentStepIndex}"]`);
-                console.log('[SHIMMER] Step element:', stepElement);
-                
-                if (stepElement) {
-                    // Scroll to element smoothly
-                    const materialsList = document.querySelector('#taskContent .materials-list');
-                    if (materialsList) {
-                        const containerRect = materialsList.getBoundingClientRect();
-                        const elementRect = stepElement.getBoundingClientRect();
-                        const scrollOffset = elementRect.top - containerRect.top - (containerRect.height / 2) + (elementRect.height / 2);
-                        
-                        materialsList.scrollBy({
-                            top: scrollOffset,
-                            behavior: 'smooth'
-                        });
-                    }
-                    
-                    // Add shimmer after scroll - wait longer for smooth scroll to complete
-                    setTimeout(() => {
-                        console.log('[SHIMMER] Adding shimmer class');
-                        stepElement.classList.add('step-shimmer');
-                        
-                        // Force reflow to ensure animation starts
-                        void stepElement.offsetWidth;
-                        
-                        // Remove shimmer after animation completes
-                        setTimeout(() => {
-                            stepElement.classList.remove('step-shimmer');
-                            console.log('[SHIMMER] Removed shimmer class');
-                        }, 1000);
-                    }, 500);
-                }
+            highlightCurrentStep(taskId);
+        }, 100);
+    }, wasCollapsed ? 300 : 0);
+}
+
+// Open task from overview with shimmer on current step
+function openTaskFromOverview(taskId) {
+    console.log('[TASK] Opening task from overview:', taskId);
+    
+    // Switch to task tab
+    switchTaskTab(taskId);
+    
+    // Highlight current step with shimmer after content is rendered
+    setTimeout(() => {
+        highlightCurrentStep(taskId);
+    }, 100);
+}
+
+// Highlight current step with shimmer animation
+function highlightCurrentStep(taskId) {
+    const task = taskStore[taskId];
+    console.log('[SHIMMER] Task:', task);
+    
+    if (task) {
+        // Find first incomplete step or last step if all completed
+        const completedSteps = task.completedSteps || [];
+        const steps = parsePipelineSteps(task.pipeline);
+        
+        // Count total steps including substeps
+        let totalSteps = 0;
+        steps.forEach(step => {
+            totalSteps++; // Main step
+            if (step.substeps) {
+                totalSteps += step.substeps.length; // Substeps
             }
-        }, 200);
-    }, wasCollapsed ? 800 : 0);
+        });
+        
+        // Find first incomplete step
+        let currentStepIndex = 0;
+        for (let i = 0; i < totalSteps; i++) {
+            if (!completedSteps.includes(i)) {
+                currentStepIndex = i;
+                break;
+            }
+        }
+        
+        // If all completed, use last step
+        if (completedSteps.length === totalSteps && totalSteps > 0) {
+            currentStepIndex = totalSteps - 1;
+        }
+        
+        console.log('[SHIMMER] Current step index:', currentStepIndex);
+        console.log('[SHIMMER] Total steps:', totalSteps);
+        console.log('[SHIMMER] Completed steps:', completedSteps);
+        
+        const stepElement = document.querySelector(`[data-step-index="${currentStepIndex}"]`);
+        console.log('[SHIMMER] Step element:', stepElement);
+        
+        if (stepElement) {
+            // Scroll to element smoothly
+            const materialsList = document.querySelector('#taskContent .materials-list');
+            if (materialsList) {
+                const containerRect = materialsList.getBoundingClientRect();
+                const elementRect = stepElement.getBoundingClientRect();
+                const scrollOffset = elementRect.top - containerRect.top - (containerRect.height / 2) + (elementRect.height / 2);
+                
+                materialsList.scrollBy({
+                    top: scrollOffset,
+                    behavior: 'smooth'
+                });
+            }
+            
+            // Add shimmer after scroll - wait longer for smooth scroll to complete
+            setTimeout(() => {
+                console.log('[SHIMMER] Adding shimmer class');
+                console.log('[SHIMMER] Element:', stepElement);
+                console.log('[SHIMMER] Classes before:', stepElement.className);
+                
+                stepElement.classList.add('step-shimmer');
+                
+                console.log('[SHIMMER] Classes after:', stepElement.className);
+                
+                // Force reflow to ensure animation starts
+                void stepElement.offsetWidth;
+                
+                // Remove shimmer after animation completes
+                setTimeout(() => {
+                    stepElement.classList.remove('step-shimmer');
+                    console.log('[SHIMMER] Removed shimmer class');
+                }, 1000);
+            }, 500);
+        }
+    }
 }
 
 // ============================================================
@@ -14080,7 +14155,7 @@ function renderTaskContent(taskId) {
                 }
                 
                 tasksHTML += `
-                    <div onclick="switchTaskTab('${id}')" class="material-item" style="cursor:pointer;">
+                    <div onclick="openTaskFromOverview('${id}')" class="material-item" style="cursor:pointer;">
                         <div class="material-icon" style="align-self:flex-start;">
                             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                             ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;right:0;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
@@ -14187,9 +14262,13 @@ function renderTaskContent(taskId) {
                     const subCompletedStyle = isSubCompleted ? 'opacity:0.4;' : '';
                     
                     stepsHTML += `
-                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${subCompletedStyle};margin-left:32px;border-left:2px solid rgba(255,255,255,.1);padding-left:12px;">
+                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${subCompletedStyle};margin-left:24px;">
+                            <div style="position:absolute;left:-24px;top:0;bottom:0;width:24px;pointer-events:none;">
+                                <div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:rgba(255,255,255,.25);"></div>
+                                <div style="position:absolute;left:0;top:30px;width:16px;height:2px;background:rgba(255,255,255,.25);"></div>
+                            </div>
                             <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;width:28px;height:28px;">
-                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="" style="width:20px;height:20px;">
+                                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="" style="width:18px;height:18px;">
                             </div>
                             <div class="material-info" style="flex:1;min-width:0;">
                                 <h3 onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;font-size:13px;">
@@ -14230,14 +14309,100 @@ function toggleStepCompletion(taskId, stepIndex) {
         elementOffsetTop = clickedElement.offsetTop - materialsList.scrollTop;
     }
     
+    // Parse steps to understand hierarchy
+    const steps = parsePipelineSteps(task.pipeline);
+    
+    // Find which main step this index belongs to
+    let currentGlobalIndex = 0;
+    let mainStepIndex = -1;
+    let isMainStep = false;
+    let substepsToToggle = [];
+    let parentMainStepIndex = -1;
+    
+    for (let i = 0; i < steps.length; i++) {
+        if (currentGlobalIndex === stepIndex) {
+            // This is a main step
+            mainStepIndex = i;
+            isMainStep = true;
+            
+            // Collect all substep indices
+            for (let j = 0; j < (steps[i].substeps?.length || 0); j++) {
+                substepsToToggle.push(currentGlobalIndex + 1 + j);
+            }
+            break;
+        }
+        
+        const mainStepGlobalIndex = currentGlobalIndex;
+        currentGlobalIndex++; // Main step
+        
+        // Check substeps
+        if (steps[i].substeps) {
+            for (let j = 0; j < steps[i].substeps.length; j++) {
+                if (currentGlobalIndex === stepIndex) {
+                    // This is a substep - remember parent
+                    parentMainStepIndex = mainStepGlobalIndex;
+                    
+                    // Collect all sibling substeps for checking if all completed
+                    substepsToToggle = [];
+                    for (let k = 0; k < steps[i].substeps.length; k++) {
+                        substepsToToggle.push(mainStepGlobalIndex + 1 + k);
+                    }
+                    break;
+                }
+                currentGlobalIndex++;
+            }
+        }
+        
+        if (parentMainStepIndex !== -1) break;
+    }
+    
     // Toggle completion
     const index = task.completedSteps.indexOf(stepIndex);
     if (index > -1) {
         // Remove from completed
         task.completedSteps.splice(index, 1);
+        
+        // If this is a main step, also remove all substeps
+        if (isMainStep) {
+            substepsToToggle.forEach(subIndex => {
+                const subIdx = task.completedSteps.indexOf(subIndex);
+                if (subIdx > -1) {
+                    task.completedSteps.splice(subIdx, 1);
+                }
+            });
+        }
+        
+        // If this is a substep, also uncheck parent main step
+        if (parentMainStepIndex !== -1) {
+            const parentIdx = task.completedSteps.indexOf(parentMainStepIndex);
+            if (parentIdx > -1) {
+                task.completedSteps.splice(parentIdx, 1);
+            }
+        }
     } else {
         // Add to completed
         task.completedSteps.push(stepIndex);
+        
+        // If this is a main step, also add all substeps
+        if (isMainStep) {
+            substepsToToggle.forEach(subIndex => {
+                if (!task.completedSteps.includes(subIndex)) {
+                    task.completedSteps.push(subIndex);
+                }
+            });
+        }
+        
+        // If this is a substep, check if all siblings are completed
+        if (parentMainStepIndex !== -1) {
+            const allSubstepsCompleted = substepsToToggle.every(subIdx => 
+                task.completedSteps.includes(subIdx)
+            );
+            
+            // If all substeps completed, mark parent as completed too
+            if (allSubstepsCompleted && !task.completedSteps.includes(parentMainStepIndex)) {
+                task.completedSteps.push(parentMainStepIndex);
+            }
+        }
     }
     
     // Re-render task content
@@ -14753,45 +14918,36 @@ async function createNewTask() {
             });
             renderChatMessages();
             
-            // Call Gemini API to generate pipeline
-            const prompt = `Ты - Проксима, AI-ассистент для планирования задач. Создай ПОДРОБНЫЙ пайплайн (план выполнения) для следующей задачи:
+            // Call Groq API to generate pipeline with substeps
+            const prompt = `Создай ПОДРОБНЫЙ пайплайн для задачи:
 
-Название задачи: ${title}
+Название: ${title}
 Описание: ${description}
 
-Требования к пайплайну:
-1. Разбей задачу на конкретные шаги (минимум 5-7 шагов)
-2. Каждый шаг должен иметь КОРОТКИЙ заголовок (2-4 слова) и краткое описание (одно предложение)
-3. Укажи примерное время на каждый шаг
-4. Добавь рекомендации и советы
-5. Структурируй ответ с помощью списков
-6. НЕ используй эмодзи вообще
+ТРЕБОВАНИЯ:
+1. Разбей на конкретные шаги (нумерованный список: 1. 2. 3.)
+2. Каждый шаг: короткий заголовок + подробное описание (КАК выполнить, какие инструменты, на что обратить внимание)
+3. Для сложных шагов добавь подшаги с отступом "  - " (два пробела + дефис)
+4. НЕ используй эмодзи
+5. НЕ указывай время в скобках
+6. Пиши подробные инструкции для КАЖДОГО шага
 
-Формат ответа:
-ПАЙПЛАЙН ЗАДАЧИ
+ПРИМЕР ФОРМАТА:
 
-Шаг 1: [короткий заголовок] (время)
-[Краткое описание одним предложением]
+1. Изучить основы JavaScript
+Начни с базового синтаксиса: переменные (let, const, var), типы данных (string, number, boolean, object, array), операторы. Используй интерактивные платформы типа JavaScript.info или MDN Web Docs. Выдели 2-3 часа на изучение, делай заметки в отдельном файле.
+  - Изучить переменные и типы данных
+  - Освоить условные операторы (if/else, switch)
+  - Понять циклы (for, while, forEach)
 
-Шаг 2: [короткий заголовок] (время)
-[Краткое описание одним предложением]
+2. Практика на простых задачах
+Решай задачи на CodeWars или LeetCode уровня 8-7 kyu. Начни с задач на работу со строками и массивами. Цель - решить минимум 10 задач, чтобы закрепить базовый синтаксис.
+  - Решить 5 задач на работу со строками
+  - Решить 5 задач на работу с массивами
 
-... и так далее
+Верни ТОЛЬКО пайплайн в указанном формате, без дополнительного текста.`;
 
-Рекомендации:
-[Полезные советы]
-
-Критерии завершения:
-[Как понять что задача выполнена]
-
-ВАЖНО: Верни ответ в формате JSON:
-{
-  "response": "твой подробный пайплайн в markdown формате БЕЗ эмодзи",
-  "actions": []
-}`;
-
-            callGeminiAPI(prompt, []).then(aiResult => {
-                const responseText = aiResult.response || 'Извини, не смогла создать пайплайн. Попробуй ещё раз.';
+            callGroqAPI(prompt).then(responseText => {
                 
                 // Calculate thinking time based on response length
                 const baseTime = 1000;
