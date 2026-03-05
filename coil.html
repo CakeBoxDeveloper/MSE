@@ -614,12 +614,16 @@
         
         /* Shimmer animation for highlighting current step - блестящий эффект слева направо */
         @keyframes shimmer {
-            from {
+            0% {
                 left: -100%;
             }
-            to {
+            100% {
                 left: 100%;
             }
+        }
+        
+        .material-item.step-shimmer {
+            overflow: hidden !important;
         }
         
         .material-item.step-shimmer::after {
@@ -631,10 +635,17 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent 0%, 
-                rgba(153, 153, 153, 0.6) 50%, 
+                rgba(255, 255, 255, 0.5) 50%, 
                 transparent 100%);
-            animation: shimmer 1s ease-in-out forwards;
+            animation: shimmer 1s ease-in-out;
             pointer-events: none;
+            z-index: 999;
+        }
+        
+        .material-item.step-shimmer .material-icon,
+        .material-item.step-shimmer .material-info {
+            position: relative;
+            z-index: 1000;
         }
         
         @keyframes moveLine {
@@ -13694,13 +13705,18 @@ function openTaskFromChat(taskId) {
 function openTaskFromOverview(taskId) {
     console.log('[TASK] Opening task from overview:', taskId);
     
-    // Switch to task tab
-    switchTaskTab(taskId);
+    // Check if already on this task tab
+    const isAlreadyActive = activeTaskTab === taskId;
+    
+    if (!isAlreadyActive) {
+        // Switch to task tab
+        switchTaskTab(taskId);
+    }
     
     // Highlight current step with shimmer after content is rendered
     setTimeout(() => {
         highlightCurrentStep(taskId);
-    }, 100);
+    }, isAlreadyActive ? 50 : 100);
 }
 
 // Highlight current step with shimmer animation
@@ -13744,20 +13760,32 @@ function highlightCurrentStep(taskId) {
         console.log('[SHIMMER] Step element:', stepElement);
         
         if (stepElement) {
-            // Scroll to element smoothly
+            // Get current scroll position
             const materialsList = document.querySelector('#taskContent .materials-list');
             if (materialsList) {
                 const containerRect = materialsList.getBoundingClientRect();
                 const elementRect = stepElement.getBoundingClientRect();
-                const scrollOffset = elementRect.top - containerRect.top - (containerRect.height / 2) + (elementRect.height / 2);
                 
-                materialsList.scrollBy({
-                    top: scrollOffset,
+                // Calculate if element is above or below viewport
+                const elementTop = stepElement.offsetTop;
+                const currentScroll = materialsList.scrollTop;
+                const containerHeight = containerRect.height;
+                
+                // Calculate target scroll position (center element in viewport)
+                const targetScroll = elementTop - (containerHeight / 2) + (elementRect.height / 2);
+                
+                console.log('[SHIMMER] Current scroll:', currentScroll);
+                console.log('[SHIMMER] Target scroll:', targetScroll);
+                console.log('[SHIMMER] Element top:', elementTop);
+                
+                // Smooth scroll to element
+                materialsList.scrollTo({
+                    top: targetScroll,
                     behavior: 'smooth'
                 });
             }
             
-            // Add shimmer after scroll - wait longer for smooth scroll to complete
+            // Add shimmer after scroll - wait for smooth scroll to complete
             setTimeout(() => {
                 console.log('[SHIMMER] Adding shimmer class');
                 console.log('[SHIMMER] Element:', stepElement);
@@ -13766,6 +13794,8 @@ function highlightCurrentStep(taskId) {
                 stepElement.classList.add('step-shimmer');
                 
                 console.log('[SHIMMER] Classes after:', stepElement.className);
+                console.log('[SHIMMER] Has overflow hidden:', window.getComputedStyle(stepElement).overflow);
+                console.log('[SHIMMER] Position:', window.getComputedStyle(stepElement).position);
                 
                 // Force reflow to ensure animation starts
                 void stepElement.offsetWidth;
@@ -13775,7 +13805,7 @@ function highlightCurrentStep(taskId) {
                     stepElement.classList.remove('step-shimmer');
                     console.log('[SHIMMER] Removed shimmer class');
                 }, 1000);
-            }, 500);
+            }, 300);
         }
     }
 }
@@ -13884,6 +13914,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchTaskTab(taskId) {
     console.log('[TASK TAB] Switching to:', taskId);
     
+    // Check if already on this tab
+    const wasAlreadyActive = activeTaskTab === taskId;
+    
     // Update active tab
     const allTabs = document.querySelectorAll('#taskTabs .chat-tab');
     allTabs.forEach(tab => {
@@ -13907,8 +13940,10 @@ function switchTaskTab(taskId) {
         }
     }
     
-    // Render task content
-    renderTaskContent(taskId);
+    // Only render content if switching to a different tab
+    if (!wasAlreadyActive) {
+        renderTaskContent(taskId);
+    }
     
     // Update blur effect
     updateTaskTabsBlur();
