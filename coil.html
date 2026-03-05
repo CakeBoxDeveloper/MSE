@@ -627,30 +627,29 @@
         }
         
         /* Shimmer animation for highlighting current step - блестящий эффект слева направо */
-        @keyframes shimmer {
+        @keyframes stepShimmer {
             0% {
-                transform: translateX(-100%);
+                left: -100%;
             }
             100% {
-                transform: translateX(100%);
+                left: 100%;
             }
         }
         
-        .material-item.step-shimmer::before {
+        .material-item.step-shimmer::after {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(90deg, 
                 transparent 0%, 
-                rgba(255, 255, 255, 0.6) 50%, 
+                rgba(153, 153, 153, 0.6) 50%, 
                 transparent 100%);
-            transform: translateX(-100%);
-            animation: shimmer 1s ease-in-out;
+            animation: stepShimmer 1s ease-in-out;
+            z-index: 10;
             pointer-events: none;
-            z-index: 1;
         }
         
         @keyframes moveLine {
@@ -2059,7 +2058,7 @@
             </div>
           </div>
           <div class="chat-search-wrap" id="chatSearchWrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
-            <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск чатов…">
+            <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск сообщений…">
           </div>
           <div class="chat-container">
             <div class="chat-messages" id="chat-messages"></div>
@@ -4275,7 +4274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let currentLockedItem = null;
 
 
-// Grainy gradient loader animation (Suno-style)
+// Particle loader animation (Telegram/Threads spoiler style)
 function startGrainLoader(canvasId = 'grainLoader') {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -4285,101 +4284,65 @@ function startGrainLoader(canvasId = 'grainLoader') {
     const height = canvas.height;
     
     let animationFrame;
-    let time = 0;
+    let particles = [];
     
-    // Generate random starting positions and random directions for each blob
-    const blobs = [];
-    for (let i = 0; i < 7; i++) {
-        blobs.push({
-            startX: 0.15 + Math.random() * 0.7,
-            startY: 0.15 + Math.random() * 0.7,
-            radius: 0.35 + Math.random() * 0.15,
-            points: 8 + Math.floor(Math.random() * 5),
-            offset: Math.random() * 6,
-            speedX: 0.0054 + Math.random() * 0.0054, // Reduced by 40%: 0.0054-0.0108 (was 0.009-0.018)
-            speedY: 0.0054 + Math.random() * 0.0054,
-            dirX: Math.random() > 0.5 ? 1 : -1,
-            dirY: Math.random() > 0.5 ? 1 : -1,
-            phaseX: Math.random() * Math.PI * 2,
-            phaseY: Math.random() * Math.PI * 2,
-            brightness: 15 + Math.random() * 50 // Higher contrast: 15-65
+    // Create particles
+    const particleCount = 150;
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: Math.random() * 2 + 1,
+            speedX: (Math.random() - 0.5) * 2,
+            speedY: (Math.random() - 0.5) * 2,
+            opacity: Math.random() * 0.5 + 0.3
         });
     }
     
-    function drawGrainGradient() {
-        // Clear canvas
-        ctx.clearRect(0, 0, width, height);
-        
-        // Dark base
-        ctx.fillStyle = '#0a0a0a';
+    function drawParticles() {
+        // Semi-transparent dark overlay
+        ctx.fillStyle = 'rgba(10, 10, 10, 0.3)';
         ctx.fillRect(0, 0, width, height);
         
-        const drawOrganicBlob = (centerX, centerY, baseRadius, numPoints, timeOffset) => {
+        // Draw and update particles
+        particles.forEach(particle => {
+            // Draw particle
+            ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity})`;
             ctx.beginPath();
-            
-            for (let i = 0; i <= numPoints; i++) {
-                const angle = (i / numPoints) * Math.PI * 2;
-                const radiusVariation = Math.sin(angle * 3 + time * 0.0072 + timeOffset) * 0.5 + 1; // Reduced by 40%: 0.0072 (was 0.012)
-                const radius = baseRadius * radiusVariation;
-                
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
-                
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            
-            ctx.closePath();
-            return ctx;
-        };
-        
-        // Draw all blobs with random chaotic movement
-        blobs.forEach((blob, index) => {
-            // Smooth movement with balanced amplitude
-            const blobX = width * (blob.startX + Math.sin(time * blob.speedX + blob.phaseX) * 0.4 * blob.dirX); // Reduced by 20%: 0.4 (was 0.5)
-            const blobY = height * (blob.startY + Math.cos(time * blob.speedY + blob.phaseY) * 0.4 * blob.dirY);
-            
-            // Apply blur filter for soft edges
-            ctx.filter = 'blur(25px)';
-            
-            drawOrganicBlob(blobX, blobY, width * blob.radius, blob.points, blob.offset);
-            
-            // Create gradient with random brightness
-            const gradient = ctx.createRadialGradient(blobX, blobY, 0, blobX, blobY, width * blob.radius);
-            
-            const b = blob.brightness;
-            gradient.addColorStop(0, `rgba(${b}, ${b}, ${b}, 0.85)`);
-            gradient.addColorStop(0.5, `rgba(${b - 10}, ${b - 10}, ${b - 10}, 0.5)`);
-            gradient.addColorStop(1, 'rgba(10, 10, 10, 0)');
-            
-            ctx.fillStyle = gradient;
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
             ctx.fill();
             
-            // Reset filter
-            ctx.filter = 'none';
+            // Update position
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            
+            // Wrap around edges
+            if (particle.x < 0) particle.x = width;
+            if (particle.x > width) particle.x = 0;
+            if (particle.y < 0) particle.y = height;
+            if (particle.y > height) particle.y = 0;
+            
+            // Randomly change opacity
+            if (Math.random() < 0.02) {
+                particle.opacity = Math.random() * 0.5 + 0.3;
+            }
         });
         
-        time += 1;
-        animationFrame = requestAnimationFrame(drawGrainGradient);
+        animationFrame = requestAnimationFrame(drawParticles);
     }
     
     // Start animation immediately
-    drawGrainGradient();
+    drawParticles();
     
-    // Fade in smoothly with blur (independent from animation)
+    // Fade in smoothly
     setTimeout(() => {
         canvas.style.opacity = '1';
-        canvas.style.filter = 'blur(0px)';
     }, 50);
     
     // Return stop function
     return () => {
-        // Fade out smoothly with blur
+        // Fade out smoothly
         canvas.style.opacity = '0';
-        canvas.style.filter = 'blur(20px)';
         setTimeout(() => {
             cancelAnimationFrame(animationFrame);
         }, 800); // Wait for transition to complete
@@ -4482,6 +4445,11 @@ async function loadproximaAnimation(containerId, speed = 0.5) {
         
         // Set speed (0.5 = half speed, like in chat)
         animation.setSpeed(speed);
+        
+        // Match animation color to tab background
+        setTimeout(() => {
+            container.style.filter = 'brightness(0.4) saturate(0)';
+        }, 100);
         
         // Mark container as having animation loaded
         container.dataset.animationLoaded = 'true';
@@ -4993,6 +4961,30 @@ function confirmLogout() {
             proxima: []  // Empty array will trigger the empty state with lottie
         };
         activeChatTab = 'proxima';
+        
+        // Clear tasks and show placeholder
+        taskStore = {};
+        taskMetadata = {};
+        activeTaskTab = 'overview';
+        
+        // Clear task tabs except overview
+        const taskTabsContainer = document.getElementById('taskTabs');
+        if (taskTabsContainer) {
+            const taskTabs = taskTabsContainer.querySelectorAll('.chat-tab:not([data-task="overview"])');
+            taskTabs.forEach(tab => tab.remove());
+        }
+        
+        // Show task placeholder
+        const taskContent = document.getElementById('taskContent');
+        if (taskContent) {
+            taskContent.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 20px;text-align:center;">
+                    <div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">
+                        Войдите в систему, чтобы<br>создавать и управлять задачами
+                    </div>
+                </div>
+            `;
+        }
         
         // Remove all chat tabs except proxima
         const chatTabsContainer = document.getElementById('chatTabs');
@@ -7629,8 +7621,10 @@ function showResultDisplay(calcType, resultValue, unit, inputs, resultForNote = 
                 });
                 animation.setSpeed(0.5); // Same speed as in chat
                 
-                // Apply gray color filter to match chat thinking animation
-                proximaContainer.style.filter = 'invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%)';
+                // Match animation color to tab background
+                setTimeout(() => {
+                    proximaContainer.style.filter = 'brightness(0.4) saturate(0)';
+                }, 100);
             } catch (e) {
                 console.error('[CALCULATOR] Failed to load proxima animation:', e);
             }
@@ -8578,6 +8572,11 @@ function checkExamAnswers() {
                             autoplay: true,
                             animationData: data
                         }).setSpeed(0.5);
+                        
+                        // Match animation color to tab background
+                        setTimeout(() => {
+                            lottieContainer.style.filter = 'brightness(0.4) saturate(0)';
+                        }, 100);
                     } catch(e) {
                         console.error('Error loading proxima animation:', e);
                     }
@@ -8744,6 +8743,11 @@ function processInitialQuestionnaire() {
                                 autoplay: true,
                                 animationData: data
                             }).setSpeed(0.5);
+                            
+                            // Match animation color to tab background
+                            setTimeout(() => {
+                                lottieContainer.style.filter = 'brightness(0.4) saturate(0)';
+                            }, 100);
                         } catch(e) {
                             console.error('Error loading proxima animation:', e);
                         }
@@ -10508,6 +10512,12 @@ function renderChatMessages(){
                         animationData: data
                     });
                     animation.setSpeed(0.5);
+                    
+                    // Match animation color to tab background
+                    setTimeout(() => {
+                        lottieContainer.style.filter = 'brightness(0.4) saturate(0)';
+                    }, 100);
+                    
                     lottieContainer.hasAnimation = true;
                 } catch(e) {
                     console.error('Error loading chat animation:', e);
@@ -10533,6 +10543,9 @@ function renderChatMessages(){
                     path: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/refs/heads/main/Proxima.json'
                 });
                 anim.setSpeed(0.5); // Замедляем в 2 раза
+                
+                // Apply color filter to match tab background
+                emptyLottieContainer.style.filter = 'brightness(0.4) saturate(0)';
             } catch (error) {
                 console.error('[EMPTY CHAT] Failed to load Lottie animation:', error);
                 // Fallback to static icon
@@ -10742,10 +10755,13 @@ function renderChatMessages(){
                                 animationData: data
                             });
                             animation.setSpeed(0.5);
-                            lottieContainer.hasAnimation = true;
                             
-                            // Apply gray color filter to match text color
-                            lottieContainer.style.filter = 'invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%)';
+                            // Match animation color to tab background
+                            setTimeout(() => {
+                                lottieContainer.style.filter = 'brightness(0.4) saturate(0)';
+                            }, 100);
+                            
+                            lottieContainer.hasAnimation = true;
                         } catch(e) {
                             console.error('Error loading thinking animation:', e);
                         }
@@ -14834,6 +14850,8 @@ async function createNewTask() {
     // Clear previous errors
     document.getElementById('taskTitle').style.borderColor = '';
     document.getElementById('taskDescription').style.borderColor = '';
+    document.getElementById('taskDeadlineDate').style.borderColor = '';
+    document.getElementById('taskDeadlineTime').style.borderColor = '';
     
     if (!title) {
         document.getElementById('taskTitle').style.borderColor = 'rgba(255,80,80,0.8)';
@@ -14851,16 +14869,66 @@ async function createNewTask() {
         return;
     }
     
-    // Parse deadline if provided
+    // Parse and validate deadline if provided
     let deadline = null;
-    if (deadlineDate && deadlineDate.length === 10) {
+    if (deadlineDate && deadlineDate.length > 0) {
+        // Validate date format (DD.MM.YYYY)
+        if (deadlineDate.length !== 10 || !deadlineDate.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
+            document.getElementById('taskDeadlineDate').style.borderColor = 'rgba(255,80,80,0.8)';
+            setTimeout(() => {
+                document.getElementById('taskDeadlineDate').style.borderColor = '';
+            }, 2000);
+            return;
+        }
+        
         const parts = deadlineDate.split('.');
-        if (parts.length === 3) {
-            const day = parts[0];
-            const month = parts[1];
-            const year = parts[2];
-            const time = deadlineTime && deadlineTime.length === 5 ? deadlineTime : '23:59';
-            deadline = `${year}-${month}-${day}T${time}`;
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const year = parseInt(parts[2]);
+        
+        // Validate date values
+        if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2000 || year > 2100) {
+            document.getElementById('taskDeadlineDate').style.borderColor = 'rgba(255,80,80,0.8)';
+            setTimeout(() => {
+                document.getElementById('taskDeadlineDate').style.borderColor = '';
+            }, 2000);
+            return;
+        }
+        
+        // Validate time format if provided (HH:MM)
+        if (deadlineTime && deadlineTime.length > 0) {
+            if (deadlineTime.length !== 5 || !deadlineTime.match(/^\d{2}:\d{2}$/)) {
+                document.getElementById('taskDeadlineTime').style.borderColor = 'rgba(255,80,80,0.8)';
+                setTimeout(() => {
+                    document.getElementById('taskDeadlineTime').style.borderColor = '';
+                }, 2000);
+                return;
+            }
+            
+            const timeParts = deadlineTime.split(':');
+            const hours = parseInt(timeParts[0]);
+            const minutes = parseInt(timeParts[1]);
+            
+            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+                document.getElementById('taskDeadlineTime').style.borderColor = 'rgba(255,80,80,0.8)';
+                setTimeout(() => {
+                    document.getElementById('taskDeadlineTime').style.borderColor = '';
+                }, 2000);
+                return;
+            }
+        }
+        
+        const time = deadlineTime && deadlineTime.length === 5 ? deadlineTime : '23:59';
+        deadline = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${time}`;
+        
+        // Validate that date is valid (e.g., not 31.02.2024)
+        const testDate = new Date(deadline);
+        if (isNaN(testDate.getTime())) {
+            document.getElementById('taskDeadlineDate').style.borderColor = 'rgba(255,80,80,0.8)';
+            setTimeout(() => {
+                document.getElementById('taskDeadlineDate').style.borderColor = '';
+            }, 2000);
+            return;
         }
     }
     
