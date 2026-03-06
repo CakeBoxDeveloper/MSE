@@ -14487,8 +14487,8 @@ function renderTaskContent(taskId) {
         
         // Create header with priority, deadline and progress bar (outside scrollable container)
         let headerHTML = `
-            <div style="margin-bottom:8px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;font-size:11px;margin-bottom:8px;">
+            <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:8px;">
                     <div style="color:var(--text-secondary);">${priorityLabel}</div>
                     <div style="color:var(--text-secondary);">${task.deadline ? deadlineText : 'БЕЗ СРОКА'}</div>
                 </div>
