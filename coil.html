@@ -14393,10 +14393,12 @@ function renderTaskContent(taskId) {
                         <div class="material-info" style="flex:1;min-width:0;">
                             <h3 style="display:flex;align-items:center;gap:8px;">
                                 ${t.title}
-                                ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                             </h3>
                             <p style="font-size:11px;color:var(--text-secondary);margin-top:4px;">
                                 ${priorityLabel}${t.deadline ? ' • ' + deadlineText : ''}
+                            </p>
+                        </div>
+                        ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                             </p>
                         </div>
                     </div>
@@ -14485,7 +14487,7 @@ function renderTaskContent(taskId) {
             stepsHTML += `
                 <div class="material-item ${completedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;">
                     <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:rgba(255,255,255,.05);border-radius:6px;font-size:16px;font-weight:600;color:rgba(153,153,153,1);">
-                        ${toRoman(mainIndex + 1)}
+                        ${mainIndex + 1}
                     </div>
                     <div class="material-info" style="flex:1;min-width:0;">
                         <h3 onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;">
@@ -14510,14 +14512,17 @@ function renderTaskContent(taskId) {
                     const isLastSubstep = subIndex === step.substeps.length - 1;
                     
                     stepsHTML += `
-                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;margin-left:40px;overflow:visible;padding:10px 12px;cursor:pointer;" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})">
+                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;margin-left:40px;overflow:visible;padding:10px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:8px;" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})">
                             <div style="position:absolute;left:-40px;top:-16px;width:40px;height:calc(100% + 17px);pointer-events:none;overflow:visible;opacity:1 !important;">
                                 <div class="hierarchy-line-vertical" style="position:absolute;left:-1px;top:0;width:1px;${isLastSubstep ? 'height:calc(50% + 11.5px);' : 'height:100%;'}opacity:1 !important;"></div>
                                 <div class="hierarchy-line-horizontal" style="position:absolute;left:0px;top:calc(50% + 11.5px);width:39px;height:1px;opacity:1 !important;"></div>
                             </div>
-                            <div class="step-description-container" style="background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;cursor:pointer;margin:0;width:100%;" onclick="event.stopPropagation();toggleStepDescription(this)">
+                            <div class="step-description-container" style="background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;cursor:pointer;margin:0;width:85%;flex-shrink:0;" onclick="event.stopPropagation();toggleStepDescription(this)">
                                 <p class="step-description-short" style="font-size:12px;color:var(--text-secondary);line-height:1.4;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${substep.title}</p>
                                 <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;margin:0;display:none;white-space:normal;overflow:hidden;text-overflow:ellipsis;">${substep.title}</p>
+                            </div>
+                            <div style="width:32px;height:24px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border-radius:4px;font-size:10px;font-weight:600;color:rgba(153,153,153,1);flex-shrink:0;">
+                                ${mainIndex + 1}.${subIndex + 1}
                             </div>
                         </div>
                     `;
