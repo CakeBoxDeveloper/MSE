@@ -2128,6 +2128,9 @@
                 </button>
               </div>
             </div>
+            <div class="chat-search-wrap" id="chatSearchWrap" style="flex:1;min-width:0;margin:0;display:none;">
+              <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск сообщений…" style="width:100%;">
+            </div>
             <div class="chat-right-controls">
               <!-- MOBILE: Кнопки поиска и minimize справа -->
               <button class="chat-search-btn" onclick="toggleChatSearch()" style="width:32px;height:32px;">
@@ -2141,9 +2144,6 @@
                 <img class="icon-maximize icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/78ad84a8d8488e581eeca239a46eda3b65253af3/expand.svg" alt="" style="width:12px;height:12px;">
               </button>
             </div>
-          </div>
-          <div class="chat-search-wrap" id="chatSearchWrap" style="width:100%;position:relative;top:0;right:0;margin-bottom:12px;display:none;">
-            <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="Поиск сообщений…">
           </div>
           <div class="chat-container">
             <div class="chat-messages" id="chat-messages"></div>
@@ -10485,13 +10485,13 @@ function toggleChatSearch(){
         input.value = '';
         if (searchBtn) searchBtn.style.background = 'transparent';
         
-        // Show all tabs
-        document.querySelectorAll('.chat-tab').forEach(tab => {
-            tab.style.display = 'flex';
+        // Show all messages
+        document.querySelectorAll('.chat-message').forEach(msg => {
+            msg.style.display = '';
         });
     } else {
         // Open search
-        wrap.style.display = 'block';
+        wrap.style.display = 'flex';
         if (searchBtn) searchBtn.style.background = 'rgba(255,255,255,.08)';
         setTimeout(() => input.focus(), 50);
     }
@@ -10499,10 +10499,10 @@ function toggleChatSearch(){
 
 document.getElementById('chatSearchInput').addEventListener('input', function(){
     const q = this.value.toLowerCase();
-    document.querySelectorAll('.chat-tab').forEach(tab => {
-        const span = tab.querySelector('span');
-        const name = span ? span.textContent.toLowerCase() : '';
-        tab.style.display = name.includes(q) ? '' : 'none';
+    // Поиск только по сообщениям в чате, не по вкладкам
+    document.querySelectorAll('.chat-message').forEach(msg => {
+        const text = msg.textContent.toLowerCase();
+        msg.style.display = text.includes(q) ? '' : 'none';
     });
 });
 
