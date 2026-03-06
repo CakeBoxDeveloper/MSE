@@ -832,6 +832,15 @@
         
         .chat-tab:hover:not(.active) { border-color:rgba(255,255,255,.22); }
         .chat-tab.active { background:var(--text-secondary);color:var(--bg-primary);border-color:var(--text-secondary); }
+        
+        /* Overview button - only highlight when active */
+        .chat-tab[data-task="overview"]:not(.active) {
+            background:transparent;
+            border-color:var(--glass-border);
+        }
+        .chat-tab[data-task="overview"]:not(.active):hover {
+            border-color:rgba(255,255,255,.22);
+        }
 .chat-tab.pinned {
     border-style:dashed;
     border-color:rgba(255,255,255,.2);
@@ -14105,7 +14114,7 @@ function switchTaskTab(taskId) {
     // Check if already on this tab
     const wasAlreadyActive = activeTaskTab === taskId;
     
-    // Update active tab
+    // Update active tab in #taskTabs
     const allTabs = document.querySelectorAll('#taskTabs .chat-tab');
     allTabs.forEach(tab => {
         if (tab.dataset.task === taskId) {
@@ -14114,6 +14123,16 @@ function switchTaskTab(taskId) {
             tab.classList.remove('active');
         }
     });
+    
+    // Update Overview button (outside #taskTabs)
+    const overviewBtn = document.querySelector('.chat-tab[data-task="overview"]');
+    if (overviewBtn) {
+        if (taskId === 'overview') {
+            overviewBtn.classList.add('active');
+        } else {
+            overviewBtn.classList.remove('active');
+        }
+    }
     
     activeTaskTab = taskId;
     
