@@ -2499,7 +2499,7 @@
           <input type="range" id="taskPriority" min="0" max="4" value="2" step="1" style="width:100%;height:6px;-webkit-appearance:none;appearance:none;background:rgba(153,153,153,1);border-radius:3px;outline:none;" oninput="updatePriorityLabel()">
         </div>
         <div class="form-group" style="margin-bottom:8px;">
-          <label style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;display:block;text-transform:uppercase;white-space:nowrap;">Если задача срочная можете указать её срок</label>
+          <label style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;display:block;text-transform:uppercase;">Если задача срочная можете указать её срок</label>
           <div style="display:flex;gap:8px;">
             <input type="text" class="form-input" id="taskDeadlineDate" placeholder="ДД.ММ.ГГГГ" maxlength="10" style="font-size:13px;flex:1;height:32px;padding:8px 12px;transition:border-color 0.3s ease;" oninput="formatDateInput(this)">
             <input type="text" class="form-input" id="taskDeadlineTime" placeholder="ЧЧ:ММ" maxlength="5" style="font-size:13px;width:100px;height:32px;padding:8px 12px;transition:border-color 0.3s ease;" oninput="formatTimeInput(this)">
@@ -14154,12 +14154,6 @@ function toggleTaskTabMenu(tab, taskId, nameSpan) {
     menu.dataset.taskId = taskId;
     
     menu.innerHTML =
-    `<button class="task-tab-menu-item" data-action="pin">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/45e14291c38b1dac85196a754e13e9d0da4a01cf/pin.svg" alt="">
-    </button>` +
-    `<button class="task-tab-menu-item" data-action="rename">
-        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/45e14291c38b1dac85196a754e13e9d0da4a01cf/rename.svg" alt="">
-    </button>` +
     `<button class="task-tab-menu-item" data-action="delete">
         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/45e14291c38b1dac85196a754e13e9d0da4a01cf/delete.svg" alt="">
     </button>`;
@@ -14176,8 +14170,8 @@ function toggleTaskTabMenu(tab, taskId, nameSpan) {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const action = btn.dataset.action;
-            if (action === 'pin')    togglePinTask(taskId, tab);
-            if (action === 'rename') showRenameTaskInput(tab, taskId, nameSpan);
+            if (action === 'delete') deleteTaskTab(taskId);
+            closeAllTaskMenus();
             if (action === 'delete') deleteTaskTab(taskId);
             if (action !== 'rename') closeAllTaskMenus();
         });
@@ -14396,8 +14390,9 @@ function renderTaskContent(taskId) {
                             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
                         </div>
                         <div class="material-info" style="flex:1;min-width:0;">
-                            <h3 style="display:flex;align-items:center;gap:8px;">
-                                ${t.title}
+                            <h3 style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
+                                <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</span>
+                                ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                             </h3>
                             <p style="font-size:11px;color:var(--text-secondary);margin-top:4px;display:flex;justify-content:space-between;align-items:center;">
                                 <span>${priorityLabel}</span>
@@ -14407,7 +14402,6 @@ function renderTaskContent(taskId) {
                                 <div style="width:${totalSteps > 0 ? (completedSteps.length / totalSteps * 100) : 0}%;height:100%;background:rgba(153,153,153,1);border-radius:3px;transition:width 0.3s ease;"></div>
                             </div>
                         </div>
-                        ${allStepsCompleted ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-left:8px;"><path d="M20 6L9 17L4 12" stroke="rgba(153,153,153,1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
                     </div>
                 `;
             });
@@ -14495,6 +14489,8 @@ function renderTaskContent(taskId) {
         const totalStepsCount = allStepsForProgress.length;
         const completedStepsArray = taskStore[taskId].completedSteps || [];
         const progressPercent = totalStepsCount > 0 ? (completedStepsArray.length / totalStepsCount * 100) : 0;
+        
+        console.log('[PROGRESS BAR] Total steps:', totalStepsCount, 'Completed:', completedStepsArray.length, 'Percent:', progressPercent);
         
         // Add progress bar
         stepsHTML += `
