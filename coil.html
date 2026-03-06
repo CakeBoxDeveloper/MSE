@@ -2069,8 +2069,8 @@
         <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button class="header-login-btn" onclick="showAlert('Магазин в разработке', 'Магазин')">
-          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6a50e74f86f19a5eacbe86caab2219a6292f2afc/Shop.svg" alt="Магазин">
+        <button class="header-login-btn" id="themeToggleBtn" onclick="toggleTheme()">
+          <img class="icon-gray" id="themeIcon" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/109e3db381599c72cc6b95b6eebd327d50ee20b7/moon.svg" alt="Тема">
         </button>
         <button class="header-login-btn" id="headerLoginBtn">
           <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">
@@ -2543,6 +2543,90 @@
 
 <script>
 // ============================================================
+// THEME TOGGLE FUNCTIONS
+// ============================================================
+let currentTheme = 'dark'; // dark, light, auto
+
+// Theme icons
+const themeIcons = {
+    dark: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/109e3db381599c72cc6b95b6eebd327d50ee20b7/moon.svg',
+    light: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/daylight.svg',
+    auto: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/109e3db381599c72cc6b95b6eebd327d50ee20b7/day-and-night.svg'
+};
+
+// Initialize theme on page load
+function initTheme() {
+    const savedTheme = localStorage.getItem('mseTheme') || 'dark';
+    currentTheme = savedTheme;
+    applyTheme(currentTheme);
+}
+
+// Toggle between themes
+function toggleTheme() {
+    const themeOrder = ['dark', 'light', 'auto'];
+    const currentIndex = themeOrder.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % themeOrder.length;
+    currentTheme = themeOrder[nextIndex];
+    
+    localStorage.setItem('mseTheme', currentTheme);
+    applyTheme(currentTheme);
+}
+
+// Apply theme
+function applyTheme(theme) {
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) {
+        themeIcon.src = themeIcons[theme];
+    }
+    
+    if (theme === 'auto') {
+        // Auto mode: check time and apply appropriate theme
+        const hour = new Date().getHours();
+        const shouldBeDark = hour >= 18 || hour < 6;
+        applyColorScheme(shouldBeDark ? 'dark' : 'light');
+    } else {
+        applyColorScheme(theme);
+    }
+}
+
+// Apply color scheme (invert colors for light mode)
+function applyColorScheme(scheme) {
+    const root = document.documentElement;
+    
+    // Add transition for smooth theme change
+    root.style.transition = 'filter 0.5s ease-in-out';
+    
+    if (scheme === 'light') {
+        // Light mode: invert colors but reduce intensity for softer look
+        root.style.filter = 'invert(0.92) hue-rotate(180deg) brightness(1.1) contrast(0.9)';
+        // Don't invert images and icons - they will stay gray/dark
+        const elements = document.querySelectorAll('img, video, svg, .icon-gray, .no-invert');
+        elements.forEach(el => {
+            el.style.transition = 'filter 0.5s ease-in-out';
+            // No filter applied - icons stay as they are (gray/dark)
+            el.style.filter = '';
+        });
+    } else {
+        // Dark mode (default)
+        root.style.filter = '';
+        const elements = document.querySelectorAll('img, video, svg, .icon-gray, .no-invert');
+        elements.forEach(el => {
+            el.style.transition = 'filter 0.5s ease-in-out';
+            el.style.filter = '';
+        });
+    }
+    
+    // Remove transition after animation completes to avoid performance issues
+    setTimeout(() => {
+        root.style.transition = '';
+        const elements = document.querySelectorAll('img, video, svg, .icon-gray, .no-invert');
+        elements.forEach(el => {
+            el.style.transition = '';
+        });
+    }, 600);
+}
+
+// ============================================================
 // ALERT MODAL FUNCTIONS
 // ============================================================
 function showAlert(message, title = 'Подтвердите действие', options = {}) {
@@ -2987,6 +3071,9 @@ function updateProfileScrollGradients() {
 
 // Инициализация градиентов при загрузке
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize theme
+    initTheme();
+    
     const layer1 = document.getElementById('profileLayer1');
     if (layer1) {
         // Проверяем градиенты при загрузке - сразу и с задержкой
