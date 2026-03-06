@@ -13963,8 +13963,12 @@ function highlightCurrentStep(taskId) {
                 const currentScroll = materialsList.scrollTop;
                 const containerHeight = containerRect.height;
                 
-                // Calculate target scroll position (center element in viewport)
-                const targetScroll = elementTop - (containerHeight / 2) + (elementRect.height / 2);
+                // Add offset to account for fixed header (progress bar + priority/deadline box)
+                // The header is approximately 70px tall, so we subtract offset to scroll less
+                const headerOffset = 80;
+                
+                // Calculate target scroll position (center element in viewport with offset)
+                const targetScroll = elementTop - (containerHeight / 2) + (elementRect.height / 2) - headerOffset;
                 
                 console.log('[SHIMMER] Current scroll:', currentScroll);
                 console.log('[SHIMMER] Target scroll:', targetScroll);
