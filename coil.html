@@ -14399,8 +14399,8 @@ function renderTaskContent(taskId) {
                                 <span>${priorityLabel}</span>
                                 <span>${t.deadline ? deadlineText : 'БЕЗ СРОКА'}</span>
                             </p>
-                            <div style="width:100%;height:12px;background:rgba(255,255,255,0.1);border-radius:6px;margin-top:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);">
-                                <div style="width:${totalSteps > 0 ? (completedSteps.length / totalSteps * 100) : 0}%;height:100%;background:rgba(153,153,153,1);border-radius:5px;transition:width 0.3s ease;"></div>
+                            <div style="width:100%;height:8px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:6px;overflow:hidden;">
+                                <div style="width:${totalSteps > 0 ? (completedSteps.length / totalSteps * 100) : 0}%;height:100%;background:rgba(153,153,153,1);border-radius:2px;transition:width 0.3s ease;"></div>
                             </div>
                         </div>
                     </div>
@@ -14453,7 +14453,6 @@ function renderTaskContent(taskId) {
         };
         
         // Show pipeline as cards (like materials)
-        let stepsHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;">';
         
         // Priority and deadline display box
         const priorityLabels = ['МИНИМАЛЬНО', 'НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
@@ -14486,9 +14485,10 @@ function renderTaskContent(taskId) {
         
         console.log('[PROGRESS BAR] Total steps:', totalStepsCount, 'Completed:', completedStepsArray.length, 'Percent:', progressPercent);
         
-        stepsHTML += `
-            <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;margin-bottom:8px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:8px;">
+        // Create header with priority, deadline and progress bar (outside scrollable container)
+        let headerHTML = `
+            <div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:6px;font-size:11px;margin-bottom:8px;">
                     <div style="color:var(--text-secondary);">${priorityLabel}</div>
                     <div style="color:var(--text-secondary);">${task.deadline ? deadlineText : 'БЕЗ СРОКА'}</div>
                 </div>
@@ -14497,6 +14497,9 @@ function renderTaskContent(taskId) {
                 </div>
             </div>
         `;
+        
+        // Create scrollable steps list
+        let stepsHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;">';
         
         // Pipeline steps as cards with hierarchy
         let stepGlobalIndex = 0;
@@ -14581,7 +14584,7 @@ function renderTaskContent(taskId) {
         `;
         
         stepsHTML += '</div>';
-        taskContent.innerHTML = stepsHTML;
+        taskContent.innerHTML = headerHTML + stepsHTML;
     }
 }
 
