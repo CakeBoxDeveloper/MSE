@@ -14353,6 +14353,21 @@ function renderTaskContent(taskId) {
         // Parse pipeline into steps
         const steps = parsePipelineSteps(task.pipeline);
         
+        // Function to convert number to Roman numerals
+        const toRoman = (num) => {
+            const romanNumerals = [
+                ['X', 10], ['IX', 9], ['V', 5], ['IV', 4], ['I', 1]
+            ];
+            let result = '';
+            for (let [roman, value] of romanNumerals) {
+                while (num >= value) {
+                    result += roman;
+                    num -= value;
+                }
+            }
+            return result;
+        };
+        
         // Show pipeline as cards (like materials)
         let stepsHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;">';
         
@@ -14390,8 +14405,8 @@ function renderTaskContent(taskId) {
             
             stepsHTML += `
                 <div class="material-item ${completedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${completedStyle}">
-                    <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;">
-                        <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/d252d71940705d10f712f6c0926dc19d2b4b9c59/default_material.svg" alt="">
+                    <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:rgba(255,255,255,.05);border-radius:6px;font-size:16px;font-weight:600;color:rgba(153,153,153,1);">
+                        ${toRoman(mainIndex + 1)}
                     </div>
                     <div class="material-info" style="flex:1;min-width:0;">
                         <h3 onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;overflow:hidden;">
@@ -14422,9 +14437,9 @@ function renderTaskContent(taskId) {
                                 <div class="hierarchy-line-vertical" style="position:absolute;left:-1px;top:0;width:1px;${isLastSubstep ? 'height:calc(50% + 11.5px);' : 'height:100%;'}opacity:1 !important;"></div>
                                 <div class="hierarchy-line-horizontal" style="position:absolute;left:0px;top:calc(50% + 11.5px);width:39px;height:1px;opacity:1 !important;"></div>
                             </div>
-                            <div class="step-description-container" style="background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;cursor:pointer;margin:0;" onclick="event.stopPropagation();toggleStepDescription(this)">
+                            <div class="step-description-container" style="background:rgba(255,255,255,.03);padding:6px 8px;border-radius:4px;cursor:pointer;margin:0;width:100%;" onclick="event.stopPropagation();toggleStepDescription(this)">
                                 <p class="step-description-short" style="font-size:12px;color:var(--text-secondary);line-height:1.4;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${substep.title}</p>
-                                <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;margin:0;display:none;white-space:normal;">${substep.title}</p>
+                                <p class="step-description-full" style="font-size:12px;color:var(--text-secondary);line-height:1.4;margin:0;display:none;white-space:normal;overflow:hidden;text-overflow:ellipsis;">${substep.title}</p>
                             </div>
                         </div>
                     `;
