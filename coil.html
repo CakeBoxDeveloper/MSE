@@ -598,7 +598,7 @@
         .materials-list::-webkit-scrollbar { display: none; }
         .material-item {
             background: rgba(255,255,255,.03);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--glass-border) !important;
             border-radius: 5px;
             padding: 14px 12px;
             cursor: pointer;
@@ -733,6 +733,27 @@
         }
         .hierarchy-line-horizontal {
             background: rgb(38,38,38);
+        }
+        
+        /* Range slider styling */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: rgba(153,153,153,1);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: rgba(153,153,153,1);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
         }
         
         /* Marquee animation for overflowing substep titles */
@@ -1457,6 +1478,7 @@
         .form-input[type="number"] { -moz-appearance:textfield; }
         .form-input[type="number"]::-webkit-outer-spin-button,
         .form-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
+        textarea.form-input::-webkit-scrollbar { display:none; }
         
         /* Select dropdown styling */
         select.form-input {
@@ -1685,7 +1707,7 @@
             animation: dots 1.5s infinite;
         }
         
-        @keyframes shimmer {
+        @keyframes shimmerBackground {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
@@ -1857,6 +1879,10 @@
         /* Completed step styling */
         .material-item.completed {
             transition: background 0.3s ease;
+        }
+        
+        .material-item.completed > *:not(.hierarchy-line-vertical):not(.hierarchy-line-horizontal) {
+            opacity: 0.4;
         }
         
         /* ─── TASK TAB DROPDOWN MENU ─── */
@@ -2329,7 +2355,7 @@
     </div>
     
     <div style="display:flex;gap:6px;margin-bottom:16px;width:100%;position:relative;">
-      <div id="shimmerOverlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);background-size:200% 100%;background-position:200% 0;animation:shimmer 8s;display:none;border-radius:6px;pointer-events:none;z-index:10;"></div>
+      <div id="shimmerOverlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);background-size:200% 100%;background-position:200% 0;animation:shimmerBackground 8s;display:none;border-radius:6px;pointer-events:none;z-index:10;"></div>
       <input type="text" class="product-key-block" id="keyBlock1" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock2" placeholder="XXXX" maxlength="4">
       <input type="text" class="product-key-block" id="keyBlock3" placeholder="XXXX" maxlength="4">
@@ -2441,44 +2467,50 @@
 <div class="auth-overlay" id="newTaskOverlay" style="display:none;">
   <div class="auth-modal" onclick="event.stopPropagation()" style="width:420px;height:auto;">
     <div style="padding:24px;">
-      <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px;text-align:center;">Создать новую задачу</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:400;color:var(--text-primary);text-transform:uppercase;">Создать новую задачу</div>
+        <div style="width:32px;height:32px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19M5 12H19" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
       <form class="auth-form" id="newTaskForm" onsubmit="return false;">
-        <div class="form-group">
-          <input type="text" class="form-input" id="taskTitle" placeholder="Название задачи" style="font-size:13px;">
+        <div class="form-group" style="margin-bottom:8px;">
+          <input type="text" class="form-input" id="taskTitle" placeholder="Название задачи" style="font-size:13px;height:32px;padding:8px 12px;">
         </div>
-        <div class="form-group">
-          <textarea class="form-input" id="taskDescription" placeholder="Описание задачи" rows="4" style="font-size:13px;resize:none;min-height:80px;"></textarea>
+        <div class="form-group" style="margin-bottom:8px;">
+          <textarea class="form-input" id="taskDescription" placeholder="Разработать дизайн главной страницы сайта с учетом брендбука компании" rows="4" style="font-size:13px;resize:none;min-height:80px;line-height:1.2;scrollbar-width:none;"></textarea>
         </div>
-        <div class="form-group">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="form-group" style="margin-bottom:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <label style="font-size:12px;color:var(--text-secondary);">ПРИОРИТЕТ</label>
-            <div id="priorityLabel" style="font-size:11px;color:var(--text-primary);">СРОЧНО</div>
+            <div id="priorityLabel" style="font-size:11px;color:var(--text-primary);">УМЕРЕННО</div>
           </div>
-          <input type="range" id="taskPriority" min="0" max="3" value="1" step="1" style="width:100%;accent-color:rgba(153,153,153,.5);" oninput="updatePriorityLabel()">
+          <input type="range" id="taskPriority" min="0" max="4" value="2" step="1" style="width:100%;height:6px;-webkit-appearance:none;appearance:none;background:rgba(153,153,153,1);border-radius:3px;outline:none;" oninput="updatePriorityLabel()">
         </div>
-        <div class="form-group">
-          <label style="font-size:clamp(10px, 2.5vw, 12px);color:var(--text-secondary);margin-bottom:8px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Если задача сложная можете указать её срок</label>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;display:block;text-transform:uppercase;">Если задача срочная можете указать её срок</label>
           <div style="display:flex;gap:8px;">
-            <input type="text" class="form-input" id="taskDeadlineDate" placeholder="ДД.ММ.ГГГГ" maxlength="10" style="font-size:13px;flex:1;transition:border-color 0.3s ease;" oninput="formatDateInput(this)">
-            <input type="text" class="form-input" id="taskDeadlineTime" placeholder="ЧЧ:ММ" maxlength="5" style="font-size:13px;width:100px;transition:border-color 0.3s ease;" oninput="formatTimeInput(this)">
+            <input type="text" class="form-input" id="taskDeadlineDate" placeholder="ДД.ММ.ГГГГ" maxlength="10" style="font-size:13px;flex:1;height:32px;padding:8px 12px;transition:border-color 0.3s ease;" oninput="formatDateInput(this)">
+            <input type="text" class="form-input" id="taskDeadlineTime" placeholder="ЧЧ:ММ" maxlength="5" style="font-size:13px;width:100px;height:32px;padding:8px 12px;transition:border-color 0.3s ease;" oninput="formatTimeInput(this)">
           </div>
         </div>
-        <button type="button" class="auth-btn primary" onclick="createNewTask()" style="width:100%;margin-top:8px;">Создать задачу</button>
+        <button type="button" class="auth-btn primary" onclick="createNewTask()" style="width:100%;margin-top:8px;height:56px;padding:0;">Создать задачу</button>
       </form>
     </div>
     <!-- Loader container inside modal -->
-    <div id="newTaskModalLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:30px;gap:24px;background:rgba(25,25,25,0.98);backdrop-filter:blur(10px);border-radius:8px;z-index:10;">
-      <div id="lottie-modal-proxima" style="width:240px;height:240px;margin-bottom:0;"></div>
-      <div style="width:90%;max-width:400px;position:relative;flex:1;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 280px);">
+    <div id="newTaskModalLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:20px;gap:16px;background:rgba(25,25,25,0.98);backdrop-filter:blur(10px);border-radius:8px;z-index:10;">
+      <div id="lottie-modal-proxima" style="width:160px;height:160px;margin-bottom:0;"></div>
+      <div style="width:90%;max-width:400px;position:relative;flex:1;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 200px);">
         <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
-          <div id="codeRunnerWindow" style="width:100%;height:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:11.2px;line-height:1.4;color:var(--text-primary);position:relative;">
-            <div id="codeRunnerContent" style="position:absolute;top:12px;left:12px;right:12px;z-index:1;"></div>
-            <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.5) 50%,transparent 100%);animation:shimmer 2s ease-in-out infinite;pointer-events:none;z-index:10;"></div>
+          <div id="codeRunnerWindow" style="width:100%;height:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:11.2px;line-height:1.4;color:var(--text-primary);position:relative;overflow:hidden;">
+            <div id="codeRunnerContent" style="position:absolute;top:12px;left:12px;right:12px;bottom:12px;z-index:1;overflow:hidden;"></div>
           </div>
         </div>
         <div style="width:100%;height:40px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
           <span style="font-size:13px;font-weight:600;color:var(--text-primary);position:relative;z-index:1;">Проксима работает над этой задачей</span>
-          <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.5) 50%,transparent 100%);animation:shimmer 2s ease-in-out infinite;pointer-events:none;z-index:10;"></div>
+          <div style="position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.3) 50%,transparent 100%);animation:shimmer 2s ease-in-out infinite;pointer-events:none;z-index:10;"></div>
         </div>
       </div>
     </div>
@@ -10747,7 +10779,7 @@ function renderChatMessages(){
                         </div>
                         <div class="material-info">
                             <h3>${m.taskTitle}</h3>
-                            <p>${m.taskDescription}</p>
+                            <p style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.taskDescription}</p>
                         </div>
                     </div>
                 </div>`;
@@ -13801,6 +13833,14 @@ function openTaskFromChat(taskId) {
     setTimeout(() => {
         switchTaskTab(taskId);
         
+        // Scroll task tab into view (centered)
+        setTimeout(() => {
+            const taskTab = document.querySelector(`.task-tab[data-task-id="${taskId}"]`);
+            if (taskTab) {
+                taskTab.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+        }, 50);
+        
         // Highlight current step with shimmer after content is rendered
         setTimeout(() => {
             highlightCurrentStep(taskId);
@@ -14291,8 +14331,8 @@ function renderTaskContent(taskId) {
                 const allStepsCompleted = steps.length > 0 && completedSteps.length === steps.length;
                 
                 // Priority and deadline for overview
-                const priorityLabels = ['НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
-                const priorityLabel = priorityLabels[t.priority || 1];
+                const priorityLabels = ['МИНИМАЛЬНО', 'НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
+                const priorityLabel = priorityLabels[t.priority || 2];
                 
                 let deadlineText = '';
                 if (t.deadline) {
@@ -14372,8 +14412,8 @@ function renderTaskContent(taskId) {
         let stepsHTML = '<div class="materials-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;max-height:100%;flex:1;scrollbar-width:none;">';
         
         // Priority and deadline display box
-        const priorityLabels = ['НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
-        const priorityLabel = priorityLabels[task.priority || 1];
+        const priorityLabels = ['МИНИМАЛЬНО', 'НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
+        const priorityLabel = priorityLabels[task.priority || 2];
         
         let deadlineText = '';
         if (task.deadline) {
@@ -14400,11 +14440,10 @@ function renderTaskContent(taskId) {
         steps.forEach((step, mainIndex) => {
             const isCompleted = taskStore[taskId].completedSteps?.includes(stepGlobalIndex) || false;
             const completedClass = isCompleted ? 'completed' : '';
-            const completedStyle = isCompleted ? 'opacity:0.4;' : '';
             const hasSubsteps = step.substeps && step.substeps.length > 0;
             
             stepsHTML += `
-                <div class="material-item ${completedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${completedStyle}">
+                <div class="material-item ${completedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;">
                     <div class="material-icon" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})" style="cursor:pointer;align-self:flex-start;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:rgba(255,255,255,.05);border-radius:6px;font-size:16px;font-weight:600;color:rgba(153,153,153,1);">
                         ${toRoman(mainIndex + 1)}
                     </div>
@@ -14428,11 +14467,10 @@ function renderTaskContent(taskId) {
                 step.substeps.forEach((substep, subIndex) => {
                     const isSubCompleted = taskStore[taskId].completedSteps?.includes(stepGlobalIndex) || false;
                     const subCompletedClass = isSubCompleted ? 'completed' : '';
-                    const subCompletedStyle = isSubCompleted ? 'opacity:0.4;' : '';
                     const isLastSubstep = subIndex === step.substeps.length - 1;
                     
                     stepsHTML += `
-                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;${subCompletedStyle};margin-left:40px;overflow:visible;padding:10px 12px;">
+                        <div class="material-item ${subCompletedClass}" data-step-index="${stepGlobalIndex}" style="position:relative;margin-left:40px;overflow:visible;padding:10px 12px;cursor:pointer;" onclick="toggleStepCompletion('${taskId}', ${stepGlobalIndex})">
                             <div style="position:absolute;left:-40px;top:-16px;width:40px;height:calc(100% + 17px);pointer-events:none;overflow:visible;opacity:1 !important;">
                                 <div class="hierarchy-line-vertical" style="position:absolute;left:-1px;top:0;width:1px;${isLastSubstep ? 'height:calc(50% + 11.5px);' : 'height:100%;'}opacity:1 !important;"></div>
                                 <div class="hierarchy-line-horizontal" style="position:absolute;left:0px;top:calc(50% + 11.5px);width:39px;height:1px;opacity:1 !important;"></div>
@@ -14913,10 +14951,24 @@ function openNewTaskModal() {
         overlay.style.display = 'flex';
         setTimeout(() => overlay.classList.add('active'), 10);
         
+        // Generate random placeholder example
+        const placeholderExamples = [
+            'Разработать адаптивный дизайн главной страницы сайта с учетом брендбука компании и требований UX...',
+            'Создать презентацию для встречи с инвесторами на 15 слайдов с финансовыми показателями и прогнозами...',
+            'Написать подробное техническое задание для разработки мобильного приложения на iOS и Android...',
+            'Провести комплексный анализ конкурентов в сегменте B2B и подготовить развернутый отчет с рекомендациями...',
+            'Организовать командный митинг по итогам квартала с презентацией результатов и планированием на следующий период...',
+            'Подготовить контент-план для социальных сетей на месяц с графиком публикаций и креативными концепциями...',
+            'Разработать логотип и полный фирменный стиль для нового продукта включая цветовую палитру и типографику...',
+            'Настроить автоматизацию email-рассылок для клиентов с сегментацией базы и персонализированными сценариями...'
+        ];
+        const randomPlaceholder = placeholderExamples[Math.floor(Math.random() * placeholderExamples.length)];
+        document.getElementById('taskDescription').placeholder = randomPlaceholder;
+        
         // Clear previous inputs
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskDescription').value = '';
-        document.getElementById('taskPriority').value = '1';
+        document.getElementById('taskPriority').value = '2';
         document.getElementById('taskDeadlineDate').value = '';
         document.getElementById('taskDeadlineTime').value = '';
         updatePriorityLabel();
@@ -14953,7 +15005,7 @@ function formatTimeInput(input) {
 
 function updatePriorityLabel() {
     const priority = document.getElementById('taskPriority').value;
-    const labels = ['НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
+    const labels = ['МИНИМАЛЬНО', 'НЕ СРОЧНО', 'УМЕРЕННО', 'СРОЧНО', 'КРИТИЧНО'];
     document.getElementById('priorityLabel').textContent = labels[priority];
 }
 
