@@ -2506,11 +2506,13 @@
     <div style="padding:24px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <div style="font-size:14px;font-weight:400;color:var(--text-primary);text-transform:uppercase;white-space:nowrap;">Создать новую задачу</div>
-        <div style="width:32px;height:32px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 5V19M5 12H19" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round"/>
+        <button id="voiceInputBtn" onclick="toggleVoiceInput()" style="width:32px;height:32px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;cursor:pointer;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+          <svg id="micIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 10V12C19 15.866 15.866 19 12 19C8.134 19 5 15.866 5 12V10" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 19V23M8 23H16" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-        </div>
+        </button>
       </div>
       <form class="auth-form" id="newTaskForm" onsubmit="return false;">
         <div class="form-group" style="margin-bottom:8px;">
@@ -15529,6 +15531,165 @@ function closeNewTaskModal() {
             document.getElementById('taskDeadlineTime').value = '';
             updatePriorityLabel();
         }, 300);
+    }
+}
+
+// ============================================================
+// VOICE INPUT FOR TASK CREATION
+// ============================================================
+
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+async function toggleVoiceInput() {
+    const btn = document.getElementById('voiceInputBtn');
+    const micIcon = document.getElementById('micIcon');
+    
+    if (!isRecording) {
+        // Start recording
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+            
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                await processVoiceInput(audioBlob);
+                
+                // Stop all tracks
+                stream.getTracks().forEach(track => track.stop());
+            };
+            
+            mediaRecorder.start();
+            isRecording = true;
+            
+            // Change button appearance
+            btn.style.background = 'rgba(255,80,80,0.2)';
+            btn.style.borderColor = 'rgba(255,80,80,0.5)';
+            micIcon.querySelector('path').setAttribute('stroke', 'rgba(255,80,80,1)');
+            
+            console.log('[VOICE] Recording started');
+        } catch (error) {
+            console.error('[VOICE] Error accessing microphone:', error);
+            alert('Не удалось получить доступ к микрофону. Проверьте разрешения браузера.');
+        }
+    } else {
+        // Stop recording
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            isRecording = false;
+            
+            // Reset button appearance
+            btn.style.background = 'transparent';
+            btn.style.borderColor = 'rgba(255,255,255,0.1)';
+            micIcon.querySelector('path').setAttribute('stroke', 'rgba(153,153,153,1)');
+            
+            console.log('[VOICE] Recording stopped');
+        }
+    }
+}
+
+async function processVoiceInput(audioBlob) {
+    console.log('[VOICE] Processing audio, size:', audioBlob.size);
+    
+    // Show loading state
+    const titleInput = document.getElementById('taskTitle');
+    const descInput = document.getElementById('taskDescription');
+    titleInput.placeholder = 'Обрабатываю голос...';
+    descInput.placeholder = 'Обрабатываю голос...';
+    titleInput.disabled = true;
+    descInput.disabled = true;
+    
+    try {
+        // Convert webm to mp3/wav for better compatibility
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('model', 'whisper-large-v3');
+        formData.append('language', 'ru');
+        formData.append('response_format', 'json');
+        
+        // Transcribe with Groq Whisper
+        console.log('[VOICE] Sending to Groq Whisper...');
+        const transcribeResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`
+            },
+            body: formData
+        });
+        
+        if (!transcribeResponse.ok) {
+            throw new Error('Transcription failed: ' + transcribeResponse.statusText);
+        }
+        
+        const transcription = await transcribeResponse.json();
+        const text = transcription.text;
+        console.log('[VOICE] Transcription:', text);
+        
+        // Parse task with GPT
+        console.log('[VOICE] Parsing task with GPT...');
+        const parseResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [{
+                    role: 'system',
+                    content: 'Ты помощник для парсинга задач. Пользователь надиктовал задачу голосом. Извлеки из текста: название задачи (краткое, до 50 символов), описание (подробное), приоритет (число от 1 до 10, где 10 - самый высокий), дедлайн (если упомянут, в формате DD.MM.YYYY HH:MM). Ответь ТОЛЬКО в формате JSON: {"title":"...","description":"...","priority":5,"deadline":"DD.MM.YYYY HH:MM"}. Если дедлайн не упомянут, используй null.'
+                }, {
+                    role: 'user',
+                    content: text
+                }],
+                temperature: 0.3,
+                max_tokens: 500
+            })
+        });
+        
+        if (!parseResponse.ok) {
+            throw new Error('Parsing failed: ' + parseResponse.statusText);
+        }
+        
+        const parseResult = await parseResponse.json();
+        const parsedTask = JSON.parse(parseResult.choices[0].message.content);
+        console.log('[VOICE] Parsed task:', parsedTask);
+        
+        // Fill form fields
+        titleInput.value = parsedTask.title || '';
+        descInput.value = parsedTask.description || '';
+        
+        if (parsedTask.priority) {
+            document.getElementById('taskPriority').value = parsedTask.priority;
+        }
+        
+        if (parsedTask.deadline) {
+            const [datePart, timePart] = parsedTask.deadline.split(' ');
+            if (datePart) {
+                document.getElementById('taskDeadlineDate').value = datePart;
+            }
+            if (timePart) {
+                document.getElementById('taskDeadlineTime').value = timePart;
+            }
+        }
+        
+        console.log('[VOICE] Form filled successfully');
+        
+    } catch (error) {
+        console.error('[VOICE] Error processing voice input:', error);
+        alert('Ошибка обработки голоса: ' + error.message);
+    } finally {
+        // Reset loading state
+        titleInput.placeholder = 'Название задачи';
+        descInput.placeholder = 'Написать подробное техническое задание для разработки мобильного приложения на iOS и Android...';
+        titleInput.disabled = false;
+        descInput.disabled = false;
     }
 }
 
