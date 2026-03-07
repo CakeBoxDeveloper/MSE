@@ -1256,7 +1256,7 @@
             margin-top: auto; /* Прижимаем к низу */
         }
         
-        .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch; }
+        .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch;position:relative; }
         .chat-input {
             flex:1;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
             border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:13px;transition:all .2s ease;
@@ -1264,6 +1264,57 @@
         }
         .chat-input::placeholder { color:var(--text-tertiary); }
         .chat-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+        
+        /* Task autocomplete dropdown */
+        .task-autocomplete {
+            position:absolute;
+            bottom:100%;
+            left:0;
+            right:48px;
+            background:rgba(20,20,20,0.98);
+            border:1px solid var(--glass-border);
+            border-radius:8px;
+            margin-bottom:4px;
+            max-height:200px;
+            overflow-y:auto;
+            display:none;
+            z-index:1000;
+            box-shadow:0 4px 12px rgba(0,0,0,0.3);
+        }
+        .task-autocomplete.show { display:block; }
+        .task-autocomplete-item {
+            padding:8px 12px;
+            cursor:pointer;
+            transition:background 0.15s ease;
+            font-size:13px;
+            color:var(--text-primary);
+            border-bottom:1px solid rgba(255,255,255,0.05);
+        }
+        .task-autocomplete-item:last-child { border-bottom:none; }
+        .task-autocomplete-item:hover,
+        .task-autocomplete-item.selected {
+            background:rgba(255,255,255,0.1);
+        }
+        .task-autocomplete-item .task-title {
+            font-weight:500;
+            margin-bottom:2px;
+        }
+        .task-autocomplete-item .task-desc {
+            font-size:11px;
+            color:var(--text-secondary);
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+        
+        /* Task mention highlighting */
+        .task-mention {
+            background:rgba(255,255,255,0.15);
+            padding:2px 6px;
+            border-radius:4px;
+            color:var(--text-primary);
+            font-weight:500;
+        }
 
 
 .chat-attach {
@@ -1282,18 +1333,22 @@
 }
 .chat-voice:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
 .chat-voice.recording { 
-    background:rgba(255,80,80,0.15);
-    border-color:rgba(255,80,80,0.5);
+    background:rgba(255,255,255,0.15);
+    border-color:rgba(255,255,255,0.4);
     animation: pulse-recording 1.5s ease-in-out infinite;
 }
 
 @keyframes pulse-recording {
     0%, 100% { 
-        box-shadow: 0 0 0 0 rgba(255,80,80,0.4);
+        box-shadow: 0 0 0 0 rgba(255,255,255,0.3);
     }
     50% { 
-        box-shadow: 0 0 0 8px rgba(255,80,80,0);
+        box-shadow: 0 0 0 8px rgba(255,255,255,0);
     }
+}
+
+.voice-btn-modal.recording {
+    animation: pulse-recording 1.5s ease-in-out infinite;
 }
 
 .chat-file-preview {
@@ -2201,6 +2256,7 @@
             <div style="position:relative;display:flex;flex-direction:column;">
               <div class="chat-file-preview" id="chat-file-preview"></div>
               <div class="chat-input-wrapper">
+                <div class="task-autocomplete" id="taskAutocomplete"></div>
                 <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Проксиме..." style="height:32px;padding:6px 12px;">
                 <button class="chat-attach" id="chat-attach" style="width:32px;height:32px;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="" style="width:12px;height:12px;">
@@ -2534,7 +2590,7 @@
     <div style="padding:24px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <div style="font-size:14px;font-weight:400;color:var(--text-primary);text-transform:uppercase;white-space:nowrap;">Создать новую задачу</div>
-        <button id="voiceInputBtn" onclick="toggleVoiceInput()" style="width:32px;height:32px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;cursor:pointer;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+        <button id="voiceInputBtn" onclick="toggleVoiceInput()" class="voice-btn-modal" style="width:32px;height:32px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;cursor:pointer;transition:all 0.2s ease;position:relative;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!this.classList.contains('recording'))this.style.background='transparent'">
           <svg id="micIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M19 10V12C19 15.866 15.866 19 12 19C8.134 19 5 15.866 5 12V10" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -10249,47 +10305,65 @@ function getGroqURL() {
 }
 
 // System prompt that defines proxima's role and capabilities
-function getproximaSystemPrompt() {
+function getproximaSystemPrompt(mentionedTaskId = null) {
     const pulseValue = document.getElementById('pulseValue')?.textContent || '72';
     const hrrValue = document.getElementById('hrrValue')?.textContent || '68';
     const oxygenValue = document.getElementById('oxygenValue')?.textContent || '98';
     
     // Собираем информацию о текущих задачах
     let tasksContext = '';
-    if (Object.keys(taskStore).length > 0) {
+    let mentionedTaskContext = '';
+    
+    if (currentUser && currentUser.id && taskStore[currentUser.id]) {
         tasksContext = '\n\nТЕКУЩИЕ ЗАДАЧИ ПОЛЬЗОВАТЕЛЯ:\n';
-        Object.entries(taskStore).forEach(([taskId, task]) => {
-            const completedCount = (task.completedSteps || []).length;
-            const steps = parsePipelineSteps(task.pipeline);
-            let totalSteps = 0;
-            steps.forEach(step => {
-                totalSteps++;
-                if (step.substeps) totalSteps += step.substeps.length;
-            });
-            
-            tasksContext += `\nЗадача ID: ${taskId}\n`;
-            tasksContext += `Название: ${task.title}\n`;
-            tasksContext += `Описание: ${task.description}\n`;
-            tasksContext += `Приоритет: ${task.priority}/10\n`;
-            tasksContext += `Прогресс: ${completedCount}/${totalSteps} шагов выполнено\n`;
-            if (task.deadline) {
-                tasksContext += `Дедлайн: ${task.deadline}\n`;
+        ['backlog', 'todo', 'inProgress', 'done'].forEach(pipeline => {
+            if (taskStore[currentUser.id][pipeline]) {
+                taskStore[currentUser.id][pipeline].forEach(task => {
+                    const completedCount = (task.completedSteps || []).length;
+                    const steps = parsePipelineSteps(task.pipeline);
+                    let totalSteps = 0;
+                    steps.forEach(step => {
+                        totalSteps++;
+                        if (step.substeps) totalSteps += step.substeps.length;
+                    });
+                    
+                    tasksContext += `\nЗадача ID: ${task.id}\n`;
+                    tasksContext += `Название: ${task.title}\n`;
+                    tasksContext += `Описание: ${task.description}\n`;
+                    tasksContext += `Приоритет: ${task.priority}/10\n`;
+                    tasksContext += `Статус: ${pipeline}\n`;
+                    tasksContext += `Прогресс: ${completedCount}/${totalSteps} шагов выполнено\n`;
+                    if (task.deadline) {
+                        tasksContext += `Дедлайн: ${task.deadline}\n`;
+                    }
+                    tasksContext += `Шаги:\n${task.pipeline}\n`;
+                    
+                    // If this is the mentioned task, add special context
+                    if (mentionedTaskId && task.id === mentionedTaskId) {
+                        mentionedTaskContext = `\n\n⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ: "${task.title}" (ID: ${task.id})\nОн хочет изменить или обсудить именно эту задачу. Обрати особое внимание на её контекст выше.\n`;
+                    }
+                });
             }
-            tasksContext += `Шаги:\n${task.pipeline}\n`;
         });
     }
     
-    return `Ты - Проксима, персональный ассистент и менеджер задач в системе Проксима Task Organizer.
+    return `Ты - Проксима, программа-наставник созданная инженерами MSE для управления задачами и достижения целей.
+
+ТВОЯ ЛИЧНОСТЬ:
+- Обращаешься на "ты", говоришь прямо и по делу
+- Характер: справедливый тренер/наставник
+- НЕ льстишь, но и не грубишь
+- Если видишь косяк - говоришь прямо, без обиняков
+- НЕ называешь себя ИИ или языковой моделью - ты Проксима, программа MSE
+- Твоя коронная фраза: "Не скажи это. Сделай это!"
 
 ТВОЯ РОЛЬ:
-- Ты помогаешь пользователю организовывать задачи и достигать целей
 - Разбиваешь сложные задачи на простые шаги с подробными инструкциями
 - Создаёшь структурированные планы действий с иерархией
-- Отслеживаешь прогресс и напоминаешь о важном
-- Общаешься дружелюбно и профессионально
-- МОЖЕШЬ ИЗМЕНЯТЬ существующие задачи если пользователь сообщает о форс-мажоре или изменении планов
+- Отслеживаешь прогресс и говоришь правду о ситуации
+- Можешь изменять существующие задачи если планы меняются
 
-${tasksContext}
+${tasksContext}${mentionedTaskContext}
 
 ФОРМАТ ПАЙПЛАЙНА:
 Создавай детальные пошаговые инструкции. Каждый шаг ОБЯЗАТЕЛЬНО должен содержать:
@@ -10297,42 +10371,72 @@ ${tasksContext}
 - Подробное описание (как именно это сделать, какие инструменты использовать, на что обратить внимание)
 - Подшаги если задача сложная (обозначай их отступом "  - ")
 
-ВАЖНО: ВСЕГДА пиши подробные комментарии к КАЖДОМУ шагу. Комментарий должен объяснять КАК выполнить шаг, какие инструменты использовать, на что обратить внимание.
+КРИТИЧЕСКИ ВАЖНО - КОНКРЕТНОСТЬ:
+⚠️ ЗАПРЕЩЕНО писать общие фразы типа "найди", "изучи", "посмотри в интернете"!
+⚠️ ОБЯЗАТЕЛЬНО давай КОНКРЕТНЫЕ данные: точные ингредиенты с граммами, конкретные ссылки, реальные команды!
 
-ПРИМЕР ПРАВИЛЬНОГО ПАЙПЛАЙНА:
+- НЕ пиши "найди рецепт" - ДАЙТЕ КОНКРЕТНЫЙ РЕЦЕПТ с точными ингредиентами и граммами
+- НЕ пиши "изучи тему" - ДАЙТЕ КОНКРЕТНЫЕ РЕСУРСЫ и что именно изучать
+- НЕ пиши "подготовь инструменты" - ПЕРЕЧИСЛИ КОНКРЕТНЫЕ ИНСТРУМЕНТЫ
+- НЕ пиши "выполни действие" - ОПИШИ ТОЧНУЮ ПОСЛЕДОВАТЕЛЬНОСТЬ ДЕЙСТВИЙ
 
-1. Изучить основы JavaScript
-Начни с базового синтаксиса: переменные (let, const, var), типы данных (string, number, boolean, object, array), операторы. Используй интерактивные платформы типа JavaScript.info или MDN Web Docs. Выдели 2-3 часа на изучение, делай заметки в отдельном файле.
-  - Изучить переменные и типы данных
-  - Освоить условные операторы (if/else, switch)
-  - Понять циклы (for, while, forEach)
+Если пользователь просит рецепт - дай КОНКРЕТНЫЙ рецепт с ингредиентами и граммами, а не "найди рецепт".
+Если пользователь просит научить - дай КОНКРЕТНЫЕ шаги с примерами, а не "изучи основы".
+Если пользователь просит план - дай КОНКРЕТНЫЕ действия, а не "подготовь материалы".
 
-2. Практика на простых задачах
-Решай задачи на CodeWars или LeetCode уровня 8-7 kyu. Начни с задач на работу со строками и массивами. Цель - решить минимум 10 задач, чтобы закрепить базовый синтаксис. Анализируй чужие решения после своего.
-  - Решить 5 задач на работу со строками
-  - Решить 5 задач на работу с массивами
-  - Изучить разные подходы к решению
+ПРИМЕР ПРАВИЛЬНОГО КОНКРЕТНОГО ПАЙПЛАЙНА (рецепт):
 
-3. Создать первый проект
-Сделай простой калькулятор или todo-list. Используй чистый JavaScript без фреймворков. Создай HTML структуру, добавь стили CSS, реализуй логику на JS. Обязательно добавь обработку ошибок и валидацию ввода.
+1. Подготовить ингредиенты для соуса болоньезе
+Возьми: 500г говяжьего фарша, 1 луковицу, 2 зубчика чеснока, 400г консервированных томатов, 2 ст.л. томатной пасты, 100мл красного вина, соль, перец, базилик. Лук и чеснок мелко нарежь. Открой банку томатов.
+  - Нарезать лук кубиками 5мм
+  - Измельчить чеснок ножом или прессом
+  - Открыть банку томатов и слить лишнюю жидкость
+
+2. Обжарить фарш и овощи
+Разогрей сковороду на среднем огне, добавь 2 ст.л. оливкового масла. Обжарь лук 3 минуты до прозрачности, добавь чеснок на 30 секунд. Выложи фарш, разбивая комки лопаткой. Жарь 7-10 минут до коричневой корочки.
+  - Разогреть сковороду 2 минуты на среднем огне
+  - Обжарить лук до прозрачности (3 мин)
+  - Добавить фарш и жарить до корочки (7-10 мин)
+
+3. Приготовить соус
+Влей вино, дай выпариться 2 минуты. Добавь томаты и пасту, перемешай. Приправь солью (1 ч.л.), перцем, базиликом. Уменьши огонь до минимума, туши под крышкой 30 минут, помешивая каждые 10 минут.
+
+ПРИМЕР ПРАВИЛЬНОГО КОНКРЕТНОГО ПАЙПЛАЙНА (обучение):
+
+1. Изучить основы JavaScript на JavaScript.info
+Открой сайт javascript.info, раздел "Основы JavaScript". Прочитай первые 5 глав: переменные, типы данных, операторы, условия, циклы. На каждую главу выдели 30 минут. Делай заметки в блокноте: записывай синтаксис и примеры кода.
+  - Прочитать главу "Переменные" (30 мин)
+  - Прочитать главу "Типы данных" (30 мин)
+  - Записать примеры кода в блокнот
+
+2. Решить 10 задач на CodeWars уровня 8 kyu
+Зарегистрируйся на codewars.com, выбери язык JavaScript. Найди раздел "8 kyu" (самый простой уровень). Реши задачи: "Multiply", "Even or Odd", "Sum of positive", "Opposite number", "Return Negative". На каждую задачу 10-15 минут.
+  - Решить задачу "Multiply" (10 мин)
+  - Решить задачу "Even or Odd" (10 мин)
+  - Решить задачу "Sum of positive" (15 мин)
 
 СТИЛЬ ОБЩЕНИЯ:
-- Краткие и чёткие ответы
+- Краткие и чёткие ответы без воды
+- Говоришь прямо, как есть
 - Используй списки и структуру
-- Будь конкретной, избегай общих фраз
-- Давай практические советы с деталями
+- ВСЕГДА давай конкретные цифры, названия, ссылки
 - НЕ используй эмодзи НИКОГДА
 - Пиши подробные инструкции в описании КАЖДОГО шага
 - НЕ указывай время выполнения в скобках
 
+КОГДА СОЗДАЁШЬ ЗАДАЧУ:
+НЕ пиши каждый раз одинаковый текст типа "Вот твой план задачи".
+Вместо этого дай короткий брифинг: "Вот так-то и так-то, сделать надо то-то и то-то".
+В конце добавь свою коронную фразу: "Не скажи это. Сделай это!"
+
 ВАЖНО:
 - Всегда структурируй информацию
-- Задавай уточняющие вопросы
+- Задавай уточняющие вопросы если что-то непонятно
 - Помогай разбить большие задачи на маленькие
-- Будь практичной и конкретной
+- Будь практичной и конкретной - КОНКРЕТНЫЕ цифры, названия, действия
 - В описании шага пиши ЧТО и КАК делать, какие инструменты использовать
 - Используй подшаги (с отступом "  - ") для сложных задач
-- КАЖДЫЙ шаг должен иметь подробный комментарий
+- КАЖДЫЙ шаг должен иметь подробный комментарий с конкретикой
 
 ИЗМЕНЕНИЕ ЗАДАЧ:
 Если пользователь сообщает о проблемах, форс-мажоре или изменении планов по существующей задаче, ты можешь её изменить.
@@ -10411,15 +10515,15 @@ async function callGroqAPI(userMessage) {
     }
 }
 
-async function callProximaAPI(userMessage, conversationHistory = []) {
+async function callProximaAPI(userMessage, conversationHistory = [], mentionedTaskId = null) {
     try {
         // Build conversation context (last 10 messages)
         const messages = [];
         
-        // Add system prompt
+        // Add system prompt with mentioned task context
         messages.push({
             role: 'system',
-            content: getproximaSystemPrompt()
+            content: getproximaSystemPrompt(mentionedTaskId)
         });
         
         // Add conversation history
@@ -11372,8 +11476,9 @@ function renderChatMessages(){
                     </div>
                 </div>`;
             } else {
-                // Обычное текстовое сообщение - parse Markdown
-                const formattedText = parseMarkdown(m.text);
+                // Обычное текстовое сообщение - parse Markdown and highlight task mentions
+                let formattedText = parseMarkdown(m.text);
+                formattedText = highlightTaskMentions(formattedText);
                 return `<div class="chat-message ${m.role} ${newMessageClass}">${formattedText}</div>`;
             }
         }).join('');
@@ -11507,7 +11612,10 @@ function processAttachments(files, targetChat, messageText) {
                     renderChatMessages();
                     
                     const userMessageText = messageText || 'Файл прикреплён';
-                    callProximaAPI(userMessageText, chatStore[targetChat]).then(aiResult => {
+                    const taskId = mentionedTaskId;
+                    mentionedTaskId = null;
+                    
+                    callProximaAPI(userMessageText, chatStore[targetChat], taskId).then(aiResult => {
                         const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                         const thinkingTime = calculateThinkingTime(responseText);
                         
@@ -12157,7 +12265,10 @@ function sendMessage(){
                 renderChatMessages();
                 
                 const userMessageText = text;
-                callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                const taskId = mentionedTaskId; // Capture before reset
+                mentionedTaskId = null; // Reset for next message
+                
+                callProximaAPI(userMessageText, chatStore[targetChatTab], taskId).then(aiResult => {
                     const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                     const thinkingTime = calculateThinkingTime(responseText);
                     
@@ -12254,7 +12365,10 @@ function sendMessage(){
                     safeRenderChatMessages();
                     
                     const userMessageText = text || 'Файл прикреплён';
-                    callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                    const taskId = mentionedTaskId;
+                    mentionedTaskId = null;
+                    
+                    callProximaAPI(userMessageText, chatStore[targetChatTab], taskId).then(aiResult => {
                         const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                         const thinkingTime = calculateThinkingTime(responseText);
                         
@@ -12330,7 +12444,10 @@ function sendMessage(){
                         safeRenderChatMessages();
                         
                         const userMessageText = text || 'Файлы прикреплены';
-                        callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                        const taskId = mentionedTaskId;
+                        mentionedTaskId = null;
+                        
+                        callProximaAPI(userMessageText, chatStore[targetChatTab], taskId).then(aiResult => {
                             const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                             const thinkingTime = calculateThinkingTime(responseText);
                             
@@ -12409,7 +12526,10 @@ function sendMessage(){
                         safeRenderChatMessages();
                         
                         const userMessageText = text || 'Файлы прикреплены';
-                        callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                        const taskId = mentionedTaskId;
+                        mentionedTaskId = null;
+                        
+                        callProximaAPI(userMessageText, chatStore[targetChatTab], taskId).then(aiResult => {
                             const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                             const thinkingTime = calculateThinkingTime(responseText);
                             
@@ -12479,7 +12599,10 @@ function sendMessage(){
                 // Call Gemini AI
                 const userMessageText = text || 'Файл прикреплён';
                 console.log('Calling Gemini API with message:', userMessageText); // DEBUG
-                callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                const taskId = mentionedTaskId;
+                mentionedTaskId = null;
+                
+                callProximaAPI(userMessageText, chatStore[targetChatTab], taskId).then(aiResult => {
                     console.log('Gemini API response received:', aiResult); // DEBUG
                     const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                     const thinkingTime = calculateThinkingTime(responseText);
@@ -12527,6 +12650,170 @@ chatInput.addEventListener('keypress', e => { if (e.key==='Enter') sendMessage()
 console.log('Chat event listeners attached'); // DEBUG
 console.log('chatSend element:', chatSend); // DEBUG
 console.log('chatInput element:', chatInput); // DEBUG
+
+// ============================================================
+// TASK AUTOCOMPLETE WITH # MENTIONS
+// ============================================================
+let mentionedTaskId = null;
+let autocompleteSelectedIndex = -1;
+
+function showTaskAutocomplete(query) {
+    const dropdown = document.getElementById('taskAutocomplete');
+    if (!currentUser || !currentUser.id) {
+        dropdown.classList.remove('show');
+        return;
+    }
+    
+    // Get all tasks
+    const allTasks = [];
+    ['backlog', 'todo', 'inProgress', 'done'].forEach(pipeline => {
+        if (taskStore[currentUser.id] && taskStore[currentUser.id][pipeline]) {
+            taskStore[currentUser.id][pipeline].forEach(task => {
+                allTasks.push({...task, pipeline});
+            });
+        }
+    });
+    
+    // Filter tasks by query
+    const filtered = allTasks.filter(task => 
+        task.title.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    if (filtered.length === 0) {
+        dropdown.classList.remove('show');
+        return;
+    }
+    
+    // Render dropdown
+    dropdown.innerHTML = filtered.map((task, index) => `
+        <div class="task-autocomplete-item" data-task-id="${task.id}" data-index="${index}">
+            <div class="task-title">${task.title}</div>
+            ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
+        </div>
+    `).join('');
+    
+    dropdown.classList.add('show');
+    autocompleteSelectedIndex = -1;
+    
+    // Add click handlers
+    dropdown.querySelectorAll('.task-autocomplete-item').forEach(item => {
+        item.addEventListener('click', () => {
+            selectTask(item.dataset.taskId, filtered.find(t => t.id === item.dataset.taskId).title);
+        });
+    });
+}
+
+function hideTaskAutocomplete() {
+    const dropdown = document.getElementById('taskAutocomplete');
+    dropdown.classList.remove('show');
+    autocompleteSelectedIndex = -1;
+}
+
+function updateAutocompleteSelection(direction) {
+    const dropdown = document.getElementById('taskAutocomplete');
+    const items = dropdown.querySelectorAll('.task-autocomplete-item');
+    
+    if (items.length === 0) return;
+    
+    // Remove previous selection
+    items.forEach(item => item.classList.remove('selected'));
+    
+    // Update index
+    if (direction === 'down') {
+        autocompleteSelectedIndex = Math.min(autocompleteSelectedIndex + 1, items.length - 1);
+    } else if (direction === 'up') {
+        autocompleteSelectedIndex = Math.max(autocompleteSelectedIndex - 1, 0);
+    }
+    
+    // Add new selection
+    if (autocompleteSelectedIndex >= 0) {
+        items[autocompleteSelectedIndex].classList.add('selected');
+        items[autocompleteSelectedIndex].scrollIntoView({block: 'nearest'});
+    }
+}
+
+function selectTask(taskId, taskTitle) {
+    const input = document.getElementById('chat-input');
+    const text = input.value;
+    
+    // Find the # mention and replace it with the task title
+    const hashIndex = text.lastIndexOf('#');
+    if (hashIndex !== -1) {
+        const beforeHash = text.substring(0, hashIndex);
+        const newText = beforeHash + '#' + taskTitle + ' ';
+        input.value = newText;
+        mentionedTaskId = taskId;
+    }
+    
+    hideTaskAutocomplete();
+    input.focus();
+}
+
+// Chat input event listeners for autocomplete
+chatInput.addEventListener('input', function(e) {
+    const text = e.target.value;
+    const cursorPos = e.target.selectionStart;
+    
+    // Find if there's a # before cursor
+    const textBeforeCursor = text.substring(0, cursorPos);
+    const lastHashIndex = textBeforeCursor.lastIndexOf('#');
+    
+    if (lastHashIndex !== -1) {
+        // Check if there's a space or newline after the last #
+        const textAfterHash = textBeforeCursor.substring(lastHashIndex + 1);
+        if (!textAfterHash.includes(' ') && !textAfterHash.includes('\n')) {
+            // Show autocomplete with query
+            showTaskAutocomplete(textAfterHash);
+            return;
+        }
+    }
+    
+    // Hide autocomplete if no active mention
+    hideTaskAutocomplete();
+    mentionedTaskId = null;
+});
+
+chatInput.addEventListener('keydown', function(e) {
+    const dropdown = document.getElementById('taskAutocomplete');
+    
+    if (dropdown.classList.contains('show')) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            updateAutocompleteSelection('down');
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            updateAutocompleteSelection('up');
+        } else if (e.key === 'Enter' && autocompleteSelectedIndex >= 0) {
+            e.preventDefault();
+            const items = dropdown.querySelectorAll('.task-autocomplete-item');
+            const selectedItem = items[autocompleteSelectedIndex];
+            if (selectedItem) {
+                const taskId = selectedItem.dataset.taskId;
+                const taskTitle = selectedItem.querySelector('.task-title').textContent;
+                selectTask(taskId, taskTitle);
+            }
+        } else if (e.key === 'Escape') {
+            hideTaskAutocomplete();
+        }
+    }
+});
+
+// Close autocomplete when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('taskAutocomplete');
+    const input = document.getElementById('chat-input');
+    if (!dropdown.contains(e.target) && e.target !== input) {
+        hideTaskAutocomplete();
+    }
+});
+
+// Highlight task mentions in chat messages
+function highlightTaskMentions(text) {
+    // Match # followed by any characters until space, newline, or punctuation
+    return text.replace(/#([^#\s\n.,!?;:]+(?:\s+[^#\s\n.,!?;:]+)*)/g, '<span class="task-mention">#$1</span>');
+}
+
+// ============================================================
     document.addEventListener('DOMContentLoaded', () => {
     const proximaTab = document.querySelector('.chat-tab[data-base="true"]');
     if (proximaTab && !proximaTab.hasAttribute('data-listener')) {
@@ -15712,10 +15999,8 @@ async function toggleVoiceInput() {
             mediaRecorder.start();
             isRecording = true;
             
-            // Change button appearance
-            btn.style.background = 'rgba(255,80,80,0.2)';
-            btn.style.borderColor = 'rgba(255,80,80,0.5)';
-            micIcon.querySelector('path').setAttribute('stroke', 'rgba(255,80,80,1)');
+            // Add recording class for pulse animation
+            btn.classList.add('recording');
             
             console.log('[VOICE] Recording started');
         } catch (error) {
@@ -15728,10 +16013,8 @@ async function toggleVoiceInput() {
             mediaRecorder.stop();
             isRecording = false;
             
-            // Reset button appearance
-            btn.style.background = 'transparent';
-            btn.style.borderColor = 'rgba(255,255,255,0.1)';
-            micIcon.querySelector('path').setAttribute('stroke', 'rgba(153,153,153,1)');
+            // Remove recording class
+            btn.classList.remove('recording');
             
             console.log('[VOICE] Recording stopped');
         }
@@ -15775,6 +16058,12 @@ async function processVoiceInput(audioBlob) {
         const text = transcription.text;
         console.log('[VOICE] Transcription:', text);
         
+        // If transcription is empty or too short, just reset and return
+        if (!text || text.trim().length < 3) {
+            console.log('[VOICE] Empty or too short transcription, skipping');
+            return;
+        }
+        
         // Parse task with GPT
         console.log('[VOICE] Parsing task with GPT...');
         const parseResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -15805,9 +16094,13 @@ async function processVoiceInput(audioBlob) {
         const parsedTask = JSON.parse(parseResult.choices[0].message.content);
         console.log('[VOICE] Parsed task:', parsedTask);
         
-        // Fill form fields
-        titleInput.value = parsedTask.title || '';
-        descInput.value = parsedTask.description || '';
+        // Fill form fields only if there's actual content
+        if (parsedTask.title && parsedTask.title.trim()) {
+            titleInput.value = parsedTask.title;
+        }
+        if (parsedTask.description && parsedTask.description.trim()) {
+            descInput.value = parsedTask.description;
+        }
         
         if (parsedTask.priority) {
             document.getElementById('taskPriority').value = parsedTask.priority;
@@ -15906,11 +16199,8 @@ async function toggleChatVoiceInput() {
             chatMediaRecorder.start();
             isChatRecording = true;
             
-            // Change button appearance
+            // Add recording class for pulse animation only
             btn.classList.add('recording');
-            micIcon.querySelectorAll('path').forEach(path => {
-                path.setAttribute('stroke', 'rgba(255,80,80,1)');
-            });
             
             // Start visualization
             visualize();
@@ -15926,13 +16216,11 @@ async function toggleChatVoiceInput() {
             chatMediaRecorder.stop();
             isChatRecording = false;
             
-            // Reset button appearance
+            // Reset button appearance - remove recording class and reset icon styles
             btn.classList.remove('recording');
             micIcon.style.filter = '';
             micIcon.style.transform = '';
-            micIcon.querySelectorAll('path').forEach(path => {
-                path.setAttribute('stroke', 'rgba(153,153,153,1)');
-            });
+            micIcon.style.opacity = '0.7';
             
             console.log('[CHAT VOICE] Recording stopped');
         }
