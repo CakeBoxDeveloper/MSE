@@ -4170,13 +4170,35 @@ async function loadChatsFromFirebase(userId) {
 }
 
 // Wait for DOM to be ready before adding event listeners
+// Use event delegation on document to ensure listener persists
 document.addEventListener('DOMContentLoaded', () => {
-    const headerLoginBtn = document.getElementById('headerLoginBtn');
-    if (headerLoginBtn) {
-        headerLoginBtn.addEventListener('click', () => {
-            currentUser ? showLogout() : showLogin();
-        });
-    }
+    console.log('[HEADER BTN INIT] Setting up event delegation');
+    
+    // Use event delegation on document body to handle clicks on button or its children
+    document.body.addEventListener('click', (e) => {
+        // Check if click is on the button or its children
+        const button = e.target.closest('#headerLoginBtn');
+        
+        if (button) {
+            console.log('[HEADER BTN] ========== CLICK DETECTED ==========');
+            console.log('[HEADER BTN] Event:', e);
+            console.log('[HEADER BTN] Event target:', e.target);
+            console.log('[HEADER BTN] Button element:', button);
+            console.log('[HEADER BTN] Button innerHTML:', button.innerHTML);
+            console.log('[HEADER BTN] currentUser:', currentUser);
+            console.log('[HEADER BTN] Will call:', currentUser ? 'showLogout()' : 'showLogin()');
+            
+            if (currentUser) {
+                console.log('[HEADER BTN] Calling showLogout()');
+                showLogout();
+            } else {
+                console.log('[HEADER BTN] Calling showLogin()');
+                showLogin();
+            }
+        }
+    });
+    
+    console.log('[HEADER BTN INIT] Event delegation set up successfully');
 });
 
 const LOGIN_WIDTH = '380px'; // Все окна одинакового размера
@@ -4189,6 +4211,47 @@ function setModalWidth(w) {
     const m = document.getElementById('authModal');
     m.style.width = w;
     m.style.height = MODAL_HEIGHT; // Всегда устанавливаем фиксированную высоту
+}
+
+// Function to update header login button without losing event listener
+function updateHeaderLoginButton() {
+    console.log('[UPDATE HEADER] Starting update, currentUser:', currentUser);
+    
+    const headerBtn = document.getElementById('headerLoginBtn');
+    if (!headerBtn) {
+        console.error('[UPDATE HEADER] Button not found!');
+        return;
+    }
+    
+    console.log('[UPDATE HEADER] Button found:', headerBtn);
+    console.log('[UPDATE HEADER] Button innerHTML before:', headerBtn.innerHTML);
+    
+    // Find existing img element
+    let img = headerBtn.querySelector('img');
+    console.log('[UPDATE HEADER] Existing img:', img);
+    
+    // If no img exists, create one
+    if (!img) {
+        console.log('[UPDATE HEADER] Creating new img element');
+        img = document.createElement('img');
+        img.className = 'icon-gray';
+        img.src = 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg';
+        headerBtn.appendChild(img);
+    }
+    
+    // Update only alt and title attributes
+    if (currentUser) {
+        img.alt = 'Звено ' + currentUser.id.toString().padStart(4,'0');
+        img.title = 'Звено ' + currentUser.id.toString().padStart(4,'0');
+        console.log('[UPDATE HEADER] Updated for logged in user:', currentUser.id);
+    } else {
+        img.alt = 'Вход';
+        img.title = 'Вход';
+        console.log('[UPDATE HEADER] Updated for logged out state');
+    }
+    
+    console.log('[UPDATE HEADER] Button innerHTML after:', headerBtn.innerHTML);
+    console.log('[UPDATE HEADER] Update complete');
 }
 
 function showLogin() {
@@ -4306,7 +4369,11 @@ function showLogin() {
     // Remove shimmer from container
     stepId.classList.remove('shimmer');
     
-    document.getElementById('authOverlay').classList.add('active');
+    // Remove inline display:none that was set when closing
+    const overlay = document.getElementById('authOverlay');
+    overlay.style.display = '';
+    overlay.classList.add('active');
+    
     setTimeout(()=>document.getElementById('loginId1').focus(),300);
 }
 
@@ -4458,14 +4525,33 @@ async function showRegister() {
 }
 
 function showLogout() {
+    console.log('[LOGOUT] ========== showLogout() called ==========');
     const modal = document.getElementById('authModal');
+    console.log('[LOGOUT] Modal element:', modal);
+    
+    const overlay = document.getElementById('authOverlay');
+    console.log('[LOGOUT] Overlay element:', overlay);
+    
+    const logoutModal = document.getElementById('logoutModal');
+    console.log('[LOGOUT] Logout modal element:', logoutModal);
+    
+    // Remove inline display:none that was set when closing
+    overlay.style.display = '';
+    
     modal.style.width = '380px';
     modal.style.height = LOGOUT_HEIGHT; // Logout window is half height
     modal.classList.add('logout-size'); // Add logout-specific styling
+    
     document.getElementById('loginForm').style.display='none';
     document.getElementById('registerForm').style.display='none';
-    document.getElementById('logoutModal').style.display='block';
-    document.getElementById('authOverlay').classList.add('active');
+    logoutModal.style.display='block';
+    
+    console.log('[LOGOUT] Adding active class to overlay');
+    overlay.classList.add('active');
+    
+    console.log('[LOGOUT] Overlay classes:', overlay.className);
+    console.log('[LOGOUT] Overlay display:', window.getComputedStyle(overlay).display);
+    console.log('[LOGOUT] ========== showLogout() complete ==========');
 }
 
 function closeAuth() {
@@ -5305,8 +5391,8 @@ function confirmLogout() {
         chatTabCounter = 1;
         pinnedChats.clear();
         
-        // Update header button
-        document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Вход">';
+        // Update header button without losing event listener
+        updateHeaderLoginButton();
         
         // Reset monitor plate
         const monitorPlate = document.getElementById('monitorUserPlate');
@@ -5399,13 +5485,7 @@ function closeAuthAfterSuccess() {
     isLoginInProgress = false;
     isPinChecking = false;
     
-    // Unblock overlay
     const authOverlay = document.getElementById('authOverlay');
-    if (authOverlay) {
-        authOverlay.classList.remove('blocked');
-        console.log('[LOGIN] Overlay unblocked');
-    }
-    
     const successText = document.getElementById('pipelineSuccessText');
     
     // Hide success text
@@ -5416,7 +5496,11 @@ function closeAuthAfterSuccess() {
     
     // Close modal
     if (authOverlay) {
+        // Remove blocked class FIRST
+        authOverlay.classList.remove('blocked');
         authOverlay.classList.remove('active');
+        console.log('[LOGIN] Overlay unblocked and closing');
+        
         setTimeout(() => {
             authOverlay.style.display = 'none';
             
@@ -5708,6 +5792,9 @@ loginIdInputs.forEach((id,index)=>{
                 } else { 
                     // Неправильный ID - показываем ошибку после задержки
                     setTimeout(() => {
+                        // Stop shimmer animation
+                        removeShimmerFromCells(loginIdInputs);
+                        
                         loginIdInputs.forEach(p => {
                             const input = document.getElementById(p);
                             input.classList.add('error');
@@ -6135,14 +6222,8 @@ loginPinInputs.forEach((id,index)=>{
                             console.log('[LOGIN] Current user gender:', currentUser.gender);
                             console.log('[LOGIN] Current user object:', currentUser);
                             
-                            const headerBtn = document.getElementById('headerLoginBtn');
-                            console.log('[LOGIN] Header button element:', headerBtn);
-                            if (headerBtn) {
-                                headerBtn.innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
-                                console.log('[LOGIN] Header button updated with ID:', currentUser.id);
-                            } else {
-                                console.error('[LOGIN] Header button not found!');
-                            }
+                            // Update header button without losing event listener
+                            updateHeaderLoginButton();
                             
                             // Show invite and leaderboard buttons
                             const inviteBtn = document.getElementById('inviteButton');
@@ -6213,6 +6294,9 @@ loginPinInputs.forEach((id,index)=>{
                 animateShimmerThroughCells(loginPinInputs, false);
                 
                 setTimeout(() => {
+                    // Stop shimmer animation
+                    removeShimmerFromCells(loginPinInputs);
+                    
                     // Показываем ошибку после анимации
                     document.getElementById('loginPin1').focus();
                     requestAnimationFrame(() => {
@@ -6556,7 +6640,9 @@ function completeRegistration(userId) {
     renderChatMessages();
     
     closeAuth();
-    document.getElementById('headerLoginBtn').innerHTML='<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено '+currentUser.id.toString().padStart(4,'0')+'" title="Звено '+currentUser.id.toString().padStart(4,'0')+'">';
+    
+    // Update header button without losing event listener
+    updateHeaderLoginButton();
     
     // Show invite and leaderboard buttons
     const inviteBtn = document.getElementById('inviteButton');
@@ -14184,7 +14270,7 @@ function openTaskFromOverview(taskId) {
     // Highlight current step with shimmer after content is rendered
     setTimeout(() => {
         highlightCurrentStep(taskId);
-    }, isAlreadyActive ? 50 : 150);
+    }, isAlreadyActive ? 250 : 450); // Increased delay to ensure scroll and render complete
 }
 
 // Highlight current step with shimmer animation
@@ -14280,7 +14366,7 @@ function highlightCurrentStep(taskId) {
                     stepElement.classList.remove('step-shimmer');
                     console.log('[SHIMMER] Removed shimmer class');
                 }, 1000);
-            }, 300);
+            }, 800); // Increased delay to wait for scroll to complete
         }
     }
 }
