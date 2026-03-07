@@ -4435,7 +4435,7 @@ async function showRegister() {
                         loaderElement.style.display='none';
                         loaderElement.style.opacity = '1'; // Reset for next time
                     }, 300); // Wait for fade out
-                }, 200); // Extra delay to ensure content is painted
+                }, 800); // INCREASED: 800ms delay to ensure content is fully loaded
             });
         });
         
@@ -4529,15 +4529,15 @@ function startGrainLoader(canvasId = 'grainLoader') {
     let animationFrame;
     let particles = [];
     
-    // Create particles (LARGER for visibility, GRAY color, FASTER movement)
+    // Create particles (LARGER for visibility, GRAY color, VERY FAST movement)
     const particleCount = 150;
     for (let i = 0; i < particleCount; i++) {
         particles.push({
             x: Math.random() * width,
             y: Math.random() * height,
             size: Math.random() * 3 + 2, // 2-5px
-            speedX: (Math.random() - 0.5) * 3, // FASTER: 3x speed instead of 1.5x
-            speedY: (Math.random() - 0.5) * 3,
+            speedX: (Math.random() - 0.5) * 5, // VERY FAST: 5x speed
+            speedY: (Math.random() - 0.5) * 5,
             opacity: Math.random() * 0.6 + 0.4 // 0.4-1.0
         });
     }
@@ -4567,8 +4567,8 @@ function startGrainLoader(canvasId = 'grainLoader') {
             
             // Randomly change direction for more chaos
             if (Math.random() < 0.02) {
-                particle.speedX = (Math.random() - 0.5) * 3; // FASTER
-                particle.speedY = (Math.random() - 0.5) * 3;
+                particle.speedX = (Math.random() - 0.5) * 5; // VERY FAST
+                particle.speedY = (Math.random() - 0.5) * 5;
             }
             
             // Randomly change opacity
@@ -9639,6 +9639,12 @@ function initUI() {
                 }
             }
         }, 200);
+    } else {
+        // User is logged in - render task content
+        console.log('[INIT] User logged in, rendering task content');
+        setTimeout(() => {
+            renderTaskContent('overview');
+        }, 100);
     }
 
     // DISABLED: No tab switching - keep Helix placeholder
@@ -9986,6 +9992,10 @@ function restoreSession() {
                     restoreTaskTabs();
                     
                     renderChatMessages();
+                    
+                    // RENDER TASK CONTENT to show proper empty state or tasks
+                    console.log('[SESSION] Rendering task content...');
+                    renderTaskContent('overview');
                     
                     // Update browser tabs to show unlocked content
                     console.log('[SESSION] Updating browser tabs...');
