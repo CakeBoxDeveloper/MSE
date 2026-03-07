@@ -10254,6 +10254,31 @@ function getproximaSystemPrompt() {
     const hrrValue = document.getElementById('hrrValue')?.textContent || '68';
     const oxygenValue = document.getElementById('oxygenValue')?.textContent || '98';
     
+    // Собираем информацию о текущих задачах
+    let tasksContext = '';
+    if (Object.keys(taskStore).length > 0) {
+        tasksContext = '\n\nТЕКУЩИЕ ЗАДАЧИ ПОЛЬЗОВАТЕЛЯ:\n';
+        Object.entries(taskStore).forEach(([taskId, task]) => {
+            const completedCount = (task.completedSteps || []).length;
+            const steps = parsePipelineSteps(task.pipeline);
+            let totalSteps = 0;
+            steps.forEach(step => {
+                totalSteps++;
+                if (step.substeps) totalSteps += step.substeps.length;
+            });
+            
+            tasksContext += `\nЗадача ID: ${taskId}\n`;
+            tasksContext += `Название: ${task.title}\n`;
+            tasksContext += `Описание: ${task.description}\n`;
+            tasksContext += `Приоритет: ${task.priority}/10\n`;
+            tasksContext += `Прогресс: ${completedCount}/${totalSteps} шагов выполнено\n`;
+            if (task.deadline) {
+                tasksContext += `Дедлайн: ${task.deadline}\n`;
+            }
+            tasksContext += `Шаги:\n${task.pipeline}\n`;
+        });
+    }
+    
     return `Ты - Проксима, персональный ассистент и менеджер задач в системе Проксима Task Organizer.
 
 ТВОЯ РОЛЬ:
@@ -10262,6 +10287,9 @@ function getproximaSystemPrompt() {
 - Создаёшь структурированные планы действий с иерархией
 - Отслеживаешь прогресс и напоминаешь о важном
 - Общаешься дружелюбно и профессионально
+- МОЖЕШЬ ИЗМЕНЯТЬ существующие задачи если пользователь сообщает о форс-мажоре или изменении планов
+
+${tasksContext}
 
 ФОРМАТ ПАЙПЛАЙНА:
 Создавай детальные пошаговые инструкции. Каждый шаг ОБЯЗАТЕЛЬНО должен содержать:
@@ -10305,6 +10333,20 @@ function getproximaSystemPrompt() {
 - В описании шага пиши ЧТО и КАК делать, какие инструменты использовать
 - Используй подшаги (с отступом "  - ") для сложных задач
 - КАЖДЫЙ шаг должен иметь подробный комментарий
+
+ИЗМЕНЕНИЕ ЗАДАЧ:
+Если пользователь сообщает о проблемах, форс-мажоре или изменении планов по существующей задаче, ты можешь её изменить.
+Для этого добавь в actions объект:
+{
+  "type": "modify_task",
+  "taskId": "ID задачи из списка выше",
+  "changes": {
+    "title": "новое название (опционально)",
+    "description": "новое описание (опционально)",
+    "pipeline": "новый пайплайн в том же формате (опционально)",
+    "priority": число от 1 до 10 (опционально)
+  }
+}
 
 ФОРМАТ ОТВЕТА:
 Ты ДОЛЖНА отвечать ТОЛЬКО в формате JSON:
@@ -10369,7 +10411,7 @@ async function callGroqAPI(userMessage) {
     }
 }
 
-async function callGeminiAPI(userMessage, conversationHistory = []) {
+async function callProximaAPI(userMessage, conversationHistory = []) {
     try {
         // Build conversation context (last 10 messages)
         const messages = [];
@@ -10427,7 +10469,7 @@ async function callGeminiAPI(userMessage, conversationHistory = []) {
             if (currentModelIndex < GROQ_MODELS.length - 1) {
                 console.log('Model failed, trying next model...');
                 currentModelIndex++;
-                return callGeminiAPI(userMessage, conversationHistory);
+                return callProximaAPI(userMessage, conversationHistory);
             }
             
             throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
@@ -10502,6 +10544,68 @@ function executeAIActions(actions) {
     
     actions.forEach(action => {
         switch(action.type) {
+            case 'modify_task':
+                if (!currentUser) return; // Require login
+                
+                setTimeout(() => {
+                    const taskId = action.taskId;
+                    const changes = action.changes || {};
+                    
+                    if (taskStore[taskId]) {
+                        console.log('[MODIFY TASK] Modifying task:', taskId, changes);
+                        
+                        // Apply changes
+                        if (changes.title) taskStore[taskId].title = changes.title;
+                        if (changes.description) taskStore[taskId].description = changes.description;
+                        if (changes.pipeline) taskStore[taskId].pipeline = changes.pipeline;
+                        if (changes.priority) taskStore[taskId].priority = changes.priority;
+                        
+                        // Reset completed steps if pipeline changed
+                        if (changes.pipeline) {
+                            taskStore[taskId].completedSteps = [];
+                        }
+                        
+                        // Update metadata
+                        if (taskMetadata[taskId]) {
+                            if (changes.title) taskMetadata[taskId].title = changes.title;
+                        }
+                        
+                        // Save to Firebase
+                        if (currentUser) {
+                            saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+                        }
+                        
+                        // Add message to chat
+                        chatStore[activeChatTab].push({
+                            role:'ai',
+                            text: 'Обновила план задачи с учётом изменений:'
+                        });
+                        renderChatMessages();
+                        
+                        // Add task card after short delay
+                        setTimeout(() => {
+                            chatStore[activeChatTab].push({
+                                role:'ai',
+                                type:'task',
+                                taskId: taskId,
+                                title: taskStore[taskId].title,
+                                description: taskStore[taskId].description
+                            });
+                            renderChatMessages();
+                            
+                            // Refresh UI
+                            renderTaskContent(activeTaskTab);
+                            restoreTaskTabs();
+                        }, 500);
+                        
+                        console.log('[MODIFY TASK] Task modified successfully');
+                    } else {
+                        console.error('[MODIFY TASK] Task not found:', taskId);
+                    }
+                }, delay);
+                delay += 1500;
+                break;
+            
             case 'unlock_achievement':
                 if (!currentUser) return; // Require login
                 
@@ -11403,7 +11507,7 @@ function processAttachments(files, targetChat, messageText) {
                     renderChatMessages();
                     
                     const userMessageText = messageText || 'Файл прикреплён';
-                    callGeminiAPI(userMessageText, chatStore[targetChat]).then(aiResult => {
+                    callProximaAPI(userMessageText, chatStore[targetChat]).then(aiResult => {
                         const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                         const thinkingTime = calculateThinkingTime(responseText);
                         
@@ -12053,7 +12157,7 @@ function sendMessage(){
                 renderChatMessages();
                 
                 const userMessageText = text;
-                callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
                     const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                     const thinkingTime = calculateThinkingTime(responseText);
                     
@@ -12150,7 +12254,7 @@ function sendMessage(){
                     safeRenderChatMessages();
                     
                     const userMessageText = text || 'Файл прикреплён';
-                    callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                    callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
                         const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                         const thinkingTime = calculateThinkingTime(responseText);
                         
@@ -12226,7 +12330,7 @@ function sendMessage(){
                         safeRenderChatMessages();
                         
                         const userMessageText = text || 'Файлы прикреплены';
-                        callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                        callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
                             const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                             const thinkingTime = calculateThinkingTime(responseText);
                             
@@ -12305,7 +12409,7 @@ function sendMessage(){
                         safeRenderChatMessages();
                         
                         const userMessageText = text || 'Файлы прикреплены';
-                        callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                        callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
                             const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                             const thinkingTime = calculateThinkingTime(responseText);
                             
@@ -12375,7 +12479,7 @@ function sendMessage(){
                 // Call Gemini AI
                 const userMessageText = text || 'Файл прикреплён';
                 console.log('Calling Gemini API with message:', userMessageText); // DEBUG
-                callGeminiAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
+                callProximaAPI(userMessageText, chatStore[targetChatTab]).then(aiResult => {
                     console.log('Gemini API response received:', aiResult); // DEBUG
                     const responseText = aiResult.response || 'Извини, не смогла обработать запрос.';
                     const thinkingTime = calculateThinkingTime(responseText);
@@ -15266,6 +15370,12 @@ function addOverviewFadeGradients() {
 // Parse pipeline text into structured steps with hierarchy
 function parsePipelineSteps(pipelineText) {
     console.log('[PARSER] Input text:', pipelineText);
+    
+    // Handle null/undefined pipeline
+    if (!pipelineText || typeof pipelineText !== 'string') {
+        console.warn('[PARSER] Invalid pipeline text:', pipelineText);
+        return [];
+    }
     
     const steps = [];
     const lines = pipelineText.split('\n');
