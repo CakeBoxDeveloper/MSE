@@ -2270,7 +2270,7 @@
               <input type="number" class="pin-digit" id="pin4" maxlength="1" autocomplete="off">
             </div>
             <div style="font-size:11px;color:var(--text-tertiary);text-align:justify;line-height:1.4;margin-top:0;width:100%;">
-              Внимание! Ключ доступа не восстанавливаетС. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
+              Внимание! Ключ доступа не восстанавливается. Запомните номер звена и PIN-код, чтобы не потерять доступ к ячейке.
             </div>
           </form>
         </div>
@@ -2304,7 +2304,7 @@
           </form>
         </div>
       </div>
-      <div id="registerLoader" class="fullscreen-loader" style="display:none;padding:0;margin:0;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"><canvas id="grainLoaderRegister" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
+      <div id="registerLoader" class="fullscreen-loader" style="display:none;padding:0;margin:0;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"><canvas id="grainLoaderRegister" width="1200" height="800" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
       <div id="registerSuccess" class="fullscreen-success" style="display:none;"><div class="success-text"></div></div>
     </div>
   
@@ -6517,6 +6517,24 @@ function completeRegistration(userId) {
     
     // Обновляем вкладку "Прогресс" если она открыта
     refreshProgressTab();
+    
+    // RENDER TASK CONTENT to show empty state with Proxima message
+    console.log('[REGISTRATION] Rendering task content');
+    renderTaskContent('overview');
+    
+    // SAVE SESSION TO LOCALSTORAGE
+    console.log('[REGISTRATION] Saving session to localStorage');
+    try {
+        const sessionToSave = {
+            userId: currentUser.id,
+            pin: currentUser.pin,
+            loginDate: loginDate.toISOString()
+        };
+        localStorage.setItem('mse_user_session', JSON.stringify(sessionToSave));
+        console.log('[REGISTRATION] Session saved successfully');
+    } catch (e) {
+        console.error('[REGISTRATION] Failed to save session:', e);
+    }
 }
 
 // ============================================================
