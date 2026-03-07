@@ -1463,6 +1463,7 @@
             display:flex;
             flex-direction:column;
             overflow:hidden;
+            position:relative; /* Needed for absolute positioned children */
         }
         .auth-modal.logout-size {
             height:140px; /* Logout window is half height */
@@ -2238,7 +2239,7 @@
           <span style="font-size:13px;white-space:nowrap;width:100%;text-align:center;">Нет аккаунта? <button onclick="showRegister()" style="font-size:13px;">Присоединиться к MSE</button></span>
         </div>
       </div>
-      <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;padding:0;margin:0;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"><canvas id="grainLoader" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
+      <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;position:absolute;top:-12px;left:-24px;right:-24px;bottom:-8px;width:calc(100% + 48px);height:calc(100% + 20px);padding:0;margin:0;overflow:hidden;border-radius:5px;z-index:100;background:rgba(18,18,18,0.95);box-sizing:border-box;"><canvas id="grainLoader" width="1200" height="800" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
       <div id="loginLoader" class="fullscreen-loader" style="display:none;padding:0;margin:0;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"><canvas id="grainLoaderLogin" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
       <div id="loginSuccess" class="fullscreen-success" style="display:none;padding-top:30px;">
         <div id="lottie-login-chain" style="width:96px;height:96px;margin:0 auto 16px;"></div>
@@ -4313,8 +4314,15 @@ async function showRegister() {
     });
     
     document.getElementById('loginContent').style.display='none';
-    document.getElementById('loginToRegisterLoader').style.display='flex';
-    window.currentGrainLoaderStop = startGrainLoader();
+    const loaderElement = document.getElementById('loginToRegisterLoader');
+    loaderElement.style.display='flex';
+    console.log('[REGISTER] Showing loader:', loaderElement);
+    console.log('[REGISTER] Loader display:', loaderElement.style.display);
+    console.log('[REGISTER] Loader position:', window.getComputedStyle(loaderElement).position);
+    
+    // Show grain loader
+    console.log('[REGISTER] Starting grain loader');
+    window.currentGrainLoaderStop = startGrainLoader('grainLoader');
     
     // РЕЗКИЙ переход: моментально меняем размер окна
     const modal = document.getElementById('authModal');
@@ -4485,9 +4493,14 @@ let currentLockedItem = null;
 
 // Particle loader animation (Telegram/Threads spoiler style)
 function startGrainLoader(canvasId = 'grainLoader') {
+    console.log('[GRAIN] Starting grain loader for:', canvasId);
     const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
+    if (!canvas) {
+        console.error('[GRAIN] Canvas not found:', canvasId);
+        return;
+    }
     
+    console.log('[GRAIN] Canvas found, dimensions:', canvas.width, 'x', canvas.height);
     const ctx = canvas.getContext('2d');
     const width = canvas.width;
     const height = canvas.height;
@@ -4495,18 +4508,19 @@ function startGrainLoader(canvasId = 'grainLoader') {
     let animationFrame;
     let particles = [];
     
-    // Create particles (smaller, light gray, more chaotic)
+    // Create particles (LARGER for visibility, RED for testing)
     const particleCount = 150;
     for (let i = 0; i < particleCount; i++) {
         particles.push({
             x: Math.random() * width,
             y: Math.random() * height,
-            size: Math.random() * 0.4 + 0.2, // Ещё мельче
+            size: Math.random() * 3 + 2, // MUCH LARGER: 2-5px instead of 0.2-0.6px
             speedX: (Math.random() - 0.5) * 1.5, // Более хаотичное движение
             speedY: (Math.random() - 0.5) * 1.5,
-            opacity: Math.random() * 0.4 + 0.2
+            opacity: Math.random() * 0.6 + 0.4 // Higher opacity: 0.4-1.0
         });
     }
+    console.log('[GRAIN] Created', particleCount, 'particles');
     
     function drawParticles() {
         // Clear canvas completely (no trails)
@@ -4514,8 +4528,8 @@ function startGrainLoader(canvasId = 'grainLoader') {
         
         // Draw particles (светло-серые, без следов)
         particles.forEach(particle => {
-            // Draw particle - светло-серый цвет (200, 200, 200)
-            ctx.fillStyle = `rgba(200, 200, 200, ${particle.opacity})`;
+            // Draw particle - КРАСНЫЙ цвет для теста
+            ctx.fillStyle = `rgba(255, 0, 0, ${particle.opacity})`;
             ctx.beginPath();
             ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
             ctx.fill();
@@ -4546,11 +4560,14 @@ function startGrainLoader(canvasId = 'grainLoader') {
     }
     
     // Start animation immediately
+    console.log('[GRAIN] Starting animation loop');
     drawParticles();
     
-    // Fade in smoothly
+    // Fade in smoothly - remove blur and set opacity
     setTimeout(() => {
+        console.log('[GRAIN] Fading in canvas');
         canvas.style.opacity = '1';
+        canvas.style.filter = 'blur(0px)';
     }, 50);
     
     // Return stop function
@@ -6224,8 +6241,37 @@ pinInputs.forEach((id,index)=>{
 });
 
 function transitionToStep2() {
+    console.log('[PIN] Locking PIN fields');
     const step1 = document.getElementById('registerStep1');
     const step2 = document.getElementById('registerStep2');
+    
+    // Lock PIN input fields - REMOVE ALL EVENT LISTENERS
+    const pinInputIds = ['pin1', 'pin2', 'pin3', 'pin4'];
+    pinInputIds.forEach(id => {
+        const input = document.getElementById(id);
+        console.log(`[PIN] Locking ${id}:`, input);
+        if (input) {
+            // Clone the input to remove all event listeners
+            const newInput = input.cloneNode(true);
+            input.parentNode.replaceChild(newInput, input);
+            
+            // Now lock the new input
+            newInput.disabled = true;
+            newInput.readOnly = true;
+            newInput.style.cursor = 'default';
+            newInput.style.caretColor = 'transparent';
+            newInput.style.pointerEvents = 'none';
+            newInput.style.userSelect = 'none';
+            
+            // Prevent any focus
+            newInput.addEventListener('focus', (e) => {
+                e.preventDefault();
+                e.target.blur();
+            });
+            
+            console.log(`[PIN] ${id} locked and event listeners removed`);
+        }
+    });
     
     // Blur out step 1
     step1.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
