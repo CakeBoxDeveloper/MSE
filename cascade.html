@@ -1586,7 +1586,10 @@
         }
         .pin-digit:disabled {
             cursor: default !important;
-            opacity: 0.7;
+            opacity: 0.6;
+            background: rgba(255,255,255,0.03) !important;
+            caret-color: transparent !important;
+            pointer-events: none !important;
         }
         .pin-digit.shimmer {
             animation: shimmerPulse 0.56s ease-in-out;
@@ -2239,7 +2242,7 @@
           <span style="font-size:13px;white-space:nowrap;width:100%;text-align:center;">Нет аккаунта? <button onclick="showRegister()" style="font-size:13px;">Присоединиться к MSE</button></span>
         </div>
       </div>
-      <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;position:absolute;top:-12px;left:-24px;right:-24px;bottom:-8px;width:calc(100% + 48px);height:calc(100% + 20px);padding:0;margin:0;overflow:hidden;border-radius:5px;z-index:100;background:rgba(18,18,18,0.95);box-sizing:border-box;"><canvas id="grainLoader" width="1200" height="800" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
+      <div id="loginToRegisterLoader" class="fullscreen-loader" style="display:none;position:absolute;top:-12px;left:-24px;right:-24px;bottom:-8px;width:calc(100% + 48px);height:calc(100% + 20px);padding:0;margin:0;overflow:hidden;border-radius:5px;z-index:100;background:rgba(18,18,18,0.95);box-sizing:border-box;"><canvas id="grainLoader" width="1200" height="800" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.3s ease;"></canvas></div>
       <div id="loginLoader" class="fullscreen-loader" style="display:none;padding:0;margin:0;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"><canvas id="grainLoaderLogin" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.8s ease, filter 0.8s ease;"></canvas></div>
       <div id="loginSuccess" class="fullscreen-success" style="display:none;padding-top:30px;">
         <div id="lottie-login-chain" style="width:96px;height:96px;margin:0 auto 16px;"></div>
@@ -4413,10 +4416,28 @@ async function showRegister() {
         document.getElementById('registerSuccess').style.display='none';
         document.getElementById('registerButtons').style.display='flex';
         
-        // Hide loader container after transition completes
-        setTimeout(() => {
-            document.getElementById('loginToRegisterLoader').style.display='none';
-        }, 850); // Wait for blur+opacity transition (800ms + buffer)
+        console.log('[REGISTER] Content is now visible, waiting before hiding loader...');
+        
+        // Hide loader ONLY after content is fully rendered and visible
+        // Use requestAnimationFrame to ensure DOM has painted
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    console.log('[REGISTER] Hiding loader now');
+                    // Stop grain loader animation
+                    if (window.currentGrainLoaderStop) {
+                        window.currentGrainLoaderStop();
+                    }
+                    // Fade out loader
+                    const loaderElement = document.getElementById('loginToRegisterLoader');
+                    loaderElement.style.opacity = '0';
+                    setTimeout(() => {
+                        loaderElement.style.display='none';
+                        loaderElement.style.opacity = '1'; // Reset for next time
+                    }, 300); // Wait for fade out
+                }, 200); // Extra delay to ensure content is painted
+            });
+        });
         
         // Восстанавливаем transition для будущих плавных переходов
         setTimeout(() => {
@@ -4508,16 +4529,16 @@ function startGrainLoader(canvasId = 'grainLoader') {
     let animationFrame;
     let particles = [];
     
-    // Create particles (LARGER for visibility, RED for testing)
+    // Create particles (LARGER for visibility, GRAY color, FASTER movement)
     const particleCount = 150;
     for (let i = 0; i < particleCount; i++) {
         particles.push({
             x: Math.random() * width,
             y: Math.random() * height,
-            size: Math.random() * 3 + 2, // MUCH LARGER: 2-5px instead of 0.2-0.6px
-            speedX: (Math.random() - 0.5) * 1.5, // Более хаотичное движение
-            speedY: (Math.random() - 0.5) * 1.5,
-            opacity: Math.random() * 0.6 + 0.4 // Higher opacity: 0.4-1.0
+            size: Math.random() * 3 + 2, // 2-5px
+            speedX: (Math.random() - 0.5) * 3, // FASTER: 3x speed instead of 1.5x
+            speedY: (Math.random() - 0.5) * 3,
+            opacity: Math.random() * 0.6 + 0.4 // 0.4-1.0
         });
     }
     console.log('[GRAIN] Created', particleCount, 'particles');
@@ -4526,15 +4547,15 @@ function startGrainLoader(canvasId = 'grainLoader') {
         // Clear canvas completely (no trails)
         ctx.clearRect(0, 0, width, height);
         
-        // Draw particles (светло-серые, без следов)
+        // Draw particles (GRAY color)
         particles.forEach(particle => {
-            // Draw particle - КРАСНЫЙ цвет для теста
-            ctx.fillStyle = `rgba(255, 0, 0, ${particle.opacity})`;
+            // Draw particle - GRAY color (темно-серый)
+            ctx.fillStyle = `rgba(100, 100, 100, ${particle.opacity})`;
             ctx.beginPath();
             ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
             ctx.fill();
             
-            // Update position with more chaotic movement
+            // Update position with faster movement
             particle.x += particle.speedX;
             particle.y += particle.speedY;
             
@@ -4546,8 +4567,8 @@ function startGrainLoader(canvasId = 'grainLoader') {
             
             // Randomly change direction for more chaos
             if (Math.random() < 0.02) {
-                particle.speedX = (Math.random() - 0.5) * 1.5;
-                particle.speedY = (Math.random() - 0.5) * 1.5;
+                particle.speedX = (Math.random() - 0.5) * 3; // FASTER
+                particle.speedY = (Math.random() - 0.5) * 3;
             }
             
             // Randomly change opacity
@@ -4563,12 +4584,10 @@ function startGrainLoader(canvasId = 'grainLoader') {
     console.log('[GRAIN] Starting animation loop');
     drawParticles();
     
-    // Fade in smoothly - remove blur and set opacity
-    setTimeout(() => {
-        console.log('[GRAIN] Fading in canvas');
-        canvas.style.opacity = '1';
-        canvas.style.filter = 'blur(0px)';
-    }, 50);
+    // Fade in IMMEDIATELY (no delay at all)
+    canvas.style.opacity = '1';
+    canvas.style.filter = 'blur(0px)';
+    console.log('[GRAIN] Canvas visible immediately');
     
     // Return stop function
     return () => {
@@ -6185,6 +6204,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Gender selection
 function selectGender(gender) {
+    console.log('[GENDER] Selecting gender:', gender);
     selectedGender = gender;
     document.getElementById('genderMale').classList.remove('selected');
     document.getElementById('genderFemale').classList.remove('selected');
@@ -6195,6 +6215,7 @@ function selectGender(gender) {
         document.getElementById('genderFemale').classList.add('selected');
     }
     
+    console.log('[GENDER] Gender selected, calling checkRegisterButton2');
     checkRegisterButton2();
 }
 
@@ -6202,7 +6223,9 @@ function selectGender(gender) {
 function checkRegisterButton2() {
     const termsChecked = document.getElementById('termsCheckbox2').checked;
     const genderSelected = selectedGender !== null;
+    console.log('[REGISTER-BTN] Checking button state - terms:', termsChecked, 'gender:', genderSelected, 'selectedGender:', selectedGender);
     document.getElementById('registerBtn').disabled = !(termsChecked && genderSelected);
+    console.log('[REGISTER-BTN] Button disabled:', document.getElementById('registerBtn').disabled);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -6220,9 +6243,21 @@ pinInputs.forEach((id,index)=>{
             if(index<pinInputs.length-1) {
                 document.getElementById(pinInputs[index+1]).focus();
             } else {
-                // All 4 digits entered - transition to step 2
+                // All 4 digits entered - LOCK IMMEDIATELY
                 const allFilled = pinInputs.every(id=>document.getElementById(id).value.length===1);
                 if (allFilled) {
+                    // LOCK PIN FIELDS IMMEDIATELY before any animation
+                    console.log('[PIN] All filled, locking immediately');
+                    pinInputs.forEach(pinId => {
+                        const pinInput = document.getElementById(pinId);
+                        if (pinInput) {
+                            pinInput.readOnly = true;
+                            pinInput.disabled = true;
+                            pinInput.style.cssText = 'cursor: default !important; caret-color: transparent !important; pointer-events: none !important; user-select: none !important; -webkit-user-select: none !important;';
+                            pinInput.blur(); // Remove focus immediately
+                        }
+                    });
+                    
                     // Animate shimmer through each PIN cell
                     animateShimmerThroughCells(pinInputs);
                     
@@ -6241,35 +6276,17 @@ pinInputs.forEach((id,index)=>{
 });
 
 function transitionToStep2() {
-    console.log('[PIN] Locking PIN fields');
+    console.log('[PIN] Transitioning to step 2');
     const step1 = document.getElementById('registerStep1');
     const step2 = document.getElementById('registerStep2');
     
-    // Lock PIN input fields - REMOVE ALL EVENT LISTENERS
+    // PIN fields are already locked, just verify
+    console.log('[PIN] Verifying PIN values are preserved');
     const pinInputIds = ['pin1', 'pin2', 'pin3', 'pin4'];
     pinInputIds.forEach(id => {
         const input = document.getElementById(id);
-        console.log(`[PIN] Locking ${id}:`, input);
         if (input) {
-            // Clone the input to remove all event listeners
-            const newInput = input.cloneNode(true);
-            input.parentNode.replaceChild(newInput, input);
-            
-            // Now lock the new input
-            newInput.disabled = true;
-            newInput.readOnly = true;
-            newInput.style.cursor = 'default';
-            newInput.style.caretColor = 'transparent';
-            newInput.style.pointerEvents = 'none';
-            newInput.style.userSelect = 'none';
-            
-            // Prevent any focus
-            newInput.addEventListener('focus', (e) => {
-                e.preventDefault();
-                e.target.blur();
-            });
-            
-            console.log(`[PIN] ${id} locked and event listeners removed`);
+            console.log(`[PIN] ${id} value:`, input.value, 'disabled:', input.disabled);
         }
     });
     
@@ -6299,9 +6316,15 @@ function checkRegisterButton(){
 }
 
 function register(){
+    console.log('[REGISTER] Function called');
     const pin=pinInputs.map(id=>document.getElementById(id).value).join('');
     const userId=parseInt(document.getElementById('newUserId').textContent);
-    if(pin.length!==4 || !selectedGender || !document.getElementById('termsCheckbox2').checked) return;
+    console.log('[REGISTER] PIN:', pin, 'UserID:', userId, 'Gender:', selectedGender, 'Terms:', document.getElementById('termsCheckbox2').checked);
+    if(pin.length!==4 || !selectedGender || !document.getElementById('termsCheckbox2').checked) {
+        console.log('[REGISTER] Validation failed - returning');
+        return;
+    }
+    console.log('[REGISTER] Validation passed, proceeding with registration');
     
     // Blur out current content
     const registerContent = document.getElementById('registerContent');
