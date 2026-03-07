@@ -1451,6 +1451,15 @@
             justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;
         }
         .auth-overlay.active { opacity:1;pointer-events:all; }
+        
+        /* Blocked state - prevent closing during verification */
+        .auth-overlay.blocked {
+            cursor: not-allowed;
+        }
+        .auth-overlay.blocked .auth-modal {
+            pointer-events: all;
+            cursor: default;
+        }
 
         .auth-modal {
             background:rgba(28,28,28,1);border:1px solid var(--glass-border);border-radius:5px;padding:12px 24px 8px 24px;
@@ -4459,7 +4468,13 @@ function showLogout() {
     document.getElementById('authOverlay').classList.add('active');
 }
 
-function closeAuth() { 
+function closeAuth() {
+    // Prevent closing if login or registration is in progress
+    if (isLoginInProgress || isRegistrationInProgress) {
+        console.log('[AUTH] Cannot close - verification in progress');
+        return;
+    }
+    
     document.getElementById('authOverlay').classList.remove('active');
     
     // Clear animation loaded flags to prevent duplication on next open
@@ -4489,8 +4504,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (authOverlay && authModal) {
         authOverlay.addEventListener('click', (e) => {
             // Close only if clicking on overlay, not on modal itself
-            if (e.target === authOverlay) {
+            // Don't close if login or registration is in progress
+            if (e.target === authOverlay && !isLoginInProgress && !isRegistrationInProgress) {
                 closeAuth();
+            } else if (e.target === authOverlay && (isLoginInProgress || isRegistrationInProgress)) {
+                console.log('[AUTH] Cannot close modal - verification in progress');
             }
         });
     }
@@ -5372,10 +5390,22 @@ function confirmLogout() {
 // ── Login ID check ──
 let loginIdChecked=false;
 let enteredLoginId='';
+let isLoginInProgress = false; // Flag to track if login verification is in progress
+let isRegistrationInProgress = false; // Flag to track if registration is in progress
 
 // Function to close auth modal after successful login
 function closeAuthAfterSuccess() {
+    // Reset login flags
+    isLoginInProgress = false;
+    isPinChecking = false;
+    
+    // Unblock overlay
     const authOverlay = document.getElementById('authOverlay');
+    if (authOverlay) {
+        authOverlay.classList.remove('blocked');
+        console.log('[LOGIN] Overlay unblocked');
+    }
+    
     const successText = document.getElementById('pipelineSuccessText');
     
     // Hide success text
@@ -5582,6 +5612,14 @@ loginIdInputs.forEach((id,index)=>{
         console.log('[LOGIN ID] All filled:', allFilled, 'loginIdChecked:', loginIdChecked);
         if(allFilled&&!loginIdChecked){
             isIdChecking = true; // Начинаем проверку
+            isLoginInProgress = true; // Set global flag
+            
+            // Block overlay from closing
+            const authOverlay = document.getElementById('authOverlay');
+            if (authOverlay) {
+                authOverlay.classList.add('blocked');
+                console.log('[LOGIN ID] Overlay blocked - cannot close during ID verification');
+            }
             
             // Блокируем все поля ввода
             loginIdInputs.forEach(p => {
@@ -5644,6 +5682,15 @@ loginIdInputs.forEach((id,index)=>{
                     stepId.style.opacity = '0';
                     
                     setTimeout(()=>{
+                        // Unblock overlay temporarily - ID check complete, moving to PIN step
+                        // isLoginInProgress stays true as we're still in login flow
+                        isLoginInProgress = false; // Temporarily allow closing between steps
+                        const authOverlay = document.getElementById('authOverlay');
+                        if (authOverlay) {
+                            authOverlay.classList.remove('blocked');
+                            console.log('[LOGIN ID] Overlay unblocked - ID verified, moving to PIN');
+                        }
+                        
                         stepId.style.display='none';
                         const stepPin = document.getElementById('stepPin');
                         stepPin.style.display='flex';
@@ -5668,6 +5715,14 @@ loginIdInputs.forEach((id,index)=>{
                             input.style.cursor = 'text';
                         });
                         isIdChecking = false; // Разблокируем ввод
+                        isLoginInProgress = false; // Reset global flag
+                        
+                        // Unblock overlay
+                        const authOverlay = document.getElementById('authOverlay');
+                        if (authOverlay) {
+                            authOverlay.classList.remove('blocked');
+                            console.log('[LOGIN ID] Overlay unblocked after error');
+                        }
                     }, 1600); // Задержка для имитации проверки
                 }
             }, 3900); // Shimmer duration (4 cells * 400ms + 800ms animation + 1500ms extra)
@@ -5714,6 +5769,14 @@ loginPinInputs.forEach((id,index)=>{
         const allFilled=loginPinInputs.every(p=>document.getElementById(p).value.length===1);
         if(allFilled){
             isPinChecking = true; // Начинаем проверку
+            isLoginInProgress = true; // Set global flag
+            
+            // Block overlay from closing
+            const authOverlay = document.getElementById('authOverlay');
+            if (authOverlay) {
+                authOverlay.classList.add('blocked');
+                console.log('[LOGIN] Overlay blocked - cannot close during verification');
+            }
             
             // Блокируем все поля ввода PIN
             loginPinInputs.forEach(p => {
@@ -5736,7 +5799,7 @@ loginPinInputs.forEach((id,index)=>{
                 // Animate shimmer through each PIN cell and keep it looping
                 animateShimmerThroughCells(loginPinInputs, true);
                 
-                setTimeout(()=>{
+                const timeout1 = setTimeout(()=>{
                     // Start proxima animation
                     if (pipelineAnimations.proxima) pipelineAnimations.proxima.play();
                     
@@ -6167,6 +6230,14 @@ loginPinInputs.forEach((id,index)=>{
                         });
                         document.getElementById('loginPin1').focus();
                         isPinChecking = false; // Разблокируем ввод
+                        isLoginInProgress = false; // Reset global flag
+                        
+                        // Unblock overlay
+                        const authOverlay = document.getElementById('authOverlay');
+                        if (authOverlay) {
+                            authOverlay.classList.remove('blocked');
+                            console.log('[LOGIN] Overlay unblocked after error');
+                        }
                     },500);
                 }, 1600); // Задержка для имитации проверки (4 cells * 400ms)
             }
@@ -6246,6 +6317,16 @@ pinInputs.forEach((id,index)=>{
                 // All 4 digits entered - LOCK IMMEDIATELY
                 const allFilled = pinInputs.every(id=>document.getElementById(id).value.length===1);
                 if (allFilled) {
+                    // Set registration in progress flag
+                    isRegistrationInProgress = true;
+                    
+                    // Block overlay from closing
+                    const authOverlay = document.getElementById('authOverlay');
+                    if (authOverlay) {
+                        authOverlay.classList.add('blocked');
+                        console.log('[REGISTER] Overlay blocked - cannot close during PIN verification');
+                    }
+                    
                     // LOCK PIN FIELDS IMMEDIATELY before any animation
                     console.log('[PIN] All filled, locking immediately');
                     pinInputs.forEach(pinId => {
@@ -6277,6 +6358,15 @@ pinInputs.forEach((id,index)=>{
 
 function transitionToStep2() {
     console.log('[PIN] Transitioning to step 2');
+    
+    // Unblock overlay - registration step 1 complete
+    isRegistrationInProgress = false;
+    const authOverlay = document.getElementById('authOverlay');
+    if (authOverlay) {
+        authOverlay.classList.remove('blocked');
+        console.log('[REGISTER] Overlay unblocked - step 1 complete');
+    }
+    
     const step1 = document.getElementById('registerStep1');
     const step2 = document.getElementById('registerStep2');
     
