@@ -1275,6 +1275,27 @@
 .chat-attach img { width:18px;height:18px;opacity:.7; }
 .chat-attach input[type="file"] { display:none; }
 
+.chat-voice {
+    width:40px;height:40px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);
+    border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s ease;flex-shrink:0;position:relative;
+}
+.chat-voice:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2); }
+.chat-voice.recording { 
+    background:rgba(255,80,80,0.15);
+    border-color:rgba(255,80,80,0.5);
+    animation: pulse-recording 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-recording {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(255,80,80,0.4);
+    }
+    50% { 
+        box-shadow: 0 0 0 8px rgba(255,80,80,0);
+    }
+}
+
 .chat-file-preview {
     display:none;
     gap:6px;
@@ -2184,6 +2205,13 @@
                 <button class="chat-attach" id="chat-attach" style="width:32px;height:32px;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="" style="width:12px;height:12px;">
                   <input type="file" id="chat-file-input" multiple accept="*/*">
+                </button>
+                <button class="chat-voice" id="chat-voice" onclick="toggleChatVoiceInput()" style="width:32px;height:32px;position:relative;overflow:visible;">
+                  <svg id="chatMicIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="transition:all 0.1s ease;">
+                    <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19 10V12C19 15.866 15.866 19 12 19C8.134 19 5 15.866 5 12V10" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 19V23M8 23H16" stroke="rgba(153,153,153,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
                 </button>
                 <button class="chat-send" id="chat-send" style="width:32px;height:32px;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f4325dd706d24eb3c1058e176da6daac524a38e8/send.svg" alt="" style="width:12px;height:12px;">
@@ -15541,6 +15569,12 @@ function closeNewTaskModal() {
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
+let chatMediaRecorder = null;
+let chatAudioChunks = [];
+let isChatRecording = false;
+let audioContext = null;
+let analyser = null;
+let animationFrameId = null;
 
 async function toggleVoiceInput() {
     const btn = document.getElementById('voiceInputBtn');
@@ -15690,6 +15724,165 @@ async function processVoiceInput(audioBlob) {
         descInput.placeholder = 'Написать подробное техническое задание для разработки мобильного приложения на iOS и Android...';
         titleInput.disabled = false;
         descInput.disabled = false;
+    }
+}
+
+// ============================================================
+// VOICE INPUT FOR CHAT
+// ============================================================
+
+async function toggleChatVoiceInput() {
+    const btn = document.getElementById('chat-voice');
+    const micIcon = document.getElementById('chatMicIcon');
+    
+    if (!isChatRecording) {
+        // Start recording
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            chatMediaRecorder = new MediaRecorder(stream);
+            chatAudioChunks = [];
+            
+            // Setup audio visualization
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 256;
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            // Visualize audio levels
+            function visualize() {
+                if (!isChatRecording) return;
+                
+                analyser.getByteFrequencyData(dataArray);
+                const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+                const normalized = Math.min(average / 128, 1); // 0 to 1
+                
+                // Change icon brightness based on volume
+                const brightness = 0.6 + (normalized * 0.8); // 0.6 to 1.4
+                const scale = 1 + (normalized * 0.3); // 1 to 1.3
+                micIcon.style.filter = `brightness(${brightness})`;
+                micIcon.style.transform = `scale(${scale})`;
+                
+                animationFrameId = requestAnimationFrame(visualize);
+            }
+            
+            chatMediaRecorder.ondataavailable = (event) => {
+                chatAudioChunks.push(event.data);
+            };
+            
+            chatMediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(chatAudioChunks, { type: 'audio/webm' });
+                await processChatVoiceInput(audioBlob);
+                
+                // Stop visualization
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+                
+                // Stop all tracks
+                stream.getTracks().forEach(track => track.stop());
+                
+                // Close audio context
+                if (audioContext) {
+                    audioContext.close();
+                    audioContext = null;
+                }
+            };
+            
+            chatMediaRecorder.start();
+            isChatRecording = true;
+            
+            // Change button appearance
+            btn.classList.add('recording');
+            micIcon.querySelectorAll('path').forEach(path => {
+                path.setAttribute('stroke', 'rgba(255,80,80,1)');
+            });
+            
+            // Start visualization
+            visualize();
+            
+            console.log('[CHAT VOICE] Recording started');
+        } catch (error) {
+            console.error('[CHAT VOICE] Error accessing microphone:', error);
+            alert('Не удалось получить доступ к микрофону. Проверьте разрешения браузера.');
+        }
+    } else {
+        // Stop recording
+        if (chatMediaRecorder && chatMediaRecorder.state === 'recording') {
+            chatMediaRecorder.stop();
+            isChatRecording = false;
+            
+            // Reset button appearance
+            btn.classList.remove('recording');
+            micIcon.style.filter = '';
+            micIcon.style.transform = '';
+            micIcon.querySelectorAll('path').forEach(path => {
+                path.setAttribute('stroke', 'rgba(153,153,153,1)');
+            });
+            
+            console.log('[CHAT VOICE] Recording stopped');
+        }
+    }
+}
+
+async function processChatVoiceInput(audioBlob) {
+    console.log('[CHAT VOICE] Processing audio, size:', audioBlob.size);
+    
+    // Show loading state
+    const chatInput = document.getElementById('chat-input');
+    const originalPlaceholder = chatInput.placeholder;
+    chatInput.placeholder = 'Распознаю речь...';
+    chatInput.disabled = true;
+    
+    try {
+        // Convert to format for Groq
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('model', 'whisper-large-v3');
+        formData.append('language', 'ru');
+        formData.append('response_format', 'json');
+        
+        // Transcribe with Groq Whisper
+        console.log('[CHAT VOICE] Sending to Groq Whisper...');
+        const transcribeResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`
+            },
+            body: formData
+        });
+        
+        if (!transcribeResponse.ok) {
+            throw new Error('Transcription failed: ' + transcribeResponse.statusText);
+        }
+        
+        const transcription = await transcribeResponse.json();
+        const text = transcription.text;
+        console.log('[CHAT VOICE] Transcription:', text);
+        
+        // Fill chat input
+        chatInput.value = text;
+        
+        // Auto-send if text is not empty
+        if (text.trim()) {
+            setTimeout(() => {
+                document.getElementById('chat-send').click();
+            }, 300);
+        }
+        
+        console.log('[CHAT VOICE] Text filled successfully');
+        
+    } catch (error) {
+        console.error('[CHAT VOICE] Error processing voice input:', error);
+        alert('Ошибка обработки голоса: ' + error.message);
+    } finally {
+        // Reset loading state
+        chatInput.placeholder = originalPlaceholder;
+        chatInput.disabled = false;
     }
 }
 
