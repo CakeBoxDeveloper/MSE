@@ -4792,13 +4792,13 @@ function startGrainLoader(canvasId = 'grainLoader') {
     let animationFrame;
     let particles = [];
     
-    // Create particles (LARGER for visibility, GRAY color, VERY FAST movement)
+    // Create particles (MEDIUM size for visible grain, GRAY color, VERY FAST movement)
     const particleCount = 150;
     for (let i = 0; i < particleCount; i++) {
         particles.push({
             x: Math.random() * width,
             y: Math.random() * height,
-            size: Math.random() * 3 + 2, // 2-5px
+            size: Math.random() * 1.4 + 0.6, // 0.6-2px (doubled from 0.3-1px)
             speedX: (Math.random() - 0.5) * 5, // VERY FAST: 5x speed
             speedY: (Math.random() - 0.5) * 5,
             opacity: Math.random() * 0.6 + 0.4 // 0.4-1.0
@@ -10423,7 +10423,8 @@ function getproximaSystemPrompt(mentionedTaskId = null) {
                     mentionedTaskContext = `\n\n⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ: "${task.title}" (ID: ${task.id})\n`;
                     mentionedTaskContext += `Он хочет изменить или обсудить именно эту задачу. Обрати особое внимание на её контекст выше.\n`;
                     mentionedTaskContext += `Прогресс: ${completedCount}/${totalSteps} шагов выполнено.\n`;
-                    mentionedTaskContext += `\nЕсли пользователь сообщает о проблемах или изменении планов - используй modify_task чтобы изменить эту задачу.\n`;
+                    mentionedTaskContext += `\n🚨 КРИТИЧЕСКИ ВАЖНО: Если пользователь сообщает о проблемах или изменении планов - используй modify_task чтобы изменить ИМЕННО ЭТУ задачу (ID: ${task.id}).\n`;
+                    mentionedTaskContext += `⛔ НЕ СОЗДАВАЙ НОВУЮ ЗАДАЧУ! Используй modify_task с taskId: "${task.id}".\n`;
                     mentionedTaskContext += `Меняй ТОЛЬКО то, что он указал, остальное оставляй без изменений.\n`;
                 }
             });
@@ -10526,7 +10527,10 @@ ${tasksContext}${mentionedTaskContext}
 ИЗМЕНЕНИЕ ЗАДАЧ:
 Если пользователь упоминает задачу через # и сообщает о проблемах, форс-мажоре или изменении планов, ты можешь изменить эту задачу.
 
-⚠️ ВАЖНО ПРИ ИЗМЕНЕНИИ ЗАДАЧ:
+🚨🚨🚨 КРИТИЧЕСКИ ВАЖНО ПРИ УПОМИНАНИИ ЗАДАЧИ ЧЕРЕЗ # 🚨🚨🚨:
+- ⛔ ЗАПРЕЩЕНО создавать новую задачу (create_task) если пользователь упомянул существующую через #!
+- ✅ ОБЯЗАТЕЛЬНО используй modify_task для изменения упомянутой задачи
+- ✅ Используй ТОЧНЫЙ taskId из раздела "⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ" выше
 - НЕ переписывай задачу с нуля без необходимости
 - Меняй ТОЛЬКО то, что указал пользователь (например, если он просит другую заправку для салата - меняй только шаг с заправкой)
 - Сохраняй остальные шаги без изменений
@@ -10537,7 +10541,7 @@ ${tasksContext}${mentionedTaskContext}
 Для изменения задачи добавь в actions объект:
 {
   "type": "modify_task",
-  "taskId": "ID задачи из списка выше (используй ID упомянутой задачи)",
+  "taskId": "ТОЧНЫЙ ID из раздела '⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ' выше",
   "changes": {
     "title": "новое название (опционально, только если пользователь просит изменить название)",
     "description": "новое описание (опционально, только если пользователь просит изменить описание)",
@@ -10545,6 +10549,8 @@ ${tasksContext}${mentionedTaskContext}
     "priority": число от 1 до 10 (опционально, только если пользователь просит изменить приоритет)
   }
 }
+
+⛔⛔⛔ ПОВТОРЯЮ: Если видишь раздел "⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ" - НЕ используй create_task! Только modify_task! ⛔⛔⛔
 
 После изменения задачи пользователь увидит обновлённую ссылку-плашку с задачей в чате.
 
@@ -10611,7 +10617,7 @@ async function callGroqAPI(userMessage) {
     }
 }
 
-async function callProximaAPI(userMessage, conversationHistory = [], mentionedTaskId = null) {
+async function callProximaAPI(userMessage, conversationHistory = [], mentionedTaskId = null, retryCount = 0) {
     try {
         // Build conversation context (last 10 messages)
         const messages = [];
@@ -10660,16 +10666,24 @@ async function callProximaAPI(userMessage, conversationHistory = [], mentionedTa
             const errorData = await response.json().catch(() => ({}));
             console.error('Groq API error response:', errorData);
             
-            // Don't retry on quota errors (429)
+            // Handle rate limit (429) with automatic retry
+            if (response.status === 429 && retryCount < 2) {
+                const waitTime = 15000; // 15 seconds
+                console.log(`Rate limit hit. Auto-retrying in ${waitTime/1000} seconds... (attempt ${retryCount + 1}/2)`);
+                
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                return callProximaAPI(userMessage, conversationHistory, mentionedTaskId, retryCount + 1);
+            }
+            
             if (response.status === 429) {
-                throw new Error('Quota exceeded. Please wait a minute and try again.');
+                throw new Error('Превышен лимит запросов API Groq. Подожди минуту и попробуй снова.');
             }
             
             // Try next model if current fails
             if (currentModelIndex < GROQ_MODELS.length - 1) {
                 console.log('Model failed, trying next model...');
                 currentModelIndex++;
-                return callProximaAPI(userMessage, conversationHistory);
+                return callProximaAPI(userMessage, conversationHistory, mentionedTaskId, retryCount);
             }
             
             throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
@@ -10770,7 +10784,7 @@ function executeAIActions(actions) {
                                     left: 0;
                                     right: 0;
                                     bottom: 0;
-                                    background: rgba(18,18,18,0.95);
+                                    background: rgb(18,18,18);
                                     z-index: 9999;
                                     display: flex;
                                     flex-direction: column;
@@ -10782,7 +10796,7 @@ function executeAIActions(actions) {
                                 `;
                                 
                                 overlay.innerHTML = `
-                                    <canvas id="grainLoaderModifyTask" width="600" height="400" style="display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: blur(20px); transition: opacity 0.8s ease, filter 0.8s ease;"></canvas>
+                                    <canvas id="grainLoaderModifyTask" width="600" height="400" style="display:block;width:100%;height:100%;object-fit:cover;opacity:0;filter:blur(20px);transition:opacity 0.5s ease, filter 0.5s ease;"></canvas>
                                 `;
                                 
                                 // Add overlay to task content parent
@@ -10836,7 +10850,7 @@ function executeAIActions(actions) {
                                 saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
                             }
                             
-                            // Stop grain loader and remove overlay
+                            // Stop grain loader and remove overlay with fade-out
                             if (window.modifyTaskLoaderStop) {
                                 window.modifyTaskLoaderStop();
                             }
@@ -10849,7 +10863,7 @@ function executeAIActions(actions) {
                                 }
                                 setTimeout(() => {
                                     overlay.remove();
-                                }, 300);
+                                }, 500); // 0.5s fade-out
                             }
                             
                             // Add message to chat
@@ -10884,13 +10898,13 @@ function executeAIActions(actions) {
                             }, 500);
                             
                             console.log('[MODIFY TASK] Task modified successfully');
-                        }, 1800); // Wait 300ms for tab switch + 1500ms to show loader
+                        }, 3800); // Wait 300ms tab switch + 500ms fade-in + 3000ms show loader
                         
                     } else {
                         console.error('[MODIFY TASK] Task not found:', taskId);
                     }
                 }, delay);
-                delay += 3300; // Total delay: 300ms tab switch + 1800ms loader + 500ms card + 700ms buffer
+                delay += 4800; // Total delay: 300ms tab switch + 500ms fade-in + 3000ms show + 500ms fade-out + 500ms card
                 break;
             
             case 'unlock_achievement':
