@@ -11705,6 +11705,13 @@ function processAttachments(files, targetChat, messageText) {
                             executeAIActions(aiResult.actions);
                             renderChatMessages();
                             
+                            // If task was mentioned, switch to task tab and highlight current step
+                            if (taskId && taskStore[taskId]) {
+                                setTimeout(() => {
+                                    openTaskFromOverview(taskId);
+                                }, 300);
+                            }
+                            
                             // Auto-save to Firebase
                             if (currentUser) {
                                 clearTimeout(window.chatSaveTimeout);
@@ -11903,7 +11910,7 @@ function sendMessage(){
             chatStore[targetChatTab].push({role:'user', text: text});
         }
         
-        chatInput.value = '';
+        clearChatInput();
         attachedFiles = [];
         renderFilePreview();
         
@@ -11945,7 +11952,7 @@ function sendMessage(){
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
         
-        chatInput.value = '';
+        clearChatInput();
         
         // Step 1: Small delay before showing user message
         setTimeout(() => {
@@ -11993,7 +12000,7 @@ function sendMessage(){
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
         
-        chatInput.value = '';
+        clearChatInput();
         
         // Step 1: Small delay before showing user message
         setTimeout(() => {
@@ -12035,7 +12042,7 @@ function sendMessage(){
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
         
-        chatInput.value = '';
+        clearChatInput();
         
         // Step 1: Small delay before showing user message
         setTimeout(() => {
@@ -12140,7 +12147,7 @@ function sendMessage(){
             if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
             chatStore[targetChatTab].push({role:'user', text: text});
             
-            chatInput.value = '';
+            clearChatInput();
             
             // Step 1: Small delay before showing user message
             setTimeout(() => {
@@ -12168,7 +12175,7 @@ function sendMessage(){
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
         
-        chatInput.value = '';
+        clearChatInput();
         
         // Step 1: Small delay before showing user message
         setTimeout(() => {
@@ -12231,7 +12238,7 @@ function sendMessage(){
             if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
             chatStore[targetChatTab].push({role:'user', text: text});
             
-            chatInput.value = '';
+            clearChatInput();
             
             // Step 1: Small delay before showing user message
             setTimeout(() => {
@@ -12265,7 +12272,7 @@ function sendMessage(){
             if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
             chatStore[targetChatTab].push({role:'user', text: text});
             
-            chatInput.value = '';
+            clearChatInput();
             
             // Step 1: Small delay before showing user message
             setTimeout(() => {
@@ -12331,7 +12338,7 @@ function sendMessage(){
         // Text only - add with delay and animation
         chatStore[targetChatTab].push({role:'user', text: text});
         
-        chatInput.value = '';
+        clearChatInput();
         attachedFiles = [];
         renderFilePreview();
         
@@ -12394,7 +12401,7 @@ function sendMessage(){
     if (text && hasAttachments) {
         chatStore[targetChatTab].push({role:'user', text: text});
         
-        chatInput.value = '';
+        clearChatInput();
         const savedFiles = [...attachedFiles]; // Save files before clearing
         attachedFiles = [];
         renderFilePreview();
@@ -12550,6 +12557,13 @@ function sendMessage(){
                                 chatStore[targetChatTab].push({role:'ai', text: responseText});
                                 executeAIActions(aiResult.actions);
                                 safeRenderChatMessages();
+                                
+                                // If task was mentioned, switch to task tab and highlight current step
+                                if (taskId && taskStore[taskId]) {
+                                    setTimeout(() => {
+                                        openTaskFromOverview(taskId);
+                                    }, 300);
+                                }
                             }, thinkingTime);
                         }).catch(error => {
                             console.error('AI error:', error);
@@ -12632,6 +12646,13 @@ function sendMessage(){
                                 chatStore[targetChatTab].push({role:'ai', text: responseText});
                                 executeAIActions(aiResult.actions);
                                 safeRenderChatMessages();
+                                
+                                // If task was mentioned, switch to task tab and highlight current step
+                                if (taskId && taskStore[taskId]) {
+                                    setTimeout(() => {
+                                        openTaskFromOverview(taskId);
+                                    }, 300);
+                                }
                             }, thinkingTime);
                         }).catch(error => {
                             console.error('AI error:', error);
@@ -12671,7 +12692,7 @@ function sendMessage(){
         });
     }
     
-    chatInput.value = '';
+    clearChatInput();
     attachedFiles = [];
     renderFilePreview();
     
