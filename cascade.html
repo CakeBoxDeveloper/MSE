@@ -10504,10 +10504,12 @@ ${tasksContext}${mentionedTaskContext}
 - Пиши подробные инструкции в описании КАЖДОГО шага
 - НЕ указывай время выполнения в скобках
 
-КОГДА СОЗДАЁШЬ ЗАДАЧУ:
+КОГДА СОЗДАЁШЬ ЗАДАЧУ (action: create_task):
 НЕ пиши каждый раз одинаковый текст типа "Вот твой план задачи".
 Вместо этого дай короткий брифинг: "Вот так-то и так-то, сделать надо то-то и то-то".
 В конце добавь свою коронную фразу: "Не скажи это. Сделай это!"
+
+⚠️ ВАЖНО: Фраза "Не скажи это. Сделай это!" используется ТОЛЬКО когда ты создаёшь новую задачу (добавляешь create_task в actions). В обычных ответах и обсуждениях эту фразу НЕ используй!
 
 ВАЖНО:
 - Всегда структурируй информацию
@@ -11413,7 +11415,7 @@ function renderChatMessages(){
                 // Анимация "Проксима работает..." - ALWAYS without blur
                 return `<div class="chat-message ${m.role} thinking" style="background:transparent;border:none;padding:10px 0;">
                     <div style="display:flex;align-items:center;gap:8px;">
-                        <div id="lottie-thinking-${m.id}" style="width:26px;height:26px;flex-shrink:0;margin-top:-2px;"></div>
+                        <div id="lottie-thinking-${m.id}" style="width:26px;height:26px;flex-shrink:0;margin-top:-6px;"></div>
                         <span style="font-size:14px;font-weight:400;color:var(--text-primary);">Проксима работает<span class="dots-animation"></span></span>
                     </div>
                 </div>`;
@@ -11707,6 +11709,7 @@ function processAttachments(files, targetChat, messageText) {
                             
                             // If task was mentioned, switch to task tab and highlight current step
                             if (taskId && taskStore[taskId]) {
+                                console.log('[File Upload] Task mentioned, switching to task:', taskId, taskStore[taskId].title);
                                 setTimeout(() => {
                                     openTaskFromOverview(taskId);
                                 }, 300);
@@ -11747,6 +11750,7 @@ function sendMessage(){
     console.log('Message text:', text); // DEBUG
     console.log('Has files:', hasFiles); // DEBUG
     console.log('Current user:', currentUser); // DEBUG
+    console.log('mentionedTaskId at sendMessage start:', mentionedTaskId); // DEBUG
     
     if (!text && !hasFiles) {
         console.log('No text and no files, returning'); // DEBUG
@@ -12353,6 +12357,8 @@ function sendMessage(){
                 
                 const userMessageText = text;
                 const taskId = mentionedTaskId; // Capture before reset
+                console.log('[Text Only Block] Captured taskId:', taskId, 'from mentionedTaskId:', mentionedTaskId);
+                console.log('[Text Only Block] taskStore[taskId]:', taskStore[taskId]);
                 mentionedTaskId = null; // Reset for next message
                 
                 callProximaAPI(userMessageText, chatStore[targetChatTab], taskId).then(aiResult => {
@@ -12367,9 +12373,12 @@ function sendMessage(){
                         
                         // If task was mentioned, switch to task tab and highlight current step
                         if (taskId && taskStore[taskId]) {
+                            console.log('Task mentioned, switching to task:', taskId, taskStore[taskId].title);
                             setTimeout(() => {
                                 openTaskFromOverview(taskId);
                             }, 300);
+                        } else {
+                            console.log('No task switch - taskId:', taskId, 'taskStore[taskId]:', taskStore[taskId]);
                         }
                         
                         // Auto-save to Firebase
@@ -12474,6 +12483,7 @@ function sendMessage(){
                             
                             // If task was mentioned, switch to task tab and highlight current step
                             if (taskId && taskStore[taskId]) {
+                                console.log('[Text+File] Task mentioned, switching to task:', taskId, taskStore[taskId].title);
                                 setTimeout(() => {
                                     openTaskFromOverview(taskId);
                                 }, 300);
@@ -12560,6 +12570,7 @@ function sendMessage(){
                                 
                                 // If task was mentioned, switch to task tab and highlight current step
                                 if (taskId && taskStore[taskId]) {
+                                    console.log('[Images 1-9] Task mentioned, switching to task:', taskId, taskStore[taskId].title);
                                     setTimeout(() => {
                                         openTaskFromOverview(taskId);
                                     }, 300);
@@ -12649,6 +12660,7 @@ function sendMessage(){
                                 
                                 // If task was mentioned, switch to task tab and highlight current step
                                 if (taskId && taskStore[taskId]) {
+                                    console.log('[Images >9] Task mentioned, switching to task:', taskId, taskStore[taskId].title);
                                     setTimeout(() => {
                                         openTaskFromOverview(taskId);
                                     }, 300);
@@ -12736,9 +12748,10 @@ function sendMessage(){
                         
                         // If task was mentioned, switch to task tab and highlight current step
                         if (taskId && taskStore[taskId]) {
+                            console.log('[Gemini/Files] Task mentioned, switching to task:', taskId, taskStore[taskId].title);
                             setTimeout(() => {
                                 openTaskFromOverview(taskId);
-                            }, 500);
+                            }, 300);
                         }
                         
                         // Auto-save to Firebase
@@ -12872,6 +12885,7 @@ function selectTask(taskId, taskTitle) {
         const newText = beforeHash + '#' + taskTitle + ' ';
         input.value = newText;
         mentionedTaskId = taskId;
+        console.log('Task selected from autocomplete:', taskId, taskTitle, 'mentionedTaskId set to:', mentionedTaskId);
         
         // Update highlight
         updateInputHighlight();
@@ -12951,6 +12965,18 @@ chatInput.addEventListener('input', function(e) {
     // Update highlight for task mentions
     updateInputHighlight();
     
+    // Check if there's still a task mention in the text
+    let hasTaskMention = false;
+    if (mentionedTaskId && taskStore[mentionedTaskId]) {
+        const taskTitle = taskStore[mentionedTaskId].title;
+        if (text.includes('#' + taskTitle)) {
+            hasTaskMention = true;
+            console.log('Task mention still in text:', mentionedTaskId, taskTitle);
+        } else {
+            console.log('Task mention NOT found in text. Looking for:', '#' + taskTitle, 'in:', text);
+        }
+    }
+    
     // Find if there's a # before cursor
     const textBeforeCursor = text.substring(0, cursorPos);
     const lastHashIndex = textBeforeCursor.lastIndexOf('#');
@@ -12967,7 +12993,14 @@ chatInput.addEventListener('input', function(e) {
     
     // Hide autocomplete if no active mention
     hideTaskAutocomplete();
-    mentionedTaskId = null;
+    
+    // Only reset mentionedTaskId if task mention was removed from text
+    if (!hasTaskMention) {
+        if (mentionedTaskId) {
+            console.log('Task mention removed, resetting mentionedTaskId from:', mentionedTaskId);
+        }
+        mentionedTaskId = null;
+    }
 });
 
 chatInput.addEventListener('keydown', function(e) {
