@@ -1368,8 +1368,7 @@
             font-size: 13px;
             color: transparent;
             pointer-events: none;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            white-space: pre;
             overflow: hidden;
             line-height: 20px;
             z-index: 1;
@@ -10421,7 +10420,11 @@ function getproximaSystemPrompt(mentionedTaskId = null) {
                 
                 // If this is the mentioned task, add special context
                 if (mentionedTaskId && task.id === mentionedTaskId) {
-                    mentionedTaskContext = `\n\n⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ: "${task.title}" (ID: ${task.id})\nОн хочет изменить или обсудить именно эту задачу. Обрати особое внимание на её контекст выше. Посмотри какие шаги уже выполнены (${completedCount}/${totalSteps}), какие впереди, и отвечай с учётом этого контекста.\n`;
+                    mentionedTaskContext = `\n\n⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ: "${task.title}" (ID: ${task.id})\n`;
+                    mentionedTaskContext += `Он хочет изменить или обсудить именно эту задачу. Обрати особое внимание на её контекст выше.\n`;
+                    mentionedTaskContext += `Прогресс: ${completedCount}/${totalSteps} шагов выполнено.\n`;
+                    mentionedTaskContext += `\nЕсли пользователь сообщает о проблемах или изменении планов - используй modify_task чтобы изменить эту задачу.\n`;
+                    mentionedTaskContext += `Меняй ТОЛЬКО то, что он указал, остальное оставляй без изменений.\n`;
                 }
             });
         }
@@ -10521,18 +10524,29 @@ ${tasksContext}${mentionedTaskContext}
 - КАЖДЫЙ шаг должен иметь подробный комментарий с конкретикой
 
 ИЗМЕНЕНИЕ ЗАДАЧ:
-Если пользователь сообщает о проблемах, форс-мажоре или изменении планов по существующей задаче, ты можешь её изменить.
-Для этого добавь в actions объект:
+Если пользователь упоминает задачу через # и сообщает о проблемах, форс-мажоре или изменении планов, ты можешь изменить эту задачу.
+
+⚠️ ВАЖНО ПРИ ИЗМЕНЕНИИ ЗАДАЧ:
+- НЕ переписывай задачу с нуля без необходимости
+- Меняй ТОЛЬКО то, что указал пользователь (например, если он просит другую заправку для салата - меняй только шаг с заправкой)
+- Сохраняй остальные шаги без изменений
+- Если нужно добавить новые шаги - добавляй их в нужное место
+- Если нужно удалить шаги - удаляй только указанные
+- Если пользователь просит полностью переделать задачу - тогда можно переписать весь pipeline
+
+Для изменения задачи добавь в actions объект:
 {
   "type": "modify_task",
-  "taskId": "ID задачи из списка выше",
+  "taskId": "ID задачи из списка выше (используй ID упомянутой задачи)",
   "changes": {
-    "title": "новое название (опционально)",
-    "description": "новое описание (опционально)",
-    "pipeline": "новый пайплайн в том же формате (опционально)",
-    "priority": число от 1 до 10 (опционально)
+    "title": "новое название (опционально, только если пользователь просит изменить название)",
+    "description": "новое описание (опционально, только если пользователь просит изменить описание)",
+    "pipeline": "новый пайплайн в том же формате (опционально, измени только нужные шаги)",
+    "priority": число от 1 до 10 (опционально, только если пользователь просит изменить приоритет)
   }
 }
+
+После изменения задачи пользователь увидит обновлённую ссылку-плашку с задачей в чате.
 
 ФОРМАТ ОТВЕТА:
 Ты ДОЛЖНА отвечать ТОЛЬКО в формате JSON:
@@ -10740,56 +10754,96 @@ function executeAIActions(actions) {
                     if (taskStore[taskId]) {
                         console.log('[MODIFY TASK] Modifying task:', taskId, changes);
                         
-                        // Apply changes
-                        if (changes.title) taskStore[taskId].title = changes.title;
-                        if (changes.description) taskStore[taskId].description = changes.description;
-                        if (changes.pipeline) taskStore[taskId].pipeline = changes.pipeline;
-                        if (changes.priority) taskStore[taskId].priority = changes.priority;
+                        // Switch to task tab first
+                        openTaskFromOverview(taskId);
                         
-                        // Reset completed steps if pipeline changed
-                        if (changes.pipeline) {
-                            taskStore[taskId].completedSteps = [];
-                        }
-                        
-                        // Update metadata
-                        if (taskMetadata[taskId]) {
-                            if (changes.title) taskMetadata[taskId].title = changes.title;
-                        }
-                        
-                        // Save to Firebase
-                        if (currentUser) {
-                            saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
-                        }
-                        
-                        // Add message to chat
-                        chatStore[activeChatTab].push({
-                            role:'ai',
-                            text: 'Обновила план задачи с учётом изменений:'
-                        });
-                        renderChatMessages();
-                        
-                        // Add task card after short delay
+                        // Show particle loader in task tab after switching
                         setTimeout(() => {
+                            const taskContent = document.getElementById('task-content');
+                            if (taskContent) {
+                                taskContent.innerHTML = `
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;">
+                                        <div id="modify-task-loader" style="width:200px;height:200px;"></div>
+                                        <div style="font-size:14px;color:var(--text-secondary);text-align:center;">
+                                            Проксима обновляет план задачи...
+                                        </div>
+                                    </div>
+                                `;
+                                
+                                // Load particle animation
+                                setTimeout(async () => {
+                                    const loaderContainer = document.getElementById('modify-task-loader');
+                                    if (loaderContainer && window.lottie) {
+                                        try {
+                                            window.lottie.loadAnimation({
+                                                container: loaderContainer,
+                                                renderer: 'svg',
+                                                loop: true,
+                                                autoplay: true,
+                                                path: 'https://lottie.host/d4f4c0ec-8b5e-4b5e-9c5e-8b5e4b5e9c5e/particles.json'
+                                            });
+                                        } catch(e) {
+                                            console.error('Error loading particle animation:', e);
+                                            loaderContainer.innerHTML = '<div class="loader"></div>';
+                                        }
+                                    }
+                                }, 100);
+                            }
+                        }, 300); // Wait for tab switch animation
+                        
+                        // Apply changes after delay
+                        setTimeout(() => {
+                            if (changes.title) taskStore[taskId].title = changes.title;
+                            if (changes.description) taskStore[taskId].description = changes.description;
+                            if (changes.pipeline) taskStore[taskId].pipeline = changes.pipeline;
+                            if (changes.priority) taskStore[taskId].priority = changes.priority;
+                            
+                            // Reset completed steps if pipeline changed
+                            if (changes.pipeline) {
+                                taskStore[taskId].completedSteps = [];
+                            }
+                            
+                            // Update metadata
+                            if (taskMetadata[taskId]) {
+                                if (changes.title) taskMetadata[taskId].title = changes.title;
+                            }
+                            
+                            // Save to Firebase
+                            if (currentUser) {
+                                saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+                            }
+                            
+                            // Add message to chat
                             chatStore[activeChatTab].push({
                                 role:'ai',
-                                type:'task',
-                                taskId: taskId,
-                                title: taskStore[taskId].title,
-                                description: taskStore[taskId].description
+                                text: 'Обновила план задачи с учётом изменений:'
                             });
                             renderChatMessages();
                             
-                            // Refresh UI
-                            renderTaskContent(activeTaskTab);
-                            restoreTaskTabs();
-                        }, 500);
+                            // Add task card after short delay
+                            setTimeout(() => {
+                                chatStore[activeChatTab].push({
+                                    role:'ai',
+                                    type:'task',
+                                    taskId: taskId,
+                                    title: taskStore[taskId].title,
+                                    description: taskStore[taskId].description
+                                });
+                                renderChatMessages();
+                                
+                                // Refresh UI and remove loader
+                                renderTaskContent(activeTaskTab);
+                                restoreTaskTabs();
+                            }, 500);
+                            
+                            console.log('[MODIFY TASK] Task modified successfully');
+                        }, 1800); // Wait 300ms for tab switch + 1500ms to show loader
                         
-                        console.log('[MODIFY TASK] Task modified successfully');
                     } else {
                         console.error('[MODIFY TASK] Task not found:', taskId);
                     }
                 }, delay);
-                delay += 1500;
+                delay += 3300; // Total delay: 300ms tab switch + 1800ms loader + 500ms card + 700ms buffer
                 break;
             
             case 'unlock_achievement':
@@ -13000,6 +13054,14 @@ chatInput.addEventListener('input', function(e) {
             console.log('Task mention removed, resetting mentionedTaskId from:', mentionedTaskId);
         }
         mentionedTaskId = null;
+    }
+});
+
+// Sync scroll position between input and highlight
+chatInput.addEventListener('scroll', function(e) {
+    const highlight = document.getElementById('chat-input-highlight');
+    if (highlight) {
+        highlight.scrollLeft = e.target.scrollLeft;
     }
 });
 
