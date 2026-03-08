@@ -10757,46 +10757,69 @@ function executeAIActions(actions) {
                         // Switch to task tab first
                         openTaskFromOverview(taskId);
                         
-                        // Show particle loader in task tab after switching
+                        // Show grain loader overlay after switching
                         setTimeout(() => {
-                            const taskContent = document.getElementById('task-content');
+                            const taskContent = document.getElementById('taskContent');
                             if (taskContent) {
-                                taskContent.innerHTML = `
-                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;">
-                                        <div id="modify-task-loader" style="width:200px;height:200px;"></div>
-                                        <div style="font-size:14px;color:var(--text-secondary);text-align:center;">
-                                            Проксима обновляет план задачи...
-                                        </div>
-                                    </div>
+                                // Create overlay that covers entire task area
+                                const overlay = document.createElement('div');
+                                overlay.id = 'modify-task-overlay';
+                                overlay.style.cssText = `
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    bottom: 0;
+                                    background: rgba(18,18,18,0.95);
+                                    z-index: 9999;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: center;
+                                    padding: 0;
+                                    margin: 0;
+                                    overflow: hidden;
                                 `;
                                 
-                                // Load particle animation
-                                setTimeout(async () => {
-                                    const loaderContainer = document.getElementById('modify-task-loader');
-                                    if (loaderContainer && window.lottie) {
-                                        try {
-                                            window.lottie.loadAnimation({
-                                                container: loaderContainer,
-                                                renderer: 'svg',
-                                                loop: true,
-                                                autoplay: true,
-                                                path: 'https://lottie.host/d4f4c0ec-8b5e-4b5e-9c5e-8b5e4b5e9c5e/particles.json'
-                                            });
-                                        } catch(e) {
-                                            console.error('Error loading particle animation:', e);
-                                            loaderContainer.innerHTML = '<div class="loader"></div>';
-                                        }
+                                overlay.innerHTML = `
+                                    <canvas id="grainLoaderModifyTask" width="600" height="400" style="display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: blur(20px); transition: opacity 0.8s ease, filter 0.8s ease;"></canvas>
+                                `;
+                                
+                                // Add overlay to task content parent
+                                const parent = taskContent.parentElement;
+                                if (parent) {
+                                    parent.style.position = 'relative';
+                                    parent.appendChild(overlay);
+                                }
+                                
+                                // Start grain loader animation
+                                setTimeout(() => {
+                                    window.modifyTaskLoaderStop = startGrainLoader('grainLoaderModifyTask');
+                                    const canvas = document.getElementById('grainLoaderModifyTask');
+                                    if (canvas) {
+                                        setTimeout(() => {
+                                            canvas.style.opacity = '1';
+                                            canvas.style.filter = 'blur(0px)';
+                                        }, 50);
                                     }
-                                }, 100);
+                                }, 50);
                             }
                         }, 300); // Wait for tab switch animation
                         
                         // Apply changes after delay
                         setTimeout(() => {
+                            // Save original deadline and status before changes
+                            const originalDeadline = taskStore[taskId].deadline;
+                            const originalStatus = taskStore[taskId].status;
+                            
                             if (changes.title) taskStore[taskId].title = changes.title;
                             if (changes.description) taskStore[taskId].description = changes.description;
                             if (changes.pipeline) taskStore[taskId].pipeline = changes.pipeline;
                             if (changes.priority) taskStore[taskId].priority = changes.priority;
+                            
+                            // Preserve deadline and status
+                            if (originalDeadline) taskStore[taskId].deadline = originalDeadline;
+                            if (originalStatus) taskStore[taskId].status = originalStatus;
                             
                             // Reset completed steps if pipeline changed
                             if (changes.pipeline) {
@@ -10813,6 +10836,22 @@ function executeAIActions(actions) {
                                 saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
                             }
                             
+                            // Stop grain loader and remove overlay
+                            if (window.modifyTaskLoaderStop) {
+                                window.modifyTaskLoaderStop();
+                            }
+                            const overlay = document.getElementById('modify-task-overlay');
+                            if (overlay) {
+                                const canvas = document.getElementById('grainLoaderModifyTask');
+                                if (canvas) {
+                                    canvas.style.opacity = '0';
+                                    canvas.style.filter = 'blur(20px)';
+                                }
+                                setTimeout(() => {
+                                    overlay.remove();
+                                }, 300);
+                            }
+                            
                             // Add message to chat
                             chatStore[activeChatTab].push({
                                 role:'ai',
@@ -10822,16 +10861,24 @@ function executeAIActions(actions) {
                             
                             // Add task card after short delay
                             setTimeout(() => {
+                                const task = taskStore[taskId];
+                                console.log('[MODIFY TASK] Adding task card to chat:', {
+                                    taskId: taskId,
+                                    title: task.title,
+                                    description: task.description,
+                                    task: task
+                                });
+                                
                                 chatStore[activeChatTab].push({
                                     role:'ai',
-                                    type:'task',
+                                    type:'task-link',
                                     taskId: taskId,
-                                    title: taskStore[taskId].title,
-                                    description: taskStore[taskId].description
+                                    taskTitle: taskStore[taskId].title,
+                                    taskDescription: taskStore[taskId].description
                                 });
                                 renderChatMessages();
                                 
-                                // Refresh UI and remove loader
+                                // Refresh UI
                                 renderTaskContent(activeTaskTab);
                                 restoreTaskTabs();
                             }, 500);
@@ -12951,6 +12998,9 @@ function selectTask(taskId, taskTitle) {
 
 // Update input highlight to show task mentions with grey background
 function updateInputHighlight() {
+    // Disabled - highlight only in chat messages, not in input field
+    return;
+    
     const input = document.getElementById('chat-input');
     const highlight = document.getElementById('chat-input-highlight');
     
