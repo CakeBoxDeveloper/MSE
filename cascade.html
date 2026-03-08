@@ -1257,8 +1257,17 @@
         }
         
         .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch;position:relative; }
-        .chat-input {
+        
+        .chat-input-container {
+            position:relative;
             flex:1;
+            background:rgba(255,255,255,.05);
+            border:1px solid var(--glass-border);
+            border-radius:5px;
+        }
+        
+        .chat-input {
+            width:100%;
             padding:6px 12px;
             color:var(--text-primary);
             font-family:'Inter',sans-serif;
@@ -1312,7 +1321,10 @@
             display:none;
             z-index:1000;
             box-shadow:0 4px 12px rgba(0,0,0,0.3);
+            scrollbar-width:none; /* Firefox */
+            -ms-overflow-style:none; /* IE/Edge */
         }
+        .task-autocomplete::-webkit-scrollbar { display:none; } /* Chrome/Safari */
         .task-autocomplete.show { display:block; }
         .task-autocomplete-item {
             padding:8px 12px;
@@ -1329,19 +1341,11 @@
         }
         .task-autocomplete-item .task-title {
             font-weight:500;
-            margin-bottom:2px;
-        }
-        .task-autocomplete-item .task-desc {
-            font-size:11px;
-            color:var(--text-secondary);
-            overflow:hidden;
-            text-overflow:ellipsis;
-            white-space:nowrap;
         }
         
         /* Task mention highlighting */
         .task-mention {
-            background:rgba(255,100,100,0.25);
+            background:rgba(153,153,153,0.3);
             padding:2px 6px;
             border-radius:4px;
             color:var(--text-primary);
@@ -1368,17 +1372,17 @@
             word-wrap: break-word;
             overflow: hidden;
             line-height: 20px;
-            z-index: 0;
+            z-index: 1;
         }
         
         .chat-input {
             position: relative;
-            z-index: 1;
+            z-index: 2;
             background: transparent !important;
         }
         
         .chat-input-highlight .task-mention-input {
-            background: rgba(255,100,100,0.3);
+            background: rgba(153,153,153,0.35);
             border-radius: 3px;
             padding: 0px 2px;
         }
@@ -10384,37 +10388,43 @@ function getproximaSystemPrompt(mentionedTaskId = null) {
     let tasksContext = '';
     let mentionedTaskContext = '';
     
-    if (currentUser && currentUser.id && taskStore[currentUser.id]) {
-        tasksContext = '\n\nТЕКУЩИЕ ЗАДАЧИ ПОЛЬЗОВАТЕЛЯ:\n';
-        ['backlog', 'todo', 'inProgress', 'done'].forEach(pipeline => {
-            if (taskStore[currentUser.id][pipeline]) {
-                taskStore[currentUser.id][pipeline].forEach(task => {
-                    const completedCount = (task.completedSteps || []).length;
-                    const steps = parsePipelineSteps(task.pipeline);
-                    let totalSteps = 0;
-                    steps.forEach(step => {
-                        totalSteps++;
-                        if (step.substeps) totalSteps += step.substeps.length;
-                    });
-                    
-                    tasksContext += `\nЗадача ID: ${task.id}\n`;
-                    tasksContext += `Название: ${task.title}\n`;
-                    tasksContext += `Описание: ${task.description}\n`;
-                    tasksContext += `Приоритет: ${task.priority}/10\n`;
-                    tasksContext += `Статус: ${pipeline}\n`;
-                    tasksContext += `Прогресс: ${completedCount}/${totalSteps} шагов выполнено\n`;
-                    if (task.deadline) {
-                        tasksContext += `Дедлайн: ${task.deadline}\n`;
-                    }
-                    tasksContext += `Шаги:\n${task.pipeline}\n`;
-                    
-                    // If this is the mentioned task, add special context
-                    if (mentionedTaskId && task.id === mentionedTaskId) {
-                        mentionedTaskContext = `\n\n⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ: "${task.title}" (ID: ${task.id})\nОн хочет изменить или обсудить именно эту задачу. Обрати особое внимание на её контекст выше.\n`;
-                    }
-                });
+    if (currentUser) {
+        const allTasks = [];
+        Object.keys(taskStore).forEach(taskId => {
+            if (taskId !== 'overview') {
+                const task = taskStore[taskId];
+                allTasks.push({...task, id: taskId});
             }
         });
+        
+        if (allTasks.length > 0) {
+            tasksContext = '\n\nТЕКУЩИЕ ЗАДАЧИ ПОЛЬЗОВАТЕЛЯ:\n';
+            allTasks.forEach(task => {
+                const completedCount = (task.completedSteps || []).length;
+                const steps = parsePipelineSteps(task.pipeline);
+                let totalSteps = 0;
+                steps.forEach(step => {
+                    totalSteps++;
+                    if (step.substeps) totalSteps += step.substeps.length;
+                });
+                
+                tasksContext += `\nЗадача ID: ${task.id}\n`;
+                tasksContext += `Название: ${task.title}\n`;
+                tasksContext += `Описание: ${task.description}\n`;
+                tasksContext += `Приоритет: ${task.priority}/10\n`;
+                tasksContext += `Статус: ${task.status || 'pending'}\n`;
+                tasksContext += `Прогресс: ${completedCount}/${totalSteps} шагов выполнено\n`;
+                if (task.deadline) {
+                    tasksContext += `Дедлайн: ${task.deadline}\n`;
+                }
+                tasksContext += `Шаги:\n${task.pipeline}\n`;
+                
+                // If this is the mentioned task, add special context
+                if (mentionedTaskId && task.id === mentionedTaskId) {
+                    mentionedTaskContext = `\n\n⚠️ ПОЛЬЗОВАТЕЛЬ УПОМЯНУЛ ЗАДАЧУ: "${task.title}" (ID: ${task.id})\nОн хочет изменить или обсудить именно эту задачу. Обрати особое внимание на её контекст выше. Посмотри какие шаги уже выполнены (${completedCount}/${totalSteps}), какие впереди, и отвечай с учётом этого контекста.\n`;
+                }
+            });
+        }
     }
     
     return `Ты - Проксима, программа-наставник созданная инженерами MSE для управления задачами и достижения целей.
@@ -12348,6 +12358,13 @@ function sendMessage(){
                         executeAIActions(aiResult.actions);
                         renderChatMessages();
                         
+                        // If task was mentioned, switch to task tab and highlight current step
+                        if (taskId && taskStore[taskId]) {
+                            setTimeout(() => {
+                                openTaskFromOverview(taskId);
+                            }, 300);
+                        }
+                        
                         // Auto-save to Firebase
                         if (currentUser) {
                             clearTimeout(window.chatSaveTimeout);
@@ -12447,6 +12464,13 @@ function sendMessage(){
                             chatStore[targetChatTab].push({role:'ai', text: responseText});
                             executeAIActions(aiResult.actions);
                             safeRenderChatMessages();
+                            
+                            // If task was mentioned, switch to task tab and highlight current step
+                            if (taskId && taskStore[taskId]) {
+                                setTimeout(() => {
+                                    openTaskFromOverview(taskId);
+                                }, 300);
+                            }
                         }, thinkingTime);
                     }).catch(error => {
                         console.error('AI error:', error);
@@ -12689,6 +12713,13 @@ function sendMessage(){
                         
                         safeRenderChatMessages();
                         
+                        // If task was mentioned, switch to task tab and highlight current step
+                        if (taskId && taskStore[taskId]) {
+                            setTimeout(() => {
+                                openTaskFromOverview(taskId);
+                            }, 500);
+                        }
+                        
                         // Auto-save to Firebase
                         if (currentUser) {
                             clearTimeout(window.chatSaveTimeout);
@@ -12761,11 +12792,10 @@ function showTaskAutocomplete(query) {
         return;
     }
     
-    // Render dropdown
+    // Render dropdown (only title, no description)
     dropdown.innerHTML = filtered.map((task, index) => `
         <div class="task-autocomplete-item" data-task-id="${task.id}" data-index="${index}">
             <div class="task-title">${task.title}</div>
-            ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
         </div>
     `).join('');
     
@@ -12830,20 +12860,47 @@ function selectTask(taskId, taskTitle) {
     input.focus();
 }
 
-// Update input highlight to show task mentions with red background
+// Update input highlight to show task mentions with grey background
 function updateInputHighlight() {
     const input = document.getElementById('chat-input');
     const highlight = document.getElementById('chat-input-highlight');
     
     if (!highlight) return;
     
-    const text = input.value;
+    let text = input.value;
     
-    // Replace task mentions with highlighted version
-    // Match # followed by text until space or end
-    const highlightedText = text.replace(/#([^\s#]+(?:\s+[^\s#]+)*?)(\s|$)/g, '<span class="task-mention-input">#$1</span>$2');
+    if (!text) {
+        highlight.innerHTML = '&nbsp;';
+        return;
+    }
     
-    highlight.innerHTML = highlightedText || '&nbsp;';
+    // Get all task titles to match against
+    const taskTitles = [];
+    Object.keys(taskStore).forEach(taskId => {
+        if (taskId !== 'overview' && taskStore[taskId].title) {
+            taskTitles.push({
+                id: taskId,
+                title: taskStore[taskId].title
+            });
+        }
+    });
+    
+    // Sort by length (longest first) to match longer titles first
+    taskTitles.sort((a, b) => b.title.length - a.title.length);
+    
+    // Escape HTML
+    let highlightedText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Find and highlight task mentions
+    taskTitles.forEach(task => {
+        const pattern = '#' + task.title;
+        const regex = new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        highlightedText = highlightedText.replace(regex, (match) => {
+            return `<span class="task-mention-input">${match}</span>`;
+        });
+    });
+    
+    highlight.innerHTML = highlightedText;
 }
 
 // Clear input and highlight
@@ -12851,7 +12908,18 @@ function clearChatInput() {
     const input = document.getElementById('chat-input');
     const highlight = document.getElementById('chat-input-highlight');
     input.value = '';
-    highlight.innerHTML = '';
+    if (highlight) {
+        highlight.innerHTML = '&nbsp;';
+    }
+}
+
+// Handle task mention after AI response
+function handleTaskMentionAfterResponse(taskId) {
+    if (taskId && taskStore[taskId]) {
+        setTimeout(() => {
+            openTaskFromOverview(taskId);
+        }, 300);
+    }
 }
 
 // Chat input event listeners for autocomplete
@@ -12917,9 +12985,29 @@ document.addEventListener('click', function(e) {
 
 // Highlight task mentions in chat messages
 function highlightTaskMentions(text) {
-    // Match # followed by task name (stops at punctuation or newline)
-    // Allows spaces within task name but stops at punctuation
-    return text.replace(/#([^\s#.,!?;:\n][^#.,!?;:\n]*?)(?=[\s.,!?;:\n]|$)/g, '<span class="task-mention">#$1</span>');
+    // Get all task titles to match against
+    const taskTitles = [];
+    Object.keys(taskStore).forEach(taskId => {
+        if (taskId !== 'overview' && taskStore[taskId].title) {
+            taskTitles.push(taskStore[taskId].title);
+        }
+    });
+    
+    // Sort by length (longest first) to match longer titles first
+    taskTitles.sort((a, b) => b.length - a.length);
+    
+    let result = text;
+    
+    // Find and highlight task mentions
+    taskTitles.forEach(title => {
+        const pattern = '#' + title;
+        const regex = new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        result = result.replace(regex, (match) => {
+            return `<span class="task-mention">${match}</span>`;
+        });
+    });
+    
+    return result;
 }
 
 // ============================================================
