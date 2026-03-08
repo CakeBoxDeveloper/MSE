@@ -1258,12 +1258,44 @@
         
         .chat-input-wrapper { display:flex;gap:8px;flex-shrink:0;align-items:stretch;position:relative; }
         .chat-input {
-            flex:1;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);
-            border-radius:5px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:13px;transition:all .2s ease;
-            height:40px;
+            flex:1;
+            padding:6px 12px;
+            color:var(--text-primary);
+            font-family:'Inter',sans-serif;
+            font-size:13px;
+            transition:all .2s ease;
+            height:32px;
+            position:relative;
+            z-index:2;
+            background:transparent !important;
+            border:none !important;
         }
         .chat-input::placeholder { color:var(--text-tertiary); }
-        .chat-input:focus { outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2); }
+        .chat-input:focus { outline:none; }
+        
+        /* Input highlight layer for task mentions */
+        .chat-input-highlight {
+            position:absolute;
+            top:0;left:0;right:0;bottom:0;
+            padding:6px 12px;
+            font-family:'Inter',sans-serif;
+            font-size:13px;
+            line-height:20px;
+            color:transparent;
+            pointer-events:none;
+            white-space:pre;
+            overflow:hidden;
+            border-radius:5px;
+            background:rgba(255,255,255,.05);
+            border:1px solid var(--glass-border);
+            z-index:1;
+        }
+        .chat-input-highlight mark {
+            background:rgba(255,80,80,0.3);
+            color:transparent;
+            border-radius:3px;
+            padding:2px 0;
+        }
         
         /* Task autocomplete dropdown */
         .task-autocomplete {
@@ -1309,11 +1341,46 @@
         
         /* Task mention highlighting */
         .task-mention {
-            background:rgba(255,255,255,0.15);
+            background:rgba(255,100,100,0.25);
             padding:2px 6px;
             border-radius:4px;
             color:var(--text-primary);
             font-weight:500;
+        }
+        
+        /* Task mention in input field */
+        .chat-input-wrapper {
+            position: relative;
+        }
+        
+        .chat-input-highlight {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            padding: 6px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: transparent;
+            pointer-events: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: hidden;
+            line-height: 20px;
+            z-index: 0;
+        }
+        
+        .chat-input {
+            position: relative;
+            z-index: 1;
+            background: transparent !important;
+        }
+        
+        .chat-input-highlight .task-mention-input {
+            background: rgba(255,100,100,0.3);
+            border-radius: 3px;
+            padding: 0px 2px;
         }
 
 
@@ -2257,7 +2324,10 @@
               <div class="chat-file-preview" id="chat-file-preview"></div>
               <div class="chat-input-wrapper">
                 <div class="task-autocomplete" id="taskAutocomplete"></div>
-                <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Проксиме..." style="height:32px;padding:6px 12px;">
+                <div style="position:relative;flex:1;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;">
+                  <div class="chat-input-highlight" id="chat-input-highlight"></div>
+                  <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Проксиме..." style="height:32px;padding:6px 12px;border:none;">
+                </div>
                 <button class="chat-attach" id="chat-attach" style="width:32px;height:32px;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="" style="width:12px;height:12px;">
                   <input type="file" id="chat-file-input" multiple accept="*/*">
@@ -11700,7 +11770,7 @@ function sendMessage(){
     // Команда "рандом" - рандомизация всех статов
     if (text.toLowerCase() === 'рандом' || text.toLowerCase() === 'random') {
         randomizeAllStats();
-        chatInput.value = '';
+        clearChatInput();
         return;
     }
     
@@ -11718,7 +11788,7 @@ function sendMessage(){
         // Добавляем сообщение пользователя
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
-        chatInput.value = '';
+        clearChatInput();
         
         setTimeout(() => {
             safeRenderChatMessages();
@@ -12659,25 +12729,32 @@ let autocompleteSelectedIndex = -1;
 
 function showTaskAutocomplete(query) {
     const dropdown = document.getElementById('taskAutocomplete');
-    if (!currentUser || !currentUser.id) {
+    if (!currentUser) {
         dropdown.classList.remove('show');
         return;
     }
     
-    // Get all tasks
+    // Get all tasks from taskStore (excluding 'overview')
     const allTasks = [];
-    ['backlog', 'todo', 'inProgress', 'done'].forEach(pipeline => {
-        if (taskStore[currentUser.id] && taskStore[currentUser.id][pipeline]) {
-            taskStore[currentUser.id][pipeline].forEach(task => {
-                allTasks.push({...task, pipeline});
+    Object.keys(taskStore).forEach(taskId => {
+        if (taskId !== 'overview') {
+            const task = taskStore[taskId];
+            allTasks.push({
+                id: taskId,
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                pipeline: task.pipeline
             });
         }
     });
     
-    // Filter tasks by query
-    const filtered = allTasks.filter(task => 
-        task.title.toLowerCase().includes(query.toLowerCase())
-    );
+    // Filter tasks by query (empty query shows all tasks)
+    const filtered = query.trim() === '' 
+        ? allTasks 
+        : allTasks.filter(task => 
+            task.title.toLowerCase().includes(query.toLowerCase())
+        );
     
     if (filtered.length === 0) {
         dropdown.classList.remove('show');
@@ -12698,7 +12775,8 @@ function showTaskAutocomplete(query) {
     // Add click handlers
     dropdown.querySelectorAll('.task-autocomplete-item').forEach(item => {
         item.addEventListener('click', () => {
-            selectTask(item.dataset.taskId, filtered.find(t => t.id === item.dataset.taskId).title);
+            const selectedTask = filtered.find(t => t.id === item.dataset.taskId);
+            selectTask(item.dataset.taskId, selectedTask.title);
         });
     });
 }
@@ -12743,16 +12821,46 @@ function selectTask(taskId, taskTitle) {
         const newText = beforeHash + '#' + taskTitle + ' ';
         input.value = newText;
         mentionedTaskId = taskId;
+        
+        // Update highlight
+        updateInputHighlight();
     }
     
     hideTaskAutocomplete();
     input.focus();
 }
 
+// Update input highlight to show task mentions with red background
+function updateInputHighlight() {
+    const input = document.getElementById('chat-input');
+    const highlight = document.getElementById('chat-input-highlight');
+    
+    if (!highlight) return;
+    
+    const text = input.value;
+    
+    // Replace task mentions with highlighted version
+    // Match # followed by text until space or end
+    const highlightedText = text.replace(/#([^\s#]+(?:\s+[^\s#]+)*?)(\s|$)/g, '<span class="task-mention-input">#$1</span>$2');
+    
+    highlight.innerHTML = highlightedText || '&nbsp;';
+}
+
+// Clear input and highlight
+function clearChatInput() {
+    const input = document.getElementById('chat-input');
+    const highlight = document.getElementById('chat-input-highlight');
+    input.value = '';
+    highlight.innerHTML = '';
+}
+
 // Chat input event listeners for autocomplete
 chatInput.addEventListener('input', function(e) {
     const text = e.target.value;
     const cursorPos = e.target.selectionStart;
+    
+    // Update highlight for task mentions
+    updateInputHighlight();
     
     // Find if there's a # before cursor
     const textBeforeCursor = text.substring(0, cursorPos);
@@ -12809,8 +12917,9 @@ document.addEventListener('click', function(e) {
 
 // Highlight task mentions in chat messages
 function highlightTaskMentions(text) {
-    // Match # followed by any characters until space, newline, or punctuation
-    return text.replace(/#([^#\s\n.,!?;:]+(?:\s+[^#\s\n.,!?;:]+)*)/g, '<span class="task-mention">#$1</span>');
+    // Match # followed by task name (stops at punctuation or newline)
+    // Allows spaces within task name but stops at punctuation
+    return text.replace(/#([^\s#.,!?;:\n][^#.,!?;:\n]*?)(?=[\s.,!?;:\n]|$)/g, '<span class="task-mention">#$1</span>');
 }
 
 // ============================================================
