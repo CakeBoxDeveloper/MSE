@@ -1621,7 +1621,7 @@
             position:relative; /* Needed for absolute positioned children */
         }
         .auth-modal.logout-size {
-            height:140px; /* Logout window is half height */
+            height:160px; /* Logout window height - increased for bottom spacing */
             padding:8px 24px 6px 24px; /* Reduced vertical padding for logout */
         }
         .auth-overlay.active .auth-modal { transform:scale(1); }
@@ -1979,9 +1979,10 @@
         .fullscreen-success { display:none;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:10px 0; }
         .fullscreen-success[style*="display:flex"], .fullscreen-success[style*="display: flex"] { display:flex !important; }
         .fullscreen-success .success-text { font-size:15px;line-height:1.6;width:100%; }
-        .logout-modal { text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:4px 0; }
+        .logout-modal { text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:4px 0 12px 0; }
         .logout-modal h2 { margin-bottom:4px; }
         .logout-modal p { margin-bottom:6px; }
+        .logout-modal img { filter:brightness(0) invert(1) !important; }
         
         /* Фиксированная высота для всех внутренних контейнеров */
         #loginForm, #registerForm, #logoutModal { height:100%;display:flex;flex-direction:column; }
@@ -2477,13 +2478,19 @@
   <!-- LOGOUT -->
     <div id="logoutModal" style="display:none;">
       <div class="logout-modal">
-        <div>
-          <h2 class="auth-header" style="font-size:16px;font-weight:600;letter-spacing:-.3px;text-align:center;">Отключиться от сети MSE</h2>
-          <p style="font-size:12px;color:var(--text-secondary);line-height:1.4;text-align:center;">Вы уверены, что хотите прекратить синхронизацию?</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h2 class="auth-header" style="font-size:16px;font-weight:600;letter-spacing:-.3px;text-align:left;margin:0;">Отключиться от сети MSE</h2>
+          <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Выход" style="width:24px;height:24px;opacity:0.7;">
         </div>
-        <div class="auth-buttons">
-          <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
-          <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
+        <div>
+          <p style="font-size:12px;color:var(--text-secondary);line-height:1.4;text-align:left;margin-bottom:16px;">Вы уверены, что хотите прекратить синхронизацию?</p>
+        </div>
+        <div>
+          <div class="auth-buttons">
+            <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
+            <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
+          </div>
+          <div style="height:12px;"></div>
         </div>
       </div>
     </div>
@@ -4224,27 +4231,54 @@ async function saveUserToFirebase(userId, userData) {
         }, { merge: true });
         console.log('User data saved to Firebase');
     } catch (error) {
-        console.error('Error saving user data:', error);
+        // Don't throw error if offline - data will be saved when connection is restored
+        if (error.code === 'unavailable' || error.message.includes('offline')) {
+            console.warn('Cannot save user data - client is offline. Data will sync when connection is restored.');
+        } else {
+            console.error('Error saving user data:', error);
+        }
     }
 }
 
 // Load user data from Firebase
 async function loadUserFromFirebase(userId) {
-    try {
-        const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
-        const userSnap = await window.firebaseGetDoc(userRef);
-        
-        if (userSnap.exists()) {
-            console.log('User data loaded from Firebase');
-            return userSnap.data();
-        } else {
-            console.log('No user data found in Firebase');
+    const maxRetries = 3;
+    const retryDelay = 1000; // 1 second
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
+            const userSnap = await window.firebaseGetDoc(userRef);
+            
+            if (userSnap.exists()) {
+                console.log('User data loaded from Firebase');
+                return userSnap.data();
+            } else {
+                console.log('No user data found in Firebase');
+                return null;
+            }
+        } catch (error) {
+            console.error(`Error loading user data (attempt ${attempt}/${maxRetries}):`, error);
+            
+            // Check if it's an offline error
+            if (error.code === 'unavailable' || error.message.includes('offline')) {
+                if (attempt < maxRetries) {
+                    console.log(`Retrying in ${retryDelay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                    continue;
+                } else {
+                    console.error('Failed to load user data after multiple attempts. Client may be offline.');
+                    // Return null to allow login to proceed with local data
+                    return null;
+                }
+            }
+            
+            // For other errors, return null immediately
             return null;
         }
-    } catch (error) {
-        console.error('Error loading user data:', error);
-        return null;
     }
+    
+    return null;
 }
 
 // Save achievements to Firebase
@@ -4257,7 +4291,11 @@ async function saveAchievementsToFirebase(userId, achievements) {
         });
         console.log('Achievements saved to Firebase');
     } catch (error) {
-        console.error('Error saving achievements:', error);
+        if (error.code === 'unavailable' || error.message.includes('offline')) {
+            console.warn('Cannot save achievements - client is offline. Data will sync when connection is restored.');
+        } else {
+            console.error('Error saving achievements:', error);
+        }
     }
 }
 
@@ -4272,7 +4310,11 @@ async function saveNotesToFirebase(userId, notes) {
         });
         console.log('[FIREBASE] Notes saved successfully to Firebase');
     } catch (error) {
-        console.error('[FIREBASE] Error saving notes:', error);
+        if (error.code === 'unavailable' || error.message.includes('offline')) {
+            console.warn('[FIREBASE] Cannot save notes - client is offline. Data will sync when connection is restored.');
+        } else {
+            console.error('[FIREBASE] Error saving notes:', error);
+        }
     }
 }
 
@@ -4286,7 +4328,11 @@ async function saveMonitorStatsToFirebase(userId, stats) {
         });
         console.log('Monitor stats saved to Firebase');
     } catch (error) {
-        console.error('Error saving monitor stats:', error);
+        if (error.code === 'unavailable' || error.message.includes('offline')) {
+            console.warn('Cannot save monitor stats - client is offline. Data will sync when connection is restored.');
+        } else {
+            console.error('Error saving monitor stats:', error);
+        }
     }
 }
 
@@ -4304,28 +4350,48 @@ async function saveChatsToFirebase(userId, chats) {
         });
         console.log('[FIREBASE] Chats saved successfully');
     } catch (error) {
-        console.error('[FIREBASE] Error saving chats:', error);
+        if (error.code === 'unavailable' || error.message.includes('offline')) {
+            console.warn('[FIREBASE] Cannot save chats - client is offline. Data will sync when connection is restored.');
+        } else {
+            console.error('[FIREBASE] Error saving chats:', error);
+        }
     }
 }
 
 // Load chats from Firebase
 async function loadChatsFromFirebase(userId) {
-    try {
-        const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
-        const userSnap = await window.firebaseGetDoc(userRef);
-        
-        if (userSnap.exists()) {
-            const data = userSnap.data();
-            if (data.chats) {
-                console.log('Chats loaded from Firebase');
-                return data.chats;
+    const maxRetries = 3;
+    const retryDelay = 1000;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
+            const userSnap = await window.firebaseGetDoc(userRef);
+            
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                if (data.chats) {
+                    console.log('Chats loaded from Firebase');
+                    return data.chats;
+                }
             }
+            return null;
+        } catch (error) {
+            console.error(`Error loading chats (attempt ${attempt}/${maxRetries}):`, error);
+            
+            if (error.code === 'unavailable' || error.message.includes('offline')) {
+                if (attempt < maxRetries) {
+                    console.log(`Retrying in ${retryDelay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                    continue;
+                }
+            }
+            
+            return null;
         }
-        return null;
-    } catch (error) {
-        console.error('Error loading chats:', error);
-        return null;
     }
+    
+    return null;
 }
 
 // Wait for DOM to be ready before adding event listeners
@@ -6083,7 +6149,7 @@ loginPinInputs.forEach((id,index)=>{
                                 <span>${timeStr}</span>
                             </div>
                             <div style="font-size:11px;line-height:1.5;margin-bottom:10px;width:100%;">Синхронизация завершена. Ответ синхронизатора: звено ${user.id.toString().padStart(4,'0')} успешно подключено к ядру MSE</div>
-                            <div style="opacity:0.5;font-size:8px;line-height:1.2;word-break:break-all;">${rayID}</div>
+                            <div style="opacity:0.5;font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${rayID}</div>
                         `;
                         
                         // Remove shimmer from PIN cells
@@ -10216,6 +10282,7 @@ function restoreSession() {
             loadUserFromFirebase(currentUser.id).then(firebaseData => {
                 console.log('[SESSION] Firebase data loaded:', firebaseData);
                 if (firebaseData) {
+                    console.log('[SESSION] ✓ Successfully loaded data from Firebase (online mode)');
                     if (firebaseData.gender) currentUser.gender = firebaseData.gender;
                     if (firebaseData.age) currentUser.age = firebaseData.age;
                     if (firebaseData.chats_taskorganizer) {
@@ -10340,9 +10407,13 @@ function restoreSession() {
                             switchBrowserTab(currentTab);
                         }
                     }
+                } else {
+                    console.warn('[SESSION] ⚠ No data loaded from Firebase - working in offline mode with local data');
+                    console.log('[SESSION] User can continue working, data will sync when connection is restored');
                 }
             }).catch(err => {
-                console.error('[SESSION] Error loading Firebase data:', err);
+                console.error('[SESSION] ⚠ Error loading Firebase data:', err);
+                console.log('[SESSION] Continuing in offline mode - data will sync when connection is restored');
             });
             
             console.log('[SESSION] Session restored successfully');
@@ -16978,7 +17049,23 @@ async function createNewTask() {
 
 Верни ТОЛЬКО пайплайн в указанном формате, без дополнительного текста.`;
 
-            callGroqAPI(prompt).then(responseText => {
+            // Also generate a short summary message
+            const summaryPrompt = `Задача: ${title}
+Описание: ${description}
+
+Напиши ОДНО короткое предложение (максимум 15 слов) о том, что нужно сделать. Без эмодзи. Начни с глагола действия.
+
+Примеры:
+- "Разработай дизайн главной страницы с учётом брендбука"
+- "Изучи основы JavaScript и реши 10 практических задач"
+- "Подготовь презентацию по кермологии на 15 слайдов"
+
+Верни ТОЛЬКО одно предложение, без дополнительного текста.`;
+
+            Promise.all([
+                callGroqAPI(prompt),
+                callGroqAPI(summaryPrompt)
+            ]).then(([responseText, summaryText]) => {
                 
                 // Calculate thinking time based on response length
                 const baseTime = 1000;
@@ -16989,10 +17076,13 @@ async function createNewTask() {
                     // Remove thinking message
                     chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
                     
-                    // Add clickable card to Proxima chat
+                    // Clean up summary text (remove quotes, extra spaces, etc.)
+                    const cleanSummary = summaryText.trim().replace(/^["']|["']$/g, '');
+                    
+                    // Add Proxima's response with AI-generated summary and signature phrase
                     chatStore['proxima'].push({
                         role: 'ai',
-                        text: 'Я создала тебе подробный план.'
+                        text: `${cleanSummary}. Сделай это. Не скажи это. Сделай это!`
                     });
                     
                     // Add task link card
