@@ -1268,7 +1268,7 @@
         
         .chat-input {
             width:100%;
-            padding:6px 12px;
+            padding:4px 12px;
             color:var(--text-primary);
             font-family:'Inter',sans-serif;
             font-size:13px;
@@ -1608,7 +1608,7 @@
         }
 
         .auth-modal {
-            background:rgba(28,28,28,1);border:1px solid var(--glass-border);border-radius:5px;padding:12px 24px 8px 24px;
+            background:rgba(28,28,28,1);border:1px solid var(--glass-border);border-radius:5px;padding:6px 12px 4px 12px;
             width:380px; /* Фиксированная ширина для всех окон */
             height:280px; /* Компактная высота */
             max-width:calc(100% - 40px);
@@ -1621,8 +1621,8 @@
             position:relative; /* Needed for absolute positioned children */
         }
         .auth-modal.logout-size {
-            height:160px; /* Logout window height - increased for bottom spacing */
-            padding:8px 24px 6px 24px; /* Reduced vertical padding for logout */
+            height:180px; /* Logout window height - compact */
+            padding:12px 24px 12px 24px;
         }
         .auth-overlay.active .auth-modal { transform:scale(1); }
         
@@ -1979,7 +1979,7 @@
         .fullscreen-success { display:none;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:10px 0; }
         .fullscreen-success[style*="display:flex"], .fullscreen-success[style*="display: flex"] { display:flex !important; }
         .fullscreen-success .success-text { font-size:15px;line-height:1.6;width:100%; }
-        .logout-modal { text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:4px 0 12px 0; }
+        .logout-modal { text-align:center;display:flex;flex-direction:column;justify-content:flex-start;gap:12px;padding:0; }
         .logout-modal h2 { margin-bottom:4px; }
         .logout-modal p { margin-bottom:6px; }
         .logout-modal img { filter:brightness(0) invert(1) !important; }
@@ -2328,9 +2328,9 @@
               <div class="chat-file-preview" id="chat-file-preview"></div>
               <div class="chat-input-wrapper">
                 <div class="task-autocomplete" id="taskAutocomplete"></div>
-                <div style="position:relative;flex:1;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;">
+                <div style="position:relative;flex:1;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;height:32px;display:flex;align-items:center;">
                   <div class="chat-input-highlight" id="chat-input-highlight"></div>
-                  <input type="text" class="chat-input" id="chat-input" placeholder="Чем займёмся сегодня?" style="height:32px;padding:6px 12px;border:none;">
+                  <input type="text" class="chat-input" id="chat-input" placeholder="Чем займёмся сегодня?" style="height:100%;padding:0 12px;border:none;">
                 </div>
                 <button class="chat-attach" id="chat-attach" style="width:32px;height:32px;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="" style="width:12px;height:12px;">
@@ -4456,7 +4456,7 @@ const LOGIN_WIDTH = '380px'; // Все окна одинакового разм�
 const REG_WIDTH = '380px';
 const SUCCESS_WIDTH = '380px';
 const MODAL_HEIGHT = '280px';
-const LOGOUT_HEIGHT = '140px'; // Logout window is half height
+const LOGOUT_HEIGHT = '180px'; // Logout window - compact
 
 function setModalWidth(w) {
     const m = document.getElementById('authModal');
@@ -5605,6 +5605,12 @@ function confirmLogout() {
             
             // Load Liquid dots animation with gray color
             setTimeout(async () => {
+                // Set random placeholder text
+                const placeholderLogout = document.getElementById('placeholder-logout');
+                if (placeholderLogout) {
+                    placeholderLogout.textContent = getRandomPlaceholder();
+                }
+                
                 const container = document.getElementById('lottie-tasks-logout');
                 if (container && !container.hasAnimation) {
                     try {
@@ -16549,9 +16555,21 @@ function updatePriorityLabel() {
 }
 
 function closeNewTaskModal() {
+    // Prevent closing if task is being generated
+    if (isTaskGenerating) {
+        console.log('[MODAL] Cannot close - task is being generated');
+        return;
+    }
+    
     const overlay = document.getElementById('newTaskOverlay');
     const modalForm = document.getElementById('newTaskForm');
     const modalLoader = document.getElementById('newTaskModalLoader');
+    
+    // Prevent closing if loader is visible (task is being created)
+    if (modalLoader && modalLoader.style.display === 'flex') {
+        console.log('[MODAL] Cannot close - task is being created');
+        return;
+    }
     
     if (overlay) {
         overlay.classList.remove('active');
@@ -17012,6 +17030,9 @@ async function createNewTask() {
     
     console.log('[CREATE TASK] Modal elements:', { modalForm, modalLoader });
     
+    // Set flag to prevent closing
+    isTaskGenerating = true;
+    
     // Blur and fade form
     if (modalForm) {
         console.log('[CREATE TASK] Blurring form');
@@ -17282,6 +17303,9 @@ async function createNewTask() {
                     // Save to localStorage
                     saveTasksToStorage();
                     
+                    // Reset flag to allow closing
+                    isTaskGenerating = false;
+                    
                     // Close modal after task is created
                     closeNewTaskModal();
                     
@@ -17309,6 +17333,9 @@ async function createNewTask() {
                     });
                     renderChatMessages();
                     
+                    // Reset flag to allow closing
+                    isTaskGenerating = false;
+                    
                     // Close modal on error
                     closeNewTaskModal();
                     
@@ -17324,11 +17351,13 @@ async function createNewTask() {
 }
 
 // Close modal on overlay click
+let isTaskGenerating = false; // Flag to prevent closing during generation
+
 document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('newTaskOverlay');
     if (overlay) {
         overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
+            if (e.target === overlay && !isTaskGenerating) {
                 closeNewTaskModal();
             }
         });
