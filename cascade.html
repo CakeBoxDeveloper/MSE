@@ -2277,7 +2277,7 @@
               <div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
                   <div class="empty-state-icon" id="lottie-tasks-locked" style="width:100px;height:100px;margin:0 auto 8px auto;"></div>
-                  <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">В мире хаоса, где ты не контролируешь вообще ничего, подключение к ядру MSE даст тебе преимущество. Модель Проксима может решить любую задачу.</p>
+                  <p id="placeholder-locked" style="font-size:11px;line-height:1.4;margin:0;text-align:center;"></p>
                 </div>
                 <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 8px 8px;padding:0 12px;">
                   <span onclick="showLogin()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -3253,6 +3253,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize theme
     initTheme();
     
+    // Set random placeholder text
+    const randomText = getRandomPlaceholder();
+    const placeholderLocked = document.getElementById('placeholder-locked');
+    const placeholderLogout = document.getElementById('placeholder-logout');
+    if (placeholderLocked) placeholderLocked.textContent = randomText;
+    if (placeholderLogout) placeholderLogout.textContent = randomText;
+    
     const layer1 = document.getElementById('profileLayer1');
     if (layer1) {
         // Проверяем градиенты при загрузке - сразу и с задержкой
@@ -3612,6 +3619,16 @@ let users = [{ id:1001, pin:'1234', createdAt: new Date().toISOString() }];
 let currentUser = null;
 let loginDate = null;
 
+// Random placeholder phrases
+const placeholderPhrases = [
+    "Каждую секунду в вашем теле происходит 37 миллиардов миллиардов химических реакций, которыми вы не управляете. Подключение к ядру MSE вернёт контроль над ситуацией. Модель Проксима может решить любую задачу.",
+    "Ночью мозг переписывает сам себя, удаляя связи, которые посчитал ненужными. Если вы не управляете структурой, ей управляет случай. Подключитесь к ядру сегодня, чтобы управлять своим завтра."
+];
+
+function getRandomPlaceholder() {
+    return placeholderPhrases[Math.floor(Math.random() * placeholderPhrases.length)];
+}
+
 // Weight tracking data structure (only current and previous, no history)
 let weightData = {
     current: null, // { weight: 72.5, muscle: 32.6, fat: 18.1, water: 21.8, date: timestamp }
@@ -3870,6 +3887,15 @@ function updateAllStatsDisplays() {
     updateStatDisplay('digestion', statsData.digestion.current, statsData.digestion.previous);
     updateStatDisplay('hormones', statsData.hormones.current, statsData.hormones.previous);
     updateStatDisplay('endurance', statsData.endurance.current, statsData.endurance.previous);
+}
+
+// Get random placeholder phrase
+function getRandomPlaceholderPhrase() {
+    const phrases = [
+        "Каждую секунду в вашем теле происходит 37 миллиардов миллиардов химических реакций, которыми вы не управляете. Подключение к ядру MSE вернёт контроль над ситуацией. Модель Проксима может решить любую задачу.",
+        "Ночью мозг переписывает сам себя, удаляя связи, которые посчитал ненужными. Если вы не управляете структурой, ей управляет случай. Подключитесь к ядру сегодня, чтобы управлять своим завтра."
+    ];
+    return phrases[Math.floor(Math.random() * phrases.length)];
 }
 
 // Randomize all stats (команда "рандом")
@@ -4635,50 +4661,18 @@ async function showRegister() {
     modal.style.height = MODAL_HEIGHT; // Устанавливаем фиксированную высоту
     modal.classList.remove('logout-size'); // Remove logout-specific styling
     
-    // Find next available ID by checking both local and Firebase
-    let newId = 1001 + Math.floor(Math.random() * 100); // Start from random ID between 1001-1100
+    // Clean up expired reservations
+    cellNumberManager.cleanupExpiredReservations();
     
-    // Get all existing IDs from local array
-    const localIds = users.map(u => u.id);
+    // Get next available number using new system
+    let newId = await cellNumberManager.getNextAvailableNumber();
+    console.log(`[REGISTER] Got next available number: ${newId}`);
     
-    // Find the highest ID and add random offset
-    if (localIds.length > 0) {
-        newId = Math.max(...localIds) + 1 + Math.floor(Math.random() * 10);
-    }
+    // Reserve this number
+    cellNumberManager.reserveNumber(newId);
     
-    // Check Firebase to make sure this ID doesn't exist there either (with timeout)
-    let idExists = true;
-    let attempts = 0;
-    const maxAttempts = 10; // Reduced from 100 to 10 for faster response
-    
-    while (idExists && attempts < maxAttempts) {
-        try {
-            // Add timeout to Firebase check
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Timeout')), 2000) // 2 second timeout
-            );
-            
-            const firebasePromise = loadUserFromFirebase(newId);
-            const firebaseData = await Promise.race([firebasePromise, timeoutPromise]);
-            
-            if (!firebaseData) {
-                idExists = false; // ID is free
-                console.log(`[REGISTER] Found available ID: ${newId}`);
-            } else {
-                console.log(`[REGISTER] ID ${newId} already exists in Firebase, trying next...`);
-                newId++; // Try next ID
-            }
-        } catch (error) {
-            console.log(`[REGISTER] Error/timeout checking ID ${newId}, assuming it's free:`, error.message);
-            idExists = false; // Assume ID is free on error/timeout
-        }
-        attempts++;
-    }
-    
-    if (attempts >= maxAttempts) {
-        console.warn('[REGISTER] Could not verify ID availability, using local max + 1');
-        // Don't show error, just use the ID we have
-    }
+    // Store reserved number globally so we can cancel if registration is aborted
+    window.currentReservedNumber = newId;
     
     // Stop grain loader animation BEFORE showing form
     if (window.currentGrainLoaderStop) {
@@ -4784,6 +4778,48 @@ function closeAuth() {
     if (isLoginInProgress || isRegistrationInProgress) {
         console.log('[AUTH] Cannot close - verification in progress');
         return;
+    }
+    
+    // Cancel reservation if registration was started but not completed
+    if (window.currentReservedNumber) {
+        cellNumberManager.cancelReservation(window.currentReservedNumber);
+        window.currentReservedNumber = null;
+        console.log('[AUTH] Cancelled reserved number');
+    }
+    
+    // Clear all shimmer animations
+    if (window.shimmerIntervals) {
+        window.shimmerIntervals.forEach(interval => clearInterval(interval));
+        window.shimmerIntervals = [];
+        console.log('[AUTH] Cleared shimmer intervals');
+    }
+    
+    // Remove shimmer classes from all cells
+    const allInputs = [
+        ...loginIdInputs,
+        ...loginPinInputs,
+        ...pinInputs
+    ];
+    allInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.classList.remove('shimmer');
+            input.disabled = false;
+            input.style.cursor = 'text';
+        }
+    });
+    
+    // Reset all flags
+    isIdChecking = false;
+    isPinChecking = false;
+    isLoginInProgress = false;
+    isRegistrationInProgress = false;
+    console.log('[AUTH] Reset all verification flags');
+    
+    // Unblock overlay
+    const authOverlay = document.getElementById('authOverlay');
+    if (authOverlay) {
+        authOverlay.classList.remove('blocked');
     }
     
     document.getElementById('authOverlay').classList.remove('active');
@@ -5559,7 +5595,7 @@ function confirmLogout() {
                 <div class="empty-state" style="display:flex;flex-direction:column;height:100%;justify-content:space-between;padding:0;">
                     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
                         <div class="empty-state-icon" id="lottie-tasks-logout" style="width:100px;height:100px;margin:0 auto 8px auto;"></div>
-                        <p style="font-size:11px;line-height:1.4;margin:0;text-align:center;">В мире хаоса, где ты не контролируешь вообще ничего, подключение к ядру MSE даст тебе преимущество. Модель Проксима может решить любую задачу.</p>
+                        <p id="placeholder-logout" style="font-size:11px;line-height:1.4;margin:0;text-align:center;"></p>
                     </div>
                     <div style="background:rgba(153,153,153,0.1);border:1px solid rgba(153,153,153,0.3);border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 8px 8px 8px;padding:0 12px;">
                         <span onclick="showLogin()" style="color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Пройдите синхронизацию, чтобы узнать больше</span>
@@ -5697,6 +5733,73 @@ function confirmLogout() {
         }, 100);
     }, 400);
 }
+
+// ── Cell Number Manager ──
+const cellNumberManager = {
+    // Все когда-либо выданные номера (даже удалённые)
+    allIssuedNumbers: new Set(),
+    
+    // Номера в процессе регистрации (зарезервированы)
+    reservedNumbers: new Map(), // { number: timestamp }
+    
+    // Получить первый свободный номер
+    async getNextAvailableNumber() {
+        let number = 1001;
+        while (this.allIssuedNumbers.has(number) || this.reservedNumbers.has(number)) {
+            number++;
+        }
+        return number;
+    },
+    
+    // Зарезервировать номер при начале регистрации
+    reserveNumber(number) {
+        this.reservedNumbers.set(number, Date.now());
+        console.log(`[CELL] Reserved number ${number}`);
+    },
+    
+    // Подтвердить номер при завершении регистрации
+    confirmNumber(number) {
+        this.allIssuedNumbers.add(number);
+        this.reservedNumbers.delete(number);
+        console.log(`[CELL] Confirmed number ${number}. Total issued: ${this.allIssuedNumbers.size}`);
+    },
+    
+    // Отменить резервирование при прерывании
+    cancelReservation(number) {
+        this.reservedNumbers.delete(number);
+        console.log(`[CELL] Cancelled reservation for number ${number}`);
+    },
+    
+    // Очистить старые резервирования (>30 минут)
+    cleanupExpiredReservations() {
+        const now = Date.now();
+        const maxAge = 30 * 60 * 1000; // 30 минут
+        let cleaned = 0;
+        for (const [number, timestamp] of this.reservedNumbers) {
+            if (now - timestamp > maxAge) {
+                this.reservedNumbers.delete(number);
+                cleaned++;
+            }
+        }
+        if (cleaned > 0) {
+            console.log(`[CELL] Cleaned up ${cleaned} expired reservations`);
+        }
+    },
+    
+    // Инициализировать из Firebase (загрузить все выданные номера)
+    async initializeFromFirebase() {
+        try {
+            // Здесь можно добавить логику загрузки всех номеров из Firebase
+            // Пока используем локальный массив users
+            users.forEach(user => {
+                this.allIssuedNumbers.add(user.id);
+            });
+            console.log(`[CELL] Initialized with ${this.allIssuedNumbers.size} existing numbers`);
+        } catch (error) {
+            console.error('[CELL] Error initializing from Firebase:', error);
+        }
+    }
+};
 
 // ── Login ID check ──
 let loginIdChecked=false;
@@ -6791,7 +6894,7 @@ function register(){
             if (oxygenEl) oxygenEl.innerHTML = '98<span style="opacity: 0.7;">%</span>';
         }, 100);
         
-        // Save new user to Firebase
+        // Save new user to Firebase ONLY AFTER all data is prepared
         await saveUserToFirebase(userId, {
             id: userId,
             pin: pin,
@@ -6801,6 +6904,10 @@ function register(){
             achievements: userAchievements,
             notes: userNotes
         });
+        
+        // CONFIRM the cell number ONLY after successful Firebase save
+        cellNumberManager.confirmNumber(userId);
+        console.log('[REGISTER] Cell number confirmed:', userId);
         
         // Blur out loader
         const loader = document.getElementById('registerLoader');
