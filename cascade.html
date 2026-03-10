@@ -2330,7 +2330,7 @@
                 <div class="task-autocomplete" id="taskAutocomplete"></div>
                 <div style="position:relative;flex:1;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:5px;">
                   <div class="chat-input-highlight" id="chat-input-highlight"></div>
-                  <input type="text" class="chat-input" id="chat-input" placeholder="Задай вопрос Проксиме..." style="height:32px;padding:6px 12px;border:none;">
+                  <input type="text" class="chat-input" id="chat-input" placeholder="Чем займёмся сегодня?" style="height:32px;padding:6px 12px;border:none;">
                 </div>
                 <button class="chat-attach" id="chat-attach" style="width:32px;height:32px;">
                   <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6dcd23d0286a4a0edc50bd9410d7ac9a26b6b41c/attach.svg" alt="" style="width:12px;height:12px;">
@@ -2705,9 +2705,9 @@
     <!-- Loader container inside modal -->
     <div id="newTaskModalLoader" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:20px;gap:16px;background:rgba(25,25,25,0.98);backdrop-filter:blur(10px);border-radius:8px;z-index:10;">
       <div id="lottie-modal-proxima" style="width:160px;height:160px;margin-bottom:0;"></div>
-      <div style="width:90%;max-width:400px;position:relative;flex:1;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 200px);">
+      <div style="width:90%;max-width:400px;position:relative;flex:1;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 200px);padding-bottom:20px;">
         <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
-          <div id="codeRunnerWindow" style="width:100%;height:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:11.2px;line-height:1.4;color:var(--text-primary);position:relative;overflow:hidden;">
+          <div id="codeRunnerWindow" style="width:100%;height:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:13px;line-height:1.5;color:var(--text-primary);position:relative;overflow:hidden;">
             <div id="codeRunnerContent" style="position:absolute;top:12px;left:12px;right:12px;bottom:12px;z-index:1;overflow:hidden;"></div>
           </div>
         </div>
@@ -10259,11 +10259,13 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         restoreSession();
         initializeDefaultData();
+        loadTasksFromStorage();
         initUI();
     });
 } else {
     restoreSession();
     initializeDefaultData();
+    loadTasksFromStorage();
     initUI();
 }
 
@@ -11184,6 +11186,78 @@ let taskTabCounter = 1;
 let activeTaskTab = 'overview';
 let taskStore = { overview: [] }; // Store tasks and their pipelines
 let taskMetadata = {}; // Store task names
+
+// ============================================================
+// TASK STORAGE FUNCTIONS
+// ============================================================
+function saveTasksToStorage() {
+    try {
+        localStorage.setItem('mse_tasks', JSON.stringify(taskStore));
+        localStorage.setItem('mse_task_metadata', JSON.stringify(taskMetadata));
+        console.log('[STORAGE] Tasks saved successfully');
+    } catch (e) {
+        console.error('[STORAGE] Error saving tasks:', e);
+    }
+}
+
+function loadTasksFromStorage() {
+    try {
+        const savedTasks = localStorage.getItem('mse_tasks');
+        const savedMetadata = localStorage.getItem('mse_task_metadata');
+        
+        if (savedTasks) {
+            taskStore = JSON.parse(savedTasks);
+            console.log('[STORAGE] Tasks loaded:', Object.keys(taskStore));
+        }
+        
+        if (savedMetadata) {
+            taskMetadata = JSON.parse(savedMetadata);
+            console.log('[STORAGE] Metadata loaded:', Object.keys(taskMetadata));
+        }
+        
+        // Rebuild task tabs from loaded data
+        rebuildTaskTabs();
+    } catch (e) {
+        console.error('[STORAGE] Error loading tasks:', e);
+        taskStore = { overview: [] };
+        taskMetadata = {};
+    }
+}
+
+function rebuildTaskTabs() {
+    const taskTabsContainer = document.getElementById('taskTabs');
+    if (!taskTabsContainer) return;
+    
+    // Clear existing tabs (except overview)
+    const existingTabs = taskTabsContainer.querySelectorAll('[data-task]');
+    existingTabs.forEach(tab => tab.remove());
+    
+    // Recreate tabs from taskStore
+    Object.keys(taskStore).forEach(taskId => {
+        if (taskId !== 'overview' && taskStore[taskId].title) {
+            const newTaskTab = document.createElement('button');
+            newTaskTab.className = 'chat-tab';
+            newTaskTab.dataset.task = taskId;
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = taskStore[taskId].title;
+            newTaskTab.appendChild(nameSpan);
+            
+            // Add click handler
+            newTaskTab.addEventListener('click', (e) => {
+                if (newTaskTab.classList.contains('active')) {
+                    e.stopPropagation();
+                    toggleTaskTabMenu(newTaskTab, taskId, nameSpan);
+                } else {
+                    switchTaskTab(taskId);
+                    closeAllTaskMenus();
+                }
+            });
+            
+            taskTabsContainer.appendChild(newTaskTab);
+        }
+    });
+}
 
 function createChatTabElement(id, name, isBase) {
     const tab = document.createElement('button');
@@ -13472,43 +13546,34 @@ function createNewTask() {
     const taskName = prompt('Название задачи:');
     if (!taskName || !taskName.trim()) return;
     
-    // Create new tab for the task
-    const innerTabs = document.querySelector('.inner-tabs');
-    const minimizeBtn = innerTabs.querySelector('.btn-minimize');
+    // Generate unique task ID
+    const taskId = 'task-' + Date.now();
     
-    // Create new tab button
-    const newTab = document.createElement('button');
-    newTab.className = 'inner-tab';
-    newTab.dataset.inner = 'task-' + Date.now();
-    newTab.innerHTML = `
-        <img class="inner-tab-icon icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-        <span>${taskName}</span>
-    `;
+    // Create task object
+    const newTask = {
+        title: taskName,
+        description: '',
+        pipeline: [],
+        completedSteps: [],
+        priority: 'medium',
+        status: 'active',
+        createdAt: new Date().toISOString()
+    };
     
-    // Insert before minimize button
-    innerTabs.insertBefore(newTab, minimizeBtn);
+    // Save to taskStore
+    taskStore[taskId] = newTask;
+    console.log('[CREATE TASK] Task created:', taskId, newTask);
     
-    // Deactivate all tabs
-    document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+    // Save to Firebase if user is logged in
+    if (currentUser) {
+        saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+    }
     
-    // Activate new tab
-    newTab.classList.add('active');
+    // Restore task tabs to show the new task
+    restoreTaskTabs();
     
-    // Show task content
-    const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:8px;padding:20px;">
-            <div class="material-item" style="cursor:default;">
-                <div class="material-icon">
-                    <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/770747b8e4153b1de7ae798eb169e0b221be1bba/tab_materials.svg" alt="">
-                </div>
-                <div class="material-info">
-                    <h3>${taskName}</h3>
-                    <p>Задача создана. Опишите детали в чате с Проксимой.</p>
-                </div>
-            </div>
-        </div>
-    `;
+    // Switch to the new task tab
+    switchTaskTab(taskId);
 }
 // ============================================================
 // IMAGE MODAL
@@ -15672,6 +15737,9 @@ function deleteTaskTab(taskId) {
         if (activeTaskTab === taskId) switchTaskTab('overview');
         updateTaskTabsBlur();
         
+        // Save to localStorage
+        saveTasksToStorage();
+        
         // Auto-save to Firebase
         if (currentUser) {
             saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
@@ -16089,6 +16157,9 @@ function toggleStepCompletion(taskId, stepIndex) {
     if (activeTaskTab === 'overview') {
         renderTaskContent('overview');
     }
+    
+    // Save to localStorage
+    saveTasksToStorage();
     
     // Auto-save to Firebase
     if (currentUser) {
@@ -17207,6 +17278,9 @@ async function createNewTask() {
                     console.log('[PIPELINE] Received pipeline text:', responseText);
                     taskStore[taskId].pipeline = responseText;
                     taskStore[taskId].status = 'ready';
+                    
+                    // Save to localStorage
+                    saveTasksToStorage();
                     
                     // Close modal after task is created
                     closeNewTaskModal();
