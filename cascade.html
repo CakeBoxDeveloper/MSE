@@ -17,7 +17,7 @@
     <script type="module">
         // Firebase configuration and initialization
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
         
         const firebaseConfig = {
@@ -38,6 +38,7 @@
         window.firebaseDoc = doc;
         window.firebaseSetDoc = setDoc;
         window.firebaseGetDoc = getDoc;
+        window.firebaseGetDocs = getDocs;
         window.firebaseUpdateDoc = updateDoc;
         window.firebaseCollection = collection;
         window.firebaseServerTimestamp = serverTimestamp;
@@ -3615,7 +3616,7 @@ function expandBlock(id) {
 // ============================================================
 // AUTH - с улучшенными анимациями размера
 // ============================================================
-let users = [{ id:1001, pin:'1234', createdAt: new Date().toISOString() }];
+let users = []; // Пустой массив - все пользователи будут регистрироваться заново
 let currentUser = null;
 let loginDate = null;
 
@@ -4449,8 +4450,52 @@ function debugCurrentState() {
     console.log('=== END DEBUG ===');
 }
 
-// Make debug function available globally for testing
-window.debugCurrentState = debugCurrentState;
+// Debug function to clear all data and reset system
+window.resetSystem = function() {
+    console.log('=== RESETTING SYSTEM ===');
+    
+    // Clear localStorage
+    localStorage.clear();
+    console.log('✓ localStorage cleared');
+    
+    // Reset users array to empty (system will start from 1001)
+    users.length = 0;
+    console.log('✓ users array cleared');
+    
+    // Reset cellNumberManager
+    cellNumberManager.allIssuedNumbers.clear();
+    cellNumberManager.reservedNumbers.clear();
+    console.log('✓ cellNumberManager reset');
+    
+    // Reset current user
+    currentUser = null;
+    loginDate = null;
+    console.log('✓ currentUser reset');
+    
+    // Reset task and chat stores
+    taskStore = { overview: [] };
+    chatStore = { proxima: [] };
+    taskMetadata = {};
+    chatMetadata = {};
+    pinnedChats = new Set();
+    console.log('✓ stores reset');
+    
+    console.log('=== SYSTEM RESET COMPLETE ===');
+    console.log('Next user will get ID: 1001');
+    console.log('Refresh page to see clean state');
+};
+
+// Test function to check registration system
+window.testRegistration = function() {
+    console.log('=== TESTING REGISTRATION SYSTEM ===');
+    console.log('Current users:', users.map(u => ({id: u.id, pin: u.pin})));
+    console.log('cellNumberManager.allIssuedNumbers:', Array.from(cellNumberManager.allIssuedNumbers));
+    console.log('cellNumberManager.reservedNumbers:', Array.from(cellNumberManager.reservedNumbers.entries()));
+    
+    cellNumberManager.getNextAvailableNumber().then(nextId => {
+        console.log('Next available ID would be:', nextId);
+    });
+};
 
 // Test function to manually save data (for debugging)
 window.testSaveData = function() {
@@ -4493,6 +4538,19 @@ window.testLoadData = function() {
         }
     }).catch(err => {
         console.error('✗ Data load failed:', err);
+    });
+};
+
+// Test function for registration system
+window.testRegistration = function() {
+    console.log('=== TESTING REGISTRATION SYSTEM ===');
+    console.log('Current users:', users.length);
+    console.log('Users array:', users.map(u => ({id: u.id, pin: u.pin})));
+    console.log('cellNumberManager.allIssuedNumbers:', Array.from(cellNumberManager.allIssuedNumbers));
+    console.log('cellNumberManager.reservedNumbers:', Array.from(cellNumberManager.reservedNumbers.keys()));
+    
+    cellNumberManager.getNextAvailableNumber().then(nextId => {
+        console.log('Next available ID would be:', nextId);
     });
 };
 function validateCurrentUser(operation = 'Firebase operation') {
@@ -5925,10 +5983,23 @@ const cellNumberManager = {
     
     // Получить первый свободный номер
     async getNextAvailableNumber() {
+        // Инициализируем из существующих пользователей если еще не инициализировано
+        if (this.allIssuedNumbers.size === 0 && users.length > 0) {
+            users.forEach(user => this.allIssuedNumbers.add(user.id));
+            console.log(`[CELL] Initialized with ${this.allIssuedNumbers.size} existing numbers`);
+        }
+        
+        console.log(`[CELL] Current state before finding next number:`);
+        console.log(`[CELL] - allIssuedNumbers:`, Array.from(this.allIssuedNumbers).sort((a,b) => a-b));
+        console.log(`[CELL] - reservedNumbers:`, Array.from(this.reservedNumbers.keys()).sort((a,b) => a-b));
+        console.log(`[CELL] - users array length:`, users.length);
+        
         let number = 1001;
         while (this.allIssuedNumbers.has(number) || this.reservedNumbers.has(number)) {
+            console.log(`[CELL] Number ${number} is taken (issued: ${this.allIssuedNumbers.has(number)}, reserved: ${this.reservedNumbers.has(number)})`);
             number++;
         }
+        console.log(`[CELL] ✓ Next available number: ${number}`);
         return number;
     },
     
@@ -5970,16 +6041,105 @@ const cellNumberManager = {
     // Инициализировать из Firebase (загрузить все выданные номера)
     async initializeFromFirebase() {
         try {
-            // Здесь можно добавить логику загрузки всех номеров из Firebase
-            // Пока используем локальный массив users
+            console.log('[CELL] Initializing cellNumberManager from Firebase...');
+            
+            // Сначала загружаем все существующие номера из массива users
             users.forEach(user => {
                 this.allIssuedNumbers.add(user.id);
+                console.log(`[CELL] Added existing local user ID: ${user.id}`);
             });
-            console.log(`[CELL] Initialized with ${this.allIssuedNumbers.size} existing numbers`);
+            
+            // Затем загружаем все пользователей из Firebase
+            try {
+                // Check if Firebase functions are available
+                if (!window.firebaseGetDocs || !window.firebaseCollection || !window.firebaseDB) {
+                    throw new Error('Firebase functions not available');
+                }
+                
+                // Получаем коллекцию пользователей из Firebase
+                const usersCollection = window.firebaseCollection(window.firebaseDB, 'users');
+                const querySnapshot = await window.firebaseGetDocs(usersCollection);
+                
+                querySnapshot.forEach((doc) => {
+                    const userId = parseInt(doc.id);
+                    if (!isNaN(userId)) {
+                        this.allIssuedNumbers.add(userId);
+                        console.log(`[CELL] Added Firebase user ID: ${userId}`);
+                        
+                        // Добавляем пользователя в локальный массив если его там нет
+                        if (!users.find(u => u.id === userId)) {
+                            const userData = doc.data();
+                            users.push({
+                                id: userId,
+                                pin: userData.pin || '0000',
+                                gender: userData.gender || 'male',
+                                age: userData.age || 18,
+                                createdAt: userData.createdAt || new Date().toISOString()
+                            });
+                            console.log(`[CELL] Added user ${userId} to local array`);
+                        }
+                    }
+                });
+                
+                console.log(`[CELL] ✓ Loaded ${querySnapshot.size} users from Firebase`);
+            } catch (firebaseError) {
+                console.warn('[CELL] Could not load users from Firebase:', firebaseError.message);
+                console.log('[CELL] Continuing with local users only');
+            }
+            
+            console.log(`[CELL] ✓ Initialized with ${this.allIssuedNumbers.size} total numbers`);
+            console.log(`[CELL] Issued numbers:`, Array.from(this.allIssuedNumbers).sort((a,b) => a-b));
+            console.log(`[CELL] Local users array:`, users.length, 'users');
+            
+            const nextId = await this.getNextAvailableNumber();
+            console.log(`[CELL] Next available number will be: ${nextId}`);
         } catch (error) {
             console.error('[CELL] Error initializing from Firebase:', error);
         }
     }
+};
+
+// Debug function to test registration system
+window.debugRegistrationSystem = async function() {
+    console.log('=== REGISTRATION SYSTEM DEBUG ===');
+    console.log('1. Current users array:', users.length, 'users');
+    users.forEach(user => console.log(`   - User ${user.id} (pin: ${user.pin})`));
+    
+    console.log('2. cellNumberManager state:');
+    console.log('   - allIssuedNumbers:', Array.from(cellNumberManager.allIssuedNumbers).sort((a,b) => a-b));
+    console.log('   - reservedNumbers:', Array.from(cellNumberManager.reservedNumbers.keys()).sort((a,b) => a-b));
+    
+    console.log('3. Testing getNextAvailableNumber:');
+    const nextId = await cellNumberManager.getNextAvailableNumber();
+    console.log(`   - Next available ID: ${nextId}`);
+    
+    console.log('4. Firebase check:');
+    if (!window.firebaseGetDocs || !window.firebaseCollection || !window.firebaseDB) {
+        console.log('   - Firebase functions not available');
+    } else {
+        try {
+            const usersCollection = window.firebaseCollection(window.firebaseDB, 'users');
+            const querySnapshot = await window.firebaseGetDocs(usersCollection);
+            console.log(`   - Firebase has ${querySnapshot.size} users:`);
+            querySnapshot.forEach((doc) => {
+                console.log(`     - Firebase user ${doc.id}:`, doc.data());
+            });
+        } catch (error) {
+            console.log('   - Firebase error:', error.message);
+        }
+    }
+    
+    console.log('=== END DEBUG ===');
+};
+
+// Test registration function
+window.testRegistration = async function() {
+    console.log('=== TESTING REGISTRATION ===');
+    await waitForFirebase();
+    await cellNumberManager.initializeFromFirebase();
+    const nextId = await cellNumberManager.getNextAvailableNumber();
+    console.log(`Next registration would get ID: ${nextId}`);
+    console.log('=== END TEST ===');
 };
 
 // ── Login ID check ──
@@ -6383,7 +6543,10 @@ loginPinInputs.forEach((id,index)=>{
             
             const pin=loginPinInputs.map(p=>document.getElementById(p).value).join('');
             const uid=parseInt(enteredLoginId);
+            console.log('[LOGIN] Attempting login with ID:', uid, 'PIN:', pin);
+            console.log('[LOGIN] Available users:', users.map(u => ({id: u.id, pin: u.pin})));
             let user=users.find(u=>u.id===uid&&u.pin===pin);
+            console.log('[LOGIN] User found:', user ? 'YES' : 'NO');
             if(user){
                 // Keep fingerprint on current frame (freeze it on middle frame)
                 if (pipelineAnimations.fingerprint) {
@@ -7036,7 +7199,9 @@ function register(){
             gender: selectedGender,
             createdAt:new Date().toISOString()
         };
+        console.log('[REGISTER] Creating new user:', newUser);
         users.push(newUser);
+        console.log('[REGISTER] Users array now contains:', users.length, 'users');
         currentUser=newUser;
         
         // Start lifecycle manager
@@ -10439,17 +10604,43 @@ function animateVitalSigns() {
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Wait for Firebase to be initialized before initializing cell number manager
+        await waitForFirebase();
+        await cellNumberManager.initializeFromFirebase();
         restoreSession();
         initializeDefaultData();
         // loadTasksFromStorage(); // REMOVED - now called inside restoreSession() after currentUser is set
         initUI();
     });
 } else {
-    restoreSession();
-    initializeDefaultData();
-    // loadTasksFromStorage(); // REMOVED - now called inside restoreSession() after currentUser is set
-    initUI();
+    // Wait for Firebase to be initialized before initializing cell number manager
+    (async () => {
+        await waitForFirebase();
+        await cellNumberManager.initializeFromFirebase();
+        restoreSession();
+        initializeDefaultData();
+        // loadTasksFromStorage(); // REMOVED - now called inside restoreSession() after currentUser is set
+        initUI();
+    })();
+}
+
+// Wait for Firebase to be fully initialized
+async function waitForFirebase() {
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max wait
+    
+    while (!window.firebaseGetDocs && attempts < maxAttempts) {
+        console.log(`[FIREBASE] Waiting for Firebase initialization... (${attempts + 1}/${maxAttempts})`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
+    if (window.firebaseGetDocs) {
+        console.log('[FIREBASE] ✓ Firebase is ready');
+    } else {
+        console.warn('[FIREBASE] ⚠ Firebase initialization timeout - continuing without Firebase');
+    }
 }
 
 // Initialize default data for weight and stats
