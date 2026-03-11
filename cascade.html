@@ -1979,7 +1979,7 @@
         .fullscreen-success { display:none;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:10px 0; }
         .fullscreen-success[style*="display:flex"], .fullscreen-success[style*="display: flex"] { display:flex !important; }
         .fullscreen-success .success-text { font-size:15px;line-height:1.6;width:100%; }
-        .logout-modal { text-align:center;display:flex;flex-direction:column;justify-content:flex-start;gap:12px;padding:0; }
+        .logout-modal { text-align:center;display:flex;flex-direction:column;justify-content:flex-start;gap:6px;padding:0; }
         .logout-modal h2 { margin-bottom:4px; }
         .logout-modal p { margin-bottom:6px; }
         .logout-modal img { filter:brightness(0) invert(1) !important; }
@@ -2478,19 +2478,19 @@
   <!-- LOGOUT -->
     <div id="logoutModal" style="display:none;">
       <div class="logout-modal">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <h2 class="auth-header" style="font-size:16px;font-weight:600;letter-spacing:-.3px;text-align:left;margin:0;">Отключиться от сети MSE</h2>
           <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Выход" style="width:24px;height:24px;opacity:0.7;">
         </div>
         <div>
-          <p style="font-size:12px;color:var(--text-secondary);line-height:1.4;text-align:left;margin-bottom:16px;">Вы уверены, что хотите прекратить синхронизацию?</p>
+          <p style="font-size:12px;color:var(--text-secondary);line-height:1.4;text-align:left;margin-bottom:8px;">Вы уверены, что хотите прекратить синхронизацию?</p>
         </div>
         <div>
           <div class="auth-buttons">
             <button type="button" class="auth-btn" onclick="closeAuth()">Отмена</button>
             <button type="button" class="auth-btn primary" onclick="confirmLogout()">Выйти</button>
           </div>
-          <div style="height:12px;"></div>
+          <div style="height:6px;"></div>
         </div>
       </div>
     </div>
@@ -4252,6 +4252,12 @@ function updateBioProfileDisplay() {
 // Save user data to Firebase
 async function saveUserToFirebase(userId, userData) {
     try {
+        // Validate userId
+        if (!userId || userId === undefined || userId === null) {
+            console.error('[FIREBASE] Invalid userId for saveUserToFirebase:', userId);
+            return;
+        }
+        
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
         await window.firebaseSetDoc(userRef, {
             ...userData,
@@ -4272,6 +4278,12 @@ async function saveUserToFirebase(userId, userData) {
 async function loadUserFromFirebase(userId) {
     const maxRetries = 3;
     const retryDelay = 1000; // 1 second
+    
+    // Validate userId
+    if (!userId || userId === undefined || userId === null) {
+        console.error('[FIREBASE] Invalid userId for loadUserFromFirebase:', userId);
+        return null;
+    }
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
@@ -4330,6 +4342,12 @@ async function saveAchievementsToFirebase(userId, achievements) {
 // Save notes to Firebase
 async function saveNotesToFirebase(userId, notes) {
     try {
+        // Validate userId
+        if (!userId || userId === undefined || userId === null) {
+            console.error('[FIREBASE] Invalid userId for saveNotesToFirebase:', userId);
+            return;
+        }
+        
         console.log('[FIREBASE] Saving notes to Firebase:', notes.length, notes);
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
         await window.firebaseUpdateDoc(userRef, {
@@ -4373,8 +4391,17 @@ async function saveChatsToFirebase(userId, chats) {
             return;
         }
         
+        // Additional validation to prevent undefined errors
+        if (userId === undefined || userId === null) {
+            console.error('[FIREBASE] userId is undefined/null, cannot save chats');
+            return;
+        }
+        
         console.log('[FIREBASE] Saving chats for user:', userId);
-        console.log('[FIREBASE] Chats to save:', chats);
+        console.log('[FIREBASE] userId type:', typeof userId);
+        console.log('[FIREBASE] Chats to save:', Object.keys(chats).length, 'chat tabs');
+        console.log('[FIREBASE] Chat metadata:', chatMetadata);
+        console.log('[FIREBASE] Pinned chats:', Array.from(pinnedChats));
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
         await window.firebaseUpdateDoc(userRef, {
             chats_taskorganizer: chats,
@@ -4382,42 +4409,145 @@ async function saveChatsToFirebase(userId, chats) {
             pinnedChats: Array.from(pinnedChats),
             lastUpdated: window.firebaseServerTimestamp()
         });
-        console.log('[FIREBASE] Chats saved successfully');
+        console.log('[FIREBASE] ✓ Chats saved successfully to Firebase');
     } catch (error) {
         if (error.code === 'unavailable' || error.message.includes('offline')) {
             console.warn('[FIREBASE] Cannot save chats - client is offline. Data will sync when connection is restored.');
         } else {
-            console.error('[FIREBASE] Error saving chats:', error);
+            console.error('[FIREBASE] ✗ Error saving chats:', error);
+            console.error('[FIREBASE] userId was:', userId, 'type:', typeof userId);
+            console.error('[FIREBASE] chats object keys:', Object.keys(chats));
+            console.error('[FIREBASE] chatMetadata:', chatMetadata);
         }
     }
 }
 
+// Helper function to validate currentUser before Firebase operations
+function validateCurrentUser() {
+    if (!currentUser) {
+        console.error('[VALIDATION] currentUser is null/undefined');
+        return false;
+    }
+    if (!currentUser.id) {
+        console.error('[VALIDATION] currentUser.id is null/undefined');
+        console.error('[VALIDATION] currentUser object:', currentUser);
+        return false;
+    }
+    console.log('[VALIDATION] ✓ currentUser is valid:', currentUser.id);
+    return true;
+}
+
+// Debug function to check current state
+function debugCurrentState() {
+    console.log('=== DEBUG CURRENT STATE ===');
+    console.log('currentUser:', currentUser);
+    console.log('currentUser.id:', currentUser?.id, 'type:', typeof currentUser?.id);
+    console.log('loginDate:', loginDate);
+    console.log('taskStore keys:', Object.keys(taskStore));
+    console.log('chatStore keys:', Object.keys(chatStore));
+    console.log('localStorage session:', localStorage.getItem('mse_user_session'));
+    console.log('=== END DEBUG ===');
+}
+
+// Make debug function available globally for testing
+window.debugCurrentState = debugCurrentState;
+
+// Test function to manually save data (for debugging)
+window.testSaveData = function() {
+    console.log('=== TESTING DATA SAVE ===');
+    if (!validateCurrentUser()) {
+        console.error('Cannot test save - currentUser is invalid');
+        return;
+    }
+    
+    console.log('Testing chat save...');
+    saveChatsToFirebase(currentUser.id, chatStore);
+    
+    console.log('Testing task save...');
+    saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+    
+    console.log('Save test completed - check console for results');
+};
+
+// Test function to manually load data (for debugging)
+window.testLoadData = function() {
+    console.log('=== TESTING DATA LOAD ===');
+    if (!validateCurrentUser()) {
+        console.error('Cannot test load - currentUser is invalid');
+        return;
+    }
+    
+    console.log('Testing data load...');
+    loadUserFromFirebase(currentUser.id).then(data => {
+        console.log('Loaded data:', data);
+        if (data) {
+            console.log('✓ Data load successful');
+            if (data.chats_taskorganizer) {
+                console.log('- Found chats:', Object.keys(data.chats_taskorganizer).length, 'tabs');
+            }
+            if (data.tasks_helix) {
+                console.log('- Found tasks:', Object.keys(data.tasks_helix).length, 'tasks');
+            }
+        } else {
+            console.log('✗ No data found or load failed');
+        }
+    }).catch(err => {
+        console.error('✗ Data load failed:', err);
+    });
+};
+function validateCurrentUser(operation = 'Firebase operation') {
+    if (!currentUser) {
+        console.log(`[VALIDATION] No user logged in, skipping ${operation}`);
+        return false;
+    }
+    
+    if (currentUser.id === undefined || currentUser.id === null) {
+        console.error(`[VALIDATION] currentUser.id is undefined/null, cannot perform ${operation}`);
+        console.error('[VALIDATION] currentUser object:', currentUser);
+        return false;
+    }
+    
+    return true;
+}
+
 // Safe wrapper for saving chats with timeout
 function saveChatsToFirebaseDelayed(delay = 2000) {
-    if (currentUser && currentUser.id) {
-        const userId = currentUser.id; // Capture userId before setTimeout
-        clearTimeout(window.chatSaveTimeout);
-        window.chatSaveTimeout = setTimeout(() => {
-            // Double-check user is still logged in
-            if (currentUser && currentUser.id) {
-                saveChatsToFirebase(userId, chatStore);
-            }
-        }, delay);
+    if (!validateCurrentUser('delayed chat save')) {
+        return;
     }
+    
+    const userId = currentUser.id; // Capture userId before setTimeout
+    
+    clearTimeout(window.chatSaveTimeout);
+    window.chatSaveTimeout = setTimeout(() => {
+        // Double-check user is still logged in and valid
+        if (validateCurrentUser('delayed chat save') && currentUser.id === userId) {
+            console.log('[FIREBASE] Delayed save - saving chats for user:', userId);
+            saveChatsToFirebase(userId, chatStore);
+        } else {
+            console.log('[FIREBASE] User logged out or changed, skipping delayed chat save');
+        }
+    }, delay);
 }
 
 // Safe wrapper for saving tasks with timeout
 function saveTasksToFirebaseDelayed(delay = 1000) {
-    if (currentUser && currentUser.id) {
-        const userId = currentUser.id; // Capture userId before setTimeout
-        clearTimeout(window.taskSaveTimeout);
-        window.taskSaveTimeout = setTimeout(() => {
-            // Double-check user is still logged in
-            if (currentUser && currentUser.id) {
-                saveTasksToFirebase(userId, taskStore, taskMetadata);
-            }
-        }, delay);
+    if (!validateCurrentUser('delayed task save')) {
+        return;
     }
+    
+    const userId = currentUser.id; // Capture userId before setTimeout
+    
+    clearTimeout(window.taskSaveTimeout);
+    window.taskSaveTimeout = setTimeout(() => {
+        // Double-check user is still logged in and valid
+        if (validateCurrentUser('delayed task save') && currentUser.id === userId) {
+            console.log('[FIREBASE] Delayed save - saving tasks for user:', userId);
+            saveTasksToFirebase(userId, taskStore, taskMetadata);
+        } else {
+            console.log('[FIREBASE] User logged out or changed, skipping delayed task save');
+        }
+    }, delay);
 }
 
 // Load chats from Firebase
@@ -5624,6 +5754,9 @@ function confirmLogout() {
         // Restore task tabs (will show empty overview since taskStore is empty)
         restoreTaskTabs();
         
+        // Render overview content to show placeholder
+        renderTaskContent('overview');
+        
         // Hide search bar
         const taskSearchBar = document.getElementById('taskOverviewSearchBar');
         if (taskSearchBar) {
@@ -6565,7 +6698,7 @@ loginPinInputs.forEach((id,index)=>{
                             // Save session to localStorage
                             try {
                                 const sessionToSave = {
-                                    id: currentUser.id,
+                                    userId: currentUser.id,
                                     pin: user.pin,
                                     gender: currentUser.gender,
                                     age: currentUser.age,
@@ -7554,7 +7687,9 @@ class LifecycleManager {
         // Save changes to Firebase
         if (modified && currentUser) {
             console.log('Lifecycle Manager: Saving updated chats to Firebase...');
-            await saveChatsToFirebase(currentUser.id, chatStore);
+            if (validateCurrentUser('lifecycle manager chat save')) {
+                await saveChatsToFirebase(currentUser.id, chatStore);
+            }
         }
     }
 }
@@ -10372,14 +10507,59 @@ function restoreSession() {
             const session = JSON.parse(sessionData);
             console.log('[SESSION] Parsed session:', session);
             
-            // Restore currentUser
+            // Restore currentUser with multiple fallbacks
+            let userId = session.userId || session.id;
+            
+            // Additional fallback - if userId is still undefined, try to extract from other session properties
+            if (!userId && session.pin) {
+                // If we have a pin but no userId, assume it's user 1001 (default user)
+                userId = 1001;
+                console.log('[SESSION] No userId found, using default 1001');
+            }
+            
+            console.log('[SESSION] Final userId:', userId, 'type:', typeof userId);
+            
+            // Validate that userId is not undefined
+            if (userId === undefined || userId === null) {
+                console.error('[SESSION] CRITICAL ERROR: userId is undefined/null after extraction!');
+                console.error('[SESSION] session.userId:', session.userId);
+                console.error('[SESSION] session.id:', session.id);
+                console.error('[SESSION] session object:', session);
+                console.error('[SESSION] This will cause Firebase operations to fail');
+                
+                // Clear invalid session data and force re-login
+                console.log('[SESSION] Clearing invalid session data...');
+                localStorage.removeItem('mse_user_session');
+                console.log('[SESSION] Invalid session cleared. User will need to login again.');
+                return; // Don't continue with broken session
+            }
+            
+            // Ensure userId is a number
+            if (typeof userId === 'string') {
+                userId = parseInt(userId, 10);
+                console.log('[SESSION] Converted userId to number:', userId);
+            }
+            
             currentUser = {
-                id: session.id,
+                id: userId,
                 pin: session.pin,
                 gender: session.gender || 'male',
                 age: session.age || 18
             };
             console.log('[SESSION] currentUser restored:', currentUser);
+            console.log('[SESSION] currentUser.id final:', currentUser.id, 'type:', typeof currentUser.id);
+            
+            // Double-check that currentUser.id is properly set
+            if (currentUser.id === undefined || currentUser.id === null) {
+                console.error('[SESSION] CRITICAL: currentUser.id is STILL undefined after assignment!');
+                console.error('[SESSION] This should never happen - investigating...');
+                console.error('[SESSION] userId was:', userId, 'type:', typeof userId);
+                console.error('[SESSION] currentUser object:', currentUser);
+                
+                // Force set to default user as last resort
+                currentUser.id = 1001;
+                console.log('[SESSION] EMERGENCY: Force set currentUser.id to 1001');
+            }
             
             // Restore loginDate
             loginDate = new Date(session.loginDate);
@@ -10388,23 +10568,33 @@ function restoreSession() {
             // Update UI after DOM is ready
             setTimeout(() => {
                 console.log('[SESSION] Updating UI elements...');
+                console.log('[SESSION] currentUser at UI update:', currentUser);
+                console.log('[SESSION] currentUser.id at UI update:', currentUser.id, 'type:', typeof currentUser.id);
+                
+                // Final safety check before UI update
+                if (!currentUser || !currentUser.id) {
+                    console.error('[SESSION] CRITICAL: currentUser or currentUser.id is undefined at UI update!');
+                    console.error('[SESSION] currentUser:', currentUser);
+                    console.error('[SESSION] Skipping UI update to prevent errors');
+                    return;
+                }
                 
                 // Update header button
                 const headerBtn = document.getElementById('headerLoginBtn');
                 console.log('[SESSION] Header button element:', headerBtn);
-                if (headerBtn) {
+                if (headerBtn && currentUser.id) {
                     const headerHTML = `<img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="Звено ${currentUser.id.toString().padStart(4,'0')}" title="Звено ${currentUser.id.toString().padStart(4,'0')}">`;
                     console.log('[SESSION] Setting header HTML:', headerHTML);
                     headerBtn.innerHTML = headerHTML;
                     console.log('[SESSION] Header button updated');
                 } else {
-                    console.error('[SESSION] Header button not found!');
+                    console.error('[SESSION] Header button not found or currentUser.id is undefined!', 'headerBtn:', headerBtn, 'currentUser.id:', currentUser.id);
                 }
                 
                 // Update monitor plate
                 const monitorPlate = document.getElementById('monitorUserPlate');
                 console.log('[SESSION] Monitor plate element:', monitorPlate);
-                if (monitorPlate) {
+                if (monitorPlate && currentUser.id) {
                     const plateHTML = `<span style="text-transform: uppercase; letter-spacing: 0.3px; font-size: 12px; white-space: nowrap; font-weight: 600;">Звено ${currentUser.id.toString().padStart(4,'0')}</span>`;
                     console.log('[SESSION] Setting monitor plate HTML:', plateHTML);
                     monitorPlate.innerHTML = plateHTML;
@@ -10414,7 +10604,7 @@ function restoreSession() {
                     console.log('[SESSION] Monitor plate innerHTML after update:', monitorPlate.innerHTML);
                     console.log('[SESSION] Monitor plate updated');
                 } else {
-                    console.error('[SESSION] Monitor plate not found!');
+                    console.error('[SESSION] Monitor plate not found or currentUser.id is undefined!', 'monitorPlate:', monitorPlate, 'currentUser.id:', currentUser.id);
                 }
                 
                 // Show invite and leaderboard buttons
@@ -10445,6 +10635,12 @@ function restoreSession() {
                     if (firebaseData.chats_taskorganizer) {
                         chatStore = firebaseData.chats_taskorganizer;
                         console.log('[SESSION] Chats loaded from Firebase:', chatStore);
+                        
+                        // Render chat messages after loading
+                        setTimeout(() => {
+                            renderChatMessages();
+                            console.log('[SESSION] Chat messages rendered after loading from Firebase');
+                        }, 100);
                     }
                     if (firebaseData.chatMetadata) {
                         chatMetadata = firebaseData.chatMetadata;
@@ -10459,6 +10655,12 @@ function restoreSession() {
                     if (firebaseData.tasks_helix) {
                         taskStore = firebaseData.tasks_helix;
                         console.log('[SESSION] Tasks loaded from Firebase:', taskStore);
+                        
+                        // Rebuild task tabs after loading
+                        setTimeout(() => {
+                            rebuildTaskTabs();
+                            console.log('[SESSION] Task tabs rebuilt after loading from Firebase');
+                        }, 100);
                     }
                     if (firebaseData.taskMetadata) {
                         taskMetadata = firebaseData.taskMetadata;
@@ -10510,6 +10712,11 @@ function restoreSession() {
                     
                     // Restore task tabs after loading from Firebase
                     restoreTaskTabs();
+                    
+                    // Render task content for current active tab
+                    if (activeTaskTab) {
+                        renderTaskContent(activeTaskTab);
+                    }
                     
                     // Show invite and leaderboard buttons
                     const inviteBtn = document.getElementById('inviteButton');
@@ -10576,11 +10783,46 @@ function restoreSession() {
             });
             
             console.log('[SESSION] Session restored successfully');
+            
+            // Final validation and debug
+            setTimeout(() => {
+                console.log('[SESSION] Final validation after session restore...');
+                debugCurrentState();
+                if (validateCurrentUser()) {
+                    console.log('[SESSION] ✓ Session restoration completed successfully');
+                    console.log('[SESSION] User is ready to save/load data');
+                } else {
+                    console.error('[SESSION] ✗ Session restoration failed - currentUser is invalid');
+                    console.error('[SESSION] This will cause data persistence issues');
+                }
+            }, 200);
         } else {
             console.log('[SESSION] No saved session found');
+            console.log('[SESSION] User will need to login to access Firebase features');
         }
     } catch (e) {
         console.error('[SESSION] Failed to restore session:', e);
+        // Clear potentially corrupted session data
+        try {
+            localStorage.removeItem('mse_user_session');
+            console.log('[SESSION] Cleared potentially corrupted session data');
+        } catch (clearError) {
+            console.error('[SESSION] Error clearing session data:', clearError);
+        }
+    }
+    
+    // Final validation after session restore
+    console.log('[SESSION] Final validation - currentUser:', currentUser);
+    if (currentUser) {
+        console.log('[SESSION] Final validation - currentUser.id:', currentUser.id, 'type:', typeof currentUser.id);
+        if (currentUser.id === undefined || currentUser.id === null) {
+            console.error('[SESSION] FINAL VALIDATION FAILED: currentUser.id is still undefined/null');
+            currentUser = null; // Reset to prevent Firebase errors
+        } else {
+            console.log('[SESSION] ✓ Final validation passed - user session is valid');
+        }
+    } else {
+        console.log('[SESSION] No user session to validate');
     }
 }
 
@@ -12134,6 +12376,7 @@ function processAttachments(files, targetChat, messageText) {
 
 function sendMessage(){
     console.log('sendMessage called'); // DEBUG
+    console.log('[SEND] currentUser at message send:', currentUser?.id); // DEBUG
     const text = chatInput.value.trim();
     const hasFiles = attachedFiles.length > 0;
     
@@ -16474,16 +16717,29 @@ async function saveTasksToFirebase(userId, tasks, metadata) {
             return;
         }
         
+        // Additional validation to prevent undefined errors
+        if (userId === undefined || userId === null) {
+            console.error('[FIREBASE] userId is undefined/null, cannot save tasks');
+            return;
+        }
+        
         console.log('[FIREBASE] Saving tasks for user:', userId);
+        console.log('[FIREBASE] userId type:', typeof userId);
+        console.log('[FIREBASE] Tasks to save:', Object.keys(tasks).length, 'tasks');
+        console.log('[FIREBASE] Task metadata:', metadata);
+        
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
         await window.firebaseUpdateDoc(userRef, {
             tasks_helix: tasks,
             taskMetadata: metadata,
             lastUpdated: window.firebaseServerTimestamp()
         });
-        console.log('[FIREBASE] Tasks saved successfully');
+        console.log('[FIREBASE] ✓ Tasks saved successfully to Firebase');
     } catch (error) {
-        console.error('[FIREBASE] Error saving tasks:', error);
+        console.error('[FIREBASE] ✗ Error saving tasks:', error);
+        console.error('[FIREBASE] userId was:', userId, 'type:', typeof userId);
+        console.error('[FIREBASE] tasks object:', tasks);
+        console.error('[FIREBASE] metadata object:', metadata);
     }
 }
 
@@ -16600,6 +16856,8 @@ function updatePriorityLabel() {
 }
 
 function closeNewTaskModal() {
+    console.log('[MODAL] closeNewTaskModal called, isTaskGenerating:', isTaskGenerating);
+    
     // Prevent closing if task is being generated
     if (isTaskGenerating) {
         console.log('[MODAL] Cannot close - task is being generated');
@@ -16610,6 +16868,9 @@ function closeNewTaskModal() {
     const modalForm = document.getElementById('newTaskForm');
     const modalLoader = document.getElementById('newTaskModalLoader');
     
+    console.log('[MODAL] Modal elements:', { overlay, modalForm, modalLoader });
+    console.log('[MODAL] Loader display:', modalLoader ? modalLoader.style.display : 'null');
+    
     // Prevent closing if loader is visible (task is being created)
     if (modalLoader && modalLoader.style.display === 'flex') {
         console.log('[MODAL] Cannot close - task is being created');
@@ -16617,6 +16878,7 @@ function closeNewTaskModal() {
     }
     
     if (overlay) {
+        console.log('[MODAL] Closing modal...');
         overlay.classList.remove('active');
         setTimeout(() => {
             overlay.style.display = 'none';
@@ -16644,8 +16906,52 @@ function closeNewTaskModal() {
             document.getElementById('taskDeadlineDate').value = '';
             document.getElementById('taskDeadlineTime').value = '';
             updatePriorityLabel();
+            
+            console.log('[MODAL] Modal closed successfully');
         }, 300);
+    } else {
+        console.log('[MODAL] Overlay not found');
     }
+}
+
+// Force close modal function (for debugging)
+function forceCloseNewTaskModal() {
+    console.log('[MODAL] Force closing modal...');
+    
+    // Reset flag first
+    isTaskGenerating = false;
+    
+    const overlay = document.getElementById('newTaskOverlay');
+    const modalForm = document.getElementById('newTaskForm');
+    const modalLoader = document.getElementById('newTaskModalLoader');
+    
+    // Force hide loader
+    if (modalLoader) {
+        modalLoader.style.display = 'none';
+    }
+    
+    // Reset modal state
+    if (modalForm) {
+        modalForm.style.filter = '';
+        modalForm.style.opacity = '';
+        modalForm.style.pointerEvents = '';
+    }
+    
+    // Close overlay
+    if (overlay) {
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+    }
+    
+    // Clear form inputs
+    document.getElementById('taskTitle').value = '';
+    document.getElementById('taskDescription').value = '';
+    document.getElementById('taskPriority').value = '1';
+    document.getElementById('taskDeadlineDate').value = '';
+    document.getElementById('taskDeadlineTime').value = '';
+    updatePriorityLabel();
+    
+    console.log('[MODAL] Modal force closed');
 }
 
 // ============================================================
@@ -17365,8 +17671,8 @@ async function createNewTask() {
                         modalLoader.style.display = 'none';
                     }
                     
-                    // Close modal after task is created
-                    closeNewTaskModal();
+                    // Force close modal after task is created
+                    forceCloseNewTaskModal();
                     
                     // Render task content
                     if (activeTaskTab === taskId) {
@@ -17412,8 +17718,8 @@ async function createNewTask() {
                         modalLoader.style.display = 'none';
                     }
                     
-                    // Close modal on error
-                    closeNewTaskModal();
+                    // Force close modal on error
+                    forceCloseNewTaskModal();
                     
                     // Update task with error
                     taskStore[taskId].status = 'error';
@@ -17445,8 +17751,8 @@ async function createNewTask() {
                         modalLoader.style.display = 'none';
                     }
                     
-                    // Close modal
-                    closeNewTaskModal();
+                    // Force close modal
+                    forceCloseNewTaskModal();
                     
                     // Update task with error
                     taskStore[taskId].status = 'error';
@@ -17455,6 +17761,14 @@ async function createNewTask() {
                     }
                 }
             }, 30000); // 30 seconds timeout
+            
+            // Emergency timeout: force close after 35 seconds no matter what
+            setTimeout(() => {
+                if (isTaskGenerating) {
+                    console.error('[TASK CREATE] Emergency timeout - force closing modal');
+                    forceCloseNewTaskModal();
+                }
+            }, 35000); // 35 seconds emergency timeout
         }, 800);
     }, 150);
 }
