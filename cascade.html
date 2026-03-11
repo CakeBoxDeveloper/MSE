@@ -3622,7 +3622,9 @@ let loginDate = null;
 // Random placeholder phrases
 const placeholderPhrases = [
     "Каждую секунду в вашем теле происходит 37 миллиардов миллиардов химических реакций, которыми вы не управляете. Подключение к ядру MSE вернёт контроль над ситуацией. Модель Проксима может решить любую задачу.",
-    "Ночью мозг переписывает сам себя, удаляя связи, которые посчитал ненужными. Если вы не управляете структурой, ей управляет случай. Подключитесь к ядру сегодня, чтобы управлять своим завтра."
+    "Ночью мозг переписывает сам себя, удаляя связи, которые посчитал ненужными. Если вы не управляете структурой, ей управляет случай. Подключитесь к ядру сегодня, чтобы управлять своим завтра.",
+    "Человеческий мозг создан, чтобы забывать лишнее. 82% информации, полученной за сегодня, удалится к завтрашнему утру. Подключение к ядру MSE позволит сохранить и структурировать важные данные.",
+    "Современный человек за один день получает столько же информации, сколько человек в XIX веке получал за всю жизнь. Мозг вынужден тратить время и ресурсы на обработку бреда. Но подключение к ядру MSE может дать информационное преимущество."
 ];
 
 function getRandomPlaceholder() {
@@ -4365,6 +4367,12 @@ async function saveMonitorStatsToFirebase(userId, stats) {
 // Save chats to Firebase
 async function saveChatsToFirebase(userId, chats) {
     try {
+        // Check if user is logged in
+        if (!userId) {
+            console.log('[FIREBASE] No userId provided, skipping chat save');
+            return;
+        }
+        
         console.log('[FIREBASE] Saving chats for user:', userId);
         console.log('[FIREBASE] Chats to save:', chats);
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
@@ -4381,6 +4389,34 @@ async function saveChatsToFirebase(userId, chats) {
         } else {
             console.error('[FIREBASE] Error saving chats:', error);
         }
+    }
+}
+
+// Safe wrapper for saving chats with timeout
+function saveChatsToFirebaseDelayed(delay = 2000) {
+    if (currentUser && currentUser.id) {
+        const userId = currentUser.id; // Capture userId before setTimeout
+        clearTimeout(window.chatSaveTimeout);
+        window.chatSaveTimeout = setTimeout(() => {
+            // Double-check user is still logged in
+            if (currentUser && currentUser.id) {
+                saveChatsToFirebase(userId, chatStore);
+            }
+        }, delay);
+    }
+}
+
+// Safe wrapper for saving tasks with timeout
+function saveTasksToFirebaseDelayed(delay = 1000) {
+    if (currentUser && currentUser.id) {
+        const userId = currentUser.id; // Capture userId before setTimeout
+        clearTimeout(window.taskSaveTimeout);
+        window.taskSaveTimeout = setTimeout(() => {
+            // Double-check user is still logged in
+            if (currentUser && currentUser.id) {
+                saveTasksToFirebase(userId, taskStore, taskMetadata);
+            }
+        }, delay);
     }
 }
 
@@ -5507,12 +5543,14 @@ function confirmLogout() {
     
     // Phase 2: Update content after blur animation
     setTimeout(() => {
-        // Clear session from localStorage
+        // Clear session and all user data from localStorage
         try {
             localStorage.removeItem('mse_user_session');
-            console.log('[LOGOUT] Session cleared from localStorage');
+            localStorage.removeItem('mse_tasks');
+            localStorage.removeItem('mse_task_metadata');
+            console.log('[LOGOUT] Session and tasks cleared from localStorage');
         } catch (e) {
-            console.error('[LOGOUT] Failed to clear session:', e);
+            console.error('[LOGOUT] Failed to clear localStorage:', e);
         }
         
         // Clear all user data
@@ -5575,12 +5613,16 @@ function confirmLogout() {
         taskMetadata = {};
         activeTaskTab = 'overview';
         
-        // Clear task tabs except overview
+        // Clear task tabs from #taskTabs container
         const taskTabsContainer = document.getElementById('taskTabs');
         if (taskTabsContainer) {
-            const taskTabs = taskTabsContainer.querySelectorAll('.chat-tab:not([data-task="overview"])');
+            const taskTabs = taskTabsContainer.querySelectorAll('.chat-tab');
             taskTabs.forEach(tab => tab.remove());
+            console.log('[LOGOUT] Removed all task tabs from #taskTabs');
         }
+        
+        // Restore task tabs (will show empty overview since taskStore is empty)
+        restoreTaskTabs();
         
         // Hide search bar
         const taskSearchBar = document.getElementById('taskOverviewSearchBar');
@@ -10265,13 +10307,13 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         restoreSession();
         initializeDefaultData();
-        loadTasksFromStorage();
+        // loadTasksFromStorage(); // REMOVED - now called inside restoreSession() after currentUser is set
         initUI();
     });
 } else {
     restoreSession();
     initializeDefaultData();
-    loadTasksFromStorage();
+    // loadTasksFromStorage(); // REMOVED - now called inside restoreSession() after currentUser is set
     initUI();
 }
 
@@ -10501,6 +10543,8 @@ function restoreSession() {
                     
                     // Render chat
                     console.log('[SESSION] Rendering chat messages...');
+                    renderChatMessages();
+                    console.log('[SESSION] Chat messages rendered');
                     
                     // Restore chat tabs from chatStore
                     restoreChatTabs();
@@ -11190,45 +11234,14 @@ let pinnedChats    = new Set();
 // TASK TABS (for browser block)
 let taskTabCounter = 1;
 let activeTaskTab = 'overview';
-let taskStore = { overview: [] }; // Store tasks and their pipelines
+let taskStore = {}; // Store tasks and their pipelines (overview is not a task)
 let taskMetadata = {}; // Store task names
 
 // ============================================================
-// TASK STORAGE FUNCTIONS
+// TASK STORAGE FUNCTIONS (REMOVED - tasks now stored only in Firebase)
 // ============================================================
-function saveTasksToStorage() {
-    try {
-        localStorage.setItem('mse_tasks', JSON.stringify(taskStore));
-        localStorage.setItem('mse_task_metadata', JSON.stringify(taskMetadata));
-        console.log('[STORAGE] Tasks saved successfully');
-    } catch (e) {
-        console.error('[STORAGE] Error saving tasks:', e);
-    }
-}
-
-function loadTasksFromStorage() {
-    try {
-        const savedTasks = localStorage.getItem('mse_tasks');
-        const savedMetadata = localStorage.getItem('mse_task_metadata');
-        
-        if (savedTasks) {
-            taskStore = JSON.parse(savedTasks);
-            console.log('[STORAGE] Tasks loaded:', Object.keys(taskStore));
-        }
-        
-        if (savedMetadata) {
-            taskMetadata = JSON.parse(savedMetadata);
-            console.log('[STORAGE] Metadata loaded:', Object.keys(taskMetadata));
-        }
-        
-        // Rebuild task tabs from loaded data
-        rebuildTaskTabs();
-    } catch (e) {
-        console.error('[STORAGE] Error loading tasks:', e);
-        taskStore = { overview: [] };
-        taskMetadata = {};
-    }
-}
+// Tasks are now stored only in Firebase via saveTasksToFirebase()
+// No need for localStorage storage
 
 function rebuildTaskTabs() {
     const taskTabsContainer = document.getElementById('taskTabs');
@@ -11240,27 +11253,31 @@ function rebuildTaskTabs() {
     
     // Recreate tabs from taskStore
     Object.keys(taskStore).forEach(taskId => {
-        if (taskId !== 'overview' && taskStore[taskId].title) {
-            const newTaskTab = document.createElement('button');
-            newTaskTab.className = 'chat-tab';
-            newTaskTab.dataset.task = taskId;
-            
-            const nameSpan = document.createElement('span');
-            nameSpan.textContent = taskStore[taskId].title;
-            newTaskTab.appendChild(nameSpan);
-            
-            // Add click handler
-            newTaskTab.addEventListener('click', (e) => {
-                if (newTaskTab.classList.contains('active')) {
-                    e.stopPropagation();
-                    toggleTaskTabMenu(newTaskTab, taskId, nameSpan);
-                } else {
-                    switchTaskTab(taskId);
-                    closeAllTaskMenus();
-                }
-            });
-            
-            taskTabsContainer.appendChild(newTaskTab);
+        if (taskId !== 'overview') {
+            const task = taskStore[taskId];
+            // Check if task is valid object with title
+            if (task && typeof task === 'object' && task.title) {
+                const newTaskTab = document.createElement('button');
+                newTaskTab.className = 'chat-tab';
+                newTaskTab.dataset.task = taskId;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = task.title;
+                newTaskTab.appendChild(nameSpan);
+                
+                // Add click handler
+                newTaskTab.addEventListener('click', (e) => {
+                    if (newTaskTab.classList.contains('active')) {
+                        e.stopPropagation();
+                        toggleTaskTabMenu(newTaskTab, taskId, nameSpan);
+                    } else {
+                        switchTaskTab(taskId);
+                        closeAllTaskMenus();
+                    }
+                });
+                
+                taskTabsContainer.appendChild(newTaskTab);
+            }
         }
     });
 }
@@ -12182,6 +12199,15 @@ function sendMessage(){
         // Добавляем сообщение пользователя
         if (!chatStore[targetChatTab]) chatStore[targetChatTab] = [];
         chatStore[targetChatTab].push({role:'user', text: text});
+        
+        // Save user message immediately to Firebase
+        if (currentUser) {
+            clearTimeout(window.chatSaveTimeout);
+            window.chatSaveTimeout = setTimeout(() => {
+                saveChatsToFirebase(currentUser.id, chatStore);
+            }, 500);
+        }
+        
         clearChatInput();
         
         setTimeout(() => {
@@ -12715,6 +12741,14 @@ function sendMessage(){
         // Text only - add with delay and animation
         chatStore[targetChatTab].push({role:'user', text: text});
         
+        // Save user message immediately to Firebase
+        if (currentUser) {
+            clearTimeout(window.chatSaveTimeout);
+            window.chatSaveTimeout = setTimeout(() => {
+                saveChatsToFirebase(currentUser.id, chatStore);
+            }, 500);
+        }
+        
         clearChatInput();
         attachedFiles = [];
         renderFilePreview();
@@ -12782,6 +12816,14 @@ function sendMessage(){
     // If we have text with attachments, add text first WITH ANIMATION
     if (text && hasAttachments) {
         chatStore[targetChatTab].push({role:'user', text: text});
+        
+        // Save user message immediately to Firebase
+        if (currentUser) {
+            clearTimeout(window.chatSaveTimeout);
+            window.chatSaveTimeout = setTimeout(() => {
+                saveChatsToFirebase(currentUser.id, chatStore);
+            }, 500);
+        }
         
         clearChatInput();
         const savedFiles = [...attachedFiles]; // Save files before clearing
@@ -15743,9 +15785,6 @@ function deleteTaskTab(taskId) {
         if (activeTaskTab === taskId) switchTaskTab('overview');
         updateTaskTabsBlur();
         
-        // Save to localStorage
-        saveTasksToStorage();
-        
         // Auto-save to Firebase
         if (currentUser) {
             saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
@@ -16164,14 +16203,14 @@ function toggleStepCompletion(taskId, stepIndex) {
         renderTaskContent('overview');
     }
     
-    // Save to localStorage
-    saveTasksToStorage();
-    
     // Auto-save to Firebase
     if (currentUser) {
         clearTimeout(window.taskSaveTimeout);
         window.taskSaveTimeout = setTimeout(() => {
-            saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+            // Check again if user is still logged in
+            if (currentUser && currentUser.id) {
+                saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+            }
         }, 1000);
     }
 }
@@ -16429,6 +16468,12 @@ function parsePipelineSteps(pipelineText) {
 
 async function saveTasksToFirebase(userId, tasks, metadata) {
     try {
+        // Check if user is logged in
+        if (!userId) {
+            console.log('[FIREBASE] No userId provided, skipping task save');
+            return;
+        }
+        
         console.log('[FIREBASE] Saving tasks for user:', userId);
         const userRef = window.firebaseDoc(window.firebaseDB, 'users', userId.toString());
         await window.firebaseUpdateDoc(userRef, {
@@ -16928,6 +16973,9 @@ async function processChatVoiceInput(audioBlob) {
     }
 }
 
+// Flag to prevent closing modal during task generation
+let isTaskGenerating = false;
+
 async function createNewTask() {
     console.log('[CREATE TASK] Function called');
     
@@ -17261,9 +17309,17 @@ async function createNewTask() {
 
 Верни ТОЛЬКО одно предложение, без дополнительного текста.`;
 
-            Promise.all([
-                callGroqAPI(prompt),
-                callGroqAPI(summaryPrompt)
+            // Create timeout promise (30 seconds)
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('API timeout after 30 seconds')), 30000);
+            });
+            
+            Promise.race([
+                Promise.all([
+                    callGroqAPI(prompt),
+                    callGroqAPI(summaryPrompt)
+                ]),
+                timeoutPromise
             ]).then(([responseText, summaryText]) => {
                 
                 // Calculate thinking time based on response length
@@ -17300,11 +17356,14 @@ async function createNewTask() {
                     taskStore[taskId].pipeline = responseText;
                     taskStore[taskId].status = 'ready';
                     
-                    // Save to localStorage
-                    saveTasksToStorage();
-                    
                     // Reset flag to allow closing
                     isTaskGenerating = false;
+                    
+                    // Hide loader before closing modal
+                    const modalLoader = document.getElementById('newTaskModalLoader');
+                    if (modalLoader) {
+                        modalLoader.style.display = 'none';
+                    }
                     
                     // Close modal after task is created
                     closeNewTaskModal();
@@ -17315,26 +17374,43 @@ async function createNewTask() {
                     }
                     
                     // Auto-save to Firebase
-                    if (currentUser) {
+                    if (currentUser && currentUser.id) {
+                        const userId = currentUser.id; // Capture userId before setTimeout
                         clearTimeout(window.chatSaveTimeout);
                         window.chatSaveTimeout = setTimeout(() => {
-                            saveChatsToFirebase(currentUser.id, chatStore);
-                            saveTasksToFirebase(currentUser.id, taskStore, taskMetadata);
+                            // Double-check user is still logged in
+                            if (currentUser && currentUser.id) {
+                                saveChatsToFirebase(userId, chatStore);
+                                saveTasksToFirebase(userId, taskStore, taskMetadata);
+                            }
                         }, 2000);
                     }
                 }, thinkingTime);
             }).catch(error => {
                 console.error('AI error:', error);
+                
+                // Reset flag immediately on error
+                isTaskGenerating = false;
+                
+                // Check if it's a timeout error
+                const isTimeout = error.message && error.message.includes('timeout');
+                const errorMessage = isTimeout 
+                    ? 'Проксима слишком долго думает. Попробуй упростить задачу или попробовать позже. ⏱️'
+                    : 'Извини, произошла ошибка при создании пайплайна. Попробуй ещё раз. 🔧';
+                
                 setTimeout(() => {
                     chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
                     chatStore['proxima'].push({
                         role: 'ai',
-                        text: 'Извини, произошла ошибка при создании пайплайна. Попробуй ещё раз. 🔧'
+                        text: errorMessage
                     });
                     renderChatMessages();
                     
-                    // Reset flag to allow closing
-                    isTaskGenerating = false;
+                    // Hide loader before closing modal
+                    const modalLoader = document.getElementById('newTaskModalLoader');
+                    if (modalLoader) {
+                        modalLoader.style.display = 'none';
+                    }
                     
                     // Close modal on error
                     closeNewTaskModal();
@@ -17346,13 +17422,44 @@ async function createNewTask() {
                     }
                 }, 1000);
             });
+            
+            // Safety timeout: if API doesn't respond in 30 seconds, force close
+            setTimeout(() => {
+                if (isTaskGenerating) {
+                    console.error('[TASK CREATE] Timeout - forcing modal close');
+                    isTaskGenerating = false;
+                    
+                    // Remove thinking message
+                    chatStore['proxima'] = chatStore['proxima'].filter(m => m.id !== thinkingId);
+                    
+                    // Add error message
+                    chatStore['proxima'].push({
+                        role: 'ai',
+                        text: 'Превышено время ожидания. Попробуй создать задачу заново.'
+                    });
+                    renderChatMessages();
+                    
+                    // Hide loader before closing modal
+                    const modalLoader = document.getElementById('newTaskModalLoader');
+                    if (modalLoader) {
+                        modalLoader.style.display = 'none';
+                    }
+                    
+                    // Close modal
+                    closeNewTaskModal();
+                    
+                    // Update task with error
+                    taskStore[taskId].status = 'error';
+                    if (activeTaskTab === taskId) {
+                        renderTaskContent(taskId);
+                    }
+                }
+            }, 30000); // 30 seconds timeout
         }, 800);
     }, 150);
 }
 
 // Close modal on overlay click
-let isTaskGenerating = false; // Flag to prevent closing during generation
-
 document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('newTaskOverlay');
     if (overlay) {
