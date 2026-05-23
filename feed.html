@@ -109,6 +109,21 @@
             position: relative;
             overflow: hidden;
         }
+        /* нижний blur-fade — контент появляется из блюра снизу */
+        .main-area::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 220px;
+            backdrop-filter: blur(6px) saturate(120%);
+            -webkit-backdrop-filter: blur(6px) saturate(120%);
+            -webkit-mask-image: linear-gradient(to top, black 0%, black 20%, transparent 100%);
+            mask-image: linear-gradient(to top, black 0%, black 20%, transparent 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
 
         /* ── MODULES BLOCK — абсолютно поверх фида ── */
         .modules-wrap {
