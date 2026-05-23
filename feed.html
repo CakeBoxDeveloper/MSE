@@ -24,35 +24,23 @@
             width: 100%;
             height: 100%;
             background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
             overflow: hidden;
         }
 
         body {
-            margin: 0; padding: 0;
+            margin: 0 auto;
+            padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             width: 430px;
             height: 100vh;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-
-        /* единственный scroll-контейнер */
-        .scroll-root {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scrollbar-width: none;
-            position: relative;
-        }
-        .scroll-root::-webkit-scrollbar { display: none; }
 
         :root {
             --bg-primary: #000;
@@ -67,9 +55,10 @@
 
         /* ── HEADER ── */
         header {
-            flex-shrink: 0;
-            background: transparent;
+            position: sticky;
+            top: 0;
             z-index: 20;
+            background: #000;
         }
         .header-inner {
             max-width: 95%;
@@ -112,14 +101,24 @@
         .header-login-btn img { width: 12px; height: 12px; }
 
         /* ── MODULES BLOCK ── */
+        /* ── MAIN AREA ── */
+        .main-area {
+            height: calc(100vh - 50px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── MODULES BLOCK — абсолютно поверх фида ── */
         .modules-wrap {
-            position: sticky;
-            top: 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 10;
-            margin: 0;
             padding: 6px 2.5%;
-            background: transparent;
             box-sizing: border-box;
+            background: transparent;
+            pointer-events: none;
         }
         .modules-grid {
             display: grid;
@@ -133,6 +132,8 @@
             width: 100%;
             backdrop-filter: blur(20px) saturate(160%);
             -webkit-backdrop-filter: blur(20px) saturate(160%);
+            overflow: clip;
+            pointer-events: all;
         }
         @keyframes giftBorderShimmer {
             0%   { background-position: 0% 0%; }
@@ -215,14 +216,16 @@
 
         /* ── FEED SECTION ── */
         .scroll-root {
-            flex: 1;
+            position: absolute;
+            inset: 0;
             overflow-y: auto;
             overflow-x: hidden;
             scrollbar-width: none;
+            clip-path: inset(50px 0 0 0);
         }
         .scroll-root::-webkit-scrollbar { display: none; }
         .feed-wrap {
-            padding: 8px 2.5% 24px;
+            padding: 76px 2.5% 24px;
             background: #000;
         }
 
@@ -360,7 +363,10 @@
     </div>
 </header>
 
-<!-- MODULES -->
+<!-- MAIN AREA -->
+<div class="main-area">
+
+<!-- MODULES — абсолютно поверх фида -->
 <div class="modules-wrap">
     <div class="modules-grid">
         <a href="MSE Mobile Last.html" class="module-btn" title="Проксима">
@@ -381,13 +387,15 @@
     </div>
 </div>
 
-<!-- FEED (scrollable) -->
+<!-- FEED -->
 <div class="scroll-root">
     <div class="feed-wrap">
         <div id="feedContainer"></div>
         <button class="load-more" id="loadMoreBtn">Загрузить ещё</button>
     </div>
 </div>
+
+</div><!-- /main-area -->
 
 <script>
 /*
