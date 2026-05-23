@@ -21,13 +21,13 @@
         input, textarea { -webkit-user-select: text; user-select: text; }
 
         html {
-            overflow: hidden;
             width: 100%;
             height: 100%;
             background: #000;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            overflow: hidden;
         }
 
         body {
@@ -44,6 +44,16 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        /* единственный scroll-контейнер */
+        .scroll-root {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            position: relative;
+        }
+        .scroll-root::-webkit-scrollbar { display: none; }
+
         :root {
             --bg-primary: #000;
             --glass-bg: rgba(255,255,255,.05);
@@ -58,8 +68,8 @@
         /* ── HEADER ── */
         header {
             flex-shrink: 0;
-            background: #000;
-            z-index: 100;
+            background: transparent;
+            z-index: 20;
         }
         .header-inner {
             max-width: 95%;
@@ -104,53 +114,105 @@
         /* ── MODULES BLOCK ── */
         .modules-wrap {
             flex-shrink: 0;
-            background: #000;
-            padding: 8px 2.5%;
+            padding: 6px 2.5% 0;
+            z-index: 10;
+            background: transparent;
         }
         .modules-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            background: var(--glass-bg);
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            background: rgba(10,10,10,.6);
             border: 1px solid var(--glass-border);
             border-radius: 8px;
-            padding: 10px;
+            padding: 7px;
+            backdrop-filter: saturate(180%) blur(24px);
+            -webkit-backdrop-filter: saturate(180%) blur(24px);
         }
+        @keyframes giftBorderShimmer {
+            0%   { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
         .module-btn {
             aspect-ratio: 1;
             background: rgba(255,255,255,.03);
-            border: 1px solid var(--glass-border);
             border-radius: 6px;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             text-decoration: none;
-            transition: all .2s ease;
-            padding: 6px 4px;
+            transition: background .2s ease;
+            max-height: 52px;
+            /* shimmer border via pseudo */
+            position: relative;
+            isolation: isolate;
+            border: none;
+        }
+        .module-btn > * { position: relative; z-index: 1; }
+        .module-btn::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(
+                135deg,
+                rgba(255,255,255,.06) 0%,
+                rgba(255,255,255,.06) 35%,
+                rgba(255,255,255,.7)  48%,
+                rgba(255,255,255,1)   50%,
+                rgba(255,255,255,.7)  52%,
+                rgba(255,255,255,.06) 65%,
+                rgba(255,255,255,.06) 100%
+            );
+            background-size: 400% 400%;
+            animation: giftBorderShimmer 4s linear infinite;
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 0;
         }
         .module-btn:hover, .module-btn:active {
             background: rgba(255,255,255,.08);
-            border-color: rgba(255,255,255,.2);
         }
         .module-btn.active {
             background: rgba(255,255,255,.1);
-            border-color: var(--text-secondary);
+        }
+        .module-btn.active::before {
+            background: linear-gradient(
+                135deg,
+                rgba(255,255,255,.15) 0%,
+                rgba(255,255,255,.15) 35%,
+                rgba(255,255,255,.9)  48%,
+                rgba(255,255,255,1)   50%,
+                rgba(255,255,255,.9)  52%,
+                rgba(255,255,255,.15) 65%,
+                rgba(255,255,255,.15) 100%
+            );
+            background-size: 400% 400%;
+            animation: giftBorderShimmer 3s linear infinite;
         }
         .module-btn img {
-            width: 20px; height: 20px;
+            width: 14px; height: 14px;
         }
 
         /* ── FEED SECTION ── */
-        .feed-wrap {
+        .scroll-root {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 8px 2.5% 24px;
-            background: #000;
             scrollbar-width: none;
         }
-        .feed-wrap::-webkit-scrollbar { display: none; }
+        .scroll-root::-webkit-scrollbar { display: none; }
+        .feed-wrap {
+            padding: 8px 2.5% 24px;
+            background: #000;
+        }
 
         /* ── POST CARD ── */
         .post-card {
@@ -244,16 +306,7 @@
         .carousel-dots.single { display: none; }
 
         /* caption */
-        .post-caption {
-            padding: 6px 12px 12px;
-            font-size: 12px;
-            line-height: 1.55;
-            color: var(--text-secondary);
-        }
-        .post-caption-more {
-            color: var(--text-tertiary); cursor: pointer;
-        }
-        .post-caption-more:hover { color: var(--text-secondary); }
+        .post-caption { display: none; }
 
         /* ── LOAD MORE ── */
         .load-more {
@@ -310,13 +363,18 @@
         <a href="#" class="module-btn" title="TG Bot">
             <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4cecf715f68ab30916f1aea8a34de2cdac46ea20/puzzle.svg" alt="">
         </a>
+        <a href="#" class="module-btn" title="Ещё">
+            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6a50e74f86f19a5eacbe86caab2219a6292f2afc/Shop.svg" alt="">
+        </a>
     </div>
 </div>
 
-<!-- FEED -->
-<div class="feed-wrap">
-    <div id="feedContainer"></div>
-    <button class="load-more" id="loadMoreBtn">Загрузить ещё</button>
+<!-- FEED (scrollable) -->
+<div class="scroll-root">
+    <div class="feed-wrap">
+        <div id="feedContainer"></div>
+        <button class="load-more" id="loadMoreBtn">Загрузить ещё</button>
+    </div>
 </div>
 
 <script>
