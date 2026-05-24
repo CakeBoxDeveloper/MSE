@@ -422,11 +422,27 @@ const feedData = [
             'https://i.ibb.co/dJwmqtD3/7.jpg'
         ],
         caption: null
+    },
+    {
+        id: 2,
+        title: 'Mixed Sport Elements',
+        date: '13 июля',
+        images: [
+            'https://i.ibb.co/gLZRn0xP/1.jpg',
+            'https://i.ibb.co/DH5W8CPy/2.jpg',
+            'https://i.ibb.co/5WYqdr67/3.jpg',
+            'https://i.ibb.co/qYnKQnCq/4.jpg',
+            'https://i.ibb.co/zTqDc83q/5.jpg',
+            'https://i.ibb.co/4RTXCmnX/6.jpg',
+            'https://i.ibb.co/XrvB1gPj/7.jpg',
+            'https://i.ibb.co/zH8YY83n/8.jpg'
+        ],
+        caption: null
     }
 ];
 
 const CAPTION_MAX = 100;
-let visible = 1;
+let visible = 2;
 
 function buildPost(p) {
     const short   = p.caption && p.caption.length > CAPTION_MAX;
