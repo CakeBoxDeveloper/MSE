@@ -314,6 +314,10 @@
             width: 100%; height: 100%;
             object-fit: cover; display: block;
         }
+        .carousel-slide video {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+        }
 
         /* dot indicators */
         .carousel-dots {
@@ -560,20 +564,50 @@ const feedData = [
             'https://i.ibb.co/yFDsnDvg/9.jpg'
         ],
         caption: null
+    },
+    {
+        id: 11,
+        title: 'Mixed Sport Elements',
+        date: '19 июня',
+        images: [
+            { type: 'video', src: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/vid/SnapInsta.to_AQOZ2jY4hwrYNBO6SA7cW3O31W8xHLf9Oo0rWIu_x21ZRHBek2JURz7U--uwGbJaFWFj70nnTctt8ffmv1Ryly74SRJaeHLahz-uook.mp4' }
+        ],
+        caption: null
+    },
+    {
+        id: 12,
+        title: 'Mixed Sport Elements',
+        date: '19 июня',
+        images: [
+            'https://i.ibb.co/n8tYTc1P/1.jpg',
+            'https://i.ibb.co/p6s1P1cv/2.jpg',
+            'https://i.ibb.co/hFJvvk9y/3.jpg',
+            'https://i.ibb.co/Q3Y7pRLT/4.jpg',
+            'https://i.ibb.co/ccZyy1T0/5.jpg',
+            'https://i.ibb.co/99bCJxQx/6.jpg',
+            'https://i.ibb.co/ccxfqvrm/7.jpg',
+            'https://i.ibb.co/fYhpHX65/9.jpg',
+            'https://i.ibb.co/6jL5kbx/8.jpg',
+            { type: 'video', src: 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/vid/10.mp4' }
+        ],
+        caption: null
     }
 ];
 
 const CAPTION_MAX = 100;
-let visible = 10;
+let visible = 12;
 
 function buildPost(p) {
     const short   = p.caption && p.caption.length > CAPTION_MAX;
     const capText = short ? p.caption.slice(0, CAPTION_MAX) + '…' : p.caption;
     const count   = p.images.length;
 
-    const slides = p.images.map(url =>
-        `<div class="carousel-slide"><img src="${url}" alt="" loading="lazy"></div>`
-    ).join('');
+    const slides = p.images.map(item => {
+        if (item && typeof item === 'object' && item.type === 'video') {
+            return `<div class="carousel-slide"><video src="${item.src}" playsinline loop muted preload="metadata"></video></div>`;
+        }
+        return `<div class="carousel-slide"><img src="${item}" alt="" loading="lazy"></div>`;
+    }).join('');
 
     const dots = count > 1
         ? `<div class="carousel-dots" id="dots-${p.id}">
@@ -619,6 +653,12 @@ function goToSlide(postId, idx) {
             d.classList.toggle('active', i === idx);
         });
     }
+    // play/pause video slides
+    track.querySelectorAll('.carousel-slide').forEach((slide, i) => {
+        const video = slide.querySelector('video');
+        if (!video) return;
+        if (i === idx) { video.play(); } else { video.pause(); video.currentTime = 0; }
+    });
 }
 
 // touch swipe
