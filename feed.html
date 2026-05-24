@@ -152,7 +152,7 @@
             pointer-events: none;
         }
         .lottie-icon {
-            width: 22px; height: 22px;
+            width: 20px; height: 20px;
             filter: brightness(10) saturate(0);
             pointer-events: none;
         }
@@ -384,20 +384,20 @@
 
 <!-- MODULES — абсолютно поверх фида -->
 <div class="modules-wrap">
-    <div class="modules-grid">
-        <a href="MSE Mobile Last.html" class="module-btn" title="Проксима">
+    <div class="modules-grid" id="modulesGrid">
+        <a href="javascript:void(0)" onclick="goToMain()" class="module-btn" title="Главная">
             <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json"></div>
         </a>
-        <a href="MSE Organizer Last.html" class="module-btn" title="София">
+        <a href="https://mse.zone/cascade" class="module-btn" title="Cascade">
             <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json"></div>
         </a>
         <a href="feed.html" class="module-btn active" title="Лента">
             <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loading%2026%20_%20Paper%20plane.json"></div>
         </a>
-        <a href="#" class="module-btn" title="TG Bot">
+        <a href="#" class="module-btn" title="Магазин">
             <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loader%20Payment%20Credit%20Card.json"></div>
         </a>
-        <a href="#" class="module-btn" title="Ещё">
+        <a href="donate.html" class="module-btn" title="Поддержать">
             <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Happy%20gift.json"></div>
         </a>
     </div>
@@ -754,7 +754,13 @@ scrollRoot.addEventListener('scroll', () => {
     } else {
         modulesGrid.classList.remove('scrolled');
     }
-}, { passive: true });а
+}, { passive: true });
+
+function goToMain() {
+    const ua = navigator.userAgent;
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    window.location.href = isMobile ? 'https://mse.zone/mobile' : 'https://mse.zone';
+}а
 </script>
 </body>
 </html>
