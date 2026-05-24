@@ -70,9 +70,9 @@
             #7dd3fc, #c4b5fd, #2dd4bf, #a5f3fc
         );
         background-size: 300% 100%;
-        animation: shimmerRotate 2s linear infinite;
+        animation: shimmerRotate 6s linear infinite;
         z-index: -1;
-        filter: blur(3px) brightness(1.4);
+        filter: blur(4px) brightness(1.6);
         opacity: 1;
         transition: opacity 1.5s ease;
         border-radius: inherit;
@@ -91,9 +91,9 @@
             #7dd3fc, #c4b5fd, #2dd4bf, #a5f3fc
         );
         background-size: 300% 100%;
-        animation: shimmerRotate 2s linear infinite;
-        z-index: -1;
-        opacity: .8;
+        animation: shimmerRotate 6s linear infinite;
+        z-index: 1;
+        opacity: .9;
         transition: opacity 1.5s ease;
         -webkit-mask:
             linear-gradient(#fff 0 0) content-box,
@@ -101,6 +101,7 @@
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         padding: 1px;
+        pointer-events: none;
     }
     .intro-active.intro-done .header-inner::after,
     .intro-active.intro-done .modules-grid::after,
