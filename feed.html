@@ -490,8 +490,6 @@ let touchPostId = null;
 function render() {
     document.getElementById('feedContainer').innerHTML =
         feedData.slice(0, visible).map(buildPost).join('');
-    document.getElementById('loadMoreBtn').style.display =
-        visible >= feedData.length ? 'none' : 'block';
 }
 
 document.addEventListener('click', e => {
@@ -530,11 +528,6 @@ document.addEventListener('touchend', e => {
     goToSlide(touchPostId, dx < 0 ? cur + 1 : cur - 1);
     touchPostId = null;
 }, { passive: true });
-
-document.getElementById('loadMoreBtn').addEventListener('click', () => {
-    visible = Math.min(visible + 3, feedData.length);
-    render();
-});
 
 render();а
 </script>
