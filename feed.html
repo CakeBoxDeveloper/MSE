@@ -10,8 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.js"></script>
-    <style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>    <style>
         * {
             margin: 0; padding: 0; box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -150,6 +149,11 @@
         .module-btn lottie-player {
             width: 22px; height: 22px;
             filter: brightness(0) invert(1);
+            pointer-events: none;
+        }
+        .lottie-icon {
+            width: 22px; height: 22px;
+            filter: brightness(10) saturate(0);
             pointer-events: none;
         }
         @keyframes giftBorderShimmer {
@@ -382,19 +386,19 @@
 <div class="modules-wrap">
     <div class="modules-grid">
         <a href="MSE Mobile Last.html" class="module-btn" title="Проксима">
-            <dotlottie-player src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json" autoplay loop></dotlottie-player>
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json"></div>
         </a>
         <a href="MSE Organizer Last.html" class="module-btn" title="София">
-            <dotlottie-player src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json" autoplay loop></dotlottie-player>
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json"></div>
         </a>
         <a href="feed.html" class="module-btn active" title="Лента">
-            <dotlottie-player src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loading%2026%20_%20Paper%20plane.json" autoplay loop></dotlottie-player>
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loading%2026%20_%20Paper%20plane.json"></div>
         </a>
         <a href="#" class="module-btn" title="TG Bot">
-            <dotlottie-player src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loader%20Payment%20Credit%20Card.json" autoplay loop></dotlottie-player>
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loader%20Payment%20Credit%20Card.json"></div>
         </a>
         <a href="#" class="module-btn" title="Ещё">
-            <dotlottie-player src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Happy%20gift.json" autoplay loop></dotlottie-player>
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Happy%20gift.json"></div>
         </a>
     </div>
 </div>
@@ -729,6 +733,17 @@ document.addEventListener('touchend', e => {
 }, { passive: true });
 
 render();
+
+// инициализация Lottie анимаций
+document.querySelectorAll('.lottie-icon').forEach(el => {
+    lottie.loadAnimation({
+        container: el,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: el.dataset.src
+    });
+});
 
 // панель модулей: прозрачная → блюр при скролле
 const scrollRoot = document.querySelector('.scroll-root');
