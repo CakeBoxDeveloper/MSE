@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Mixed Sport Elements - Поддержать</title>
+    <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f9cf4d0f418e37fb1154fa7a2d314034985bbd37/MSESVGWhite.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        input, select { -webkit-user-select: text; user-select: text; }
+
+        html {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0 auto;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :root {
+            --bg-primary: #000;
+            --glass-bg: rgba(255,255,255,.05);
+            --glass-border: rgba(255,255,255,.1);
+            --text-primary: #999;
+            --text-secondary: #888;
+            --text-tertiary: #666;
+        }
+
+        .icon-gray { filter: invert(60%) sepia(0%) saturate(0%) brightness(100%) contrast(100%); }
+
+        /* ── HEADER ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #000;
+        }
+        .header-inner {
+            max-width: 95%;
+            margin: 0 auto;
+            padding: 8px 12px;
+            backdrop-filter: saturate(180%) blur(20px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            height: 50px;
+            overflow: hidden;
+        }
+        .logo {
+            width: 100px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .logo img { width: 100%; height: 100%; object-fit: contain; }
+        .header-login-btn {
+            width: 32px; height: 32px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all .15s ease;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .header-login-btn img { width: 12px; height: 12px; }
+
+        /* ── MAIN AREA ── */
+        .main-area {
+            height: calc(100vh - 50px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── MODULES ── */
+        .modules-wrap {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            z-index: 10;
+            padding: 10px 2.5% 8px;
+            box-sizing: border-box;
+            background: transparent;
+            pointer-events: none;
+        }
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 8px;
+            padding: 7px 7px 7px 22px;
+            box-sizing: border-box;
+            width: 100%;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            overflow: clip;
+            pointer-events: all;
+            transition: background .15s ease, backdrop-filter .15s ease;
+        }
+        .modules-grid.scrolled {
+            background: rgba(0,0,0,.35);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+        }
+        @keyframes giftBorderShimmer {
+            0%   { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+        .module-btn {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,.03);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .2s ease;
+            max-height: 52px;
+            position: relative;
+            isolation: isolate;
+            border: none;
+        }
+        .module-btn::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.04) 30%,rgba(255,255,255,.28) 48%,rgba(255,255,255,.38) 50%,rgba(255,255,255,.28) 52%,rgba(255,255,255,.04) 70%,rgba(255,255,255,.04) 100%);
+            background-size: 400% 400%;
+            animation: giftBorderShimmer 5s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .module-btn:nth-child(1)::before { animation-delay: 0s; }
+        .module-btn:nth-child(2)::before { animation-delay: -1.1s; }
+        .module-btn:nth-child(3)::before { animation-delay: -2.7s; }
+        .module-btn:nth-child(4)::before { animation-delay: -0.6s; }
+        .module-btn:nth-child(5)::before { animation-delay: -3.8s; }
+        .module-btn:hover, .module-btn:active { background: rgba(255,255,255,.08); }
+        .module-btn.active { background: rgba(255,255,255,.03); }
+        .module-btn.active::before {
+            background: linear-gradient(135deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.06) 30%,rgba(255,255,255,.45) 48%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.45) 52%,rgba(255,255,255,.06) 70%,rgba(255,255,255,.06) 100%);
+            background-size: 400% 400%;
+            animation: giftBorderShimmer 5s linear infinite;
+        }
+        .lottie-icon {
+            width: 20px; height: 20px;
+            filter: brightness(10) saturate(0);
+            pointer-events: none;
+        }
+
+        /* ── SCROLL ── */
+        .scroll-root {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            clip-path: inset(48px 0 0 0);
+        }
+        .scroll-root::-webkit-scrollbar { display: none; }
+        .feed-wrap {
+            padding: 88px 2.5% 24px;
+            background: #000;
+        }
+
+        /* ── DONATE CARD ── */
+        .donate-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 16px;
+        }
+
+        .donate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #bbb;
+            margin-bottom: 4px;
+        }
+        .donate-desc {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* dropdown */
+        .select-wrap { position: relative; margin-bottom: 14px; }
+        .select-trigger {
+            width: 100%; height: 40px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0 32px 0 12px;
+            font-size: 12px; font-weight: 500;
+            color: #bbb;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex; align-items: center;
+            transition: border-color .15s, border-radius .15s;
+            user-select: none;
+        }
+        .select-trigger.open {
+            border-radius: 8px 8px 0 0;
+            border-color: rgba(255,255,255,.2);
+        }
+        .select-arrow {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%);
+            width: 12px; height: 12px;
+            pointer-events: none; opacity: .4;
+            transition: transform .2s;
+        }
+        .select-trigger.open .select-arrow { transform: translateY(-50%) rotate(180deg); }
+        .dropdown {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: #111;
+            border: 1px solid rgba(255,255,255,.15);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            overflow-y: auto; max-height: 200px;
+            z-index: 50; display: none;
+            scrollbar-width: none;
+        }
+        .dropdown::-webkit-scrollbar { display: none; }
+        .dropdown.open { display: block; }
+        .optgroup-label {
+            font-size: 9px; font-weight: 700;
+            letter-spacing: .06em; text-transform: uppercase;
+            color: rgba(255,255,255,.25);
+            padding: 8px 12px 4px;
+        }
+        .option {
+            padding: 9px 12px;
+            font-size: 12px; color: #aaa;
+            cursor: pointer; transition: background .1s;
+        }
+        .option:hover { background: rgba(255,255,255,.06); }
+        .option.selected { background: rgba(255,255,255,.08); font-weight: 600; color: #ccc; }
+
+        /* QR */
+        .qr-box {
+            display: flex; justify-content: center;
+            margin: 12px 0;
+        }
+        #qrContainer {
+            width: 148px; height: 148px;
+            background: #fff;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        #qrContainer canvas,
+        #qrContainer img { width: 148px !important; height: 148px !important; }
+
+        /* fields */
+        .fields-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .field {
+            flex: 1;
+            background: rgba(255,255,255,.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: background .15s;
+            min-width: 0;
+        }
+        .field:hover { background: rgba(255,255,255,.08); }
+        .field-label {
+            font-size: 9px; font-weight: 600;
+            letter-spacing: .05em; text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 3px;
+            display: flex; justify-content: space-between;
+        }
+        .field-value {
+            font-size: 10px;
+            font-family: 'SF Mono','Fira Mono',monospace;
+            color: #bbb;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .copied-badge {
+            font-size: 9px; font-weight: 600;
+            color: rgba(255,255,255,.4);
+            opacity: 0; transition: opacity .2s;
+            pointer-events: none;
+        }
+        .field.copied .copied-badge { opacity: 1; }
+
+        /* instruction */
+        .instruction {
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .step {
+            font-size: 11px; color: #888; line-height: 1.5;
+            display: flex; gap: 7px; align-items: flex-start;
+        }
+        .step b { color: rgba(255,255,255,.25); font-weight: 600; flex-shrink: 0; }
+
+        /* toast */
+        .toast {
+            position: fixed;
+            bottom: 80px; left: 50%;
+            transform: translateX(-50%) translateY(60px);
+            background: rgba(255,255,255,.12);
+            backdrop-filter: blur(12px);
+            color: #fff;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 12px; font-weight: 600;
+            opacity: 0;
+            transition: opacity .25s, transform .25s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">
+            <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/c3a01dd59275d25a96184e99df50a8dc3dd27667/MSESVG.svg" alt="MSE">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button class="header-login-btn" title="Магазин">
+                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/6a50e74f86f19a5eacbe86caab2219a6292f2afc/Shop.svg" alt="">
+            </button>
+            <button class="header-login-btn" title="Войти">
+                <img class="icon-gray" src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/4dfd133fad5b470b755d0cc187cf6aad7cde97bb/door.svg" alt="">
+            </button>
+        </div>
+    </div>
+</header>
+
+<div class="main-area">
+
+<div class="modules-wrap">
+    <div class="modules-grid" id="modulesGrid">
+        <a href="javascript:void(0)" onclick="goToMain()" class="module-btn" title="Главная">
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json"></div>
+        </a>
+        <a href="https://mse.zone/cascade" class="module-btn" title="Cascade">
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json"></div>
+        </a>
+        <a href="https://t.me/SportElements_Bot" class="module-btn" title="TG Bot">
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loading%2026%20_%20Paper%20plane.json"></div>
+        </a>
+        <a href="#" class="module-btn" title="Магазин">
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loader%20Payment%20Credit%20Card.json"></div>
+        </a>
+        <a href="donate.html" class="module-btn active" title="Поддержать">
+            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Happy%20gift.json"></div>
+        </a>
+    </div>
+</div>
+
+<div class="scroll-root" id="scrollRoot">
+    <div class="feed-wrap">
+        <div class="donate-card">
+            <div class="donate-title">Поддержать MSE</div>
+            <div class="donate-desc">Каждый донат помогает развивать проект, создавать новый контент и улучшать сервисы для всех.</div>
+
+            <div class="select-wrap">
+                <div class="select-trigger" id="selectTrigger" onclick="toggleDropdown()">
+                    <span id="triggerText">USDT — TRC-20 (Tron)</span>
+                    <svg class="select-arrow" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 6l4 4 4-4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="dropdown" id="dropdown">
+                    <div class="optgroup-label">USDT</div>
+                    <div class="option selected" data-value="USDT_TRC20">USDT — TRC-20 (Tron)</div>
+                    <div class="option" data-value="USDT_ERC20">USDT — ERC-20 (Ethereum)</div>
+                    <div class="option" data-value="USDT_BEP20">USDT — BEP-20 (BSC)</div>
+                    <div class="option" data-value="USDT_SOL">USDT — Solana (SPL)</div>
+                    <div class="option" data-value="USDT_ARB">USDT — Arbitrum</div>
+                    <div class="option" data-value="USDT_POLY">USDT — Polygon</div>
+                    <div class="optgroup-label">Другие монеты</div>
+                    <div class="option" data-value="BTC">BTC — Bitcoin</div>
+                    <div class="option" data-value="ETH">ETH — Ethereum</div>
+                    <div class="option" data-value="SOL">SOL — Solana</div>
+                    <div class="option" data-value="BNB">BNB — BNB Chain</div>
+                    <div class="option" data-value="TRX">TRX — Tron</div>
+                    <div class="option" data-value="LTC">LTC — Litecoin</div>
+                    <div class="option" data-value="XRP">XRP — Ripple</div>
+                    <div class="option" data-value="DOGE">DOGE — Dogecoin</div>
+                </div>
+            </div>
+
+            <div class="qr-box">
+                <div id="qrContainer"></div>
+            </div>
+
+            <div class="fields-row">
+                <div class="field" id="fieldAddr" onclick="copyField('addr')">
+                    <div class="field-label">
+                        <span>Адрес</span>
+                        <span class="copied-badge">Скопировано</span>
+                    </div>
+                    <div class="field-value" id="addrVal">—</div>
+                </div>
+            </div>
+
+            <div class="instruction">
+                <div class="step"><b>I.</b>Выбери удобную сеть и скопируй адрес кошелька.</div>
+                <div class="step"><b>II.</b>Отправь любую сумму — каждый донат помогает проекту развиваться.</div>
+                <div class="step"><b>III.</b>Спасибо, что поддерживаешь MSE.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast">Скопировано</div>
+
+<script>
+const WALLETS = {
+    USDT_TRC20: 'TMfDJhbJXc89oZgXnEm6qC9MAnDc97f2GJ',
+    USDT_ERC20: '0xe2a8d72b870e59E5eC18F4942419274CB032c1fc',
+    USDT_BEP20: '0xe2a8d72b870e59E5eC18F4942419274CB032c1fc',
+    USDT_SOL:   'GUYHm1YAfW51YaN4DmMtA4ooCrifSAzNwAYXEmvQayXM',
+    USDT_ARB:   '0xe2a8d72b870e59E5eC18F4942419274CB032c1fc',
+    USDT_POLY:  '0xe2a8d72b870e59E5eC18F4942419274CB032c1fc',
+    BTC:        'bc1qkty786fgzgu2q4976x9uk75y53k76a8j6vgpjk',
+    ETH:        '0xe2a8d72b870e59E5eC18F4942419274CB032c1fc',
+    SOL:        'GUYHm1YAfW51YaN4DmMtA4ooCrifSAzNwAYXEmvQayXM',
+    BNB:        '0xe2a8d72b870e59E5eC18F4942419274CB032c1fc',
+    TRX:        'TMfDJhbJXc89oZgXnEm6qC9MAnDc97f2GJ',
+    LTC:        'ltc1qaj6l4hdk2zpf4d96k3gftv4a6lmu9nn9xe3ymw',
+    XRP:        'rLHZei6UASAyekNZSwuGKDq1LYcykxxPRX',
+    DOGE:       'DGHrdqJfeWAk2VkTDWhx8y6o1WHtJMqn19',
+};
+
+let currentKey = 'USDT_TRC20';
+let qrInstance = null;
+
+function updateQR(address) {
+    const container = document.getElementById('qrContainer');
+    container.innerHTML = '';
+    qrInstance = new QRCode(container, {
+        text: address,
+        width: 148,
+        height: 148,
+        colorDark: '#000',
+        colorLight: '#fff',
+        correctLevel: QRCode.CorrectLevel.M
+    });
+}
+
+function selectCoin(key, label) {
+    currentKey = key;
+    document.getElementById('triggerText').textContent = label;
+    document.getElementById('addrVal').textContent = WALLETS[key];
+    updateQR(WALLETS[key]);
+    document.querySelectorAll('.option').forEach(o => {
+        o.classList.toggle('selected', o.dataset.value === key);
+    });
+    closeDropdown();
+}
+
+function toggleDropdown() {
+    const trigger = document.getElementById('selectTrigger');
+    const dd = document.getElementById('dropdown');
+    const isOpen = dd.classList.contains('open');
+    if (isOpen) { closeDropdown(); } else {
+        trigger.classList.add('open');
+        dd.classList.add('open');
+    }
+}
+
+function closeDropdown() {
+    document.getElementById('selectTrigger').classList.remove('open');
+    document.getElementById('dropdown').classList.remove('open');
+}
+
+document.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', () => {
+        selectCoin(opt.dataset.value, opt.textContent.trim());
+    });
+});
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.select-wrap')) closeDropdown();
+});
+
+function copyField(type) {
+    const val = WALLETS[currentKey];
+    navigator.clipboard.writeText(val).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = val; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+    });
+    const field = document.getElementById('fieldAddr');
+    field.classList.add('copied');
+    setTimeout(() => field.classList.remove('copied'), 2000);
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function goToMain() {
+    const ua = navigator.userAgent;
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    window.location.href = isMobile ? 'https://mse.zone/mobile' : 'https://mse.zone';
+}
+
+// init
+selectCoin('USDT_TRC20', 'USDT — TRC-20 (Tron)');
+
+// modules scroll
+const scrollRoot = document.getElementById('scrollRoot');
+const modulesGrid = document.getElementById('modulesGrid');
+scrollRoot.addEventListener('scroll', () => {
+    modulesGrid.classList.toggle('scrolled', scrollRoot.scrollTop > 10);
+}, { passive: true });
+
+// lottie
+document.querySelectorAll('.lottie-icon').forEach(el => {
+    lottie.loadAnimation({
+        container: el,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: el.dataset.src
+    });
+});
+</script>
+</body>
+</html>
