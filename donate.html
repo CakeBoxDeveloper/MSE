@@ -286,13 +286,16 @@
         }
         #qrContainer {
             width: 148px; height: 148px;
-            background: #fff;
+            background: transparent;
             border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
         #qrContainer canvas,
-        #qrContainer img { width: 148px !important; height: 148px !important; }
+        #qrContainer img {
+            width: 148px !important; height: 148px !important;
+            filter: invert(1);
+        }
 
         /* fields */
         .fields-row { display: flex; gap: 8px; margin-bottom: 12px; }
@@ -342,7 +345,23 @@
         }
         .step b { color: rgba(255,255,255,.25); font-weight: 600; flex-shrink: 0; }
 
-        /* toast */
+        /* back button */
+        .back-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 8px;
+            color: var(--text-tertiary);
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: border-color .15s, color .15s;
+            text-align: center;
+        }
+        .back-btn:hover { border-color: rgba(255,255,255,.2); color: #888; }
         .toast {
             position: fixed;
             bottom: 80px; left: 50%;
@@ -456,6 +475,8 @@
                 <div class="step"><b>II.</b>Отправь любую сумму — каждый донат помогает проекту развиваться.</div>
                 <div class="step"><b>III.</b>Спасибо, что поддерживаешь MSE.</div>
             </div>
+
+            <button class="back-btn" onclick="goToMain()">Вернуться на главную</button>
         </div>
     </div>
 </div>
