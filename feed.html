@@ -126,16 +126,22 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            background: rgba(0,0,0,.35);
+            background: rgba(255,255,255,.05);
             border: 1px solid rgba(255,255,255,.07);
             border-radius: 8px;
             padding: 7px 7px 7px 22px;
             box-sizing: border-box;
             width: 100%;
-            backdrop-filter: blur(20px) saturate(160%);
-            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
             overflow: clip;
             pointer-events: all;
+            transition: background .3s ease, backdrop-filter .3s ease, -webkit-backdrop-filter .3s ease;
+        }
+        .modules-grid.scrolled {
+            background: rgba(0,0,0,.35);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
         }
         @keyframes giftBorderShimmer {
             0%   { background-position: 0% 0%; }
@@ -325,6 +331,11 @@
         }
         /* hide dots if only 1 slide */
         .carousel-dots.single { display: none; }
+
+        /* отступ снизу если нет точек (одиночный слайд) */
+        .has-single-slide .post-carousel {
+            padding-bottom: 20px;
+        }
 
         /* caption */
         .post-caption { display: none; }
@@ -619,7 +630,7 @@ function buildPost(p) {
         : `<div class="carousel-dots single"></div>`;
 
     return `
-    <article class="post-card" data-id="${p.id}">
+    <article class="post-card${count === 1 ? ' has-single-slide' : ''}" data-id="${p.id}">
         <div class="post-top">
             <span class="post-title">${p.title}</span>
             <span class="post-date">${p.date}</span>
@@ -708,7 +719,18 @@ document.addEventListener('touchend', e => {
     touchPostId = null;
 }, { passive: true });
 
-render();а
+render();
+
+// панель модулей: прозрачная → блюр при скролле
+const scrollRoot = document.querySelector('.scroll-root');
+const modulesGrid = document.querySelector('.modules-grid');
+scrollRoot.addEventListener('scroll', () => {
+    if (scrollRoot.scrollTop > 10) {
+        modulesGrid.classList.add('scrolled');
+    } else {
+        modulesGrid.classList.remove('scrolled');
+    }
+}, { passive: true });а
 </script>
 </body>
 </html>
