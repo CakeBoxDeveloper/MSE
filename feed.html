@@ -9,8 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f9cf4d0f418e37fb1154fa7a2d314034985bbd37/MSESVGWhite.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>    <style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">    <style>
         * {
             margin: 0; padding: 0; box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -154,6 +153,12 @@
         .lottie-icon {
             width: 20px; height: 20px;
             filter: brightness(10) saturate(0);
+            pointer-events: none;
+        }
+        .icon-white {
+            width: 18px; height: 18px;
+            filter: brightness(0) invert(1);
+            opacity: .6;
             pointer-events: none;
         }
         @keyframes giftBorderShimmer {
@@ -386,19 +391,19 @@
 <div class="modules-wrap">
     <div class="modules-grid" id="modulesGrid">
         <a href="javascript:void(0)" onclick="goToMain()" class="module-btn" title="Главная">
-            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Eye%20Loading%20Animation.json"></div>
+            <img src="https://www.svgrepo.com/show/486566/card-layout.svg" class="icon-white" alt="">
         </a>
         <a href="https://mse.zone/cascade" class="module-btn" title="Cascade">
-            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Proxima.json"></div>
+            <img src="https://www.svgrepo.com/show/375179/task.svg" class="icon-white" alt="">
         </a>
         <a href="feed.html" class="module-btn active" title="Лента">
-            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loading%2026%20_%20Paper%20plane.json"></div>
+            <img src="https://www.svgrepo.com/show/358291/telegram-alt.svg" class="icon-white" alt="">
         </a>
         <a href="#" class="module-btn" title="Магазин">
-            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Loader%20Payment%20Credit%20Card.json"></div>
+            <img src="https://www.svgrepo.com/show/533534/shop.svg" class="icon-white" alt="">
         </a>
         <a href="donate.html" class="module-btn" title="Поддержать">
-            <div class="lottie-icon" data-src="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/main/Happy%20gift.json"></div>
+            <img src="https://www.svgrepo.com/show/415181/card-credit-finance.svg" class="icon-white" alt="">
         </a>
     </div>
 </div>
