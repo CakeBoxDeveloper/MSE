@@ -341,20 +341,6 @@
         .post-caption { display: none; }
 
         /* ── LOAD MORE ── */
-        .load-more {
-            width: 100%; padding: 11px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-family: 'Inter', sans-serif;
-            font-size: 11px; font-weight: 500;
-            letter-spacing: .5px;
-            cursor: pointer;
-            transition: all .2s ease;
-            margin-top: 2px;
-        }
-        .load-more:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); color: var(--text-primary); }
 
         /* scrollbar */
         body::-webkit-scrollbar { width: 4px; }
@@ -408,7 +394,7 @@
 <div class="scroll-root">
     <div class="feed-wrap">
         <div id="feedContainer"></div>
-        <button class="load-more" id="loadMoreBtn">Загрузить ещё</button>
+        <div id="loadSentinel" style="height:1px;"></div>
     </div>
 </div>
 
@@ -424,59 +410,23 @@
 const feedData = [
     {
         id: 1,
-        title: 'Становая тяга',
-        date: '20 мая',
+        title: 'Mixed Sport Elements',
+        date: '19 июня',
         images: [
-            'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80',
-            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80',
-            'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80'
+            'https://i.ibb.co/Y4t3kdj2/1.jpg',
+            'https://i.ibb.co/fdkHZXnS/2.jpg',
+            'https://i.ibb.co/Zz9pSqzN/3.jpg',
+            'https://i.ibb.co/whR51JHN/4.jpg',
+            'https://i.ibb.co/21zVXCRZ/5.jpg',
+            'https://i.ibb.co/G3PdHVZg/6.jpg',
+            'https://i.ibb.co/dJwmqtD3/7.jpg'
         ],
-        caption: 'Тело — это инструмент. Чем точнее ты его настраиваешь, тем мощнее результат.'
-    },
-    {
-        id: 2,
-        title: 'Восстановление',
-        date: '17 мая',
-        images: [
-            'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80',
-            'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80'
-        ],
-        caption: 'Восстановление — такая же часть тренировки, как и сама нагрузка.'
-    },
-    {
-        id: 3,
-        title: 'Питание',
-        date: '12 мая',
-        images: [
-            'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80',
-            'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
-            'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=80'
-        ],
-        caption: 'Питание — это не диета. Это система, которую ты выстраиваешь под себя.'
-    },
-    {
-        id: 4,
-        title: 'Гибкость',
-        date: '8 мая',
-        images: [
-            'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80'
-        ],
-        caption: 'Гибкость — это не про растяжку. Это про контроль тела в любом положении.'
-    },
-    {
-        id: 5,
-        title: 'Прогресс',
-        date: '3 мая',
-        images: [
-            'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600&q=80',
-            'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80'
-        ],
-        caption: 'Прогресс не линейный. Плато — это накопление перед следующим скачком.'
+        caption: null
     }
 ];
 
 const CAPTION_MAX = 100;
-let visible = 4;
+let visible = 1;
 
 function buildPost(p) {
     const short   = p.caption && p.caption.length > CAPTION_MAX;
