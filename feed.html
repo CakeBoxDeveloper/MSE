@@ -18,17 +18,15 @@
         100% { background-position: 300% 50%; }
     }
     @keyframes introFadeOut {
-        0%   { opacity: 1; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
-        100% { opacity: 0; backdrop-filter: blur(0px);  -webkit-backdrop-filter: blur(0px); }
+        0%   { opacity: 1; }
+        100% { opacity: 0; }
     }
 
     #introOverlay {
         position: fixed;
         inset: 0;
         z-index: 9999;
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        background: rgba(0,0,0,.15);
+        background: transparent;
         pointer-events: none;
         opacity: 1;
     }
