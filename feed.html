@@ -9,7 +9,110 @@
     <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/f9cf4d0f418e37fb1154fa7a2d314034985bbd37/MSESVGWhite.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">    <style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+    /* ── INTRO ANIMATION ── */
+    @keyframes shimmerRotate {
+        0%   { background-position: 0% 50%; }
+        100% { background-position: 300% 50%; }
+    }
+    @keyframes introFadeOut {
+        0%   { opacity: 1; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+        100% { opacity: 0; backdrop-filter: blur(0px);  -webkit-backdrop-filter: blur(0px); }
+    }
+
+    #introOverlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        background: rgba(0,0,0,.15);
+        pointer-events: none;
+        opacity: 1;
+    }
+    #introOverlay.fade-out {
+        animation: introFadeOut 1.5s ease forwards;
+    }
+    #introOverlay.done {
+        display: none;
+    }
+
+    /* шиммер-рамка вокруг блоков */
+    .shimmer-border {
+        position: fixed;
+        inset: 0;
+        z-index: 9998;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 1.5s ease;
+    }
+    .shimmer-border.fade-out { opacity: 0; }
+    .shimmer-border.done { display: none; }
+
+    /* каждый блок получает псевдо-обводку через outline-shimmer */
+    .intro-active .header-inner,
+    .intro-active .modules-grid,
+    .intro-active .post-card {
+        position: relative;
+    }
+    .intro-active .header-inner::after,
+    .intro-active .modules-grid::after,
+    .intro-active .post-card::after {
+        content: '';
+        position: absolute;
+        inset: -1.5px;
+        border-radius: inherit;
+        background: linear-gradient(
+            90deg,
+            #7dd3fc, #c4b5fd, #2dd4bf, #a5f3fc,
+            #7dd3fc, #c4b5fd, #2dd4bf, #a5f3fc
+        );
+        background-size: 300% 100%;
+        animation: shimmerRotate 6s linear infinite;
+        z-index: -1;
+        filter: blur(4px) brightness(1.6);
+        opacity: 1;
+        transition: opacity 1.5s ease;
+        border-radius: inherit;
+    }
+    /* тонкая чёткая линия поверх свечения */
+    .intro-active .header-inner::before,
+    .intro-active .modules-grid::before,
+    .intro-active .post-card::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        background: linear-gradient(
+            90deg,
+            #7dd3fc, #c4b5fd, #2dd4bf, #a5f3fc,
+            #7dd3fc, #c4b5fd, #2dd4bf, #a5f3fc
+        );
+        background-size: 300% 100%;
+        animation: shimmerRotate 6s linear infinite;
+        z-index: 1;
+        opacity: .9;
+        transition: opacity 1.5s ease;
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        padding: 1px;
+        pointer-events: none;
+    }
+    .intro-active.intro-done .header-inner::after,
+    .intro-active.intro-done .modules-grid::after,
+    .intro-active.intro-done .post-card::after,
+    .intro-active.intro-done .header-inner::before,
+    .intro-active.intro-done .modules-grid::before,
+    .intro-active.intro-done .post-card::before {
+        opacity: 0;
+    }
+    </style>
+    <style>
         * {
             margin: 0; padding: 0; box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -371,6 +474,8 @@
     </style>
 </head>
 <body>
+
+<div id="introOverlay"></div>
 
 <header>
     <div class="header-inner">
@@ -742,6 +847,34 @@ document.addEventListener('touchend', e => {
 }, { passive: true });
 
 render();
+
+// ── INTRO ANIMATION ──
+(function() {
+    const KEY = 'mse_intro_last';
+    const now = Date.now();
+    const last = parseInt(localStorage.getItem(KEY) || '0');
+    const DAY = 24 * 60 * 60 * 1000;
+    const shouldPlay = (now - last) > DAY;
+
+    if (!shouldPlay) {
+        document.getElementById('introOverlay').classList.add('done');
+        return;
+    }
+
+    localStorage.setItem(KEY, now);
+    document.body.classList.add('intro-active');
+
+    // запускаем fade-out через 300ms (чтобы успело отрендериться)
+    setTimeout(() => {
+        document.getElementById('introOverlay').classList.add('fade-out');
+        document.body.classList.add('intro-done');
+
+        setTimeout(() => {
+            document.getElementById('introOverlay').classList.add('done');
+            document.body.classList.remove('intro-active', 'intro-done');
+        }, 1500);
+    }, 300);
+})();
 
 // инициализация Lottie анимаций
 document.querySelectorAll('.lottie-icon').forEach(el => {
