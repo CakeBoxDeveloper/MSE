@@ -1277,6 +1277,93 @@
         // Renders each A4 sheet to a PNG and downloads it (one file per page).
         // Zigzag torn-edges and drop shadows are hidden during capture so the
         // exported image looks like a clean printable sheet.
+        // Minimal PNG chunk editor: injects a pHYs chunk so the file's embedded
+        // physical size matches real A4 (210x297mm) in apps that read it
+        // (Photoshop, print dialogs, etc.) instead of defaulting to 72 DPI.
+        function pngCrc32(bytes) {
+            if (!pngCrc32.table) {
+                const table = [];
+                for (let n = 0; n < 256; n++) {
+                    let c = n;
+                    for (let k = 0; k < 8; k++) {
+                        c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                    }
+                    table[n] = c >>> 0;
+                }
+                pngCrc32.table = table;
+            }
+            let crc = 0xFFFFFFFF;
+            for (let i = 0; i < bytes.length; i++) {
+                crc = pngCrc32.table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+            }
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        function writeUint32BE(arr, idx, val) {
+            arr[idx] = (val >>> 24) & 0xFF;
+            arr[idx + 1] = (val >>> 16) & 0xFF;
+            arr[idx + 2] = (val >>> 8) & 0xFF;
+            arr[idx + 3] = val & 0xFF;
+        }
+
+        function setPngPhysicalSize(dataUrl, pixelsPerMeterX, pixelsPerMeterY) {
+            const base64 = dataUrl.split(',')[1];
+            const binaryStr = atob(base64);
+            const bytes = new Uint8Array(binaryStr.length);
+            for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+
+            const signature = bytes.slice(0, 8);
+            let offset = 8;
+            const chunks = [];
+            let ihdrIndex = -1;
+            while (offset < bytes.length) {
+                const length = (bytes[offset] << 24 | bytes[offset + 1] << 16 | bytes[offset + 2] << 8 | bytes[offset + 3]) >>> 0;
+                const type = String.fromCharCode(bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]);
+                const totalLen = 4 + 4 + length + 4;
+                if (type !== 'pHYs') {
+                    chunks.push(bytes.slice(offset, offset + totalLen));
+                    if (type === 'IHDR') ihdrIndex = chunks.length - 1;
+                }
+                offset += totalLen;
+            }
+
+            const physData = new Uint8Array(9);
+            writeUint32BE(physData, 0, Math.round(pixelsPerMeterX));
+            writeUint32BE(physData, 4, Math.round(pixelsPerMeterY));
+            physData[8] = 1; // unit specifier: metre
+
+            const typeBytes = new Uint8Array([0x70, 0x48, 0x59, 0x73]); // 'pHYs'
+            const crcInput = new Uint8Array(typeBytes.length + physData.length);
+            crcInput.set(typeBytes, 0);
+            crcInput.set(physData, typeBytes.length);
+            const crc = pngCrc32(crcInput);
+
+            const physChunk = new Uint8Array(4 + 4 + 9 + 4);
+            writeUint32BE(physChunk, 0, 9);
+            physChunk.set(typeBytes, 4);
+            physChunk.set(physData, 8);
+            writeUint32BE(physChunk, 17, crc);
+
+            const finalChunks = [];
+            chunks.forEach((chunk, i) => {
+                finalChunks.push(chunk);
+                if (i === ihdrIndex) finalChunks.push(physChunk);
+            });
+
+            const totalLength = signature.length + finalChunks.reduce((sum, c) => sum + c.length, 0);
+            const output = new Uint8Array(totalLength);
+            output.set(signature, 0);
+            let pos = signature.length;
+            finalChunks.forEach(c => { output.set(c, pos); pos += c.length; });
+
+            let binary = '';
+            const step = 0x8000;
+            for (let i = 0; i < output.length; i += step) {
+                binary += String.fromCharCode.apply(null, output.subarray(i, i + step));
+            }
+            return 'data:image/png;base64,' + btoa(binary);
+        }
+
         downloadPngBtn.addEventListener('click', async () => {
             if (typeof html2canvas === 'undefined') {
                 alert('Не удалось загрузить библиотеку экспорта. Проверьте подключение к интернету и попробуйте снова.');
@@ -1300,7 +1387,15 @@
                         useCORS: true,
                         backgroundColor: '#ffffff'
                     });
-                    const dataUrl = canvas.toDataURL('image/png');
+                    let dataUrl = canvas.toDataURL('image/png');
+
+                    // Embed the real A4 physical size (210 x 297mm) as PNG metadata
+                    // so apps like Photoshop report the correct dimensions on open.
+                    try {
+                        const dpi = canvas.width / (210 / 25.4);
+                        const pixelsPerMeter = dpi / 0.0254;
+                        dataUrl = setPngPhysicalSize(dataUrl, pixelsPerMeter, pixelsPerMeter);
+                    } catch (e) { /* metadata is a nice-to-have; fall back to the plain PNG */ }
 
                     const link = document.createElement('a');
                     const suffix = sheets.length > 1 ? `-стр${i + 1}` : '';
