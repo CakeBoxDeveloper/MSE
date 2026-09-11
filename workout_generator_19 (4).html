@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Генератор индивидуальных тренировочных планов (А4)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.3/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #111;
+            --border: #222;
+            --gray-light: #f4f4f4;
+            --gray-text: #666;
+            --gray-border: #ccc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #eef2f5;
+            color: var(--primary);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            width: 100%;
+            text-align: justify;
+            text-align-last: justify;
+        }
+
+        .toolbar-group {
+            margin-bottom: 20px;
+        }
+
+        .toolbar-inline {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .toolbar-inline input {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: inherit;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #000;
+        }
+
+        .exercises-section h2 {
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .h2-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .preset-select {
+            padding: 6px 10px;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: 700;
+            text-transform: none;
+            border: 2px solid #000;
+            border-radius: 8px;
+            background: #fff;
+            color: #111;
+            cursor: pointer;
+        }
+
+        .exercise-row-editor {
+            display: grid;
+            grid-template-columns: 2fr 0.7fr 20px 0.7fr 1fr 44px;
+            gap: 8px;
+            align-items: center;
+            background: var(--gray-light);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .x-separator {
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            color: #888;
+            user-select: none;
+        }
+
+        .exercise-row-editor select,
+        .exercise-row-editor input {
+            width: 100%;
+            padding: 8px 10px;
+            font-family: inherit;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            outline: none;
+        }
+
+        .btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:hover {
+            background: #333;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #eee;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+
+        .btn-danger {
+            background: #fff;
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+            font-size: 20px;
+            padding: 0;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .btn-danger:hover {
+            background: #ffebee;
+        }
+
+        .link-connector {
+            display: flex;
+            justify-content: center;
+            margin: -3px 0 8px;
+        }
+
+        .link-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px dashed #ccc;
+            background: #fff;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 0;
+        }
+
+        .link-btn svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        .link-btn:hover {
+            border-color: #000;
+            color: #000;
+        }
+
+        .link-btn.active {
+            border: 2px solid #000;
+            background: #000;
+            color: #fff;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .actions-bar .btn-print-full {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 15px;
+        }
+
+        /* PREVIEW A4 CONTAINER */
+        .preview-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background: #555;
+            padding: 40px 0;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .sheets-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .a4-sheet {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            padding: 15mm 15mm;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            color: #000;
+        }
+
+        /* Zigzag torn-edge lines shown on the page preview (screen only) at the point
+           where content continues onto the next sheet. */
+        .zigzag-edge {
+            position: absolute;
+            left: 15mm;
+            right: 15mm;
+            height: 14px;
+            pointer-events: none;
+        }
+
+        .zigzag-edge svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .zigzag-edge-bottom {
+            bottom: 0;
+        }
+
+        .zigzag-edge-top {
+            top: 0;
+        }
+
+        /* Applied briefly during PNG export so captured sheets look clean and printable */
+        body.exporting .zigzag-edge {
+            display: none !important;
+        }
+
+        body.exporting .a4-sheet {
+            box-shadow: none !important;
+        }
+
+        /* A4 SHEET HEADER */
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: nowrap;
+            gap: 20px;
+            white-space: nowrap;
+        }
+
+        .sheet-logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .sheet-logo img {
+            height: 38px;
+            width: auto;
+            display: block;
+        }
+
+        .sheet-code {
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            color: #000;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .sheet-title {
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            text-align: right;
+            white-space: normal;
+            overflow-wrap: break-word;
+            line-height: 1.15;
+        }
+
+        /* WARM-UP BLOCK */
+        .warmup-block {
+            border: 2px dashed #000;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+        }
+
+        .warmup-text {
+            font-size: 12px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        /* CONTINUATION PAGE HEADER */
+        .sheet-header-cont {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sheet-header-cont .cont-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #777;
+        }
+
+        .sheet-header-cont .cont-page {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        /* SHEET FOOTER: barcode + QR code + AI-generated disclaimer */
+        .sheet-footer {
+            position: absolute;
+            left: 15mm;
+            right: 15mm;
+            bottom: 8mm;
+        }
+
+        .sheet-footer-codes {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .sheet-footer-barcode {
+            height: 91px;
+            max-width: 60%;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .sheet-footer-barcode svg {
+            height: 91px;
+            max-width: 100%;
+            display: block;
+        }
+
+        .sheet-footer-qr {
+            height: 91px;
+            width: 91px;
+            flex-shrink: 0;
+        }
+
+        .sheet-footer-qr canvas,
+        .sheet-footer-qr img {
+            width: 91px !important;
+            height: 91px !important;
+            display: block;
+        }
+
+        .sheet-footer-note {
+            margin-top: 8px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            padding: 6px 10px;
+            text-align: center;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.3px;
+            color: #444;
+        }
+
+        /* EXERCISE BLOCKS */
+        .workout-list {
+            width: 100%;
+            margin-bottom: auto;
+        }
+
+        .exercise-block-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        /* SUPERSET: stacked name plates joined by a bracket outside, to the left */
+        .superset-names {
+            position: relative;
+        }
+
+        .superset-names .ex-name {
+            border-radius: 0;
+        }
+
+        .superset-names .ex-name:first-child {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        .superset-names .ex-name:last-child {
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .superset-names .ex-name:not(:last-child) {
+            margin-bottom: 2px;
+        }
+
+        .superset-bracket {
+            position: absolute;
+            top: 3px;
+            left: -11px;
+            bottom: 3px;
+            width: 7px;
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+            border-bottom: 2px solid #000;
+            border-radius: 0;
+        }
+
+        .round-pair {
+            display: flex;
+            gap: calc(4px * var(--box-scale, 1));
+        }
+
+        .ex-name {
+            width: 100%;
+            box-sizing: border-box;
+            background: #000;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 10px 14px;
+            border-radius: 4px;
+            display: block;
+            text-align: center;
+        }
+
+        .sets-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            margin-top: 10px;
+        }
+
+        .set-box {
+            width: calc(52px * var(--box-scale, 1));
+            height: calc(52px * var(--box-scale, 1));
+            flex-shrink: 0;
+            border: 2px solid #000;
+            border-radius: calc(6px * var(--box-scale, 1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: calc(15px * var(--box-scale, 1));
+            font-weight: 700;
+            color: #888;
+            background-color: #fff;
+            background-image: repeating-linear-gradient(45deg, #888 0px, #888 1px, transparent 1px, transparent 3px);
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .set-box .set-box-label {
+            position: relative;
+            z-index: 1;
+            background: #fff;
+            padding: 1px 5px;
+            border-radius: 2px;
+            white-space: nowrap;
+        }
+
+        .set-box.checked {
+            background-color: #000;
+            background-image: none;
+            color: #fff;
+        }
+
+        .set-box.checked .set-box-label {
+            background: #000;
+        }
+
+        .rest-badge {
+            width: calc(44px * var(--box-scale, 1));
+            height: calc(44px * var(--box-scale, 1));
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: calc(12px * var(--box-scale, 1));
+            color: #888;
+            font-weight: 600;
+            background: #f5f5f5;
+            border-radius: calc(6px * var(--box-scale, 1));
+            margin: 0 calc(8px * var(--box-scale, 1));
+            white-space: nowrap;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+                margin: 0;
+            }
+            .app-container, .preview-label, .actions-bar {
+                display: none !important;
+            }
+            .preview-container {
+                display: block;
+                background: none;
+                padding: 0;
+                border-radius: 0;
+                overflow: visible;
+            }
+            .sheets-container {
+                display: block;
+                gap: 0;
+            }
+            .a4-sheet {
+                box-shadow: none;
+                margin: 0 auto;
+                width: 100%;
+                min-height: auto;
+                height: 297mm;
+                padding: 10mm;
+                page-break-after: always;
+            }
+            .a4-sheet:last-child {
+                page-break-after: auto;
+            }
+            #measureSheet {
+                display: none !important;
+            }
+            .zigzag-edge {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <h1>Генератор индивидуальных тренировочных планов</h1>
+
+        <div class="toolbar-group">
+            <div class="toolbar-inline">
+                <input type="text" id="workoutCodeInput" value="CUSTOM-01" placeholder="Код" style="flex: 0 0 130px;">
+                <input type="text" id="workoutTitleInput" value="День 1: Верх — Тяни/Толкай" placeholder="Введите название тренировки">
+            </div>
+        </div>
+
+        <div class="exercises-section">
+            <h2>
+                <span>Упражнения</span>
+                <div class="h2-actions">
+                    <select class="preset-select" id="presetSelect">
+                        <option value="">Пресеты...</option>
+                    </select>
+                    <button class="btn" type="button" id="addExerciseBtn" style="padding: 6px 12px; font-size: 12px;">+ Добавить упражнение</button>
+                </div>
+            </h2>
+            <div id="editorRowsContainer">
+                <!-- Rows injected by JS -->
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-print-full" id="downloadPngBtn" type="button">⬇️ Скачать PNG</button>
+        </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-label" style="width: 100%; max-width: 900px; margin-bottom: 15px; font-weight: 700; font-size: 14px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;">
+        <span>Живой предпросмотр (А4)</span>
+    </div>
+
+    <div class="preview-container">
+        <div class="sheets-container" id="sheetsContainer">
+            <!-- Pages injected by JS -->
+        </div>
+    </div>
+
+    <script>
+        const exercisesList = [
+            "Жим лежа штанги",
+            "Жим гантелей на наклонной",
+            "Приседания со штангой",
+            "Становая тяга классическая",
+            "Подтягивания на перекладине",
+            "Тяга верхнего блока к груди",
+            "Тяга штанги в наклоне",
+            "Армейский жим стоя",
+            "Махи гантелями в стороны",
+            "Сгибания рук на бицепс (EZ)",
+            "Французский жим лежа",
+            "Отжимания на брусьях",
+            "Скручивания на пресс",
+            "Планка (секунды)",
+            "Берпи",
+            "Прыжки со скакалкой",
+            "Приседания с выпрыгиванием",
+            "Скалолаз (mountain climbers)",
+            "Отжимания от пола",
+            "Выпады на месте",
+            "Джампинг джек",
+            "Ягодичный мостик",
+            "Гиперэкстензия",
+            "Румынская тяга с гантелями"
+        ];
+
+        let state = [
+            { name: "Жим лежа штанги", sets: 4, reps: 10, rest: 90, linkNext: false },
+            { name: "Тяга верхнего блока к груди", sets: 3, reps: 12, rest: 60, linkNext: false },
+            { name: "Армейский жим стоя", sets: 3, reps: 8, rest: 90, linkNext: false },
+            { name: "Подтягивания на перекладине", sets: 3, reps: 8, rest: 90, linkNext: false },
+            { name: "Сгибания рук на бицепс (EZ)", sets: 3, reps: 12, rest: 60, linkNext: false }
+        ];
+
+        let warmup = {
+            text: "5 минут скакалки + 10 бёрпи + круговые вращения руками и плечами, 1 лёгкий разминочный подход перед первым упражнением."
+        };
+
+        const LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07l1.5-1.5"/></svg>';
+
+        const presets = {
+            male_strength: {
+                code: "M-STR-01",
+                title: "Мужская силовая тренировка",
+                warmup: "5 минут на орбитреке в среднем темпе + 10 воздушных приседаний + разминочный подход с пустым грифом перед каждым базовым упражнением.",
+                exercises: [
+                    { name: "Приседания со штангой", sets: 4, reps: 6, rest: 120 },
+                    { name: "Жим лежа штанги", sets: 4, reps: 6, rest: 120 },
+                    { name: "Становая тяга классическая", sets: 3, reps: 5, rest: 150 },
+                    { name: "Тяга штанги в наклоне", sets: 3, reps: 8, rest: 90 },
+                    { name: "Армейский жим стоя", sets: 3, reps: 8, rest: 90 }
+                ]
+            },
+            male_cardio: {
+                code: "M-HRT-01",
+                title: "Мужская кардио тренировка",
+                warmup: "3 минуты скакалки + 15 бёрпи + лёгкий бег на месте 2 минуты для разгона пульса.",
+                exercises: [
+                    { name: "Берпи", sets: 4, reps: 15, rest: 60 },
+                    { name: "Прыжки со скакалкой", sets: 4, reps: 50, rest: 45 },
+                    { name: "Приседания с выпрыгиванием", sets: 4, reps: 15, rest: 45 },
+                    { name: "Скалолаз (mountain climbers)", sets: 4, reps: 20, rest: 45 },
+                    { name: "Скручивания на пресс", sets: 3, reps: 20, rest: 30 }
+                ]
+            },
+            male_functional: {
+                code: "M-END-01",
+                title: "Мужская функциональная тренировка",
+                warmup: "5 минут скакалки + 10 динамических выпадов на каждую ногу + 10 приседаний с выпрыгиванием в медленном темпе.",
+                exercises: [
+                    { name: "Приседания с выпрыгиванием", sets: 4, reps: 12, rest: 60 },
+                    { name: "Отжимания на брусьях", sets: 4, reps: 10, rest: 75 },
+                    { name: "Подтягивания на перекладине", sets: 4, reps: 8, rest: 90 },
+                    { name: "Выпады на месте", sets: 3, reps: 12, rest: 60 },
+                    { name: "Планка (секунды)", sets: 3, reps: 40, rest: 45 }
+                ]
+            },
+            male_home_tabata: {
+                code: "M-AGI-01",
+                title: "Мужская тренировка дома (Табата)",
+                warmup: "3 минуты бега на месте + 10 бёрпи + вращения плечами и коленями без инвентаря.",
+                exercises: [
+                    { name: "Приседания с выпрыгиванием", sets: 8, reps: 20, rest: 10 },
+                    { name: "Отжимания от пола", sets: 8, reps: 20, rest: 10 },
+                    { name: "Скалолаз (mountain climbers)", sets: 8, reps: 20, rest: 10 },
+                    { name: "Берпи", sets: 8, reps: 20, rest: 10 }
+                ]
+            },
+            male_split_legs_shoulders: {
+                code: "M-LS-01",
+                title: "Сплит: Ноги + Плечи (муж)",
+                warmup: "5 минут на велотренажёре + 15 воздушных приседаний + разминочный подход с пустым грифом перед приседом.",
+                exercises: [
+                    { name: "Приседания со штангой", sets: 4, reps: 8, rest: 120 },
+                    { name: "Румынская тяга с гантелями", sets: 3, reps: 10, rest: 90 },
+                    { name: "Выпады на месте", sets: 3, reps: 12, rest: 75 },
+                    { name: "Армейский жим стоя", sets: 4, reps: 8, rest: 90 },
+                    { name: "Махи гантелями в стороны", sets: 3, reps: 15, rest: 60 }
+                ]
+            },
+            male_split_chest_arms: {
+                code: "M-CH-01",
+                title: "Сплит: Грудь + Руки (муж)",
+                warmup: "3 минуты бокса на груше + 10 отжиманий от пола + разминочный подход с лёгкой гантелью перед жимом.",
+                exercises: [
+                    { name: "Жим лежа штанги", sets: 4, reps: 8, rest: 120 },
+                    { name: "Жим гантелей на наклонной", sets: 3, reps: 10, rest: 90 },
+                    { name: "Отжимания на брусьях", sets: 3, reps: 10, rest: 90 },
+                    { name: "Сгибания рук на бицепс (EZ)", sets: 3, reps: 12, rest: 60 },
+                    { name: "Французский жим лежа", sets: 3, reps: 12, rest: 60 }
+                ]
+            },
+            male_split_back_core: {
+                code: "M-BA-01",
+                title: "Сплит: Спина + Кор (муж)",
+                warmup: "5 минут гребного тренажёра + 10 гиперэкстензий без веса + планка 30 секунд для активации кора.",
+                exercises: [
+                    { name: "Становая тяга классическая", sets: 4, reps: 6, rest: 150 },
+                    { name: "Подтягивания на перекладине", sets: 4, reps: 8, rest: 120 },
+                    { name: "Тяга штанги в наклоне", sets: 3, reps: 10, rest: 90 },
+                    { name: "Гиперэкстензия", sets: 3, reps: 15, rest: 60 },
+                    { name: "Скручивания на пресс", sets: 3, reps: 20, rest: 45 }
+                ]
+            },
+            female_strength: {
+                code: "F-STR-01",
+                title: "Женская силовая тренировка",
+                warmup: "5 минут на эллипсоиде + 15 ягодичных мостиков + разминочный подход с лёгким весом перед первым упражнением.",
+                exercises: [
+                    { name: "Приседания со штангой", sets: 4, reps: 10, rest: 90 },
+                    { name: "Румынская тяга с гантелями", sets: 3, reps: 10, rest: 90 },
+                    { name: "Ягодичный мостик", sets: 3, reps: 15, rest: 60 },
+                    { name: "Тяга верхнего блока к груди", sets: 3, reps: 12, rest: 60 },
+                    { name: "Скручивания на пресс", sets: 3, reps: 15, rest: 45 }
+                ]
+            },
+            female_cardio: {
+                code: "F-HRT-01",
+                title: "Женская кардио тренировка",
+                warmup: "3 минуты скакалки + 30 джампинг джеков + лёгкий бег на месте 2 минуты.",
+                exercises: [
+                    { name: "Джампинг джек", sets: 4, reps: 30, rest: 30 },
+                    { name: "Прыжки со скакалкой", sets: 4, reps: 40, rest: 30 },
+                    { name: "Приседания с выпрыгиванием", sets: 3, reps: 12, rest: 45 },
+                    { name: "Скалолаз (mountain climbers)", sets: 3, reps: 20, rest: 30 },
+                    { name: "Планка (секунды)", sets: 3, reps: 30, rest: 30 }
+                ]
+            },
+            female_functional: {
+                code: "F-END-01",
+                title: "Женская функциональная тренировка",
+                warmup: "5 минут скакалки + 10 выпадов на каждую ногу + 10 подъёмов таза.",
+                exercises: [
+                    { name: "Выпады на месте", sets: 3, reps: 12, rest: 45 },
+                    { name: "Ягодичный мостик", sets: 3, reps: 15, rest: 45 },
+                    { name: "Отжимания от пола", sets: 3, reps: 10, rest: 60 },
+                    { name: "Гиперэкстензия", sets: 3, reps: 12, rest: 60 },
+                    { name: "Планка (секунды)", sets: 3, reps: 40, rest: 45 }
+                ]
+            },
+            female_home_tabata: {
+                code: "F-AGI-01",
+                title: "Женская тренировка дома (Табата)",
+                warmup: "3 минуты джампинг джек + 10 приседаний + вращения руками и тазом без инвентаря.",
+                exercises: [
+                    { name: "Джампинг джек", sets: 8, reps: 20, rest: 10 },
+                    { name: "Ягодичный мостик", sets: 8, reps: 20, rest: 10 },
+                    { name: "Выпады на месте", sets: 8, reps: 20, rest: 10 },
+                    { name: "Планка (секунды)", sets: 8, reps: 20, rest: 10 }
+                ]
+            },
+            female_split_legs_shoulders: {
+                code: "F-LS-01",
+                title: "Сплит: Ноги + Плечи (жен)",
+                warmup: "5 минут на эллипсоиде + 15 ягодичных мостиков + 10 махов ногой в сторону на каждую ногу.",
+                exercises: [
+                    { name: "Приседания со штангой", sets: 4, reps: 12, rest: 90 },
+                    { name: "Ягодичный мостик", sets: 3, reps: 15, rest: 60 },
+                    { name: "Выпады на месте", sets: 3, reps: 12, rest: 60 },
+                    { name: "Махи гантелями в стороны", sets: 3, reps: 15, rest: 45 },
+                    { name: "Румынская тяга с гантелями", sets: 3, reps: 12, rest: 75 }
+                ]
+            },
+            female_split_chest_arms: {
+                code: "F-CH-01",
+                title: "Сплит: Грудь + Руки (жен)",
+                warmup: "3 минуты скакалки + 10 отжиманий с колен + круговые вращения руками.",
+                exercises: [
+                    { name: "Жим гантелей на наклонной", sets: 3, reps: 12, rest: 75 },
+                    { name: "Отжимания от пола", sets: 3, reps: 12, rest: 60 },
+                    { name: "Сгибания рук на бицепс (EZ)", sets: 3, reps: 12, rest: 60 },
+                    { name: "Французский жим лежа", sets: 3, reps: 12, rest: 60 }
+                ]
+            },
+            female_split_back_core: {
+                code: "F-BA-01",
+                title: "Сплит: Спина + Кор (жен)",
+                warmup: "5 минут гребного тренажёра + планка 30 секунд + 10 supermans (гиперэкстензия лёжа).",
+                exercises: [
+                    { name: "Румынская тяга с гантелями", sets: 3, reps: 12, rest: 90 },
+                    { name: "Тяга верхнего блока к груди", sets: 3, reps: 12, rest: 60 },
+                    { name: "Гиперэкстензия", sets: 3, reps: 15, rest: 60 },
+                    { name: "Планка (секунды)", sets: 3, reps: 40, rest: 45 },
+                    { name: "Скручивания на пресс", sets: 3, reps: 20, rest: 45 }
+                ]
+            }
+        };
+
+        const titleInput = document.getElementById('workoutTitleInput');
+        const codeInput = document.getElementById('workoutCodeInput');
+        const editorRowsContainer = document.getElementById('editorRowsContainer');
+        const sheetsContainer = document.getElementById('sheetsContainer');
+        const addExerciseBtn = document.getElementById('addExerciseBtn');
+        const presetSelect = document.getElementById('presetSelect');
+        const downloadPngBtn = document.getElementById('downloadPngBtn');
+
+        Object.keys(presets).forEach(key => {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = `${presets[key].code} — ${presets[key].title}`;
+            presetSelect.appendChild(opt);
+        });
+
+        function escapeHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Hidden off-screen sheet used purely to measure real rendered heights
+        let measureSheet = document.getElementById('measureSheet');
+        if (!measureSheet) {
+            measureSheet = document.createElement('div');
+            measureSheet.id = 'measureSheet';
+            measureSheet.className = 'a4-sheet';
+            measureSheet.style.position = 'absolute';
+            measureSheet.style.left = '-9999px';
+            measureSheet.style.top = '0';
+            measureSheet.style.visibility = 'hidden';
+            measureSheet.style.display = 'block';
+            document.body.appendChild(measureSheet);
+        }
+
+        function measureEl(html) {
+            measureSheet.innerHTML = html;
+            const el = measureSheet.firstElementChild;
+            if (!el) return 0;
+            const rect = el.getBoundingClientRect();
+            const cs = getComputedStyle(el);
+            const mb = parseFloat(cs.marginBottom) || 0;
+            return rect.height + mb;
+        }
+
+        // Group consecutive exercises that are linked into supersets
+        function buildGroups(list) {
+            const groups = [];
+            let current = [];
+            list.forEach((item, i) => {
+                current.push(item);
+                const linksToNext = !!item.linkNext && i < list.length - 1;
+                if (!linksToNext) {
+                    groups.push(current);
+                    current = [];
+                }
+            });
+            if (current.length) groups.push(current);
+            return groups;
+        }
+
+        // Given an index in `state`, returns all indices of the superset chain it belongs to
+        function getGroupIndices(index) {
+            let start = index;
+            while (start > 0 && state[start - 1].linkNext) start--;
+            let end = index;
+            while (end < state.length - 1 && state[end].linkNext) end++;
+            const indices = [];
+            for (let i = start; i <= end; i++) indices.push(i);
+            return indices;
+        }
+
+        function renderExerciseGroupHTML(group) {
+            const isSuperset = group.length > 1;
+
+            if (!isSuperset) {
+                const item = group[0];
+                let setsRowHtml = '';
+                for (let i = 0; i < item.sets; i++) {
+                    setsRowHtml += `<div class="set-box" onclick="this.classList.toggle('checked')" title="Кликните, чтобы отметить подход"><span class="set-box-label">X${item.reps}</span></div>`;
+                    if (i < item.sets - 1) {
+                        setsRowHtml += `<span class="rest-badge">${item.rest}s</span>`;
+                    }
+                }
+                return `<div class="exercise-block-group">
+                    <div class="ex-name">${escapeHtml(item.name)}</div>
+                    <div class="sets-row">${setsRowHtml}</div>
+                </div>`;
+            }
+
+            // Superset: name plates stacked and joined with a staple-style bracket.
+            // Reps/rest below belong to the whole superset, round by round.
+            const namesHtml = group.map(item => `<div class="ex-name">${escapeHtml(item.name)}</div>`).join('');
+            const roundsCount = Math.max(...group.map(it => it.sets));
+            const restValue = group[group.length - 1].rest;
+
+            let roundsHtml = '';
+            for (let r = 0; r < roundsCount; r++) {
+                let pairHtml = '';
+                group.forEach(item => {
+                    if (r < item.sets) {
+                        pairHtml += `<div class="set-box" onclick="this.classList.toggle('checked')" title="Кликните, чтобы отметить подход"><span class="set-box-label">X${item.reps}</span></div>`;
+                    }
+                });
+                roundsHtml += `<div class="round-pair">${pairHtml}</div>`;
+                if (r < roundsCount - 1) {
+                    roundsHtml += `<span class="rest-badge">${restValue}s</span>`;
+                }
+            }
+
+            return `<div class="exercise-block-group is-superset">
+                <div class="superset-names">${namesHtml}<div class="superset-bracket"></div></div>
+                <div class="sets-row superset-sets-row">${roundsHtml}</div>
+            </div>`;
+        }
+
+        function render() {
+            const codeText = (codeInput.value || "CUSTOM-01").trim();
+            renderEditor();
+
+            const headerHtml = `<div class="sheet-header"><div class="sheet-logo"><img src="LOGO_URL_HERE" alt="Логотип"></div><div class="sheet-code">${escapeHtml(codeText)}</div></div>`;
+            const warmupHtml = `<div class="warmup-block"><div class="warmup-text">${escapeHtml(warmup.text)}</div></div>`;
+            const contHeaderHtml = `<div class="sheet-header-cont"><span class="cont-title">${escapeHtml(codeText)} — продолжение</span><span class="cont-page">стр.</span></div>`;
+
+            const groups = buildGroups(state);
+            const groupsData = groups.map(g => ({ html: renderExerciseGroupHTML(g) }));
+            groupsData.forEach(g => { g.height = measureEl(g.html); });
+
+            const sheetStyle = getComputedStyle(measureSheet);
+            const paddingV = parseFloat(sheetStyle.paddingTop) + parseFloat(sheetStyle.paddingBottom);
+            const availableFull = measureSheet.clientHeight - paddingV;
+
+            const headerH = measureEl(headerHtml);
+            const warmupH = measureEl(warmupHtml);
+            const contHeaderH = measureEl(contHeaderHtml);
+
+            const availableFirst = availableFull - headerH - warmupH;
+            const availableCont = availableFull - contHeaderH;
+
+            // Paginate: fill each page while it fits, start new page otherwise.
+            // Superset groups are never split across pages.
+            const pages = [];
+            let current = [];
+            let usedHeight = 0;
+            let isFirst = true;
+            groupsData.forEach(g => {
+                const avail = isFirst ? availableFirst : availableCont;
+                if (current.length > 0 && usedHeight + g.height > avail) {
+                    pages.push(current);
+                    current = [];
+                    usedHeight = 0;
+                    isFirst = false;
+                }
+                current.push(g);
+                usedHeight += g.height;
+            });
+            if (current.length > 0 || pages.length === 0) pages.push(current);
+
+            sheetsContainer.innerHTML = '';
+            const totalPages = pages.length;
+            pages.forEach((pageGroups, pIdx) => {
+                const sheet = document.createElement('div');
+                sheet.className = 'a4-sheet';
+                const topSection = pIdx === 0
+                    ? headerHtml + warmupHtml
+                    : `<div class="sheet-header-cont"><span class="cont-title">${escapeHtml(codeText)} — продолжение</span><span class="cont-page">Стр. ${pIdx + 1} / ${totalPages}</span></div>`;
+                const bodyHtml = pageGroups.map(g => g.html).join('');
+                const isLastPage = pIdx === totalPages - 1;
+
+                let footerHtml = '';
+                let barcodeId = '';
+                let qrId = '';
+                if (isLastPage) {
+                    barcodeId = `barcode-${pIdx}`;
+                    qrId = `qrcode-${pIdx}`;
+                    footerHtml = `<div class="sheet-footer">
+                        <div class="sheet-footer-codes">
+                            <div class="sheet-footer-barcode"><svg id="${barcodeId}"></svg></div>
+                            <div class="sheet-footer-qr" id="${qrId}"></div>
+                        </div>
+                        <div class="sheet-footer-note">Тренировочный план ${escapeHtml(codeText)} создан интеллектуальной системой MSE под контролем оператора</div>
+                    </div>`;
+                }
+
+                sheet.innerHTML = `${topSection}<div class="workout-list">${bodyHtml}</div>${footerHtml}`;
+                sheetsContainer.appendChild(sheet);
+
+                if (isLastPage) {
+                    const barcodeValue = 'mse.zone/feed';
+                    const qrValue = 'mse.zone/feed';
+
+                    // Draw the barcode/QR now that their elements are actually in the DOM.
+                    try {
+                        JsBarcode(`#${barcodeId}`, barcodeValue, {
+                            format: 'CODE128',
+                            displayValue: false,
+                            height: 91,
+                            width: 1.4,
+                            margin: 0
+                        });
+                    } catch (e) { /* library may not be loaded yet (e.g. no network) */ }
+
+                    try {
+                        new QRCode(document.getElementById(qrId), {
+                            text: qrValue,
+                            width: 91,
+                            height: 91,
+                            correctLevel: QRCode.CorrectLevel.M
+                        });
+                    } catch (e) { /* library may not be loaded yet (e.g. no network) */ }
+                }
+
+                // Torn-edge zigzag lines (screen only): one on the bottom edge of the page
+                // being cut, and a matching one on the top edge of the page that continues it.
+                if (pIdx > 0) {
+                    const topZigzag = document.createElement('div');
+                    topZigzag.className = 'zigzag-edge zigzag-edge-top';
+                    topZigzag.innerHTML = buildZigzagSvg();
+                    sheet.appendChild(topZigzag);
+                }
+                if (!isLastPage) {
+                    const bottomZigzag = document.createElement('div');
+                    bottomZigzag.className = 'zigzag-edge zigzag-edge-bottom';
+                    bottomZigzag.innerHTML = buildZigzagSvg();
+                    sheet.appendChild(bottomZigzag);
+                }
+            });
+
+            fitSetsRows();
+        }
+
+        // Builds a thin gray zigzag line (SVG) used as the divider between preview pages.
+        function buildZigzagSvg() {
+            const viewW = 800;
+            const viewH = 16;
+            const step = 16;
+            const midY = viewH / 2;
+            const amp = 5;
+            let points = [];
+            let x = 0;
+            let up = true;
+            points.push(`0,${midY}`);
+            while (x < viewW) {
+                x += step;
+                points.push(`${x},${up ? midY - amp : midY + amp}`);
+                up = !up;
+            }
+            return `<svg viewBox="0 0 ${viewW} ${viewH}" preserveAspectRatio="none">
+                <polyline points="${points.join(' ')}" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`;
+        }
+
+        // Shrinks set-boxes/rest-badges proportionally (via --box-scale) so a row
+        // with many sets never overflows the A4 sheet's width.
+        function fitSetsRows() {
+            sheetsContainer.querySelectorAll('.sets-row').forEach(row => {
+                row.style.removeProperty('--box-scale');
+            });
+            sheetsContainer.querySelectorAll('.sets-row').forEach(row => {
+                const availableWidth = row.parentElement.clientWidth;
+                const naturalWidth = row.scrollWidth;
+                if (naturalWidth > availableWidth && naturalWidth > 0) {
+                    const scale = availableWidth / naturalWidth;
+                    row.style.setProperty('--box-scale', scale.toFixed(3));
+                }
+            });
+        }
+
+        function renderEditor() {
+            editorRowsContainer.innerHTML = '';
+            state.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'exercise-row-editor';
+
+                let optionsHtml = '';
+                exercisesList.forEach(ex => {
+                    optionsHtml += `<option value="${ex}" ${ex === item.name ? 'selected' : ''}>${ex}</option>`;
+                });
+                if (!exercisesList.includes(item.name)) {
+                    optionsHtml += `<option value="${item.name}" selected>${item.name}</option>`;
+                }
+
+                row.innerHTML = `
+                    <div>
+                        <select onchange="updateEx(${index}, 'name', this.value)">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div>
+                        <input type="number" min="1" max="12" value="${item.sets}" title="Подходов" oninput="updateEx(${index}, 'sets', parseInt(this.value)||1)">
+                    </div>
+                    <div class="x-separator">X</div>
+                    <div>
+                        <input type="number" min="1" max="100" value="${item.reps}" title="Повторений" oninput="updateEx(${index}, 'reps', parseInt(this.value)||1)">
+                    </div>
+                    <div>
+                        <input type="number" min="0" max="600" step="5" value="${item.rest}" title="Отдых, сек" oninput="updateEx(${index}, 'rest', parseInt(this.value)||0)">
+                    </div>
+                    <div>
+                        <button class="btn btn-danger" type="button" onclick="removeEx(${index})" title="Удалить">×</button>
+                    </div>
+                `;
+                editorRowsContainer.appendChild(row);
+
+                if (index < state.length - 1) {
+                    const connector = document.createElement('div');
+                    connector.className = 'link-connector';
+                    const activeClass = item.linkNext ? ' active' : '';
+                    connector.innerHTML = `
+                        <button type="button" class="link-btn${activeClass}" onclick="toggleLink(${index})" title="Объединить в суперсет со следующим упражнением">
+                            ${LINK_ICON}
+                        </button>
+                    `;
+                    editorRowsContainer.appendChild(connector);
+                }
+            });
+        }
+
+        window.updateEx = function(index, field, value) {
+            state[index][field] = value;
+            if (field === 'sets' || field === 'reps' || field === 'rest') {
+                const groupIdx = getGroupIndices(index);
+                if (groupIdx.length > 1) {
+                    groupIdx.forEach(i => { state[i][field] = value; });
+                }
+            }
+            render();
+        };
+
+        window.removeEx = function(index) {
+            state.splice(index, 1);
+            render();
+        };
+
+        window.toggleLink = function(index) {
+            state[index].linkNext = !state[index].linkNext;
+            if (state[index].linkNext) {
+                // Syncing on: bring the whole chain to the same sets/reps/rest
+                const groupIdx = getGroupIndices(index);
+                const src = state[index];
+                groupIdx.forEach(i => {
+                    state[i].sets = src.sets;
+                    state[i].reps = src.reps;
+                    state[i].rest = src.rest;
+                });
+            }
+            render();
+        };
+
+        addExerciseBtn.addEventListener('click', () => {
+            state.push({ name: exercisesList[0], sets: 3, reps: 10, rest: 60, linkNext: false });
+            render();
+        });
+
+        presetSelect.addEventListener('change', () => {
+            const key = presetSelect.value;
+            if (!key || !presets[key]) return;
+            state = JSON.parse(JSON.stringify(presets[key].exercises)).map(ex => ({ linkNext: false, ...ex }));
+            titleInput.value = presets[key].title;
+            codeInput.value = presets[key].code;
+            warmup.text = presets[key].warmup;
+            render();
+        });
+
+        titleInput.addEventListener('input', render);
+        codeInput.addEventListener('input', render);
+
+        // Renders each A4 sheet to a PNG and downloads it (one file per page).
+        // Zigzag torn-edges and drop shadows are hidden during capture so the
+        // exported image looks like a clean printable sheet.
+        downloadPngBtn.addEventListener('click', async () => {
+            if (typeof html2canvas === 'undefined') {
+                alert('Не удалось загрузить библиотеку экспорта. Проверьте подключение к интернету и попробуйте снова.');
+                return;
+            }
+
+            const sheets = Array.from(sheetsContainer.querySelectorAll('.a4-sheet'));
+            if (sheets.length === 0) return;
+
+            downloadPngBtn.disabled = true;
+            const originalLabel = downloadPngBtn.textContent;
+            downloadPngBtn.textContent = 'Формируем PNG...';
+
+            document.body.classList.add('exporting');
+
+            try {
+                for (let i = 0; i < sheets.length; i++) {
+                    const sheet = sheets[i];
+                    const canvas = await html2canvas(sheet, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff'
+                    });
+                    const dataUrl = canvas.toDataURL('image/png');
+
+                    const link = document.createElement('a');
+                    const suffix = sheets.length > 1 ? `-стр${i + 1}` : '';
+                    link.href = dataUrl;
+                    link.download = `${codeInput.value.trim() || 'plan'}${suffix}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                }
+            } catch (e) {
+                alert('Не удалось сформировать PNG. Попробуйте ещё раз.');
+            } finally {
+                document.body.classList.remove('exporting');
+                downloadPngBtn.disabled = false;
+                downloadPngBtn.textContent = originalLabel;
+            }
+        });
+
+        render();
+    </script>
+</body>
+</html>
