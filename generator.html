@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Генератор индивидуальных тренировочных планов (А4)</title>
+    <title>Генератор</title>
+    <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/1f0ad3f2d00cda580141bf41f9944fdba9e0547d/MSESVGWhite.svg">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.3/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -271,6 +272,7 @@
             min-height: 297mm;
             background: #fff;
             padding: 15mm 15mm;
+            border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             position: relative;
             display: flex;
@@ -581,7 +583,7 @@
                 padding: 0;
                 margin: 0;
             }
-            .app-container, .preview-label, .actions-bar {
+            .app-container, .actions-bar {
                 display: none !important;
             }
             .preview-container {
@@ -597,6 +599,7 @@
             }
             .a4-sheet {
                 box-shadow: none;
+                border-radius: 0;
                 margin: 0 auto;
                 width: 100%;
                 min-height: auto;
@@ -623,7 +626,7 @@
 
         <div class="toolbar-group">
             <div class="toolbar-inline">
-                <input type="text" id="workoutCodeInput" value="CUSTOM-01" placeholder="Код" style="flex: 0 0 130px;">
+                <input type="text" id="workoutCodeInput" value="CSTM" placeholder="Код" style="flex: 0 0 130px;">
                 <input type="text" id="workoutTitleInput" value="День 1: Верх — Тяни/Толкай" placeholder="Введите название тренировки">
             </div>
         </div>
@@ -644,15 +647,11 @@
         </div>
 
         <div class="actions-bar">
-            <button class="btn btn-print-full" id="downloadPngBtn" type="button">⬇️ Скачать PNG</button>
+            <button class="btn btn-print-full" id="downloadPngBtn" type="button">Скачать PNG</button>
         </div>
     </div>
 
     <!-- PREVIEW -->
-    <div class="preview-label" style="width: 100%; max-width: 900px; margin-bottom: 15px; font-weight: 700; font-size: 14px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;">
-        <span>Живой предпросмотр (А4)</span>
-    </div>
-
     <div class="preview-container">
         <div class="sheets-container" id="sheetsContainer">
             <!-- Pages injected by JS -->
@@ -698,6 +697,43 @@
         let warmup = {
             text: "5 минут скакалки + 10 бёрпи + круговые вращения руками и плечами, 1 лёгкий разминочный подход перед первым упражнением."
         };
+
+        // Header logo: the source file is white-on-transparent, so it's loaded once,
+        // inverted pixel-by-pixel on an offscreen canvas (works both on screen and
+        // in the PNG export, unlike a CSS filter which html2canvas won't apply),
+        // and cached as a data URL for every sheet.
+        let logoDataUrl = '';
+        (function loadAndInvertLogo() {
+            const src = 'https://raw.githubusercontent.com/CakeBoxDeveloper/MSE/1f0ad3f2d00cda580141bf41f9944fdba9e0547d/MSESVGWhite.svg';
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                const w = img.naturalWidth || 300;
+                const h = img.naturalHeight || 100;
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                try {
+                    const imageData = ctx.getImageData(0, 0, w, h);
+                    const data = imageData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i];
+                        data[i + 1] = 255 - data[i + 1];
+                        data[i + 2] = 255 - data[i + 2];
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+                    logoDataUrl = canvas.toDataURL('image/png');
+                } catch (e) {
+                    // Canvas got tainted (CORS) - fall back to the original (uninverted) file.
+                    logoDataUrl = src;
+                }
+                render();
+            };
+            img.onerror = () => { /* leave logoDataUrl empty; header renders without a logo */ };
+            img.src = src;
+        })();
 
         const LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07l1.5-1.5"/></svg>';
 
@@ -988,10 +1024,10 @@
         }
 
         function render() {
-            const codeText = (codeInput.value || "CUSTOM-01").trim();
+            const codeText = (codeInput.value || "CSTM").trim();
             renderEditor();
 
-            const headerHtml = `<div class="sheet-header"><div class="sheet-logo"><img src="LOGO_URL_HERE" alt="Логотип"></div><div class="sheet-code">${escapeHtml(codeText)}</div></div>`;
+            const headerHtml = `<div class="sheet-header"><div class="sheet-logo"><img src="${logoDataUrl}" alt="Логотип" onerror="this.style.visibility='hidden'"></div><div class="sheet-code">${escapeHtml(codeText)}</div></div>`;
             const warmupHtml = `<div class="warmup-block"><div class="warmup-text">${escapeHtml(warmup.text)}</div></div>`;
             const contHeaderHtml = `<div class="sheet-header-cont"><span class="cont-title">${escapeHtml(codeText)} — продолжение</span><span class="cont-page">стр.</span></div>`;
 
