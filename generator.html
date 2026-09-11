@@ -282,8 +282,8 @@
            where content continues onto the next sheet. */
         .zigzag-edge {
             position: absolute;
-            left: 15mm;
-            right: 15mm;
+            left: 0;
+            right: 0;
             height: 14px;
             pointer-events: none;
         }
@@ -295,11 +295,11 @@
         }
 
         .zigzag-edge-bottom {
-            bottom: 0;
+            bottom: 6mm;
         }
 
         .zigzag-edge-top {
-            top: 0;
+            top: 6mm;
         }
 
         /* Applied briefly during PNG export so captured sheets look clean and printable */
@@ -531,7 +531,7 @@
             font-weight: 700;
             color: #888;
             background-color: #fff;
-            background-image: repeating-linear-gradient(45deg, #888 0px, #888 1px, transparent 1px, transparent 3px);
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><path d='M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2' stroke='%23888888' stroke-width='1'/></svg>");
             position: relative;
             cursor: pointer;
             user-select: none;
